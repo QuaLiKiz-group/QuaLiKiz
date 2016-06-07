@@ -1,0 +1,33 @@
+#architecture file for Cephee cluster
+
+# MPI OPTION
+MPI=-DMPI
+#MPI=
+
+# Debugging options
+#DEBUG=-g
+#DEBUG= -Mbounds
+DEBUG=
+
+ifeq ($(MPI),-DMPI)
+   #mpi include directory 
+   INCLUDE_MPI=-I/usr/mpi/pgi/openmpi-1.2.6/include -I/usr/mpi/pgi/openmpi-1.2.6/lib64
+
+   #mpi library
+   LIB_MPI=-L/usr/mpi/pgi/openmpi-1.2.6/lib64 -lmpi_f90 -lmpi_f77 -lmpi -lopen-rte -lopen-pal -ldl -Wl,--export-dynamic -lnsl -lutil -ldl
+
+   #flags for openmp
+   OPENMP=-mp=nonuma
+else
+  
+   INCLUDE_MPI=
+   LIB_MPI=
+   OPENMP=
+endif
+
+
+# FORTRAN-90 
+FC=pgf95
+F90FLAGS= -Mdalign -r8 -Mpreprocess -O3 $(MPI) $(INCLUDE_MPI) $(INCLUDE_QLK) $(DEF) $(DEBUG)
+F90LIBS=$(LIB_MPI)
+QFLAGS = $(F90FLAGS) $(F90LIBS) -Icubpack

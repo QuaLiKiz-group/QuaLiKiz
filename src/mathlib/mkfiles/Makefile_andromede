@@ -1,0 +1,25 @@
+#Makefile for the andromede platform 
+
+include ../archfiles/arch_andromede.inc
+
+# FORTRAN-90 
+F90=$(FC)
+FFLAGS=$(F90FLAGS)
+
+# Fortran routine files
+OBJS_ROUT = \
+p01abf.o x02amf.o x02ajf.o d01ahz.o d01ahu.o x02bbf.o d01ahx.o d01ahy.o d01fcf.o d01ahf.o \
+g05caz.o g05cay.o x04aaf.o x04baf.o p01abz.o g05caf.o d01ahv.o d01ahw.o  \
+hrmsym.o dqagse.o cpqr79.o rpqr79.o dsort.o rf.o rd.o davint.o calci0.o calci1.o slatecroutines.o
+
+all: $(OBJS_ROUT)
+	ar -cr librout.a $(OBJS_ROUT)
+
+%.o:%.f90
+	$(F90) ${FFLAGS} -c $<
+
+clean:
+	rm -f *.a *.o
+
+
+
