@@ -3,15 +3,24 @@ QUALIKIZ?=..
 SRC?=$(QUALIKIZ)/src
 include $(SRC)/Makefile.inc
 # Directory for math routines
-LIBSRC=$(QUALIKIZ)/lib/src
-CUBPACK=$(LIBSRC)/cubpack
-GENZ=$(LIBSRC)/genz
-NAG=$(LIBSRC)/nag
-SLATEC=$(LIBSRC)/slatec
-SPECFUN=$(LIBSRC)/specfun
-LIBS=$(CUBPACK)/libcubpack.a $(GENZ)/libgenz.a $(NAG)/libnag.a $(SLATEC)/libslatec.a $(SPECFUN)/libspecfun.a
-LIBS_INCLUDE=$(dir $(LIBS:%=-L%))
-MODS_INCLUDE=-I$(CUBPACK)
+LIBSRC?=$(QUALIKIZ)/lib/src
+CUBPACK_DIR?=$(LIBSRC)/cubpack
+GENZ_DIR?=$(LIBSRC)/genz
+NAG_DIR?=$(LIBSRC)/nag
+SLATEC_DIR?=$(LIBSRC)/slatec
+SPECFUN_DIR?=$(LIBSRC)/specfun
+
+CUBPACK_INC?=-I$(CUBPACK_DIR)
+CUBPACK?=$(CUBPACK_INC) -L$(CUBPACK_DIR) -lcubpack
+GENZ?=-L$(GENZ_DIR) -lgenz
+NAG?=-L$(NAG_DIR) -lnag
+SLATEC?=-L$(SLATEC_DIR) -lslatec
+SPECFUN?=-L$(SPECFUN_DIR) -lspecfun
+
+LIBS=$(CUBPACK) $(GENZ) $(NAG) $(SLATEC) $(SPECFUN)
+#LIBS=$(CUBPACK_DIR)/libcubpack.a $(GENZ_DIR)/libgenz.a $(NAG_DIR)/libnag.a $(SLATEC_DIR)/libslatec.a $(SPECFUN_DIR)/libspecfun.a
+#LIBS_INCLUDE=$(dir $(LIBS:%=-L%))
+#MODS_INCLUDE=-I$(CUBPACK)
 #LIBS_INCLUDE=$(LIBS:%=-L%)
 # Parallel or serial compilation
 ifneq ($(MPI_FLAGS),-DMPI)
@@ -43,12 +52,12 @@ qlflux.mod: QLflux.mod
 callpassqlints.mod: callpassQLints.mod
 calltrapqlints.mod: calltrapQLints.mod
 qualikiz.o: mod_make_io.mod calcroutines.mod mod_saturation.mod
-callpassQLints.o: callpassints.mod $(CUBPACK)/cui.mod
-calltrapQLints.o: calltrapints.mod $(CUBPACK)/cui.mod
+callpassQLints.o: callpassints.mod $(CUBPACK_DIR)/cui.mod
+calltrapQLints.o: calltrapints.mod $(CUBPACK_DIR)/cui.mod
 QLflux.o: kind.mod datmat.mod datcal.mod callpassqlints.mod calltrapqlints.mod
 qlk_standalone.o: kind.mod mod_io_management.mod
 calcroutines.o: mod_fonct.mod qlflux.mod flrterms.mod mod_fluidsol.mod mod_contour.mod mod_make_io.mod asymmetry.mod nanfilter.mod
-mod_fonct.o: callpassints.mod $(CUBPACK)/cui.mod calltrapints.mod
+mod_fonct.o: callpassints.mod $(CUBPACK_DIR)/cui.mod calltrapints.mod
 # Core objects
 flrterms.mod: FLRterms.mod
 callpassints.o: passints.mod 
@@ -68,15 +77,16 @@ mod_io_management.o: kind.mod
 mod_saturation.o: kind.mod datmat.mod datcal.mod
 
 ###############################################################################
-QuaLiKiz: qlk_standalone.f90 $(OBJS_CORE) $(OBJS_QUALIKIZ) $(LIBS) 
+QuaLiKiz: qlk_standalone.f90 $(OBJS_CORE) $(OBJS_QUALIKIZ) 
 	echo $(LIBS_INCLUDE)
-	$(FC_PREAMBLE) $(FC_WRAPPER) $(FFLAGS) qlk_standalone.f90 $(OBJS_CORE) $(OBJS_QUALIKIZ) $(OPENMP_FLAGS) $(MPI_FLAGS) $(MODS_INCLUDE) $(LIBS_INCLUDE) -lcubpack -lgenz -lnag -lslatec -lspecfun -o $@
+	$(FC_PREAMBLE) $(FC_WRAPPER) $(FFLAGS) qlk_standalone.f90 $(OBJS_CORE) $(OBJS_QUALIKIZ) $(OPENMP_FLAGS) $(MPI_FLAGS) $(LIBS) -o $@
 
 
 objs_core: $(OBJS_CORE)
 objs_qualikiz: $(OBJS_QUALIKIZ) objs_core
 $(OBJS_QUALIKIZ) $(OBJS_CORE):%.o:%.f90
-	$(FC_PREAMBLE) $(FC_WRAPPER) $(FFLAGS) $(MPI_FLAGS) $(OPENMP_FLAGS) $(MODS_INCLUDE) -c $<
+	echo $(NAG)
+	$(FC_PREAMBLE) $(FC_WRAPPER) $(FFLAGS) $(MPI_FLAGS) $(OPENMP_FLAGS) $(LIBS) -c $<
 
 
 $(MODS_QUALIKIZ) $(MODS_CORE):%.mod:%.o
@@ -104,5 +114,4 @@ dump_variables:
 	@echo MODS_CORE=$(MODS_CORE)
 	@echo QUALIKIZ_MODS=$(MODS_QUALIKIZ)
 	@echo
-	@echo LIBS=$(LIBS)
 	@echo LIBS_INCLUDE=$(LIBS_INCLUDE)

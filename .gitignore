@@ -7,6 +7,7 @@
 *.o
 *.a
 *.mod
+QuaLiKiz
 
 # Ignore platform specific files
 src/Makefile.inc

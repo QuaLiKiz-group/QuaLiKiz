@@ -8,6 +8,10 @@ case $HOSTNAME in
     ;;
   rs*)
     ARCH=rsrijnhuizen
+    ;;
+  edison*)
+    ARCH=edison
+    ;;
 esac
 
 echo Detected machine \'$ARCH\' with root \'$PWD\'. Is this correct? \[Y\/n]

@@ -1,5 +1,5 @@
 #!/bin/make -f
-QUALIKIZ=/home/emc/plassche/working/QuaLiKiz
+QUALIKIZ=
 # Underlying compiler
 FC=ifort
 # Wrapper/command used to compile with Open MPI

@@ -3,12 +3,12 @@ SRC?=src
 include $(SRC)/Makefile.inc
 SRC?=$(QUALIKIZ)/src
 LIBSRC?=$(QUALIKIZ)/lib/src
-CUBPACK?=$(LIBSRC)/cubpack
-GENZ?=$(LIBSRC)/genz
-NAG?=$(LIBSRC)/nag
-SLATEC?=$(LIBSRC)/slatec
-SPECFUN?=$(LIBSRC)/specfun
-LIBS?=$(CUBPACK)/libcubpack.a $(GENZ)/libgenz.a $(NAG)/libnag.a $(SLATEC)/libslatec.a $(SPECFUN)/libspecfun.a
+CUBPACKDIR?=$(LIBSRC)/cubpack
+GENZDIR?=$(LIBSRC)/genz
+NAGDIR?=$(LIBSRC)/nag
+SLATECDIR?=$(LIBSRC)/slatec
+SPECFUNDIR?=$(LIBSRC)/specfun
+LIBS?=$(CUBPACKDIR)/libcubpack.a $(GENZDIR)/libgenz.a $(NAGDIR)/libnag.a $(SLATECDIR)/libslatec.a $(SPECFUNDIR)/libspecfun.a
 LIBS_CLEAN?=$(LIBS:%=%.clean)
 
 ##############################################################################
@@ -25,6 +25,7 @@ $(LIBS):
 
 
 $(LIBS_CLEAN):
+	@echo cleaning $(@D)
 	make -C $(@D) distclean
 
 
