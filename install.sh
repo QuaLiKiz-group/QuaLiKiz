@@ -1,6 +1,6 @@
 #!/bin/bash
 case $HOSTNAME in
-  karel-work | karel-macbook)
+  karel-work | karel-macbook | karel-super)
     ARCH=archlinux
     ;;
   shannon)
