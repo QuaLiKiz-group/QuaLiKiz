@@ -420,6 +420,11 @@ class QuaLiKizRun(OrderedDict):
     def to_file(self, bytelist):
         """ Writes a bytelist to file """
         inputdir = path.join(path.dirname(sys.argv[0]), 'input')
+        try:
+            os.mkdir(inputdir)
+        except FileExistsError:
+            pass
+
         for i, byte in enumerate(bytelist, 1):
             with open(path.join(inputdir, 'p' + str(i) + '.bin'), 'wb') as file:
                 byte.tofile(file)
