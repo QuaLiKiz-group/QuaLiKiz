@@ -1,3 +1,4 @@
+Taken from http://nines.cs.kuleuven.be/software/CUBPACK/
 #Introduction
 
 CUBPACK is a package dealing with automatic integration of functions over one or more-dimensional regions.
