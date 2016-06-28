@@ -1,8 +1,8 @@
 #!/bin/python3
 import array
 import os
-import sys
 from os import path
+import sys
 from collections import OrderedDict
 import itertools
 import numpy as np
@@ -135,10 +135,9 @@ class QuaLiKizRun(OrderedDict):
         self._scan_ranges = _scan_ranges
         self._scan_names = _scan_names
 
-        numscan = np.product([len(range) for range in _scan_ranges])
         numwave = len(kthetarhos)
         nion = len(ions)
-        self['meta'] = self.Meta(numscan=numscan, numwave=numwave, nion=nion, **kwargs)
+        self['meta'] = self.Meta(numwave=numwave, nion=nion, **kwargs)
         self['special'] = self.Special(kthetarhos)
         self['spatial'] = self.Spatial(**kwargs)
         self['elec'] = electrons
@@ -382,9 +381,54 @@ class QuaLiKizRun(OrderedDict):
                         self['elec'].__setitem__(name, value)
         return set
 
+    def setup_hyperedge(self):
+        set_items = [self.howto_setitem(name) for name in self._scan_names]
+
+        lenlist = [len(range) for range in self._scan_ranges]
+        self['meta']['numscan'] = np.sum(lenlist)
+
+        numbytes = self['meta']['numscan']
+        spat_bytelist = [array.array('d', [0] * numbytes) for i in range(13)]
+        elec_bytelist = [array.array('d', [0] * numbytes) for i in range(7)]
+        numbytes = self['meta']['numscan'] * self['meta']['nion']
+        ions_bytelist = [array.array('d', [0] * numbytes) for i in range(9)]
+
+        # As order is important, initialize to edge intersection
+        for edgenum, edge in enumerate(self._scan_ranges):
+            set_items[edgenum](self, self._scan_ranges[edgenum][0])
+
+        # Iterate over each edge. Note the the intersection point is iterated
+        # over len(_scan_ranges) times. We take this performance hit for
+        # code simplicity
+        for edgenum, edge in enumerate(self._scan_ranges):
+            for valuenum, scan_value in enumerate(reversed(edge)):
+                numscan = np.sum(lenlist[:edgenum], dtype=int) + valuenum
+                set_items[edgenum](self, scan_value)
+
+                # Here we exploit the ordered nature of the spatial and elec dicts.
+                # We iterate over both of them and put them in our initialized
+                # array.
+                values = itertools.chain(self['spatial'].values(),
+                                         self['elec'].values())
+                for i, value in enumerate(values):
+                    (spat_bytelist + elec_bytelist)[i][numscan] = value
+
+                # Note that the ion array is in C ordering, not F ordering
+                for j, ion in enumerate(self['ions']):
+                    for k, value in enumerate(ion.values()):
+                        ions_bytelist[k][j * self['meta']['numscan'] + numscan] = value
+
+        # Some magic because electron type is a QuaLiKizRun constant
+        elec_bytelist[4] = array.array('d', [elec_bytelist[4][0]])
+        return (self['meta'].to_bytelist() + self['special'].to_bytelist() +
+                spat_bytelist + elec_bytelist + ions_bytelist)
+
     def setup_hypercube(self):
         set_items = [self.howto_setitem(name) for name in self._scan_names]
         isequal_items = [self.howto_isequal(name) for name in self._scan_names]
+
+        lenlist = [len(range) for range in self._scan_ranges]
+        self['meta']['numscan'] = np.sum(lenlist)
 
         numbytes = self['meta']['numscan']
         spat_bytelist = [array.array('d', [0] * numbytes) for i in range(13)]
@@ -417,7 +461,8 @@ class QuaLiKizRun(OrderedDict):
                 spat_bytelist + elec_bytelist + ions_bytelist)
 
 
-    def to_file(self, bytelist):
+    @classmethod
+    def to_file(cls, bytelist):
         """ Writes a bytelist to file """
         inputdir = path.join(path.dirname(sys.argv[0]), 'input')
         try:
@@ -471,18 +516,20 @@ class QuaLiKizRun(OrderedDict):
 
 def reference_example():
     """ Imitates the old MATLAB script """
-    scan_names = ['iAt']
-    scan_ranges = [np.linspace(6,12,3)]
+    scan_names = ['iAt', 'eAt', 'eAn']
+    scan_ranges = [np.linspace(6,12,3), 
+                   np.linspace(7,13,3), 
+                   np.linspace(2,4,3)]
 
-    elec = Electron(T=8., n=5., At=9., An=3., type=1, anis=1., danisdr=0.)
-    D = Ion(name='main_D', Ai=2., Zi=1., n=0.8, T=8., At=6., An=3., type=1, anis=1., danisdr=0.)
-    Be = Ion(name='Be', Ai=9., Zi=4., n=0.1, T=8., At=6., An=2.9, type=1, anis=1., danisdr=0.)
-    W = Ion(name='W+42', Ai=184., Zi=42., n=0.0, T=8., At=6., An=3., type=3, anis=1., danisdr=0.)
+    elec = Electron(T=9., n=5., At=9., An=3., type=1, anis=1., danisdr=0.)
+    D = Ion(name='main_D', Ai=2., Zi=1., n=0.8, T=9., At=6., An=3., type=1, anis=1., danisdr=0.)
+    Be = Ion(name='Be', Ai=9., Zi=4., n=0.1, T=9., At=6., An=2.9, type=1, anis=1., danisdr=0.)
+    W = Ion(name='W+42', Ai=184., Zi=42., n=0.0, T=9., At=6., An=3., type=3, anis=1., danisdr=0.)
 
     ions = IonList(D, Be, W)
 
     kthetarhos = np.linspace(0.1, 0.8, 8)
-    dict = {
+    dict_ = {
         'R_0':     3,
         'x':        .5,
         'rho':      .5,
@@ -500,7 +547,7 @@ def reference_example():
         'QN_grad': True
         }
 
-    sim = QuaLiKizRun(scan_names, scan_ranges, kthetarhos, elec, ions, **dict)
+    sim = QuaLiKizRun(scan_names, scan_ranges, kthetarhos, elec, ions, **dict_)
     return sim
 #   Zeffx(i)=sum(ninormz(i,:).*Zi(i,:).^2); #calculate Zeff
 #end
@@ -553,34 +600,5 @@ def reference_example():
 ### ---------------------------------
 if __name__ == "__main__":
     sim = reference_example()
-    hypercube = sim.setup_hypercube()
+    hypercube = sim.setup_hyperedge()
     sim.to_file(hypercube)
-    #
-    #scan_names = ['T', 'n', 'At', 'An', 'anis', 'danisdr', 'Ai', 'Zi']
-    #scan_names = ['i' + i for i in scan_names]
-    #scan_ranges = [np.linspace(6,12,4) for i in scan_names]
-    #
-    #sim.newscan(scan_names, scan_ranges)
-    #scan_names = ['iAt', 'eAt', 'eAn', 'i1n', 'iT', 'q']
-    #
-    filenames = sorted(os.listdir('../runs/run/input'))
-    print (filenames)
-    for filename in filenames:
-        try:
-            with open('input/' + filename, 'rb') as file:
-                print (filename)
-                arr = array.array('d')
-                try:
-                    arr.fromfile(file, 100)
-                except EOFError:
-                    pass
-            print (arr)
-        except FileNotFoundError:
-            pass
-        with open('../runs/run/input/' + filename, 'rb') as file:
-            arr2 = array.array('d')
-            try:
-                arr2.fromfile(file, 100)
-            except EOFError:
-                pass
-            print (arr2)

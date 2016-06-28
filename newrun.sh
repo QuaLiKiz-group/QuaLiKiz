@@ -5,5 +5,5 @@ RUNPATH=$QUALIKIZ/runs/$RUNNAME
 mkdir -p $QUALIKIZ/runs
 mkdir $RUNPATH
 
-ln -s $QUALIKIZ/tools/qualikiz_input.py $RUNPATH
+ln -s $QUALIKIZ/tools/qualikiz/input.py $RUNPATH
 ln -s $QUALIKIZ/QuaLiKiz $RUNPATH
