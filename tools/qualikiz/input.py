@@ -474,7 +474,9 @@ class QuaLiKizRun(OrderedDict):
             with open(path.join(inputdir, 'p' + str(i) + '.bin'), 'wb') as file:
                 byte.tofile(file)
 
-        # Magic to fix ordering of the p-files
+    @classmethod
+    def convert_to_legacy_QLK280416(cls, inputdir):
+       # Magic to fix ordering of the p-files
         os.rename(path.join(inputdir, 'p14.bin'), 'temp')
         for i in range(15, 21):
             os.rename(path.join(inputdir, 'p' + str(i) + '.bin'),

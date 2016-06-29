@@ -393,32 +393,32 @@ CONTAINS
     ! p{13} Timeout seconds for a given solution search 
     timeout = readvar(kc,dummy,ktype) ; kc = kc+1
 
-    ! p{14} Toroidal wave-number grid
+    ! p{14} R0 geometric major radius (for normalizations)
+    R0 = readvar(kc,R0,ktype) ; kc = kc+1
+
+    ! p{15} Toroidal wave-number grid
     ALLOCATE(kthetarhos(dimn))
     kthetarhos = readvar(kc,kthetarhos,ktype) ; kc = kc+1
 
-    ! p{15} Normalised radial coordinate (midplane radius)
+    ! p{16} Normalised radial coordinate (midplane radius)
     ALLOCATE(x(dimx))
     x = readvar(kc,x,ktype) ; kc = kc+1
 
-    ! p{16} Normalised radial coordinate (midplane radius)
+    ! p{17} Normalised radial coordinate (midplane radius)
     ALLOCATE(rho(dimx))
     rho = readvar(kc,rho,ktype) ; kc = kc+1
 
-    ! p{17} <Ro> major radius
+    ! p{18} <Ro> major radius
     ALLOCATE(Ro(dimx))
     Ro = readvar(kc,Ro,ktype) ; kc = kc+1
 
-    ! p{18} <a> minor radius
+    ! p{19} <a> minor radius
     ALLOCATE(Rmin(dimx))
     Rmin = readvar(kc,Rmin,ktype) ; kc = kc+1
 
-    ! p{19} B(rho) magnetic field
+    ! p{20} B(rho) magnetic field
     ALLOCATE(Bo(dimx))
     Bo = readvar(kc,Bo,ktype) ; kc = kc+1
-
-    ! p{20} R0 geometric major radius (for normalizations)
-    R0 = readvar(kc,R0,ktype) ; kc = kc+1
 
     ! p{21} q(rho) profile
     ALLOCATE(qx(dimx))
@@ -487,45 +487,45 @@ CONTAINS
     danisedr = readvar(kc,danisedr,ktype) ; kc = kc+1
     WHERE(ABS(danisedr) < epsD) danisedr = epsD
 
-    ! p{36} Main ion mass
-    ALLOCATE(Ai(dimx,nions))
-    Ai = readvar(kc,Ai,ktype) ; kc = kc+1
-
-    ! p{37} Main ion charge
-    ALLOCATE(Zi(dimx,nions))
-    Zi = readvar(kc,Zi,ktype) ; kc = kc+1
-
-    ! p{38} Ti(rho) profiles
+    ! p{36} Ti(rho) profiles
     ALLOCATE(Tix(dimx,nions))
     Tix = readvar(kc,Tix,ktype) ; kc = kc+1
 
-    ! p{39} ni/ne (rho) profiles
+    ! p{37} ni/ne (rho) profiles
     ALLOCATE(ninorm(dimx,nions))
     ninorm = readvar(kc,ninorm,ktype) ; kc = kc+1
 
-    ! p{40} R/LTi(rho) profiles
+    ! p{38} R/LTi(rho) profiles
     ALLOCATE(Ati(dimx,nions))
     Ati = readvar(kc,Ati,ktype) ; kc = kc+1
     WHERE(ABS(Ati) < epsD) Ati = epsD
 
-    ! p{41} R/Lni(rho) profiles
+    ! p{39} R/Lni(rho) profiles
     ALLOCATE(Ani(dimx,nions))
     Ani = readvar(kc,Ani,ktype) ; kc = kc+1
     WHERE(ABS(Ani) < epsD) Ani = epsD
 
-    ! p{42} Ion types
+    ! p{40} Ion types
     ALLOCATE(ion_type(dimx,nions))
     ion_type = INT(readvar(kc,ion_typer,ktype)) ; kc = kc+1
     DEALLOCATE(ion_typer)
 
-    ! p{43} Species temp anisotropy at LFS. Zero is electrons
+    ! p{41} Species temp anisotropy at LFS. Zero is electrons
     ALLOCATE(anis(dimx,1:nions))
     anis = readvar(kc,anis,ktype) ; kc = kc+1
 
-    ! p{44} Species temp anisotropy at LFS. Zero is electrons
+    ! p{42} Species temp anisotropy at LFS. Zero is electrons
     ALLOCATE(danisdr(dimx,1:nions))
     danisdr = readvar(kc,danisdr,ktype) ; kc = kc+1
     WHERE(ABS(danisdr) < epsD) danisdr = epsD
+
+    ! p{43} Main ion mass
+    ALLOCATE(Ai(dimx,nions))
+    Ai = readvar(kc,Ai,ktype) ; kc = kc+1
+
+    ! p{44} Main ion charge
+    ALLOCATE(Zi(dimx,nions))
+    Zi = readvar(kc,Zi,ktype) ; kc = kc+1
 
     ! Read and write runcounter input to decide course of action in calcroutines (full solution or start from previous solution)
     INQUIRE(file="runcounter.dat", EXIST=exist1)
@@ -1363,28 +1363,28 @@ CONTAINS
        OPEN(unit=myunit, file="output/cki.dat", action="write", status="replace")
        WRITE(myunit,fmtion) ((cki(i,j),j=1,nions),i=1,dimx) ; CLOSE(myunit)
 
-       OPEN(unit=myunit, file="output/dfe_SI.dat", action="write", status="replace")
+       OPEN(unit=myunit, file="output/edf_SI.dat", action="write", status="replace")
        WRITE(myunit,fmtx) (dfe_SI(i),i=1,dimx) ; CLOSE(myunit)
 
-       OPEN(unit=myunit, file="output/dfi_SI.dat", action="write", status="replace")
+       OPEN(unit=myunit, file="output/idf_SI.dat", action="write", status="replace")
        WRITE(myunit,fmtion) ((dfi_SI(i,j),j=1,nions),i=1,dimx) ; CLOSE(myunit)
 
-       OPEN(unit=myunit, file="output/vte_SI.dat", action="write", status="replace")
+       OPEN(unit=myunit, file="output/evt_SI.dat", action="write", status="replace")
        WRITE(myunit,fmtx) (vte_SI(i),i=1,dimx) ; CLOSE(myunit)
 
-       OPEN(unit=myunit, file="output/vti_SI.dat", action="write", status="replace")
+       OPEN(unit=myunit, file="output/ivt_SI.dat", action="write", status="replace")
        WRITE(myunit,fmtion) ((vti_SI(i,j),j=1,nions),i=1,dimx) ; CLOSE(myunit)
 
-       OPEN(unit=myunit, file="output/vre_SI.dat", action="write", status="replace")
+       OPEN(unit=myunit, file="output/evr_SI.dat", action="write", status="replace")
        WRITE(myunit,fmtx) (vre_SI(i),i=1,dimx) ; CLOSE(myunit)
 
-       OPEN(unit=myunit, file="output/vri_SI.dat", action="write", status="replace")
+       OPEN(unit=myunit, file="output/ivr_SI.dat", action="write", status="replace")
        WRITE(myunit,fmtion) ((vri_SI(i,j),j=1,nions),i=1,dimx) ; CLOSE(myunit)
 
-       OPEN(unit=myunit, file="output/vce_SI.dat", action="write", status="replace")
+       OPEN(unit=myunit, file="output/evc_SI.dat", action="write", status="replace")
        WRITE(myunit,fmtx) (vce_SI(i),i=1,dimx) ; CLOSE(myunit)
 
-       OPEN(unit=myunit, file="output/vci_SI.dat", action="write", status="replace")
+       OPEN(unit=myunit, file="output/ivc_SI.dat", action="write", status="replace")
        WRITE(myunit,fmtion) ((vci_SI(i,j),j=1,nions),i=1,dimx) ; CLOSE(myunit)
 !!!
        IF (phys_meth == 2) THEN
@@ -1394,28 +1394,28 @@ CONTAINS
           OPEN(unit=myunit, file="output/ceki.dat", action="write", status="replace")
           WRITE(myunit,fmtion) ((ceki(i,j),j=1,nions),i=1,dimx) ; CLOSE(myunit)
 
-          OPEN(unit=myunit, file="output/vene_SI.dat", action="write", status="replace")
+          OPEN(unit=myunit, file="output/even_SI.dat", action="write", status="replace")
           WRITE(myunit,fmtx) (vene_SI(i),i=1,dimx) ; CLOSE(myunit)
 
-          OPEN(unit=myunit, file="output/veni_SI.dat", action="write", status="replace")
+          OPEN(unit=myunit, file="output/iven_SI.dat", action="write", status="replace")
           WRITE(myunit,fmtion) ((veni_SI(i,j),j=1,nions),i=1,dimx) ; CLOSE(myunit)
 
-          OPEN(unit=myunit, file="output/vere_SI.dat", action="write", status="replace")
+          OPEN(unit=myunit, file="output/ever_SI.dat", action="write", status="replace")
           WRITE(myunit,fmtx) (vere_SI(i),i=1,dimx) ; CLOSE(myunit)
 
-          OPEN(unit=myunit, file="output/veri_SI.dat", action="write", status="replace")
+          OPEN(unit=myunit, file="output/iver_SI.dat", action="write", status="replace")
           WRITE(myunit,fmtion) ((veri_SI(i,j),j=1,nions),i=1,dimx) ; CLOSE(myunit)
 
-          OPEN(unit=myunit, file="output/chiee_SI.dat", action="write", status="replace")
+          OPEN(unit=myunit, file="output/echie_SI.dat", action="write", status="replace")
           WRITE(myunit,fmtx) (chiee_SI(i),i=1,dimx) ; CLOSE(myunit)
 
-          OPEN(unit=myunit, file="output/chiei_SI.dat", action="write", status="replace")
+          OPEN(unit=myunit, file="output/ichie_SI.dat", action="write", status="replace")
           WRITE(myunit,fmtion) ((chiei_SI(i,j),j=1,nions),i=1,dimx) ; CLOSE(myunit)
 
-          OPEN(unit=myunit, file="output/vece_SI.dat", action="write", status="replace")
+          OPEN(unit=myunit, file="output/evec_SI.dat", action="write", status="replace")
           WRITE(myunit,fmtx) (vece_SI(i),i=1,dimx) ; CLOSE(myunit)
 
-          OPEN(unit=myunit, file="output/veci_SI.dat", action="write", status="replace")
+          OPEN(unit=myunit, file="output/ivec_SI.dat", action="write", status="replace")
           WRITE(myunit,fmtion) ((veci_SI(i,j),j=1,nions),i=1,dimx) ; CLOSE(myunit)
        ENDIF
     ENDIF

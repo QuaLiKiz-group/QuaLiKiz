@@ -73,7 +73,7 @@ def diff(folder1, folder2, to_np):
             print (os.path.basename(filename))
             print (arr1)
             print (arr2)
-        different = True
+            different = True
     return different
 
 def compare_runs(folder1, folder2):
