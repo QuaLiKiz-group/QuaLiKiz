@@ -24,15 +24,25 @@ def diff_filelist(folder1, folder2):
     folder1_files = sorted(folder1_files, key=natural_keys)
     folder2_files = sorted(folder2_files, key=natural_keys)
 
-    not_in_1 = [file for file in folder1_files if file not in folder2_files]
-    not_in_2 = [file for file in folder2_files if file not in folder1_files]
+    not_in_1 = [file for file in folder2_files if file not in folder1_files]
+    not_in_2 = [file for file in folder1_files if file not in folder2_files]
     in_both = [file for file in folder1_files if file in folder2_files]
     return (not_in_1, not_in_2, in_both)
 
 def ascii_to_np(filepath):
     if filepath.endswith('.dat'):
         with open(filepath, 'rb') as file:
-            nparr = np.loadtxt(file)
+            try:
+                nparr = np.loadtxt(file)
+            except ValueError as error:
+                l_ = error.args[0].find('\'')
+                r_ = error.args[0].rfind('\'')
+                errorstr = error.args[0][l_+1:r_].encode('utf-8')
+                file.seek(0)
+                newlines = []
+                for line in file:
+                    newlines.append(line.replace(errorstr, b'NaN'))
+                nparr = np.loadtxt(newlines)
         return nparr
     else:
         warnings.warn('\'' + filepath + '\' is not ascii, ignoring..')
@@ -52,31 +62,35 @@ def diff(folder1, folder2, to_np):
         print ('Files not in \'' + folder1 + '\':')
         for filename in not_in_1:
             print (os.path.basename(filename))
-            print (to_np(os.path.join(folder1, filename)))
+            print (to_np(os.path.join(folder2, filename)))
         different = True
     if len(not_in_2) > 0:
         print ('Files not in \'' + folder2 + '\':')
         for filename in not_in_2:
             print (os.path.basename(filename))
-            print (to_np(os.path.join(folder2, filename)))
+            print (to_np(os.path.join(folder1, filename)))
         different = True
 
     print ('Files in both:')
     for filename in in_both:
         arr1 = to_np(os.path.join(folder1, filename))
         arr2 = to_np(os.path.join(folder2, filename))
-        try:
-            isclose = np.all(np.isclose(arr1, arr2))
-        except ValueError:
-            isclose = False
-        if not isclose:
-            print (os.path.basename(filename))
-            print (arr1)
-            print (arr2)
-            different = True
+        if arr1 is not None and arr2 is not None:
+            try:
+                isclose = np.all(np.isclose(arr1, arr2, rtol=1e-3, equal_nan=True))
+            except ValueError:
+                isclose = False
+            if not isclose or not arr1.shape == arr2.shape:
+                print (os.path.basename(filename))
+                print (arr1)
+                print (arr2)
+                different = True
     return different
 
 def compare_runs(folder1, folder2):
+    print ('comparing \'debug\'')
+    different = diff(os.path.join(folder1, 'debug'),
+                     os.path.join(folder2, 'debug'), ascii_to_np)
     print ('comparing \'input\'')
     different = diff(os.path.join(folder1, 'input'),
                      os.path.join(folder2, 'input'), bin_to_np)

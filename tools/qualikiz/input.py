@@ -217,7 +217,7 @@ class QuaLiKizRun(OrderedDict):
                 'numscan':   None,
                 'numwave':   None,
                 'nion':      None,
-                'phys_meth': True,
+                'phys_meth': 1,
                 'coll_flag': True,
                 'rot_flag':  False,
                 'verbose':   True,
