@@ -15,13 +15,12 @@ set_Ani1=1; %flag for automating main ion gradient for maintaining QN
 set_QN_grad=1; %flag for maintaining quasineutrality of gradients.
 
 %Set the number and range of wave number points
-kthetarhos = linspace(0.1,0.8,8);
+npoints=8;
+kthetarhos = [linspace(0.1,0.8,npoints) linspace(6,48,npoints)]
 
 numn = length(kthetarhos); %number of ktheta in the system
-subscan1 = 3;
-subscan2 = 3;
-subscan3 = 3;
-scann = subscan1 + subscan2 + subscan3;  %Number of points in parameter scan
+xpoints=3;
+scann = xpoints * 3;  %Number of points in parameter scan
 
 %NOTE: for general scans, any of the below can be changed to a vector of size (ones(scann,1))
 %e.g. for a q-profile scan: qx=linspace(1,4,scann)'
@@ -40,8 +39,8 @@ alphax=0.*ones(scann,1); %MHD alpha
 %Electrons
 Tex=9.*ones(scann,1); % kev
 Nex=5.*ones(scann,1); % ne is in units of 10^19
-Ate=[7.*ones(subscan1, 1); linspace(13,7,subscan2)'; 7.*ones(subscan3, 1)]; %logarithmic gradient normalized to R
-Ane=[2.*ones(subscan1 + subscan2, 1); linspace(4,2,subscan3)']; %logarithmic gradient normalized to R
+Ate=[2.*ones(xpoints, 1); linspace(12,2,xpoints)'; 2.*ones(xpoints, 1)]; %logarithmic gradient normalized to R
+Ane=[1.*ones(2*xpoints, 1); linspace(4,1,xpoints)']; %logarithmic gradient normalized to R
 el_type = 1; % 1 for active, 2 for adiabatic, 3 for adiabatic passing at ion scales (kthetarhosmax<2)
 anise = 1.*ones(scann,1); 
 danisedr = 0.*ones(scann,1); 
@@ -53,8 +52,8 @@ Ai(:,iind)=2.*ones(scann,1);
 Zi(:,iind)=1.*ones(scann,1);
 Tix(:,iind)=9.*ones(scann,1); % keV
 ninorm(:,iind)=0.8.*ones(scann,1);  ; % ni/ne arbitrary for main ions (will be rewritten to ensure quasineutrality)
-Ati(:,iind)=[linspace(12,6,subscan1)'; 6.*ones(subscan2 + subscan3, 1)]; %logarithmic gradient normalized to R
-Ani(:,iind) = 3.*ones(scann,1); %arbitrary for main ions, will be rewritten to ensure quasineutrality of gradients
+Ati(:,iind)=[linspace(12,2,xpoints)'; 2.*ones(xpoints*2, 1)]; %logarithmic gradient normalized to R
+Ani(:,iind) = 0.*ones(scann,1); %arbitrary for main ions, will be rewritten to ensure quasineutrality of gradients
 ion_type(:,iind)=1.*ones(scann,1); %1 for active, 2 for adiabatic, 3 for tracer (also won't be included in quasineutrality checks), 4 for tracer but included in Zeff
 anis(:,iind)=1.*ones(scann,1); %Tperp/Tpar at LFS. Tix defined as Tpar
 danisdr(:,iind)=0.*ones(scann,1); %d/dr(Tperp/Tpar) at LFS. Tix defined as Tpar
@@ -65,8 +64,8 @@ Ai(:,iind)=9.*ones(scann,1);
 Zi(:,iind)=4.*ones(scann,1);
 Tix(:,iind)=9.*ones(scann,1); % keV
 ninorm(:,iind)=0.1.*ones(scann,1); % ni/ne
-Ati(:,iind)=[linspace(12,6,subscan1)'; 6.*ones(subscan2 + subscan3, 1)]; %logarithmic gradient normalized to R
-Ani(:,iind) = 2.9.*ones(scann,1); 
+Ati(:,iind)=[linspace(12,2,xpoints)'; 2.*ones(2*xpoints, 1)]; %logarithmic gradient normalized to R
+Ani(:,iind) = 0.0.*ones(scann,1);
 ion_type(:,iind)=1.*ones(scann,1); %1 for active, 2 for adiabatic, 3 for tracer (also won't be included in quasineutrality checks), 4 for tracer but included in Zeff
 anis(:,iind)=1.*ones(scann,1); %Tperp/Tpar at LFS. Tix defined as Tpar
 danisdr(:,iind)=0.*ones(scann,1); %d/dr(Tperp/Tpar) at LFS. Tix defined as Tpar
@@ -77,8 +76,8 @@ Ai(:,iind)=184.*ones(scann,1);
 Zi(:,iind)=42.*ones(scann,1);
 Tix(:,iind)=9.*ones(scann,1); % keV
 ninorm(:,iind)=0.0.*ones(scann,1); % ni/ne
-Ati(:,iind)=[linspace(12,6,subscan1)'; 6.*ones(subscan2 + subscan3, 1)]; %logarithmic gradient normalized to R
-Ani(:,iind) = 3.*ones(scann,1); 
+Ati(:,iind)=[linspace(12,2,xpoints)'; 2.*ones(2*xpoints, 1)]; %logarithmic gradient normalized to R
+Ani(:,iind) = 0.*ones(scann,1);
 ion_type(:,iind)=3.*ones(scann,1); %1 for active, 2 for adiabatic, 3 for tracer, (also won't be included in quasineutrality checks), 4 for tracer but included in Zeff
 anis(:,iind)=1.*ones(scann,1); %Tperp/Tpar at LFS. Tix defined as Tpar
 danisdr(:,iind)=0.*ones(scann,1); %d/dr(Tperp/Tpar) at LFS. Tix defined as Tpar
