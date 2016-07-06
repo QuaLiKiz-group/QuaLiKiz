@@ -41,7 +41,7 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
   !saturation calculates the nonlinear saturation rule and makes the final output
 
   USE kind
-  USE mod_io_management !MPI is included in this module
+  !USE mod_io_management !MPI is included in this module
   USE mod_make_io
   USE datmat
   USE datcal

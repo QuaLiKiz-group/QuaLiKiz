@@ -6,9 +6,9 @@ MODULE mod_make_io
   USE kind
   USE datcal
   USE datmat
-  USE mod_io_management
 
   IMPLICIT NONE
+  INCLUDE 'mpif.h'
 
 CONTAINS
 

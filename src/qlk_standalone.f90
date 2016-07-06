@@ -2,10 +2,12 @@ PROGRAM qlk_standalone
   !Standalone driver for qualikiz. Detailed code info in call_qualikiz subroutine header
 
   USE kind
-  USE mod_io_management !MPI is included in this module
+  !USE mod_io_management !MPI is included in this module
+  USE diskio
 
   IMPLICIT NONE
 
+  INCLUDE 'mpif.h'
   ! INTERFACE WITH EXTERNAL QUALIKIZ SUBROUTINE
   INTERFACE 
      SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll_flagin, rot_flagin, verbosein, kthetarhosin, & !general param
@@ -85,7 +87,9 @@ PROGRAM qlk_standalone
   !Time measuring variables
   REAL(kind=DBL) :: cputime1, cputime2, tpstot
   INTEGER :: time1, time2, timetot, freq, cputimetot
-  CHARACTER(len=20) :: myfmt
+  CHARACTER(len=20) :: myfmt, myint
+  CHARACTER(len=:), ALLOCATABLE :: debugdir, outputdir, primitivedir, inputdir
+
 
   !MPI variables:
   INTEGER :: ierror, nproc, myrank
@@ -140,7 +144,7 @@ PROGRAM qlk_standalone
 
   !DEBUGGING
   CHARACTER(len=20) :: fmtx,fmtn,fmtion,fmtintion,fmtxrow,fmtecoef
-  INTEGER :: i,j,k,l,myunit=700,stat
+  INTEGER :: i,j,k,l,stat
 
   CALL mpi_init(ierror)
   CALL mpi_comm_size(mpi_comm_world,nproc,ierror)
@@ -350,182 +354,171 @@ CONTAINS
     REAL(kind=DBL) :: dummy !dummy variable for obtaining input. Must be real for readvar
     REAL(kind=DBL), DIMENSION(:,:), ALLOCATABLE :: ion_typer !dummy variable for ion_type array
 
-    kc = 1
     ! READING INPUT ARRAYS FROM BINARY FILES
 
+    inputdir = 'input/'
+    
     ! p{1} Size of radial or scan arrays
-    dimx = INT(readvar(kc,dummy,ktype)) ; kc = kc+1
-
+    dimx = INT(readvar(inputdir // 'p1.bin', dummy, ktype))
     ! p{2} Size of wavenumber arrays
-    dimn = INT(readvar(kc,dummy,ktype)) ; kc = kc+1
-
+    dimn = INT(readvar(inputdir // 'p2.bin', dummy, ktype))
     ! p{3} Number of ions in system
-    nions = INT(readvar(kc,dummy,ktype)) ; kc = kc+1
+    nions = INT(readvar(inputdir // 'p3.bin', dummy, ktype))
+
     ALLOCATE(ion_typer(dimx,nions))
 
     ! p{4} Flag for calculating decomposition of particle and heat transport into diffusive and convective components
-    phys_meth = INT(readvar(kc,dummy,ktype)) ; kc = kc+1
-
+    phys_meth = INT(readvar(inputdir // 'p4.bin', dummy, ktype))
     ! p{5} Flag for including collisions
-    coll_flag = INT(readvar(kc,dummy,ktype)) ; kc = kc+1
-
+    coll_flag = INT(readvar(inputdir // 'p5.bin', dummy, ktype))
     ! p{6} Flag for including rotation
-    rot_flag = INT(readvar(kc,dummy,ktype)) ; kc = kc+1
-
+    rot_flag = INT(readvar(inputdir // 'p6.bin', dummy, ktype))
     ! p{7} Flag for including rotation
-    verbose = INT(readvar(kc,dummy,ktype)) ; kc = kc+1
-
+    verbose = INT(readvar(inputdir // 'p7.bin', dummy, ktype))
     ! p{8} Number of total saught after solutions
-    numsols = INT(readvar(kc,dummy,ktype)) ; kc = kc+1
-
+    numsols = INT(readvar(inputdir // 'p8.bin', dummy, ktype))
     ! p{9} 1D integral accuracy
-    relacc1 = readvar(kc,dummy,ktype) ; kc = kc+1
-
+    relacc1 = readvar(inputdir // 'p9.bin', dummy, ktype)
     ! p{10} 2D integral accuracy
-    relacc2 = readvar(kc,dummy,ktype) ; kc = kc+1
-
+    relacc2 = readvar(inputdir // 'p10.bin', dummy, ktype)
     ! p{11} Number of runs before runcounter resets
-    maxruns = INT(readvar(kc,dummy,ktype)) ; kc = kc+1
-
+    maxruns = INT(readvar(inputdir // 'p11.bin', dummy, ktype))
     ! p{12} Maximum number of integrand evaluations in 2D integration routine
-    maxpts = INT(readvar(kc,dummy,ktype)) ; kc = kc+1
-
-    ! p{13} Timeout seconds for a given solution search 
-    timeout = readvar(kc,dummy,ktype) ; kc = kc+1
-
+    maxpts = INT(readvar(inputdir // 'p12.bin', dummy, ktype))
+    ! p{13} Timeout seconds for a given solution search
+    timeout = readvar(inputdir // 'p13.bin', dummy, ktype)
     ! p{14} R0 geometric major radius (for normalizations)
-    R0 = readvar(kc,R0,ktype) ; kc = kc+1
-
-    ! p{15} Toroidal wave-number grid
+    R0 = readvar(inputdir // 'p14.bin', dummy, ktype)
     ALLOCATE(kthetarhos(dimn))
-    kthetarhos = readvar(kc,kthetarhos,ktype) ; kc = kc+1
+    ! p{15} Toroidal wave-number grid
+    kthetarhos = readvar(inputdir // 'p15.bin', kthetarhos, ktype)
 
     ! p{16} Normalised radial coordinate (midplane radius)
     ALLOCATE(x(dimx))
-    x = readvar(kc,x,ktype) ; kc = kc+1
-
+    x = readvar(inputdir // 'p16.bin', x, ktype)
     ! p{17} Normalised radial coordinate (midplane radius)
     ALLOCATE(rho(dimx))
-    rho = readvar(kc,rho,ktype) ; kc = kc+1
+    rho = readvar(inputdir // 'p17.bin', rho, ktype)
 
     ! p{18} <Ro> major radius
     ALLOCATE(Ro(dimx))
-    Ro = readvar(kc,Ro,ktype) ; kc = kc+1
+    Ro = readvar(inputdir // 'p18.bin', Ro, ktype)
 
     ! p{19} <a> minor radius
     ALLOCATE(Rmin(dimx))
-    Rmin = readvar(kc,Rmin,ktype) ; kc = kc+1
+    Rmin = readvar(inputdir // 'p19.bin', Rmin, ktype)
 
     ! p{20} B(rho) magnetic field
     ALLOCATE(Bo(dimx))
-    Bo = readvar(kc,Bo,ktype) ; kc = kc+1
+    Bo = readvar(inputdir // 'p20.bin', Bo, ktype)
 
     ! p{21} q(rho) profile
     ALLOCATE(qx(dimx))
-    qx = readvar(kc,qx,ktype) ; kc = kc+1
+    qx = readvar(inputdir // 'p21.bin', qx, ktype)
 
     ! p{22} s(rho) profile
     ALLOCATE(smag(dimx))
-    smag = readvar(kc,smag,ktype) ; kc = kc+1
+    smag = readvar(inputdir // 'p22.bin', smag, ktype)
 
     ! p{23} alpha(rho) profile
     ALLOCATE(alphax(dimx))
-    alphax = readvar(kc,alphax,ktype) ; kc = kc+1
+    alphax = readvar(inputdir // 'p23.bin', alphax, ktype)
 
     ! p{24} Machtor(rho) profile
     ALLOCATE(Machtor(dimx))
-    Machtor = readvar(kc,Machtor,ktype) ; kc = kc+1
+    Machtor = readvar(inputdir // 'p24.bin', Machtor, ktype)
 !!$    WHERE(ABS(Machtor) < epsD) Machtor = epsD
 
     ! p{25} Autor(rho) profile
     ALLOCATE(Autor(dimx))
-    Autor = readvar(kc,Autor,ktype) ; kc = kc+1
+    Autor = readvar(inputdir // 'p25.bin', Autor, ktype)
     WHERE(ABS(Autor) < epsD) Autor = epsD
 
     ! p{26} Machpar(rho) profile
     ALLOCATE(Machpar(dimx))
-    Machpar = readvar(kc,Machpar,ktype) ; kc = kc+1
+    Machpar = readvar(inputdir // 'p26.bin', Machpar, ktype)
 !!$    WHERE(ABS(Machpar) < epsD) Machpar = epsD
 
     ! p{27} Aupar(rho) profile
     ALLOCATE(Aupar(dimx))
-    Aupar = readvar(kc,Aupar,ktype) ; kc = kc+1
+    Aupar = readvar(inputdir // 'p27.bin', Aupar, ktype)
     WHERE(ABS(Aupar) < epsD) Aupar = epsD
 
     ! p{28} gammaE(rho) profile
     ALLOCATE(gammaE(dimx))
-    gammaE = readvar(kc,gammaE,ktype) ; kc = kc+1
+    gammaE = readvar(inputdir // 'p28.bin', gammaE, ktype)
     WHERE(ABS(gammaE) < epsD) gammaE = epsD
 
     ! p{29} Te(rho) profile
     ALLOCATE(Tex(dimx))
-    Tex = readvar(kc,Tex,ktype) ; kc = kc+1
+    Tex = readvar(inputdir // 'p29.bin', Tex, ktype)
 
     ! p{30} ne(rho) profile
     ALLOCATE(Nex(dimx))
-    Nex = readvar(kc,Nex,ktype) ; kc = kc+1
+    Nex = readvar(inputdir // 'p30.bin', Nex, ktype)
 
     ! p{31} R/LTe(rho) profile
     ALLOCATE(Ate(dimx))
-    Ate = readvar(kc,Ate,ktype) ; kc = kc+1
+    Ate = readvar(inputdir // 'p31.bin', Ate, ktype)
     WHERE(ABS(Ate) < epsD) Ate = epsD
 
+        kc=32
     ! p{32} R/Lne(rho) profile
     ALLOCATE(Ane(dimx))
-    Ane = readvar(kc,Ane,ktype) ; kc = kc+1
+    Ane = readvar(inputdir // 'p32.bin', Ane, ktype)
     WHERE(ABS(Ane) < epsD) Ane = epsD
 
     ! p{33} Flag for adiabatic electrons
-    el_type = INT(readvar(kc,dummy,ktype)) ; kc = kc+1
+    el_type = INT(readvar(inputdir // 'p33.bin', REAL(el_type, kind=DBL), ktype))
 
     ! p{34} Species temp anisotropy at LFS. Zero is electrons
     ALLOCATE(anise(dimx))
-    anise = readvar(kc,anise,ktype) ; kc = kc+1
+    anise = readvar(inputdir // 'p34.bin', anise, ktype)
 
     ! p{35} Species temp anisotropy at LFS. Zero is electrons
     ALLOCATE(danisedr(dimx))
-    danisedr = readvar(kc,danisedr,ktype) ; kc = kc+1
+    danisedr = readvar(inputdir // 'p35.bin', danisedr, ktype)
     WHERE(ABS(danisedr) < epsD) danisedr = epsD
 
     ! p{36} Ti(rho) profiles
     ALLOCATE(Tix(dimx,nions))
-    Tix = readvar(kc,Tix,ktype) ; kc = kc+1
+    Tix = readvar(inputdir // 'p36.bin', Tix, ktype)
 
     ! p{37} ni/ne (rho) profiles
     ALLOCATE(ninorm(dimx,nions))
-    ninorm = readvar(kc,ninorm,ktype) ; kc = kc+1
+    ninorm = readvar(inputdir // 'p37.bin', ninorm, ktype)
 
     ! p{38} R/LTi(rho) profiles
     ALLOCATE(Ati(dimx,nions))
-    Ati = readvar(kc,Ati,ktype) ; kc = kc+1
+    Ati = readvar(inputdir // 'p38.bin', Ati, ktype)
     WHERE(ABS(Ati) < epsD) Ati = epsD
 
     ! p{39} R/Lni(rho) profiles
     ALLOCATE(Ani(dimx,nions))
-    Ani = readvar(kc,Ani,ktype) ; kc = kc+1
+    Ani = readvar(inputdir // 'p39.bin', Ani, ktype)
     WHERE(ABS(Ani) < epsD) Ani = epsD
 
     ! p{40} Ion types
     ALLOCATE(ion_type(dimx,nions))
-    ion_type = INT(readvar(kc,ion_typer,ktype)) ; kc = kc+1
+    ion_type = INT(readvar(inputdir // 'p40.bin', REAL(ion_type, kind=DBL), ktype))
     DEALLOCATE(ion_typer)
 
     ! p{41} Species temp anisotropy at LFS. Zero is electrons
     ALLOCATE(anis(dimx,1:nions))
-    anis = readvar(kc,anis,ktype) ; kc = kc+1
+    anis = readvar(inputdir // 'p41.bin', anis, ktype)
 
     ! p{42} Species temp anisotropy at LFS. Zero is electrons
     ALLOCATE(danisdr(dimx,1:nions))
-    danisdr = readvar(kc,danisdr,ktype) ; kc = kc+1
+    danisdr = readvar(inputdir // 'p42.bin', danisdr, ktype)
     WHERE(ABS(danisdr) < epsD) danisdr = epsD
 
     ! p{43} Main ion mass
     ALLOCATE(Ai(dimx,nions))
-    Ai = readvar(kc,Ai,ktype) ; kc = kc+1
+    Ai = readvar(inputdir // 'p43.bin', Ai, ktype)
 
     ! p{44} Main ion charge
     ALLOCATE(Zi(dimx,nions))
-    Zi = readvar(kc,Zi,ktype) ; kc = kc+1
+    Zi = readvar(inputdir // 'p44.bin', Zi, ktype)
 
     ! Read and write runcounter input to decide course of action in calcroutines (full solution or start from previous solution)
     INQUIRE(file="runcounter.dat", EXIST=exist1)
@@ -544,6 +537,7 @@ CONTAINS
     IF (runcounter >= maxruns) THEN !Reset if we're at our maximum number of runs
        runcounter = 0
     ENDIF
+
 
     WRITE(fmtn,'(A,I0, A)') '(',dimn,'G15.7)'
 
@@ -585,133 +579,49 @@ CONTAINS
 
     !DEBUGGING WRITE OUT ALL INPUT TO ASCII FILE
 
-    OPEN(unit=700, file="dimx.dat", action="write", status="replace")
-    WRITE(700,'(I0)') dimx ; CLOSE(700)
-
-    OPEN(unit=700, file="dimn.dat", action="write", status="replace")
-    WRITE(700,'(I0)') dimn ; CLOSE(700)
-
-    OPEN(unit=700, file="nions.dat", action="write", status="replace")
-    WRITE(700,'(I0)') nions ; CLOSE(700)
-
-    WRITE(fmtx, '(A)') '(G15.7)'
-    WRITE(fmtxrow,'(A,I2,A)') '(',dimx,'G15.7)'
-    WRITE(fmtn,'(A,I0, A)') '(',dimn,'G15.7)'
-    WRITE(fmtion,'(A,I0, A)') '(',nions,'G15.7)'
-    WRITE(fmtintion,'(A,I0, A)') '(',nions,'I2)'
-    WRITE(fmtecoef,'(A,I0, A)') '(',nions+1,'G15.7)'
-
-    OPEN(unit=700, file="phys_meth.dat", action="write", status="replace")
-    WRITE(700,'(I0)') phys_meth ; CLOSE(700)
-
-    OPEN(unit=700, file="coll_flag.dat", action="write", status="replace")
-    WRITE(700,'(I0)') coll_flag ; CLOSE(700)
-
-    OPEN(unit=700, file="rot_flag.dat", action="write", status="replace")
-    WRITE(700,'(I0)') rot_flag ; CLOSE(700)
-
-    OPEN(unit=700, file="verbose.dat", action="write", status="replace")
-    WRITE(700,'(I0)') verbose ; CLOSE(700)
-
-    OPEN(unit=700, file="numsols.dat", action="write", status="replace")
-    WRITE(700,'(I0)') numsols ; CLOSE(700)
-
-    OPEN(unit=700, file="kthetarhos.dat", action="write", status="replace")
-    WRITE(700,fmtx) (kthetarhos(j),j=1,dimn) ; CLOSE(700)
-
-    OPEN(unit=700, file="x.dat", action="write", status="replace")
-    WRITE(700,fmtx) (x(j),j=1,dimx) ; CLOSE(700)
-
-    OPEN(unit=700, file="rho.dat", action="write", status="replace")
-    WRITE(700,fmtx) (rho(j),j=1,dimx) ; CLOSE(700)
-
-    OPEN(unit=700, file="Ro.dat", action="write", status="replace")
-    WRITE(700,fmtx) (Ro(j),j=1,dimx) ; CLOSE(700)
-
-    OPEN(unit=700, file="R0.dat", action="write", status="replace")
-    WRITE(700,fmtx) R0 ; CLOSE(700)
-
-    OPEN(unit=700, file="Rmin.dat", action="write", status="replace")
-    WRITE(700,fmtx) (Rmin(j),j=1,dimx) ; CLOSE(700)
-
-    OPEN(unit=700, file="Bo.dat", action="write", status="replace")
-    WRITE(700,fmtx) (Bo(j),j=1,dimx) ; CLOSE(700)
-
-    OPEN(unit=700, file="qx.dat", action="write", status="replace")
-    WRITE(700,fmtx) (qx(j),j=1,dimx) ; CLOSE(700)
-
-    OPEN(unit=700, file="smag.dat", action="write", status="replace")
-    WRITE(700,fmtx) (smag(j),j=1,dimx) ; CLOSE(700)
-
-    OPEN(unit=700, file="alphax.dat", action="write", status="replace")
-    WRITE(700,fmtx) (alphax(j),j=1,dimx) ; CLOSE(700)
-
-    OPEN(unit=700, file="Machtor.dat", action="write", status="replace")
-    WRITE(700,fmtx) (Machtor(j),j=1,dimx) ; CLOSE(700)
-
-    OPEN(unit=700, file="Autor.dat", action="write", status="replace")
-    WRITE(700,fmtx) (Autor(j),j=1,dimx) ; CLOSE(700)
-
-    OPEN(unit=700, file="Machpar.dat", action="write", status="replace")
-    WRITE(700,fmtx) (Machpar(j),j=1,dimx) ; CLOSE(700)
-
-    OPEN(unit=700, file="Aupar.dat", action="write", status="replace")
-    WRITE(700,fmtx) (Aupar(j),j=1,dimx) ; CLOSE(700)
-
-    OPEN(unit=700, file="gammaE.dat", action="write", status="replace")
-    WRITE(700,fmtx) (gammaE(j),j=1,dimx) ; CLOSE(700)
-
-    OPEN(unit=700, file="Tex.dat", action="write", status="replace")
-    WRITE(700,fmtx) (Tex(j),j=1,dimx) ; CLOSE(700)
-
-    OPEN(unit=700, file="Nex.dat", action="write", status="replace")
-    WRITE(700,fmtx) (Nex(j),j=1,dimx) ; CLOSE(700)
-
-    OPEN(unit=700, file="Ate.dat", action="write", status="replace")
-    WRITE(700,fmtx) (Ate(j),j=1,dimx) ; CLOSE(700)
-
-    OPEN(unit=700, file="Ane.dat", action="write", status="replace")
-    WRITE(700,fmtx) (Ane(j),j=1,dimx) ; CLOSE(700)
-
-    OPEN(unit=700, file="el_type.dat", action="write", status="replace")
-    WRITE(700,'(I0)') el_type ; CLOSE(700)
-
-    OPEN(unit=700, file="Ai.dat", action="write", status="replace")
-    WRITE(700,fmtion) ((Ai(i,j),j=1,nions),i=1,dimx) ; CLOSE(700)
-
-    OPEN(unit=700, file="Zi.dat", action="write", status="replace")
-    WRITE(700,fmtion) ((Zi(i,j),j=1,nions),i=1,dimx) ; CLOSE(700)
-
-    OPEN(unit=700, file="Tix.dat", action="write", status="replace")
-    WRITE(700,fmtion) ((Tix(i,j),j=1,nions),i=1,dimx) ; CLOSE(700)
-
-    OPEN(unit=700, file="ninorm.dat", action="write", status="replace")
-    WRITE(700,fmtion) ((ninorm(i,j),j=1,nions),i=1,dimx) ; CLOSE(700)
-
-    OPEN(unit=700, file="Ati.dat", action="write", status="replace")
-    WRITE(700,fmtion) ((Ati(i,j),j=1,nions),i=1,dimx) ; CLOSE(700)
-
-    OPEN(unit=700, file="Ani.dat", action="write", status="replace")
-    WRITE(700,fmtion) ((Ani(i,j),j=1,nions),i=1,dimx) ; CLOSE(700)
-
-    OPEN(unit=700, file="ion_type.dat", action="write", status="replace")
-    WRITE(700,fmtintion) ((ion_type(i,j),j=1,nions),i=1,dimx) ; CLOSE(700)
-
-    OPEN(unit=700, file="maxpts.dat", action="write", status="replace")
-    WRITE(700,'(I8)') maxpts ; CLOSE(700)
-
-    OPEN(unit=700, file="maxruns.dat", action="write", status="replace")
-    WRITE(700,'(I3)') maxruns ; CLOSE(700)
-    
-    OPEN(unit=700, file="relacc1.dat", action="write", status="replace")
-    WRITE(700,fmtx) relacc1 ; CLOSE(700)
-
-    OPEN(unit=700, file="relacc2.dat", action="write", status="replace")
-    WRITE(700,fmtx) relacc2 ; CLOSE(700)
-
-    OPEN(unit=700, file="timeout.dat", action="write", status="replace")
-    WRITE(700,fmtx) timeout ; CLOSE(700)
-
+    myint='I15'
+    myfmt='G15.7'
+    debugdir='debug/'
+    CALL writevar(debugdir // 'dimx.dat', dimx, myint)
+    CALL writevar(debugdir // 'dimn.dat', dimn, myint)
+    CALL writevar(debugdir // 'nions.dat', nions, myint)
+    CALL writevar(debugdir // 'phys_meth.dat', phys_meth, myfmt)
+    CALL writevar(debugdir // 'coll_flag.dat', coll_flag, myfmt)
+    CALL writevar(debugdir // 'rot_flag.dat', rot_flag, myfmt)
+    CALL writevar(debugdir // 'verbose.dat', verbose, myfmt)
+    CALL writevar(debugdir // 'numsols.dat', numsols, myfmt)
+    CALL writevar(debugdir // 'kthetarhos.dat', kthetarhos, myfmt)
+    CALL writevar(debugdir // 'x.dat', x, myfmt)
+    CALL writevar(debugdir // 'rho.dat', rho, myfmt)
+    CALL writevar(debugdir // 'Ro.dat', Ro, myfmt)
+    CALL writevar(debugdir // 'R0.dat', R0, myfmt)
+    CALL writevar(debugdir // 'Rmin.dat', Rmin, myfmt)
+    CALL writevar(debugdir // 'Bo.dat', Bo, myfmt)
+    CALL writevar(debugdir // 'qx.dat', qx, myfmt)
+    CALL writevar(debugdir // 'smag.dat', smag, myfmt)
+    CALL writevar(debugdir // 'alphax.dat', alphax, myfmt)
+    CALL writevar(debugdir // 'Machtor.dat', Machtor, myfmt)
+    CALL writevar(debugdir // 'Autor.dat', Autor, myfmt)
+    CALL writevar(debugdir // 'Machpar.dat', Machpar, myfmt)
+    CALL writevar(debugdir // 'Aupar.dat', Aupar, myfmt)
+    CALL writevar(debugdir // 'gammaE.dat', gammaE, myfmt)
+    CALL writevar(debugdir // 'Tex.dat', Tex, myfmt)
+    CALL writevar(debugdir // 'Nex.dat', Nex, myfmt)
+    CALL writevar(debugdir // 'Ate.dat', Ate, myfmt)
+    CALL writevar(debugdir // 'Ane.dat', Ane, myfmt)
+    CALL writevar(debugdir // 'el_type.dat', el_type, myfmt)
+    CALL writevar(debugdir // 'Ai.dat', Ai, myfmt)
+    CALL writevar(debugdir // 'Zi.dat', Zi, myfmt)
+    CALL writevar(debugdir // 'Tix.dat', Tix, myfmt)
+    CALL writevar(debugdir // 'ninorm.dat', ninorm, myfmt)
+    CALL writevar(debugdir // 'Ati.dat', Ati, myfmt)
+    CALL writevar(debugdir // 'Ani.dat', Ani, myfmt)
+    CALL writevar(debugdir // 'ion_type.dat', ion_type, myint)
+    CALL writevar(debugdir // 'maxpts.dat', maxpts, myfmt)
+    CALL writevar(debugdir // 'maxruns.dat', maxruns, myfmt)
+    CALL writevar(debugdir // 'relacc1.dat', relacc1, myfmt)
+    CALL writevar(debugdir // 'relacc2.dat', relacc2, myfmt)
+    CALL writevar(debugdir // 'timeout.dat', timeout, myfmt)
 
     !STOP
 
@@ -1002,484 +912,156 @@ CONTAINS
   END SUBROUTINE deallocate_all
 
   SUBROUTINE outputascii()
-
-    CHARACTER(len=20) :: fmtx,fmtn,fmtion,fmtxrow,fmtecoef,fmtcftrans,fmtecoefgau
+    CHARACTER(len=20) :: fmtxrow,fmtecoef,fmtcftrans
     INTEGER :: i,j,k,l,myunit=700
-    WRITE(fmtx, '(A)') '(G15.7)'
     WRITE(fmtxrow,'(A,I0,A)') '(',dimx,'G15.7)'
-    WRITE(fmtn,'(A,I0, A)') '(',dimn,'G15.7)'
-    WRITE(fmtion,'(A,I0, A)') '(',nions,'G15.7)'
     WRITE(fmtecoef,'(A,I0, A)') '(',numecoefs,'G15.7)'
     WRITE(fmtcftrans,'(A)') '(6G15.7)'
 
-    OPEN(unit=myunit, file="output/primitive/rsolflu.dat", action="write", status="replace")
-    WRITE(myunit,fmtn) ((REAL(solflu(i,j)),j=1,dimn),i=1,dimx) ; CLOSE(myunit)
+    primitivedir='output/primitive/'
+    myfmt='G15.7'
+    CALL writevar(primitivedir // 'solflu.dat', solflu, myfmt)
+    CALL writevar(primitivedir // 'kymaxITG.dat', krmmuITG, myfmt)
+    CALL writevar(primitivedir // 'kymaxETG.dat', krmmuETG, myfmt)
+    CALL writevar(primitivedir // 'distan.dat', distan, myfmt)
+    CALL writevar(primitivedir // 'kperp2.dat', kperp2, myfmt)
+    CALL writevar(primitivedir // 'modewidth.dat', modewidth, myfmt)
+    CALL writevar(primitivedir // 'modeshift.dat', modeshift, myfmt)
+    CALL writevar(primitivedir // 'ntor.dat', ntor, myfmt)
+    CALL writevar(primitivedir // 'sol.dat', sol, myfmt)
+    CALL writevar(primitivedir // 'fdsol.dat', fdsol, myfmt)
+    CALL writevar(primitivedir // 'Lcirce.dat', Lcirce, myfmt)
+    CALL writevar(primitivedir // 'Lpiege.dat', Lpiege, myfmt)
+    CALL writevar(primitivedir // 'Lecirce.dat', Lecirce, myfmt)
+    CALL writevar(primitivedir // 'Lepiege.dat', Lepiege, myfmt)
+    CALL writevar(primitivedir // 'Lvcirce.dat', Lvcirce, myfmt)
+    CALL writevar(primitivedir // 'Lvpiege.dat', Lvpiege, myfmt)
 
-    OPEN(unit=myunit, file="output/primitive/isolflu.dat", action="write", status="replace")
-    WRITE(myunit,fmtn) ((AIMAG(solflu(i,j)),j=1,dimn),i=1,dimx) ; CLOSE(myunit)
-
-    OPEN(unit=700, file="output/primitive/kymaxITG.dat", action="write", status="replace")
-    WRITE(700,fmtx) (krmmuITG(j),j=1,dimx) ; CLOSE(700)
-
-    OPEN(unit=700, file="output/primitive/kymaxETG.dat", action="write", status="replace")
-    WRITE(700,fmtx) (krmmuETG(j),j=1,dimx) ; CLOSE(700)
-
-    OPEN(unit=myunit, file="output/primitive/distan.dat", action="write", status="replace")
-    WRITE(myunit,fmtn) ((distan(i,j),j=1,dimn),i=1,dimx) ; CLOSE(myunit)
-
-    OPEN(unit=myunit, file="output/primitive/kperp2.dat", action="write", status="replace")
-    WRITE(myunit,fmtn) ((kperp2(i,j),j=1,dimn),i=1,dimx) ; CLOSE(myunit)
-
-    OPEN(unit=myunit, file="output/primitive/rmodewidth.dat", action="write", status="replace")
-    WRITE(myunit,fmtn) ((REAL(modewidth(i,j)),j=1,dimn),i=1,dimx) ; CLOSE(myunit)
-
-    OPEN(unit=myunit, file="output/primitive/rmodeshift.dat", action="write", status="replace")
-    WRITE(myunit,fmtn) ((REAL(modeshift(i,j)),j=1,dimn),i=1,dimx) ; CLOSE(myunit)
-
-    OPEN(unit=myunit, file="output/primitive/imodewidth.dat", action="write", status="replace")
-    WRITE(myunit,fmtn) ((AIMAG(modewidth(i,j)),j=1,dimn),i=1,dimx) ; CLOSE(myunit)
-
-    OPEN(unit=myunit, file="output/primitive/imodeshift.dat", action="write", status="replace")
-    WRITE(myunit,fmtn) ((AIMAG(modeshift(i,j)),j=1,dimn),i=1,dimx) ; CLOSE(myunit)
-
-    OPEN(unit=myunit, file="output/primitive/ntor.dat", action="write", status="replace")
-    WRITE(myunit,fmtn) ((ntor(i,j),j=1,dimn),i=1,dimx) ; CLOSE(myunit)
-
-    OPEN(unit=myunit, file="output/primitive/rsol.dat", action="write", status="replace")
-    WRITE(myunit,fmtn) (((REAL(sol(i,j,k)),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
-
-    OPEN(unit=myunit, file="output/primitive/isol.dat", action="write", status="replace")
-    WRITE(myunit,fmtn) (((AIMAG(sol(i,j,k)),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
-
-    OPEN(unit=myunit, file="output/primitive/rfdsol.dat", action="write", status="replace")
-    WRITE(myunit,fmtn) (((REAL(fdsol(i,j,k)),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
-
-    OPEN(unit=myunit, file="output/primitive/ifdsol.dat", action="write", status="replace")
-    WRITE(myunit,fmtn) (((AIMAG(fdsol(i,j,k)),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
-
-    OPEN(unit=myunit, file="output/primitive/rLcirce.dat", action="write", status="replace")
-    WRITE(myunit,fmtn) (((REAL(Lcirce(i,j,k)),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
-
-    OPEN(unit=myunit, file="output/primitive/iLcirce.dat", action="write", status="replace")
-    WRITE(myunit,fmtn) (((AIMAG(Lcirce(i,j,k)),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
-
-    OPEN(unit=myunit, file="output/primitive/rLpiege.dat", action="write", status="replace")
-    WRITE(myunit,fmtn) (((REAL(Lpiege(i,j,k)),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
-
-    OPEN(unit=myunit, file="output/primitive/iLpiege.dat", action="write", status="replace")
-    WRITE(myunit,fmtn) (((AIMAG(Lpiege(i,j,k)),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
-
-    OPEN(unit=myunit, file="output/primitive/rLecirce.dat", action="write", status="replace")
-    WRITE(myunit,fmtn) (((REAL(Lecirce(i,j,k)),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
-
-    OPEN(unit=myunit, file="output/primitive/iLecirce.dat", action="write", status="replace")
-    WRITE(myunit,fmtn) (((AIMAG(Lecirce(i,j,k)),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
-
-    OPEN(unit=myunit, file="output/primitive/rLepiege.dat", action="write", status="replace")
-    WRITE(myunit,fmtn) (((REAL(Lepiege(i,j,k)),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
-
-    OPEN(unit=myunit, file="output/primitive/iLepiege.dat", action="write", status="replace")
-    WRITE(myunit,fmtn) (((AIMAG(Lepiege(i,j,k)),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
-
-    OPEN(unit=myunit, file="output/primitive/rLvcirce.dat", action="write", status="replace")
-    WRITE(myunit,fmtn) (((REAL(Lvcirce(i,j,k)),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
-
-    OPEN(unit=myunit, file="output/primitive/iLvcirce.dat", action="write", status="replace")
-    WRITE(myunit,fmtn) (((AIMAG(Lvcirce(i,j,k)),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
-
-    OPEN(unit=myunit, file="output/primitive/rLvpiege.dat", action="write", status="replace")
-    WRITE(myunit,fmtn) (((REAL(Lvpiege(i,j,k)),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
-
-    OPEN(unit=myunit, file="output/primitive/iLvpiege.dat", action="write", status="replace")
-    WRITE(myunit,fmtn) (((AIMAG(Lvpiege(i,j,k)),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
 
     IF (phys_meth /= 0) THEN
-       OPEN(unit=myunit, file="output/primitive/rLcircgne.dat", action="write", status="replace")
-       WRITE(myunit,fmtn) (((REAL(Lcircgne(i,j,k)),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
+        CALL writevar(primitivedir // 'Lcircgne.dat', Lcircgne, myfmt)
+        CALL writevar(primitivedir // 'Lpieggne.dat', Lpieggne, myfmt)
+        CALL writevar(primitivedir // 'Lcircgue.dat', Lcircgue, myfmt)
+        CALL writevar(primitivedir // 'Lpieggue.dat', Lpieggue, myfmt)
+        CALL writevar(primitivedir // 'Lcircgte.dat', Lcircgte, myfmt)
+        CALL writevar(primitivedir // 'Lpieggte.dat', Lpieggte, myfmt)
+        CALL writevar(primitivedir // 'Lcircce.dat', Lcircce, myfmt)
+        CALL writevar(primitivedir // 'Lpiegce.dat', Lpiegce, myfmt)
 
-       OPEN(unit=myunit, file="output/primitive/iLcircgne.dat", action="write", status="replace")
-       WRITE(myunit,fmtn) (((AIMAG(Lcircgne(i,j,k)),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
-
-       OPEN(unit=myunit, file="output/primitive/rLpieggne.dat", action="write", status="replace")
-       WRITE(myunit,fmtn) (((REAL(Lpieggne(i,j,k)),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
-
-       OPEN(unit=myunit, file="output/primitive/iLpieggne.dat", action="write", status="replace")
-       WRITE(myunit,fmtn) (((AIMAG(Lpieggne(i,j,k)),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
-
-       OPEN(unit=myunit, file="output/primitive/rLcircgue.dat", action="write", status="replace")
-       WRITE(myunit,fmtn) (((REAL(Lcircgue(i,j,k)),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
-
-       OPEN(unit=myunit, file="output/primitive/iLcircgue.dat", action="write", status="replace")
-       WRITE(myunit,fmtn) (((AIMAG(Lcircgue(i,j,k)),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
-
-       OPEN(unit=myunit, file="output/primitive/rLpieggue.dat", action="write", status="replace")
-       WRITE(myunit,fmtn) (((REAL(Lpieggue(i,j,k)),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
-
-       OPEN(unit=myunit, file="output/primitive/iLpieggue.dat", action="write", status="replace")
-       WRITE(myunit,fmtn) (((AIMAG(Lpieggue(i,j,k)),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
-
-       OPEN(unit=myunit, file="output/primitive/rLcircgte.dat", action="write", status="replace")
-       WRITE(myunit,fmtn) (((REAL(Lcircgte(i,j,k)),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
-
-       OPEN(unit=myunit, file="output/primitive/iLcircgte.dat", action="write", status="replace")
-       WRITE(myunit,fmtn) (((AIMAG(Lcircgte(i,j,k)),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
-
-       OPEN(unit=myunit, file="output/primitive/rLpieggte.dat", action="write", status="replace")
-       WRITE(myunit,fmtn) (((REAL(Lpieggte(i,j,k)),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
-
-       OPEN(unit=myunit, file="output/primitive/iLpieggte.dat", action="write", status="replace")
-       WRITE(myunit,fmtn) (((AIMAG(Lpieggte(i,j,k)),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
-
-       OPEN(unit=myunit, file="output/primitive/rLcircce.dat", action="write", status="replace")
-       WRITE(myunit,fmtn) (((REAL(Lcircce(i,j,k)),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
-
-       OPEN(unit=myunit, file="output/primitive/iLcircce.dat", action="write", status="replace")
-       WRITE(myunit,fmtn) (((AIMAG(Lcircce(i,j,k)),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
-
-       OPEN(unit=myunit, file="output/primitive/rLpiegce.dat", action="write", status="replace")
-       WRITE(myunit,fmtn) (((REAL(Lpiegce(i,j,k)),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
-
-       OPEN(unit=myunit, file="output/primitive/iLpiegce.dat", action="write", status="replace")
-       WRITE(myunit,fmtn) (((AIMAG(Lpiegce(i,j,k)),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
-!!!
-       IF (phys_meth == 2) THEN
-          OPEN(unit=myunit, file="output/primitive/rLecircgne.dat", action="write", status="replace")
-          WRITE(myunit,fmtn) (((REAL(Lecircgne(i,j,k)),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
-
-          OPEN(unit=myunit, file="output/primitive/iLecircgne.dat", action="write", status="replace")
-          WRITE(myunit,fmtn) (((AIMAG(Lecircgne(i,j,k)),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
-
-          OPEN(unit=myunit, file="output/primitive/rLepieggne.dat", action="write", status="replace")
-          WRITE(myunit,fmtn) (((REAL(Lepieggne(i,j,k)),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
-
-          OPEN(unit=myunit, file="output/primitive/iLepieggne.dat", action="write", status="replace")
-          WRITE(myunit,fmtn) (((AIMAG(Lepieggne(i,j,k)),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
-
-          OPEN(unit=myunit, file="output/primitive/rLecircgue.dat", action="write", status="replace")
-          WRITE(myunit,fmtn) (((REAL(Lecircgue(i,j,k)),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
-
-          OPEN(unit=myunit, file="output/primitive/iLecircgue.dat", action="write", status="replace")
-          WRITE(myunit,fmtn) (((AIMAG(Lecircgue(i,j,k)),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
-
-          OPEN(unit=myunit, file="output/primitive/rLepieggue.dat", action="write", status="replace")
-          WRITE(myunit,fmtn) (((REAL(Lepieggue(i,j,k)),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
-
-          OPEN(unit=myunit, file="output/primitive/iLepieggue.dat", action="write", status="replace")
-          WRITE(myunit,fmtn) (((AIMAG(Lepieggue(i,j,k)),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
-
-          OPEN(unit=myunit, file="output/primitive/rLecircgte.dat", action="write", status="replace")
-          WRITE(myunit,fmtn) (((REAL(Lecircgte(i,j,k)),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
-
-          OPEN(unit=myunit, file="output/primitive/iLecircgte.dat", action="write", status="replace")
-          WRITE(myunit,fmtn) (((AIMAG(Lecircgte(i,j,k)),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
-
-          OPEN(unit=myunit, file="output/primitive/rLepieggte.dat", action="write", status="replace")
-          WRITE(myunit,fmtn) (((REAL(Lepieggte(i,j,k)),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
-
-          OPEN(unit=myunit, file="output/primitive/iLepieggte.dat", action="write", status="replace")
-          WRITE(myunit,fmtn) (((AIMAG(Lepieggte(i,j,k)),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
-
-          OPEN(unit=myunit, file="output/primitive/rLecircce.dat", action="write", status="replace")
-          WRITE(myunit,fmtn) (((REAL(Lecircce(i,j,k)),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
-
-          OPEN(unit=myunit, file="output/primitive/iLecircce.dat", action="write", status="replace")
-          WRITE(myunit,fmtn) (((AIMAG(Lecircce(i,j,k)),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
-
-          OPEN(unit=myunit, file="output/primitive/rLepiegce.dat", action="write", status="replace")
-          WRITE(myunit,fmtn) (((REAL(Lepiegce(i,j,k)),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
-
-          OPEN(unit=myunit, file="output/primitive/iLepiegce.dat", action="write", status="replace")
-          WRITE(myunit,fmtn) (((AIMAG(Lepiegce(i,j,k)),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
-       ENDIF
+        IF (phys_meth == 2) THEN
+            CALL writevar(primitivedir // 'Lecircgne.dat', Lecircgne, myfmt)
+            CALL writevar(primitivedir // 'Lepieggne.dat', Lepieggne, myfmt)
+            CALL writevar(primitivedir // 'Lecircgue.dat', Lecircgue, myfmt)
+            CALL writevar(primitivedir // 'Lepieggue.dat', Lepieggue, myfmt)
+            CALL writevar(primitivedir // 'Lecircgte.dat', Lecircgte, myfmt)
+            CALL writevar(primitivedir // 'Lepieggte.dat', Lepieggte, myfmt)
+            CALL writevar(primitivedir // 'Lecircce.dat', Lecircce, myfmt)
+            CALL writevar(primitivedir // 'Lepiegce.dat', Lepiegce, myfmt)
+        ENDIF
     ENDIF
 
-    OPEN(unit=myunit, file="output/primitive/rLcirci.dat", action="write", status="replace")
-    WRITE(myunit,fmtn) ((((REAL(Lcirci(i,j,k,l)),j=1,dimn),i=1,dimx),k=1,nions),l=1,numsols) ; CLOSE(myunit)
+    CALL writevar(primitivedir // 'Lcirci.dat', Lcirci, myfmt)
+    CALL writevar(primitivedir // 'Lpiegi.dat', Lpiegi, myfmt)
+    CALL writevar(primitivedir // 'Lcirci.dat', Lcirci, myfmt)
+    CALL writevar(primitivedir // 'Lpiegi.dat', Lpiegi, myfmt)
+    CALL writevar(primitivedir // 'Lecirci.dat', Lecirci, myfmt)
+    CALL writevar(primitivedir // 'Lepiegi.dat', Lepiegi, myfmt)
+    CALL writevar(primitivedir // 'Lvcirci.dat', Lvcirci, myfmt)
+    CALL writevar(primitivedir // 'Lvpiegi.dat', Lvpiegi, myfmt)
 
-    OPEN(unit=myunit, file="output/primitive/iLcirci.dat", action="write", status="replace")
-    WRITE(myunit,fmtn)((((AIMAG(Lcirci(i,j,k,l)),j=1,dimn),i=1,dimx),k=1,nions),l=1,numsols) ; CLOSE(myunit)
-
-    OPEN(unit=myunit, file="output/primitive/rLpiegi.dat", action="write", status="replace")
-    WRITE(myunit,fmtn) ((((REAL(Lpiegi(i,j,k,l)),j=1,dimn),i=1,dimx),k=1,nions),l=1,numsols) ; CLOSE(myunit)
-
-    OPEN(unit=myunit, file="output/primitive/iLpiegi.dat", action="write", status="replace")
-    WRITE(myunit,fmtn) ((((AIMAG(Lpiegi(i,j,k,l)),j=1,dimn),i=1,dimx),k=1,nions),l=1,numsols) ; CLOSE(myunit)
-
-    OPEN(unit=myunit, file="output/primitive/rLecirci.dat", action="write", status="replace")
-    WRITE(myunit,fmtn) ((((REAL(Lecirci(i,j,k,l)),j=1,dimn),i=1,dimx),k=1,nions),l=1,numsols) ; CLOSE(myunit)
-
-    OPEN(unit=myunit, file="output/primitive/iLecirci.dat", action="write", status="replace")
-    WRITE(myunit,fmtn) ((((AIMAG(Lecirci(i,j,k,l)),j=1,dimn),i=1,dimx),k=1,nions),l=1,numsols) ; CLOSE(myunit)
-
-    OPEN(unit=myunit, file="output/primitive/rLepiegi.dat", action="write", status="replace")
-    WRITE(myunit,fmtn) ((((REAL(Lepiegi(i,j,k,l)),j=1,dimn),i=1,dimx),k=1,nions),l=1,numsols) ; CLOSE(myunit)
-
-    OPEN(unit=myunit, file="output/primitive/iLepiegi.dat", action="write", status="replace")
-    WRITE(myunit,fmtn) ((((AIMAG(Lepiegi(i,j,k,l)),j=1,dimn),i=1,dimx),k=1,nions),l=1,numsols) ; CLOSE(myunit)
-
-    OPEN(unit=myunit, file="output/primitive/rLvcirci.dat", action="write", status="replace")
-    WRITE(myunit,fmtn) ((((REAL(Lvcirci(i,j,k,l)),j=1,dimn),i=1,dimx),k=1,nions),l=1,numsols) ; CLOSE(myunit)
-
-    OPEN(unit=myunit, file="output/primitive/iLvcirci.dat", action="write", status="replace")
-    WRITE(myunit,fmtn) ((((AIMAG(Lvcirci(i,j,k,l)),j=1,dimn),i=1,dimx),k=1,nions),l=1,numsols) ; CLOSE(myunit)
-
-    OPEN(unit=myunit, file="output/primitive/rLvpiegi.dat", action="write", status="replace")
-    WRITE(myunit,fmtn) ((((REAL(Lvpiegi(i,j,k,l)),j=1,dimn),i=1,dimx),k=1,nions),l=1,numsols) ; CLOSE(myunit)
-
-    OPEN(unit=myunit, file="output/primitive/iLvpiegi.dat", action="write", status="replace")
-    WRITE(myunit,fmtn) ((((AIMAG(Lvpiegi(i,j,k,l)),j=1,dimn),i=1,dimx),k=1,nions),l=1,numsols) ; CLOSE(myunit)
 
     IF (phys_meth /= 0) THEN
-       OPEN(unit=myunit, file="output/primitive/rLcircgni.dat", action="write", status="replace")
-       WRITE(myunit,fmtn) ((((REAL(Lcircgni(i,j,k,l)),j=1,dimn),i=1,dimx),k=1,nions),l=1,numsols) ; CLOSE(myunit)
+        CALL writevar(primitivedir // 'Lcircgni.dat', Lcircgni, myfmt)
+        CALL writevar(primitivedir // 'Lpieggni.dat', Lpieggni, myfmt)
+        CALL writevar(primitivedir // 'Lcircgui.dat', Lcircgui, myfmt)
+        CALL writevar(primitivedir // 'Lpieggui.dat', Lpieggui, myfmt)
+        CALL writevar(primitivedir // 'Lcircgti.dat', Lcircgti, myfmt)
+        CALL writevar(primitivedir // 'Lpieggti.dat', Lpieggti, myfmt)
+        CALL writevar(primitivedir // 'Lcircci.dat', Lcircci, myfmt)
+        CALL writevar(primitivedir // 'Lpiegci.dat', Lpiegci, myfmt)
 
-       OPEN(unit=myunit, file="output/primitive/iLcircgni.dat", action="write", status="replace")
-       WRITE(myunit,fmtn) ((((AIMAG(Lcircgni(i,j,k,l)),j=1,dimn),i=1,dimx),k=1,nions),l=1,numsols) ; CLOSE(myunit)
-
-       OPEN(unit=myunit, file="output/primitive/rLpieggni.dat", action="write", status="replace")
-       WRITE(myunit,fmtn) ((((REAL(Lpieggni(i,j,k,l)),j=1,dimn),i=1,dimx),k=1,nions),l=1,numsols) ; CLOSE(myunit)
-
-       OPEN(unit=myunit, file="output/primitive/iLpieggni.dat", action="write", status="replace")
-       WRITE(myunit,fmtn) ((((AIMAG(Lpieggni(i,j,k,l)),j=1,dimn),i=1,dimx),k=1,nions),l=1,numsols) ; CLOSE(myunit)
-
-       OPEN(unit=myunit, file="output/primitive/rLcircgui.dat", action="write", status="replace")
-       WRITE(myunit,fmtn) ((((REAL(Lcircgui(i,j,k,l)),j=1,dimn),i=1,dimx),k=1,nions),l=1,numsols) ; CLOSE(myunit)
-
-       OPEN(unit=myunit, file="output/primitive/iLcircgui.dat", action="write", status="replace")
-       WRITE(myunit,fmtn) ((((AIMAG(Lcircgui(i,j,k,l)),j=1,dimn),i=1,dimx),k=1,nions),l=1,numsols) ; CLOSE(myunit)
-
-       OPEN(unit=myunit, file="output/primitive/rLpieggui.dat", action="write", status="replace")
-       WRITE(myunit,fmtn) ((((REAL(Lpieggui(i,j,k,l)),j=1,dimn),i=1,dimx),k=1,nions),l=1,numsols) ; CLOSE(myunit)
-
-       OPEN(unit=myunit, file="output/primitive/iLpieggui.dat", action="write", status="replace")
-       WRITE(myunit,fmtn) ((((AIMAG(Lpieggui(i,j,k,l)),j=1,dimn),i=1,dimx),k=1,nions),l=1,numsols) ; CLOSE(myunit)
-
-       OPEN(unit=myunit, file="output/primitive/rLcircgti.dat", action="write", status="replace")
-       WRITE(myunit,fmtn) ((((REAL(Lcircgti(i,j,k,l)),j=1,dimn),i=1,dimx),k=1,nions),l=1,numsols) ; CLOSE(myunit)
-
-       OPEN(unit=myunit, file="output/primitive/iLcircgti.dat", action="write", status="replace")
-       WRITE(myunit,fmtn) ((((AIMAG(Lcircgti(i,j,k,l)),j=1,dimn),i=1,dimx),k=1,nions),l=1,numsols) ; CLOSE(myunit)
-
-       OPEN(unit=myunit, file="output/primitive/rLpieggti.dat", action="write", status="replace")
-       WRITE(myunit,fmtn) ((((REAL(Lpieggti(i,j,k,l)),j=1,dimn),i=1,dimx),k=1,nions),l=1,numsols) ; CLOSE(myunit)
-
-       OPEN(unit=myunit, file="output/primitive/iLpieggti.dat", action="write", status="replace")
-       WRITE(myunit,fmtn) ((((AIMAG(Lpieggti(i,j,k,l)),j=1,dimn),i=1,dimx),k=1,nions),l=1,numsols) ; CLOSE(myunit)
-
-       OPEN(unit=myunit, file="output/primitive/rLcircci.dat", action="write", status="replace")
-       WRITE(myunit,fmtn) ((((REAL(Lcircci(i,j,k,l)),j=1,dimn),i=1,dimx),k=1,nions),l=1,numsols) ; CLOSE(myunit)
-
-       OPEN(unit=myunit, file="output/primitive/iLcircci.dat", action="write", status="replace")
-       WRITE(myunit,fmtn) ((((AIMAG(Lcircci(i,j,k,l)),j=1,dimn),i=1,dimx),k=1,nions),l=1,numsols) ; CLOSE(myunit)
-
-       OPEN(unit=myunit, file="output/primitive/rLpiegci.dat", action="write", status="replace")
-       WRITE(myunit,fmtn) ((((REAL(Lpiegci(i,j,k,l)),j=1,dimn),i=1,dimx),k=1,nions),l=1,numsols) ; CLOSE(myunit)
-
-       OPEN(unit=myunit, file="output/primitive/iLpiegci.dat", action="write", status="replace")
-       WRITE(myunit,fmtn) ((((AIMAG(Lpiegci(i,j,k,l)),j=1,dimn),i=1,dimx),k=1,nions),l=1,numsols) ; CLOSE(myunit)
-!!!
-       IF (phys_meth == 2) THEN
-          OPEN(unit=myunit, file="output/primitive/rLecircgni.dat", action="write", status="replace")
-          WRITE(myunit,fmtn) ((((REAL(Lecircgni(i,j,k,l)),j=1,dimn),i=1,dimx),k=1,nions),l=1,numsols) ; CLOSE(myunit)
-
-          OPEN(unit=myunit, file="output/primitive/iLecircgni.dat", action="write", status="replace")
-          WRITE(myunit,fmtn) ((((AIMAG(Lecircgni(i,j,k,l)),j=1,dimn),i=1,dimx),k=1,nions),l=1,numsols) ; CLOSE(myunit)
-
-          OPEN(unit=myunit, file="output/primitive/rLepieggni.dat", action="write", status="replace")
-          WRITE(myunit,fmtn) ((((REAL(Lepieggni(i,j,k,l)),j=1,dimn),i=1,dimx),k=1,nions),l=1,numsols) ; CLOSE(myunit)
-
-          OPEN(unit=myunit, file="output/primitive/iLepieggni.dat", action="write", status="replace")
-          WRITE(myunit,fmtn) ((((AIMAG(Lepieggni(i,j,k,l)),j=1,dimn),i=1,dimx),k=1,nions),l=1,numsols) ; CLOSE(myunit)
-
-          OPEN(unit=myunit, file="output/primitive/rLecircgui.dat", action="write", status="replace")
-          WRITE(myunit,fmtn) ((((REAL(Lecircgui(i,j,k,l)),j=1,dimn),i=1,dimx),k=1,nions),l=1,numsols) ; CLOSE(myunit)
-
-          OPEN(unit=myunit, file="output/primitive/iLecircgui.dat", action="write", status="replace")
-          WRITE(myunit,fmtn) ((((AIMAG(Lecircgui(i,j,k,l)),j=1,dimn),i=1,dimx),k=1,nions),l=1,numsols) ; CLOSE(myunit)
-
-          OPEN(unit=myunit, file="output/primitive/rLepieggui.dat", action="write", status="replace")
-          WRITE(myunit,fmtn) ((((REAL(Lepieggui(i,j,k,l)),j=1,dimn),i=1,dimx),k=1,nions),l=1,numsols) ; CLOSE(myunit)
-
-          OPEN(unit=myunit, file="output/primitive/iLepieggui.dat", action="write", status="replace")
-          WRITE(myunit,fmtn) ((((AIMAG(Lepieggui(i,j,k,l)),j=1,dimn),i=1,dimx),k=1,nions),l=1,numsols) ; CLOSE(myunit)
-
-          OPEN(unit=myunit, file="output/primitive/rLecircgti.dat", action="write", status="replace")
-          WRITE(myunit,fmtn) ((((REAL(Lecircgti(i,j,k,l)),j=1,dimn),i=1,dimx),k=1,nions),l=1,numsols) ; CLOSE(myunit)
-
-          OPEN(unit=myunit, file="output/primitive/iLecircgti.dat", action="write", status="replace")
-          WRITE(myunit,fmtn) ((((AIMAG(Lecircgti(i,j,k,l)),j=1,dimn),i=1,dimx),k=1,nions),l=1,numsols) ; CLOSE(myunit)
-
-          OPEN(unit=myunit, file="output/primitive/rLepieggti.dat", action="write", status="replace")
-          WRITE(myunit,fmtn) ((((REAL(Lepieggti(i,j,k,l)),j=1,dimn),i=1,dimx),k=1,nions),l=1,numsols) ; CLOSE(myunit)
-
-          OPEN(unit=myunit, file="output/primitive/iLepieggti.dat", action="write", status="replace")
-          WRITE(myunit,fmtn) ((((AIMAG(Lepieggti(i,j,k,l)),j=1,dimn),i=1,dimx),k=1,nions),l=1,numsols) ; CLOSE(myunit)
-
-          OPEN(unit=myunit, file="output/primitive/rLecircci.dat", action="write", status="replace")
-          WRITE(myunit,fmtn) ((((REAL(Lecircci(i,j,k,l)),j=1,dimn),i=1,dimx),k=1,nions),l=1,numsols) ; CLOSE(myunit)
-
-          OPEN(unit=myunit, file="output/primitive/iLecircci.dat", action="write", status="replace")
-          WRITE(myunit,fmtn) ((((AIMAG(Lecircci(i,j,k,l)),j=1,dimn),i=1,dimx),k=1,nions),l=1,numsols) ; CLOSE(myunit)
-
-          OPEN(unit=myunit, file="output/primitive/rLepiegci.dat", action="write", status="replace")
-          WRITE(myunit,fmtn) ((((REAL(Lepiegci(i,j,k,l)),j=1,dimn),i=1,dimx),k=1,nions),l=1,numsols) ; CLOSE(myunit)
-
-          OPEN(unit=myunit, file="output/primitive/iLepiegci.dat", action="write", status="replace")
-          WRITE(myunit,fmtn) ((((AIMAG(Lepiegci(i,j,k,l)),j=1,dimn),i=1,dimx),k=1,nions),l=1,numsols) ; CLOSE(myunit)
-       ENDIF
+        IF (phys_meth == 2) THEN
+            CALL writevar(primitivedir // 'Lecircgni.dat', Lecircgni, myfmt)
+            CALL writevar(primitivedir // 'Lepieggni.dat', Lepieggni, myfmt)
+            CALL writevar(primitivedir // 'Lecircgui.dat', Lecircgui, myfmt)
+            CALL writevar(primitivedir // 'Lepieggui.dat', Lepieggui, myfmt)
+            CALL writevar(primitivedir // 'Lecircgti.dat', Lecircgti, myfmt)
+            CALL writevar(primitivedir // 'Lepieggti.dat', Lepieggti, myfmt)
+            CALL writevar(primitivedir // 'Lecircci.dat', Lecircci, myfmt)
+            CALL writevar(primitivedir // 'Lepiegci.dat', Lepiegci, myfmt)
+        ENDIF
     ENDIF
 
-    OPEN(unit=myunit, file="output/modeflag.dat", action="write", status="replace")
-    WRITE(myunit,fmtx) (modeflag(i),i=1,dimx) ; CLOSE(myunit)
-
-    OPEN(unit=myunit, file="output/phi.dat", action="write", status="replace")
-    WRITE(myunit,fmtxrow) ((phi(i,j),i=1,dimx),j=1,ntheta) ; CLOSE(myunit)
+    outputdir = 'output/'
+    CALL writevar(outputdir // 'modeflag.dat', modeflag, myfmt)
+    CALL writevar(outputdir // 'phi.dat', TRANSPOSE(phi), myfmt)
 
     OPEN(unit=myunit, file="output/npol.dat", action="write", status="replace")
     WRITE(myunit,fmtxrow) (((npol(i,j,k),i=1,dimx),j=1,ntheta),k=1,nions) ; CLOSE(myunit)
 
     OPEN(unit=myunit, file="output/ecoefs.dat", action="write", status="replace")
-    WRITE(myunit,fmtecoef) (((ecoefs(j,i,k),k=1,numecoefs),j=1,dimx),i=0,nions) ; CLOSE(myunit)
+    WRITE(myunit,fmtecoef) (((ecoefs(i,j,k),k=1,numecoefs),i=1,dimx),j=0,nions) ; CLOSE(myunit)
 
     OPEN(unit=myunit, file="output/cftrans.dat", action="write", status="replace")
-    WRITE(myunit,fmtcftrans) (((cftrans(j,i,k),k=1,6),j=1,dimx),i=1,nions) ; CLOSE(myunit)
+    WRITE(myunit,fmtcftrans) (((cftrans(i,j,k),k=1,6),i=1,dimx),j=1,nions) ; CLOSE(myunit)
 
-    OPEN(unit=myunit, file="output/gam_GB.dat", action="write", status="replace")
-    WRITE(myunit,fmtn) (((gam_GB(i,j,k),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
-
-    OPEN(unit=myunit, file="output/ome_GB.dat", action="write", status="replace")
-    WRITE(myunit,fmtn) (((ome_GB(i,j,k),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
-
-    OPEN(unit=myunit, file="output/gam_SI.dat", action="write", status="replace")
-    WRITE(myunit,fmtn) (((gam_SI(i,j,k),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
-
-    OPEN(unit=myunit, file="output/ome_SI.dat", action="write", status="replace")
-    WRITE(myunit,fmtn) (((ome_SI(i,j,k),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
+    CALL writevar(outputdir // 'gam_GB.dat', gam_GB, myfmt)
+    CALL writevar(outputdir // 'ome_GB.dat', ome_GB, myfmt)
+    CALL writevar(outputdir // 'gam_SI.dat', gam_SI, myfmt)
+    CALL writevar(outputdir // 'ome_SI.dat', ome_SI, myfmt)
 
     IF (phys_meth /= 0) THEN
-       OPEN(unit=myunit, file="output/cke.dat", action="write", status="replace")
-       WRITE(myunit,fmtx) (cke(i),i=1,dimx) ; CLOSE(myunit)
+        CALL writevar(outputdir // 'cke.dat', cke, myfmt)
+        CALL writevar(outputdir // 'edf_SI.dat', dfe_SI, myfmt)
+        CALL writevar(outputdir // 'evt_SI.dat', vte_SI, myfmt)
+        CALL writevar(outputdir // 'evr_SI.dat', vre_SI, myfmt)
+        CALL writevar(outputdir // 'evc_SI.dat', vce_SI, myfmt)
 
-       OPEN(unit=myunit, file="output/cki.dat", action="write", status="replace")
-       WRITE(myunit,fmtion) ((cki(i,j),j=1,nions),i=1,dimx) ; CLOSE(myunit)
-
-       OPEN(unit=myunit, file="output/edf_SI.dat", action="write", status="replace")
-       WRITE(myunit,fmtx) (dfe_SI(i),i=1,dimx) ; CLOSE(myunit)
-
-       OPEN(unit=myunit, file="output/idf_SI.dat", action="write", status="replace")
-       WRITE(myunit,fmtion) ((dfi_SI(i,j),j=1,nions),i=1,dimx) ; CLOSE(myunit)
-
-       OPEN(unit=myunit, file="output/evt_SI.dat", action="write", status="replace")
-       WRITE(myunit,fmtx) (vte_SI(i),i=1,dimx) ; CLOSE(myunit)
-
-       OPEN(unit=myunit, file="output/ivt_SI.dat", action="write", status="replace")
-       WRITE(myunit,fmtion) ((vti_SI(i,j),j=1,nions),i=1,dimx) ; CLOSE(myunit)
-
-       OPEN(unit=myunit, file="output/evr_SI.dat", action="write", status="replace")
-       WRITE(myunit,fmtx) (vre_SI(i),i=1,dimx) ; CLOSE(myunit)
-
-       OPEN(unit=myunit, file="output/ivr_SI.dat", action="write", status="replace")
-       WRITE(myunit,fmtion) ((vri_SI(i,j),j=1,nions),i=1,dimx) ; CLOSE(myunit)
-
-       OPEN(unit=myunit, file="output/evc_SI.dat", action="write", status="replace")
-       WRITE(myunit,fmtx) (vce_SI(i),i=1,dimx) ; CLOSE(myunit)
-
-       OPEN(unit=myunit, file="output/ivc_SI.dat", action="write", status="replace")
-       WRITE(myunit,fmtion) ((vci_SI(i,j),j=1,nions),i=1,dimx) ; CLOSE(myunit)
-!!!
+        CALL writevar(outputdir // 'cki.dat', cki, myfmt)
+        CALL writevar(outputdir // 'idf_SI.dat', dfi_SI, myfmt)
+        CALL writevar(outputdir // 'ivt_SI.dat', vti_SI, myfmt)
+        CALL writevar(outputdir // 'ivr_SI.dat', vri_SI, myfmt)
+        CALL writevar(outputdir // 'ivc_SI.dat', vci_SI, myfmt)
        IF (phys_meth == 2) THEN
-          OPEN(unit=myunit, file="output/ceke.dat", action="write", status="replace")
-          WRITE(myunit,fmtx) (ceke(i),i=1,dimx) ; CLOSE(myunit)
+           CALL writevar(outputdir // 'ceke.dat', ceke, myfmt)
+           CALL writevar(outputdir // 'even_SI.dat', vene_SI, myfmt)
+           CALL writevar(outputdir // 'ever_SI.dat', vere_SI, myfmt)
+           CALL writevar(outputdir // 'echie_SI.dat', chiee_SI, myfmt)
+           CALL writevar(outputdir // 'evec_SI.dat', vene_SI, myfmt)
 
-          OPEN(unit=myunit, file="output/ceki.dat", action="write", status="replace")
-          WRITE(myunit,fmtion) ((ceki(i,j),j=1,nions),i=1,dimx) ; CLOSE(myunit)
-
-          OPEN(unit=myunit, file="output/even_SI.dat", action="write", status="replace")
-          WRITE(myunit,fmtx) (vene_SI(i),i=1,dimx) ; CLOSE(myunit)
-
-          OPEN(unit=myunit, file="output/iven_SI.dat", action="write", status="replace")
-          WRITE(myunit,fmtion) ((veni_SI(i,j),j=1,nions),i=1,dimx) ; CLOSE(myunit)
-
-          OPEN(unit=myunit, file="output/ever_SI.dat", action="write", status="replace")
-          WRITE(myunit,fmtx) (vere_SI(i),i=1,dimx) ; CLOSE(myunit)
-
-          OPEN(unit=myunit, file="output/iver_SI.dat", action="write", status="replace")
-          WRITE(myunit,fmtion) ((veri_SI(i,j),j=1,nions),i=1,dimx) ; CLOSE(myunit)
-
-          OPEN(unit=myunit, file="output/echie_SI.dat", action="write", status="replace")
-          WRITE(myunit,fmtx) (chiee_SI(i),i=1,dimx) ; CLOSE(myunit)
-
-          OPEN(unit=myunit, file="output/ichie_SI.dat", action="write", status="replace")
-          WRITE(myunit,fmtion) ((chiei_SI(i,j),j=1,nions),i=1,dimx) ; CLOSE(myunit)
-
-          OPEN(unit=myunit, file="output/evec_SI.dat", action="write", status="replace")
-          WRITE(myunit,fmtx) (vece_SI(i),i=1,dimx) ; CLOSE(myunit)
-
-          OPEN(unit=myunit, file="output/ivec_SI.dat", action="write", status="replace")
-          WRITE(myunit,fmtion) ((veci_SI(i,j),j=1,nions),i=1,dimx) ; CLOSE(myunit)
+           CALL writevar(outputdir // 'ceki.dat', ceki, myfmt)
+           CALL writevar(outputdir // 'iven_SI.dat', veni_SI, myfmt)
+           CALL writevar(outputdir // 'iver_SI.dat', veri_SI, myfmt)
+           CALL writevar(outputdir // 'ichie_SI.dat', chiei_SI, myfmt)
+           CALL writevar(outputdir // 'ivec_SI.dat', veni_SI, myfmt)
        ENDIF
     ENDIF
 
-    OPEN(unit=myunit, file="output/epf_SI.dat", action="write", status="replace")
-    WRITE(myunit,fmtx) (epf_SI(i),i=1,dimx) ; CLOSE(myunit)
+    CALL writevar(outputdir // 'epf_SI.dat', epf_SI, myfmt)
+    CALL writevar(outputdir // 'epfETG_SI.dat', epfETG_SI, myfmt)
+    CALL writevar(outputdir // 'epf_GB.dat', epf_GB, myfmt)
+    CALL writevar(outputdir // 'epf_cm.dat', epf_cm, myfmt)
 
-    OPEN(unit=myunit, file="output/epfETG_SI.dat", action="write", status="replace")
-    WRITE(myunit,fmtx) (epfETG_SI(i),i=1,dimx) ; CLOSE(myunit)
+    CALL writevar(outputdir // 'eef_SI.dat', eef_SI, myfmt)
+    CALL writevar(outputdir // 'eefETG_SI.dat', eefETG_SI, myfmt)
+    CALL writevar(outputdir // 'eef_GB.dat', eef_GB, myfmt)
+    CALL writevar(outputdir // 'eef_cm.dat', eef_cm, myfmt)
 
-    OPEN(unit=myunit, file="output/ipf_SI.dat", action="write", status="replace")
-    WRITE(myunit,fmtion) ((ipf_SI(i,j),j=1,nions),i=1,dimx) ; CLOSE(myunit)
+    CALL writevar(outputdir // 'evf_SI.dat', evf_SI, myfmt)
+    CALL writevar(outputdir // 'evf_GB.dat', evf_GB, myfmt)
+    CALL writevar(outputdir // 'evf_cm.dat', evf_cm, myfmt)
 
-    OPEN(unit=myunit, file="output/epf_GB.dat", action="write", status="replace")
-    WRITE(myunit,fmtx) (epf_GB(i),i=1,dimx) ; CLOSE(myunit)
+    CALL writevar(outputdir // 'ipf_SI.dat', ipf_SI, myfmt)
+    CALL writevar(outputdir // 'ipf_GB.dat', ipf_GB, myfmt)
+    CALL writevar(outputdir // 'ipf_cm.dat', ipf_cm, myfmt)
 
-    OPEN(unit=myunit, file="output/ipf_GB.dat", action="write", status="replace")
-    WRITE(myunit,fmtion) ((ipf_GB(i,j),j=1,nions),i=1,dimx) ; CLOSE(myunit)
+    CALL writevar(outputdir // 'ief_SI.dat', ief_SI, myfmt)
+    CALL writevar(outputdir // 'ief_GB.dat', ief_GB, myfmt)
+    CALL writevar(outputdir // 'ief_cm.dat', ief_cm, myfmt)
 
-    OPEN(unit=myunit, file="output/eef_SI.dat", action="write", status="replace")
-    WRITE(myunit,fmtx) (eef_SI(i),i=1,dimx) ; CLOSE(myunit)
-
-    OPEN(unit=myunit, file="output/eefETG_SI.dat", action="write", status="replace")
-    WRITE(myunit,fmtx) (eefETG_SI(i),i=1,dimx) ; CLOSE(myunit)
-
-    OPEN(unit=myunit, file="output/ief_SI.dat", action="write", status="replace")
-    WRITE(myunit,fmtion) ((ief_SI(i,j),j=1,nions),i=1,dimx) ; CLOSE(myunit)
-
-    OPEN(unit=myunit, file="output/evf_SI.dat", action="write", status="replace")
-    WRITE(myunit,fmtx) (evf_SI(i),i=1,dimx) ; CLOSE(myunit)
-
-    OPEN(unit=myunit, file="output/ivf_SI.dat", action="write", status="replace")
-    WRITE(myunit,fmtion) ((ivf_SI(i,j),j=1,nions),i=1,dimx) ; CLOSE(myunit)
-
-    OPEN(unit=myunit, file="output/eef_GB.dat", action="write", status="replace")
-    WRITE(myunit,fmtx) (eef_GB(i),i=1,dimx) ; CLOSE(myunit)
-
-    OPEN(unit=myunit, file="output/ief_GB.dat", action="write", status="replace")
-    WRITE(myunit,fmtion) ((ief_GB(i,j),j=1,nions),i=1,dimx) ; CLOSE(myunit)
-
-    OPEN(unit=myunit, file="output/evf_GB.dat", action="write", status="replace")
-    WRITE(myunit,fmtx) (evf_GB(i),i=1,dimx) ; CLOSE(myunit)
-
-    OPEN(unit=myunit, file="output/ivf_GB.dat", action="write", status="replace")
-    WRITE(myunit,fmtion) ((ivf_GB(i,j),j=1,nions),i=1,dimx) ; CLOSE(myunit)
-
-    OPEN(unit=myunit, file="output/epf_cm.dat", action="write", status="replace")
-    WRITE(myunit,fmtn) ((epf_cm(i,j),j=1,dimn),i=1,dimx) ;  CLOSE(myunit)
-
-    OPEN(unit=myunit, file="output/ipf_cm.dat", action="write", status="replace")
-    WRITE(myunit,fmtn) (((ipf_cm(i,j,k),j=1,dimn),i=1,dimx),k=1,nions) ;  CLOSE(myunit)
-
-    OPEN(unit=myunit, file="output/eef_cm.dat", action="write", status="replace")
-    WRITE(myunit,fmtn) ((eef_cm(i,j),j=1,dimn),i=1,dimx) ;  CLOSE(myunit)
-
-    OPEN(unit=myunit, file="output/ief_cm.dat", action="write", status="replace")
-    WRITE(myunit,fmtn) (((ief_cm(i,j,k),j=1,dimn),i=1,dimx),k=1,nions) ;  CLOSE(myunit)
-
-    OPEN(unit=myunit, file="output/evf_cm.dat", action="write", status="replace")
-    WRITE(myunit,fmtn) ((evf_cm(i,j),j=1,dimn),i=1,dimx) ;  CLOSE(myunit)
-
-    OPEN(unit=myunit, file="output/ivf_cm.dat", action="write", status="replace")
-    WRITE(myunit,fmtn) (((ivf_cm(i,j,k),j=1,dimn),i=1,dimx),k=1,nions) ;  CLOSE(myunit)
-
+    CALL writevar(outputdir // 'ivf_SI.dat', ivf_SI, myfmt)
+    CALL writevar(outputdir // 'ivf_GB.dat', ivf_GB, myfmt)
+    CALL writevar(outputdir // 'ivf_cm.dat', ivf_cm, myfmt)
   END SUBROUTINE outputascii
 
 END PROGRAM qlk_standalone
