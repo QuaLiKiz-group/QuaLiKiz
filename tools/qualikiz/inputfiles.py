@@ -476,24 +476,6 @@ class QuaLiKizRun(OrderedDict):
             with open(path.join(inputdir, 'p' + str(i) + '.bin'), 'wb') as file:
                 byte.tofile(file)
 
-    @classmethod
-    def convert_to_legacy_QLK280416(cls, inputdir):
-       # Magic to fix ordering of the p-files
-        os.rename(path.join(inputdir, 'p15.bin'), 'temp')
-        for i in range(16, 22):
-            os.rename(path.join(inputdir, 'p' + str(i) + '.bin'),
-                      path.join(inputdir, 'p' + str(i - 1) + '.bin'))
-        os.rename('temp', path.join(inputdir, 'p21.bin'))
-
-
-        os.rename(path.join(inputdir, 'p44.bin'), 'temp')
-        os.rename(path.join(inputdir, 'p45.bin'), 'temp2')
-        for i in reversed(range(37, 44)):
-            os.rename(path.join(inputdir, 'p' + str(i) + '.bin'),
-                      path.join(inputdir, 'p' + str(i + 2) + '.bin'))
-        os.rename('temp', path.join(inputdir, 'p37.bin'))
-        os.rename('temp2', path.join(inputdir, 'p38.bin'))
-
     def legacy(self):
         #
         ##Set the number and range of wave number points

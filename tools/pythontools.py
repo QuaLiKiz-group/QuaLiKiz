@@ -3,8 +3,11 @@ import sys
 import os
 from qualikiz import compare
 from qualikiz import qualikizrun
+from qualikiz import legacy
 import subprocess
 import os, inspect
+
+
 if len(sys.argv) < 2:
     raise Exception('Please supply a command')
 command = sys.argv[1]
@@ -43,6 +46,23 @@ elif command == 'inputgo':
     path = sys.argv[2]
     qualikizrun.generate_inputs(path)
     qualikizrun.run_jobs(path)
+elif command == 'convertto':
+    if len(sys.argv) < 3:
+        raise Exception('Please supply current style')
+    current = sys.argv[2]
+    if len(sys.argv) < 4:
+        raise Exception('Please supply conversion target')
+    target = sys.argv[3]
+    if len(sys.argv) < 5:
+        raise Exception('Please supply input path to convert')
+    path = sys.argv[4]
+    if current == 'current':
+        if target == '2.3.0':
+            legacy.convert_current_to_2_3_0(path)
+        else:
+            raise Exception('Unkown target')
+    else:
+        raise Exception('Unkown current style')
 
 else:
     testsdir =  os.path.abspath(
