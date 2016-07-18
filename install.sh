@@ -25,7 +25,7 @@ case $yno in
   Y | y)
     echo Creating and adjusting src/Makefile.inc
     cp $PWD/src/make.inc/Makefile.$ARCH $PWD/src/Makefile.inc
-    sed -i '/QUALIKIZ*/c\QUALIKIZ='$PWD $PWD/src/Makefile.inc
+    sed -i '/QUALIKIZ=*/c\QUALIKIZ='$PWD $PWD/src/Makefile.inc
     ;;
   N | n)
     echo "Please manually copy src/make.inc/Makefile.* for your arch to src/Makefile.inc and edit QUALIKIZ and compiler flags"

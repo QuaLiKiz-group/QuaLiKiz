@@ -45,7 +45,8 @@ distclean: clean
 
 
 dump_variables:
+	@echo SRC=$(SRC)
+	@echo LIB_SRC=$(LIBSRC)
 	@echo LIBS=$(LIBS)
 	@echo LIBS_CLEAN=$(LIBS_CLEAN)
 	@echo QUALIKIZ=$(QUALIKIZ)
-	@echo SRC=$(SRC)

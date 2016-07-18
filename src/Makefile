@@ -18,16 +18,11 @@ SLATEC?=-L$(SLATEC_DIR) -lslatec
 SPECFUN?=-L$(SPECFUN_DIR) -lspecfun
 
 LIBS=$(CUBPACK) $(GENZ) $(NAG) $(SLATEC) $(SPECFUN)
-#LIBS=$(CUBPACK_DIR)/libcubpack.a $(GENZ_DIR)/libgenz.a $(NAG_DIR)/libnag.a $(SLATEC_DIR)/libslatec.a $(SPECFUN_DIR)/libspecfun.a
-#LIBS_INCLUDE=$(dir $(LIBS:%=-L%))
-#MODS_INCLUDE=-I$(CUBPACK)
-#LIBS_INCLUDE=$(LIBS:%=-L%)
 # Parallel or serial compilation
 ifneq ($(MPI_FLAGS),-DMPI)
       OBJS_QUALIKIZ += mpivoid.o
 endif
 
-FFLAGS_QUALIKIZ= -fdefault-double-8 -fdefault-real-8 -ffree-line-length-none
 #all: $(CUB)/libcubpack.a $(ROUT)/librout.a QuaLiKiz.exe
 # qlk_makeflux.exe qlk_redoQL.exe
 
@@ -77,14 +72,12 @@ mod_saturation.o: kind.mod datmat.mod datcal.mod
 
 ###############################################################################
 QuaLiKiz: qlk_standalone.f90 $(OBJS_CORE) $(OBJS_QUALIKIZ) 
-	echo $(LIBS_INCLUDE)
-	$(FC_PREAMBLE) $(FC_WRAPPER) $(FFLAGS) $(OPENMP_FLAGS) $(MPI_FLAGS) $(OBJS_CORE) $(OBJS_QUALIKIZ) $(LIBS) qlk_standalone.f90 -o $@
+	$(FC_PREAMBLE) $(FC_WRAPPER) $(FFLAGS) $(MPI_FLAGS) $(OPENMP_FLAGS) $(OBJS_CORE) $(OBJS_QUALIKIZ) $(LIBS) qlk_standalone.f90 -o $@
 
 
 objs_core: $(OBJS_CORE)
 objs_qualikiz: $(OBJS_QUALIKIZ) objs_core
 $(OBJS_QUALIKIZ) $(OBJS_CORE):%.o:%.f90
-	echo $(NAG)
 	$(FC_PREAMBLE) $(FC_WRAPPER) $(FFLAGS) $(MPI_FLAGS) $(OPENMP_FLAGS) $(LIBS) -c $<
 
 
@@ -100,17 +93,14 @@ distclean: clean
 
 
 dump_variables:
+	@echo FC_PREAMBLE=$(FC_PREAMBLE)
 	@echo FC_WRAPPER=$(FC_WRAPPER)
 	@echo FFLAGS=$(FFLAGS)
-	@echo OPENMP_FLAGS=$(OPENMP_FLAGS)
 	@echo MPI_FLAGS=$(MPI_FLAGS)
+	@echo OPENMP_FLAGS=$(OPENMP_FLAGS)
 	@echo
-	@echo FFLAGS_QUALIKIZ=$(FFLAGS_QUALIKIZ)
 	@echo QUALIKIZ=$(QUALIKIZ)
-	@echo MATHLIB=$(MATHLIB)
-	@echo CUBPACK=$(CUBPACK)
+	@echo LIBS=$(LIBS)
 	@echo
 	@echo MODS_CORE=$(MODS_CORE)
-	@echo QUALIKIZ_MODS=$(MODS_QUALIKIZ)
-	@echo
-	@echo LIBS_INCLUDE=$(LIBS_INCLUDE)
+	@echo MODS_QUALIKIZ=$(MODS_QUALIKIZ)
