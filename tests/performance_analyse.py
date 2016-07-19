@@ -3,6 +3,7 @@ import sys
 import pickle
 import os
 from collections import OrderedDict
+import re
 
 import matplotlib
 matplotlib.use('TkAgg')
@@ -31,7 +32,7 @@ for entry in acctlist:
             else:
                 name = job['JobName']
                 # As we intelligently named our scripts, we can extract dimxn
-                dimxn = int(name[:name.find('mpi')].lstrip('OMP_MPI_dimxn'))
+                dimxn, __ = [int(n) for n in re.split('\D', name) if n is not '']
                 result['dimxn'] = dimxn
                 ncpus = int(job['AllocCPUS'])
                 result['JobID'] = job['JobID']
@@ -98,12 +99,8 @@ print (zs)
 
 fig = plt.figure()
 ax1 = fig.add_subplot(111)
-#print (xgrid[np.isfinite(zs)])
-#print (zs[np.isfinite(zs)])
+
 for x_slice, y_slice, z_slice in zip(xgrid.T, ygrid.T, zs.T):
-    print (x_slice)
-    print (y_slice)
-    print (z_slice)
     ax1.loglog(x_slice[np.isfinite(z_slice)], z_slice[np.isfinite(z_slice)], basex=2, label=y_slice)
 plt.legend(ys)
 plt.legend([str(y) + ' points' for y in ys])
@@ -111,13 +108,10 @@ plt.gca().invert_xaxis()
 
 ax1.set_xlabel('points per core')
 ax1.set_ylabel('Walltime [h]')
-#ax2.plot(xs, zs)
+
 fig = plt.figure()
 ax2 = fig.add_subplot(111)
 for x_slice, y_slice, z_slice in zip(xgrid, ygrid, zs):
-    print (x_slice)
-    print (y_slice)
-    print (z_slice)
     ax2.loglog(y_slice[np.isfinite(z_slice)], z_slice[np.isfinite(z_slice)], basex=2, label=x_slice)
 plt.legend([str(x) + ' points per core' for x in xs])
 ax2.set_xlabel('points')

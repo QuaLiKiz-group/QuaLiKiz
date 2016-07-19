@@ -171,7 +171,7 @@ class EmptyJob:
             with open(os.path.join(path, 'jobdata.pkl'), 'wb') as file_:
                 pickle.dump(self, file_)
 
-def generate_inputs(path):
+def generate_inputs(path, dotprint=False):
     """ Recursively create input for all jobs in a specific directory """
     if Run.scriptname in os.listdir(path):
         generate_input(path)
@@ -181,6 +181,7 @@ def generate_inputs(path):
             if os.path.isdir(job_folder):
                 if Run.scriptname in os.listdir(job_folder):
                     generate_input(job_folder)
+                    print ('.', end='', flush=True)
 
 def generate_input(job_folder):
     """ Generate input for a job in a specific directory """
@@ -205,13 +206,20 @@ def run_job(job_folder):
         warn('Warning! Input binary at ' + input_binary + ' does not ' +
              'exist! Run will fail! Please generate input binaries with ' +
              'parameters.py')
+
+
+    cmd = 'git describe --tags'
+    qualikiz_version = subprocess.check_output(cmd, shell=True)
+
     cmd = 'sbatch --workdir=' + job_folder + ' ' + os.path.join(job_folder, Run.scriptname)
     output = subprocess.check_output(cmd, shell=True)
     jobnumber = output.split()[-1]
+    
     with open(os.path.join(job_folder, EmptyJob.jobdatafile), 'rb') as file_:
         job = pickle.load(file_)
         job.jobnumber = jobnumber
         job.submittime = datetime.datetime.now()
+        job.qualikiz_version = qualikiz_version
     with open(os.path.join(job_folder, EmptyJob.jobdatafile), 'wb') as file_:
         pickle.dump(job, file_)
         print (jobnumber)

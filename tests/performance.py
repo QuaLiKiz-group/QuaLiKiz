@@ -37,12 +37,14 @@ for xpoints in xpoints_scan:
             if (3*xpoints/potxpt % 24) == 0:
                nice_potxpt.append( potxpt)
    prev_nice_potxpt = nice_potxpt
-   print (nice_potxpt)
+   #print (nice_potxpt)
+
 xpoints_per_tasks_scan = [9, 12, 18, 27, 36, 54]
 xpoints_per_task_grid, xpoints_grid = np.meshgrid(xpoints_per_tasks_scan, xpoints_scan)
 tasks_grid = (3 * xpoints_grid / xpoints_per_task_grid).astype(int)
 print ('xpoints_per_task = ' + str(xpoints_per_tasks_scan))
 print ('xpoints = ' + str(xpoints_scan))
+
 nodes_grid = tasks_grid / 24
 maxtime = datetime.timedelta(seconds=25*60)
 max_cputime_grid = nodes_grid * 24 * maxtime.total_seconds() / 3600
@@ -51,20 +53,22 @@ worst_case_cputime = []
 
 mask = max_cputime_grid > 100
 mask = np.ones_like(max_cputime_grid)
-#mask[:2,:] = 0
-mask[:,-1:] = 0
+mask[:2,:] = 0
+mask[1,0:2] = 1
+
 xpoints_per_task_grid = np.ma.array(xpoints_per_task_grid, mask=mask)
 tasks_grid = np.ma.array(tasks_grid, mask=mask)
 xpoints_grid = np.ma.array(xpoints_grid, mask=mask)
 max_cputime_grid = np.ma.array(max_cputime_grid)
 max_cputime_grid.__setmask__(mask)
-print ('points per task')
+
+print ('xpoints per task')
 print (xpoints_per_task_grid)
-print ('points')
+print ('xpoints')
 print (xpoints_grid)
 print ('tasks')
 print (tasks_grid)
-print ('CPUh')
+print ('max CPUh')
 print (max_cputime_grid)
 
 
@@ -76,8 +80,7 @@ print ('uses at max ' + str(max_cputime_grid.sum()) + ' CPUh')
 
 for tasks_slice, xpoints_slice in zip(tasks_grid, xpoints_grid):
     for tasks, xpoints in zip(tasks_slice.compressed(), xpoints_slice.compressed()):
-        print (tasks)
-        binary_basename = 'QuaLiKiz+pat'
+        binary_basename = 'QuaLiKiz'
         parameters_script = []
         for line in parameters_template_script:
             if 'xpoints =' in line:
@@ -114,9 +117,9 @@ for tasks_slice, xpoints_slice in zip(tasks_grid, xpoints_grid):
             run.jobs.update({job.name: job})
 run.to_file(overwrite=True)
 
-    
-print ('Generating input files')
-generate_inputs(run.runsdir)
+print ('Generating input files', end='', flush=True)
+generate_inputs(run.runsdir, dotprint=True)
+print ('\n')
 resp = input('Submit all jobs in rundir to queue? [Y/n]')
 if resp == '' or resp == 'Y' or resp == 'y':
     run_jobs(run.runsdir)
