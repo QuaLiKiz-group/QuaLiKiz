@@ -6,6 +6,7 @@ import sys
 from collections import OrderedDict
 import itertools
 import numpy as np
+import inspect
 
 def to_bytelist_proto(self):
     """ Protype of converting a class to a list of bytes
@@ -387,7 +388,7 @@ class QuaLiKizRun(OrderedDict):
         set_items = [self.howto_setitem(name) for name in self._scan_names]
 
         lenlist = [len(range) for range in self._scan_ranges]
-        self['meta']['numscan'] = np.sum(lenlist)
+        self['meta']['numscan'] = int(np.sum(lenlist))
 
         numbytes = self['meta']['numscan']
         spat_bytelist = [array.array('d', [0] * numbytes) for i in range(13)]
@@ -430,14 +431,13 @@ class QuaLiKizRun(OrderedDict):
         isequal_items = [self.howto_isequal(name) for name in self._scan_names]
 
         lenlist = [len(range) for range in self._scan_ranges]
-        self['meta']['numscan'] = np.sum(lenlist)
+        self['meta']['numscan'] = int(np.product(lenlist))
 
         numbytes = self['meta']['numscan']
         spat_bytelist = [array.array('d', [0] * numbytes) for i in range(13)]
         elec_bytelist = [array.array('d', [0] * numbytes) for i in range(7)]
         numbytes = self['meta']['numscan'] * self['meta']['nion']
         ions_bytelist = [array.array('d', [0] * numbytes) for i in range(9)]
-
         hypercube_scan_values = itertools.product(*self._scan_ranges)
         for numscan, scan_values in enumerate(hypercube_scan_values):
             for i, scan_value in enumerate(scan_values):
@@ -518,44 +518,6 @@ class QuaLiKizRun(OrderedDict):
         Ziz2 = [ion['Zi'] ** 2 for ion in ions]
         Zeffx = np.sum([x * y for x, y in zip(ninormz, Ziz2)])
 
-def reference_example():
-    """ Imitates the old MATLAB script """
-    scan_names = ['iAt', 'eAt', 'eAn']
-    xpoints = 3
-    scan_ranges = [np.linspace(2, 12, xpoints),
-                   np.linspace(2, 12, xpoints),
-                   np.linspace(1, 4, xpoints)]
-
-    elec = Electron(T=9., n=5., At=9., An=3., type=1, anis=1., danisdr=0.)
-    D = Ion(name='main_D', Ai=2., Zi=1., n=0.8, T=9., At=0., An=3., type=1, anis=1., danisdr=0.)
-    Be = Ion(name='Be', Ai=9., Zi=4., n=0.1, T=9., At=0., An=2.9, type=1, anis=1., danisdr=0.)
-    W = Ion(name='W+42', Ai=184., Zi=42., n=0.0, T=9., At=0., An=3., type=3, anis=1., danisdr=0.)
-
-    ions = IonList(D, Be, W)
-
-    npoints = 8
-    kthetarhos = np.append(np.linspace(0.1, 0.8, npoints),
-                           np.linspace(6, 48, npoints))
-    dict_ = {
-        'R_0':     3,
-        'x':        .5,
-        'rho':      .5,
-        'Ro':      3.,
-        'Rmin':    1.,
-        'Bo':      3.,
-        'R0':      3.,
-        'qx':      2.,
-        'smag':    1.,
-        'alphax':  0.,
-        'Machtor': 0.,
-        'Autor':   0.,
-        'ninorm1': True,
-        'Ani1':    True,
-        'QN_grad': True
-        }
-
-    sim = QuaLiKizRun(scan_names, scan_ranges, kthetarhos, elec, ions, **dict_)
-    return sim
 #   Zeffx(i)=sum(ninormz(i,:).*Zi(i,:).^2); #calculate Zeff
 #end
 #
@@ -605,7 +567,3 @@ def reference_example():
 ### ---------------------------------
 ### MANAGING QUALIKIZ INPUT VARIABLES
 ### ---------------------------------
-if __name__ == "__main__":
-    sim = reference_example()
-    hypercube = sim.setup_hyperedge()
-    sim.to_file(hypercube)
