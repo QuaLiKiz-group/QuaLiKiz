@@ -18,6 +18,7 @@ if command == 'compare':
     path1 = sys.argv[2]
     path2 = sys.argv[3]
     compare.compare_runs(path1, path2)
+
 elif command == 'dump':
     if len(sys.argv) < 4:
         raise Exception('Please supply the style and path of the file')
@@ -30,6 +31,7 @@ elif command == 'dump':
     else:
         raise Exception('Unknown file style \'' + style + '\'')
     print (array)
+
 elif command == 'poll':
     if len(sys.argv) < 3:
         raise Exception('Please supply poll path')
@@ -38,14 +40,16 @@ elif command == 'poll':
     else:
         targetdir = './polldump.pkl'
     path = sys.argv[2]
-    acctdata = qualikizrun.poll_dirs(path)
+    acctdata = qualikizrun.recursive_function(path, qualikizrun.poll_dir)
     qualikizrun.poll_to_file(acctdata, targetdir)
+
 elif command == 'inputgo':
     if len(sys.argv) < 3:
         raise Exception('Please supply run path')
     path = sys.argv[2]
-    qualikizrun.generate_inputs(path)
+    qualikizrun.recursive_function(path, qualikizrun.generate_input)
     qualikizrun.run_jobs(path)
+
 elif command == 'convertto':
     if len(sys.argv) < 3:
         raise Exception('Please supply current style')
@@ -88,6 +92,7 @@ else:
         else:
             raise Exception('Unknown create target \'' + create_target + '\'')
         subprocess.check_call(cmd)
+
     elif command == 'analyse':
         if len(sys.argv) < 3:
              raise Exception('Please supply path to analyse')
@@ -96,5 +101,6 @@ else:
                os.path.join(testsdir, 'performance_analyse.py'),
                path]
         subprocess.check_call(cmd)
+
     else:
         raise Exception('Unknown command \'' + command + '\'')

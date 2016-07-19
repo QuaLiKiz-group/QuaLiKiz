@@ -7,7 +7,7 @@ from warnings import warn
 
 import numpy as np
 
-from qualikiz.qualikizrun import Run, EmptyJob, run_jobs, generate_inputs
+from qualikiz.qualikizrun import Run, EmptyJob, run_job, generate_input, recursive_function
 from qualikiz.edisonbatch import Srun, Batch
 from qualikiz.inputfiles import Electron, Ion, IonList, QuaLiKizRun
 
@@ -118,8 +118,8 @@ for tasks_slice, xpoints_slice in zip(tasks_grid, xpoints_grid):
 run.to_file(overwrite=True)
 
 print ('Generating input files', end='', flush=True)
-generate_inputs(run.runsdir, dotprint=True)
+recursive_function(run.runsdir, generate_input, dotprint=True)
 print ('\n')
 resp = input('Submit all jobs in rundir to queue? [Y/n]')
 if resp == '' or resp == 'Y' or resp == 'y':
-    run_jobs(run.runsdir)
+   recursive_function(run.runsdir, run_job)

@@ -171,33 +171,34 @@ class EmptyJob:
             with open(os.path.join(path, 'jobdata.pkl'), 'wb') as file_:
                 pickle.dump(self, file_)
 
-def generate_inputs(path, dotprint=False):
-    """ Recursively create input for all jobs in a specific directory """
+def recursive_function(path, function, dotprint=False):
+    """ Recursively run a function in a specific directory
+    Only run the function if it has a valid run script Run.scriptname.
+    Arguments:
+        - path: Path to recursively run a funciton in
+        - function: The function to recursively run. The function should
+                accept only a path as input
+
+    Keyword arguments:
+        - dotprint: Print a dot (no newline) after echt directory
+    """
+    results = []
     if Run.scriptname in os.listdir(path):
-        generate_input(path)
+        results.append(function(path))
     else:
         for folder in os.listdir(path):
             job_folder = os.path.join(path, folder)
             if os.path.isdir(job_folder):
                 if Run.scriptname in os.listdir(job_folder):
-                    generate_input(job_folder)
-                    print ('.', end='', flush=True)
+                    results.append(function(job_folder))
+                    if dotprint:
+                        print ('.', end='', flush=True)
+    return results
 
 def generate_input(job_folder):
     """ Generate input for a job in a specific directory """
     cmd = ['python', os.path.abspath(os.path.join(job_folder, 'parameters.py'))]
     subprocess.check_call(cmd)
-
-def run_jobs(path):
-    """ Recursively run all jobs in a specific directory """
-    if Run.scriptname in os.listdir(path):
-        run_job(path)
-    else:
-        for folder in os.listdir(path):
-            job_folder = os.path.join(path, folder)
-            if os.path.isdir(job_folder):
-                if Run.scriptname in os.listdir(job_folder):
-                    run_job(job_folder)
 
 def run_job(job_folder):
     """ Run a job in a specific directory """
@@ -224,24 +225,6 @@ def run_job(job_folder):
         pickle.dump(job, file_)
         print (jobnumber)
 
-def poll_dirs(path):
-    """ Recursively poll all jobs in a specific directory using sacct
-    Arguments:
-        - path: Path to recursively poll for sacct data
-
-    Returns:
-        - List of dicts containing sacct data
-    """
-    acct_data = []
-    if EmptyJob.jobdatafile in os.listdir(path):
-        acct_data.append(poll_dir(path))
-    else:
-        for folder in os.listdir(path):
-            job_folder = os.path.join(path, folder)
-            if os.path.isdir(job_folder):
-                if EmptyJob.jobdatafile in os.listdir(job_folder):
-                    acct_data.append(poll_dir(job_folder))
-    return acct_data
 
 def poll_dir(path):
     """ Poll a job in a specific directory using sacct
