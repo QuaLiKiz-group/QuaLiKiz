@@ -50,13 +50,13 @@ CONTAINS
 
   SUBROUTINE extract_filename(filename,dirname,basename,suffix)
     CHARACTER(len=*), INTENT(IN) :: filename
-	CHARACTER(len=:), INTENT(OUT), ALLOCATABLE:: dirname,basename,suffix
-	INTEGER :: dirsep, sufsep
+    CHARACTER(len=:), INTENT(OUT), ALLOCATABLE:: dirname,basename,suffix
+    INTEGER :: dirsep, sufsep
 
     dirsep=index(filename, '/', BACK=.TRUE.)
     sufsep=index(filename, '.', BACK=.TRUE.)
 
-	dirname=filename(1:dirsep)
+    dirname=filename(1:dirsep)
     basename=filename(dirsep+1:sufsep-1)
     suffix=filename(sufsep+1:)
   END SUBROUTINE extract_filename
@@ -128,11 +128,11 @@ CONTAINS
     CHARACTER(LEN=30) :: rowfmt
     CHARACTER(LEN=:), ALLOCATABLE :: dirname,basename,suffix
 
-	CALL extract_filename(filename,dirname,basename,suffix)
+    CALL extract_filename(filename,dirname,basename,suffix)
     CALL writevar_2d(dirname // 'r' // basename // '.' // suffix, &
-                     REAL(mold),varformat)
+         REAL(mold),varformat)
     CALL writevar_2d(dirname // 'i' // basename // '.' // suffix, &
-                     AIMAG(mold),varformat)
+         AIMAG(mold),varformat)
   END SUBROUTINE writevar_2d_complex
 
   SUBROUTINE writevar_3d(filename, mold, varformat)
@@ -158,11 +158,11 @@ CONTAINS
     CHARACTER(LEN=30) :: rowfmt
     CHARACTER(LEN=:), ALLOCATABLE :: dirname,basename,suffix
 
-	CALL extract_filename(filename,dirname,basename,suffix)
+    CALL extract_filename(filename,dirname,basename,suffix)
     CALL writevar_3d(dirname // 'r' // basename // '.' // suffix, &
-                     REAL(mold),varformat)
+         REAL(mold),varformat)
     CALL writevar_3d(dirname // 'i' // basename // '.' // suffix, &
-                     AIMAG(mold),varformat)
+         AIMAG(mold),varformat)
   END SUBROUTINE writevar_3d_complex
 
   SUBROUTINE writevar_4d(filename, mold, varformat)
@@ -178,7 +178,7 @@ CONTAINS
     CALL open_file_out_txt(filename)
     WRITE(rowfmt,'(A,I0,A)') '(',numcols,'G15.7)'
     WRITE(myunit,rowfmt) ((((mold(i,j,k,l),j=1,numcols),i=1,numrows), &
-                                           k=1,numpages),l=1,numhpages)
+         k=1,numpages),l=1,numhpages)
     CLOSE(unit=myunit)
   END SUBROUTINE writevar_4d
 
@@ -190,11 +190,11 @@ CONTAINS
     CHARACTER(LEN=30) :: rowfmt
     CHARACTER(LEN=:), ALLOCATABLE :: dirname,basename,suffix
 
-	CALL extract_filename(filename,dirname,basename,suffix)
+    CALL extract_filename(filename,dirname,basename,suffix)
     CALL writevar_4d(dirname // 'r' // basename // '.' // suffix, &
-                     REAL(mold),varformat)
+         REAL(mold),varformat)
     CALL writevar_4d(dirname // 'i' // basename // '.' // suffix, &
-                     AIMAG(mold),varformat)
+         AIMAG(mold),varformat)
   END SUBROUTINE writevar_4d_complex
 
   REAL(kind=DBL) FUNCTION readvar_0d(filename, dummy, ktype)

@@ -8,13 +8,13 @@
 ! PARALLEL VERSION                                                                    !
 !-------------------------------------------------------------------------------------!
 
-SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll_flagin, rot_flagin, verbosein, kthetarhosin, & !general param
+SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll_flagin, rot_flagin, verbosein, separatefluxin, kthetarhosin, & !general param
      & xin, Roin, Rminin, R0in, Boin, qxin, smagin, alphaxin, & !geometry input
      & el_typein, Texin, Nexin, Atein, Anein, anisein, danisedrin, & !electron input
      & ion_typein, Aiin, Ziin, Tixin, ninormin, Atiin, Aniin, anisin, danisdrin, & !ion input
      & Machtorin, Autorin, Machparin, Auparin, gammaEin, & !rotation input
      & maxrunsin, maxptsin, relacc1in, relacc2in, timeoutin, & !code specific input
-     & epf_SIout,epfETG_SIout,eef_SIout,eefETG_SIout,evf_SIout,ipf_SIout,ief_SIout,ivf_SIout, & ! Non optional outputs
+     & epf_SIout,eef_SIout,evf_SIout,ipf_SIout,ief_SIout,ivf_SIout, & ! Non optional outputs
      & solflu_SIout, solflu_GBout, gam_SIout,gam_GBout,ome_SIout,ome_GBout, & !growth rate and frequency output
      & epf_GBout,eef_GBout, evf_GBout, dfe_SIout,vte_SIout,vre_SIout,vce_SIout,epf_cmout,eef_cmout,evf_cmout,ckeout, & !electron flux outputs
      & ipf_GBout,ief_GBout, ivf_GBout, dfi_SIout,vti_SIout,vri_SIout,vci_SIout,ipf_cmout,ief_cmout,ivf_cmout,ckiout, & !ion flux outputs
@@ -28,7 +28,13 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
      & Lecircgteout, Lepieggteout, Lecircgneout, Lepieggneout, Lecircgueout, Lepieggueout, Lecircceout, &
      &Lepiegceout, Lecircgtiout, Lepieggtiout, Lecircgniout, Lepieggniout, Lecircguiout, Lepiegguiout, Lecircciout, Lepiegciout,&
      oldsolin, oldfdsolin, runcounterin,&
-     rhominin,rhomaxin)
+     rhominin,rhomaxin,&
+     eefETG_SIout,chieeETG_SIout,veneETG_SIout,veceETG_SIout,vereETG_SIout,&  !optional outputs from separation of fluxes
+     eefTEM_SIout,epfTEM_SIout,dfeTEM_SIout,vteTEM_SIout,vceTEM_SIout,vreTEM_SIout,chieeTEM_SIout,veneTEM_SIout,veceTEM_SIout,vereTEM_SIout,&
+     eefITG_SIout,epfITG_SIout,dfeITG_SIout,vteITG_SIout,vceITG_SIout,vreITG_SIout,chieeITG_SIout,veneITG_SIout,veceITG_SIout,vereITG_SIout,&
+     iefTEM_SIout,ipfTEM_SIout,dfiTEM_SIout,vtiTEM_SIout,vciTEM_SIout,vriTEM_SIout,chieiTEM_SIout,veniTEM_SIout,veciTEM_SIout,veriTEM_SIout,ivfTEM_SIout,&
+     iefITG_SIout,ipfITG_SIout,dfiITG_SIout,vtiITG_SIout,vciITG_SIout,vriITG_SIout,chieiITG_SIout,veniITG_SIout,veciITG_SIout,veriITG_SIout,ivfITG_SIout)
+
   !BRIEF EXPLANATION OF MODULES
   !
   !kind defines the kind numbers and output/error units
@@ -67,7 +73,7 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
   INTEGER :: i,j,k,ierror,nproc,irank,TotTask, myrank
 
   ! List of input variables
-  INTEGER, INTENT(IN) :: dimxin, dimnin, nionsin, numsolsin, phys_methin, coll_flagin, rot_flagin,verbosein,el_typein
+  INTEGER, INTENT(IN) :: dimxin, dimnin, nionsin, numsolsin, phys_methin, coll_flagin, rot_flagin,verbosein,separatefluxin, el_typein
   INTEGER, DIMENSION(dimxin,nionsin), INTENT(IN) :: ion_typein
   REAL(kind=DBL), INTENT(IN) :: R0in
   REAL(kind=DBL), DIMENSION(dimxin), INTENT(IN) :: xin, rhoin, Roin, Rminin, Boin, qxin, smagin, alphaxin
@@ -86,8 +92,18 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
   REAL(KIND=DBL), DIMENSION(dimxin,dimnin,numsolsin), OPTIONAL, INTENT(OUT)  :: gam_SIout,gam_GBout,ome_SIout,ome_GBout  
 
   ! final output arrays following saturation rule
-  REAL(KIND=DBL), DIMENSION(dimxin), INTENT(OUT)  :: epf_SIout,epfETG_SIout,eef_SIout,eefETG_SIout, evf_SIout
+  REAL(KIND=DBL), DIMENSION(dimxin), INTENT(OUT)  :: epf_SIout,eef_SIout,evf_SIout
   REAL(KIND=DBL), DIMENSION(dimxin,nionsin), INTENT(OUT)  :: ipf_SIout,ief_SIout,ivf_SIout
+
+
+  REAL(KIND=DBL), DIMENSION(dimxin), OPTIONAL, INTENT(OUT) :: eefETG_SIout,chieeETG_SIout,veneETG_SIout,veceETG_SIout,vereETG_SIout
+  REAL(KIND=DBL), DIMENSION(dimxin), OPTIONAL, INTENT(OUT) :: eefTEM_SIout,epfTEM_SIout,dfeTEM_SIout,vteTEM_SIout,vceTEM_SIout,vreTEM_SIout,chieeTEM_SIout,veneTEM_SIout,veceTEM_SIout,vereTEM_SIout
+  REAL(KIND=DBL), DIMENSION(dimxin), OPTIONAL, INTENT(OUT) :: eefITG_SIout,epfITG_SIout,dfeITG_SIout,vteITG_SIout,vceITG_SIout,vreITG_SIout,chieeITG_SIout,veneITG_SIout,veceITG_SIout,vereITG_SIout
+  REAL(KIND=DBL), DIMENSION(dimxin,nionsin), OPTIONAL, INTENT(OUT) :: iefTEM_SIout,ipfTEM_SIout,dfiTEM_SIout,vtiTEM_SIout,vciTEM_SIout
+  REAL(KIND=DBL), DIMENSION(dimxin,nionsin), OPTIONAL, INTENT(OUT) :: vriTEM_SIout,chieiTEM_SIout,veniTEM_SIout,veciTEM_SIout,veriTEM_SIout,ivfTEM_SIout
+  REAL(KIND=DBL), DIMENSION(dimxin,nionsin), OPTIONAL, INTENT(OUT) :: iefITG_SIout,ipfITG_SIout,dfiITG_SIout,vtiITG_SIout,vciITG_SIout,vriITG_SIout
+  REAL(KIND=DBL), DIMENSION(dimxin,nionsin), OPTIONAL, INTENT(OUT) :: chieiITG_SIout,veniITG_SIout,veciITG_SIout,veriITG_SIout,ivfITG_SIout
+
   REAL(KIND=DBL), DIMENSION(dimxin), OPTIONAL, INTENT(OUT)  :: epf_GBout,eef_GBout, evf_GBout, dfe_SIout, vte_SIout, vre_SIout, vce_SIout, ckeout, modeflagout
   REAL(KIND=DBL), DIMENSION(dimxin), OPTIONAL, INTENT(OUT)  :: vene_SIout, chiee_SIout, vere_SIout, vece_SIout, cekeout
   REAL(KIND=DBL), DIMENSION(dimxin,nionsin), OPTIONAL, INTENT(OUT)  :: ipf_GBout,ief_GBout, ivf_GBout, dfi_SIout, vti_SIout, vri_SIout, vci_SIout, ckiout
@@ -128,7 +144,7 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
   CALL SYSTEM_CLOCK(time1)
 
   ! Make the input (including derived quantities)
-  CALL make_input(dimxin, dimnin, nionsin, numsolsin, phys_methin, coll_flagin, rot_flagin, verbosein,kthetarhosin, & !general param
+  CALL make_input(dimxin, dimnin, nionsin, numsolsin, phys_methin, coll_flagin, rot_flagin, verbosein, separatefluxin, kthetarhosin, & !general param
        & xin, rhoin, Roin, Rminin, R0in, Boin, qxin, smagin, alphaxin, & 
        & el_typein, Texin, Nexin, Atein, Anein, anisein, danisedrin, & 
        & ion_typein, Aiin, Ziin, Tixin, ninormin, Atiin, Aniin, anisin, danisdrin, & 
@@ -215,12 +231,74 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
   IF (myrank==0) THEN 
 
      IF (verbose .EQV. .TRUE.) WRITE(stdout,*)     
-     IF (verbose .EQV. .TRUE.) WRITE(stdout,"(A)") '*** Carrying out NL saturation rules'
+     IF (verbose .EQV. .TRUE.) WRITE(stdout,"(A)") '*** Carrying out NL saturation rule for all modes'
 
      CALL allocate_endoutput()
-     CALL saturation(0) !set 1 for ignoring electron modes, and 2 for ignoring ion modes
 
-     CALL setoutput()
+     IF (separateflux .EQV. .TRUE.) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stdout,*)     
+        IF (verbose .EQV. .TRUE.) WRITE(stdout,"(A)") '*** Carrying out NL saturation rule for ITG only'
+        CALL saturation(1) !set 0 for including all modes, 1 for only ITG, 2 for only TEM, 3 for only ETG
+        IF (PRESENT(eefITG_SIout))   eefITG_SIout=eef_SI; 
+        IF (PRESENT(epfITG_SIout))   epfITG_SIout=epf_SI; 
+        IF (PRESENT(chieeITG_SIout)) chieeITG_SIout=chiee_SI; 
+        IF (PRESENT(veneITG_SIout))  veneITG_SIout=vene_SI; 
+        IF (PRESENT(veceITG_SIout))  veceITG_SIout=vece_SI; 
+        IF (PRESENT(vereITG_SIout))  vereITG_SIout=vere_SI; 
+        IF (PRESENT(dfeITG_SIout))   dfeITG_SIout=dfe_SI; 
+        IF (PRESENT(vteITG_SIout))  vteITG_SIout=vte_SI; 
+        IF (PRESENT(vceITG_SIout))  vceITG_SIout=vce_SI; 
+        IF (PRESENT(vreITG_SIout))  vreITG_SIout=vre_SI; 
+
+        IF (PRESENT(iefITG_SIout))   iefITG_SIout=ief_SI; 
+        IF (PRESENT(ipfITG_SIout))   ipfITG_SIout=ipf_SI; 
+        IF (PRESENT(chieiITG_SIout)) chieiITG_SIout=chiei_SI; 
+        IF (PRESENT(veniITG_SIout))  veniITG_SIout=veni_SI; 
+        IF (PRESENT(veciITG_SIout))  veciITG_SIout=veci_SI; 
+        IF (PRESENT(veriITG_SIout))  veriITG_SIout=veri_SI; 
+        IF (PRESENT(dfiITG_SIout))   dfiITG_SIout=dfi_SI; 
+        IF (PRESENT(vtiITG_SIout))  vtiITG_SIout=vti_SI; 
+        IF (PRESENT(vciITG_SIout))  vciITG_SIout=vci_SI; 
+        IF (PRESENT(vriITG_SIout))  vriITG_SIout=vri_SI; 
+        IF (verbose .EQV. .TRUE.) WRITE(stdout,*)     
+        IF (verbose .EQV. .TRUE.) WRITE(stdout,"(A)") '*** Carrying out NL saturation rule for TEM only'
+        CALL saturation(2) !set 0 for including all modes, 1 for only ITG, 2 for only TEM, 3 for only ETG
+        IF (PRESENT(eefTEM_SIout))   eefTEM_SIout=eef_SI; 
+        IF (PRESENT(epfTEM_SIout))   epfTEM_SIout=epf_SI; 
+        IF (PRESENT(chieeTEM_SIout)) chieeTEM_SIout=chiee_SI; 
+        IF (PRESENT(veneTEM_SIout))  veneTEM_SIout=vene_SI; 
+        IF (PRESENT(veceTEM_SIout))  veceTEM_SIout=vece_SI; 
+        IF (PRESENT(vereTEM_SIout))  vereTEM_SIout=vere_SI; 
+        IF (PRESENT(dfeTEM_SIout))   dfeTEM_SIout=dfe_SI; 
+        IF (PRESENT(vteTEM_SIout))  vteTEM_SIout=vte_SI; 
+        IF (PRESENT(vceTEM_SIout))  vceTEM_SIout=vce_SI; 
+        IF (PRESENT(vreTEM_SIout))  vreTEM_SIout=vre_SI; 
+
+        IF (PRESENT(iefTEM_SIout))   iefTEM_SIout=ief_SI; 
+        IF (PRESENT(ipfTEM_SIout))   ipfTEM_SIout=ipf_SI; 
+        IF (PRESENT(chieiTEM_SIout)) chieiTEM_SIout=chiei_SI; 
+        IF (PRESENT(veniTEM_SIout))  veniTEM_SIout=veni_SI; 
+        IF (PRESENT(veciTEM_SIout))  veciTEM_SIout=veci_SI; 
+        IF (PRESENT(veriTEM_SIout))  veriTEM_SIout=veri_SI; 
+        IF (PRESENT(dfiTEM_SIout))   dfiTEM_SIout=dfi_SI; 
+        IF (PRESENT(vtiTEM_SIout))  vtiTEM_SIout=vti_SI; 
+        IF (PRESENT(vciTEM_SIout))  vciTEM_SIout=vci_SI; 
+        IF (PRESENT(vriTEM_SIout))  vriTEM_SIout=vri_SI; 
+
+        IF (verbose .EQV. .TRUE.) WRITE(stdout,*)     
+        IF (verbose .EQV. .TRUE.) WRITE(stdout,"(A)") '*** Carrying out NL saturation rule for ETG only'
+        CALL saturation(3) !set 0 for including all modes, 1 for only ITG, 2 for only TEM, 3 for only ETG
+        IF (PRESENT(eefETG_SIout))   eefETG_SIout=eef_SI; 
+        IF (PRESENT(chieeETG_SIout)) chieeETG_SIout=chiee_SI; 
+        IF (PRESENT(veneETG_SIout))  veneETG_SIout=vene_SI; 
+        IF (PRESENT(veceETG_SIout))  veceETG_SIout=vece_SI; 
+        IF (PRESENT(vereETG_SIout))  vereETG_SIout=vere_SI; 
+
+     ENDIF
+
+     CALL saturation(0) !set 0 for including all modes, 1 for only ITG, 2 for only TEM, 3 for only ETG
+     CALL setoutput() !set all standard output
+
      CALL deallocate_endoutput()     
 
      CALL SYSTEM_CLOCK(time2)
@@ -438,9 +516,8 @@ CONTAINS
   SUBROUTINE setoutput()
 
     epf_SIout = epf_SI
-    epfETG_SIout = epfETG_SI
     eef_SIout = eef_SI
-    eefETG_SIout = eefETG_SI
+
     evf_SIout = evf_SI
     ipf_SIout = ipf_SI
     ief_SIout = ief_SI
