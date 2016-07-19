@@ -304,10 +304,11 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
      CALL SYSTEM_CLOCK(time2)
      CALL SYSTEM_CLOCK(count_rate=freq)
      timetot = REAL(time2-time1) / REAL(freq)
-     WRITE(stdout,"(A,F7.3,A)") 'Hurrah! QuaLiKiz Job completed! Total time = ',timetot,' s'  !final write
+     WRITE(stdout,"(A,F11.3,A)") 'Hurrah! QuaLiKiz Job completed! Total time = ',timetot,' s'  !final write
 
-     OPEN(unit=900, file="lastruntime.qlk", action="write", status="replace")
-     WRITE(900,"(A,F7.3,A)") 'Last completed run time = ',timetot,' s'  !final write
+     !Write time of run to disk
+     OPEN(unit=900, file="lastruntime.dat", action="write", status="replace")
+     WRITE(900,"(A,F11.3,A)") 'Last completed run time = ',timetot,' s'  !final write
      CLOSE(900)
 
 !!!DEBUGGING FOR DIFFERENT FLUID SOLUTIONS
@@ -464,13 +465,13 @@ CONTAINS
              iwavenum=(NoTask-1)/(dimx) + 1
              iradcoord=MOD((NoTask-1),dimx) + 1
              CALL calc(iradcoord,iwavenum)
-             IF ( (timeoutflag .EQV. .TRUE.) .AND. (verbose .EQV. .TRUE.)) WRITE(stdout,'(A,I3,A,I3)') 'Timeout recorded at (p,nu)=',iradcoord,',',iwavenum
+             IF ( (timeoutflag .EQV. .TRUE.) .AND. (verbose .EQV. .TRUE.)) WRITE(stdout,'(A,I7,A,I3)') 'Timeout recorded at (p,nu)=',iradcoord,',',iwavenum
              tps=MPI_Wtime()-tps
              tpstot=tpstot+tps  
              IF (verbose .EQV. .TRUE.) THEN
                 WRITE(stdout,300) rank,NoTask,tps,tpstot,iradcoord,iwavenum
              ENDIF
-300          FORMAT(1x,'rank ',I3,' NoTask ',I3,' time ',F7.3,', total time ',F7.3,' (p,nu)=(',I3,',',I3,')')
+300          FORMAT(1x,'rank ',I5,' NoTask ',I7,' time ',F10.3,', total time ',F10.3,' (p,nu)=(',I7,',',I3,')')
              Complete0 = .TRUE.
           ENDIF
        ENDDO
@@ -500,14 +501,14 @@ CONTAINS
              iwavenum=(NoTask-1)/(dimx) + 1
              iradcoord=MOD((NoTask-1),dimx) + 1
              CALL calc(iradcoord,iwavenum)
-             IF ((timeoutflag .EQV. .TRUE.) .AND. (verbose .EQV. .TRUE.)) WRITE(stdout,'(A,I3,A,I3)') 'Timeout recorded at (p,nu)=',iradcoord,',',iwavenum
+             IF ((timeoutflag .EQV. .TRUE.) .AND. (verbose .EQV. .TRUE.)) WRITE(stdout,'(A,I7,A,I3)') 'Timeout recorded at (p,nu)=',iradcoord,',',iwavenum
              ressend=.TRUE.
              tps=MPI_Wtime()-tps
              tpstot=tpstot+tps
              IF (verbose .EQV. .TRUE.) THEN
                 WRITE(stdout,301) rank,NoTask,tps,tpstot,iradcoord,iwavenum
              ENDIF
-301          FORMAT(1x,'rank ',I3,' NoTask ',I3,' time ',F7.3,', total time ',F7.3,' (p,nu)=(',I3,',',I3,')')
+301          FORMAT(1x,'rank ',I5,' NoTask ',I7,' time ',F10.3,', total time ',F10.3,' (p,nu)=(',I7,',',I3,')')
           ENDIF
        ENDDO
     ENDIF

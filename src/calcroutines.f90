@@ -1098,7 +1098,7 @@ CONTAINS
     CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifail2) !calculate transit time
 
     IF (ifail2 /= 1) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifail2 = ',ifail2,&
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I7)") 'ifail2 = ',ifail2,&
             &'. Abnormal termination of alam1 solution T integration at p=',plam
     ENDIF
 
@@ -1121,7 +1121,7 @@ CONTAINS
     CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifail2) 
 
     IF (ifail2 /= 1) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifail2 = ',ifail2,&
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I7)") 'ifail2 = ',ifail2,&
             &'. Abnormal termination of alam1 solution Tlam integration at p=',plam
     ENDIF
 
@@ -1130,12 +1130,12 @@ CONTAINS
     Rint2=Rint1 * SQRT(1.-lamin*(1.+2.*epsilon(plam)*SIN(theta/2.)**2))**1. 
     CALL davint(theta,Rint1,ntheta,0.,pi,Rlam1,ifail2) 
     IF (ifail2 /= 1) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifail2 = ',ifail2,&
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I7)") 'ifail2 = ',ifail2,&
             &'. Abnormal termination of alam1 solution Rlam1 integration at p=',plam
     ENDIF
     CALL davint(theta,Rint2,ntheta,0.,pi,Rlam2,ifail2) 
     IF (ifail2 /= 1) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifail2 = ',ifail2,&
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I7)") 'ifail2 = ',ifail2,&
             &'. Abnormal termination of alam1 solution Rlam2 integration at p=',plam
     ENDIF
     alam1int = Rlam2/Rlam1*1./(4.*pi)*Tlam
@@ -1156,7 +1156,7 @@ CONTAINS
     CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifail2) 
 
     IF (ifail2 /= 1) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifail2 = ',ifail2,&
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I7)") 'ifail2 = ',ifail2,&
             &'. Abnormal termination of alam2 solution Tlam integration at p=',plam
     ENDIF
 
@@ -1165,12 +1165,12 @@ CONTAINS
     Rint2=Rint1 * SQRT(1.-lamin*(1.+2.*epsilon(plam)*SIN(theta/2.)**2))**2. 
     CALL davint(theta,Rint1,ntheta,0.,pi,Rlam1,ifail2) 
     IF (ifail2 /= 1) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifail2 = ',ifail2,&
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I7)") 'ifail2 = ',ifail2,&
             &'. Abnormal termination of alam2 solution Rlam1 integration at p=',plam
     ENDIF
     CALL davint(theta,Rint2,ntheta,0.,pi,Rlam2,ifail2) 
     IF (ifail2 /= 1) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifail2 = ',ifail2,&
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I7)") 'ifail2 = ',ifail2,&
             &'. Abnormal termination of alam2 solution Rlam2 integration at p=',plam
     ENDIF
     alam2int = Rlam2/Rlam1*1./(4.*pi)*Tlam
@@ -1200,12 +1200,12 @@ CONTAINS
     Rint2=Rint1 * SQRT(1.-lamin*(1.+2.*epsilon(plam)*SIN(theta/2.)**2))**3. 
     CALL davint(theta,Rint1,ntheta,0.,pi,Rlam1,ifail2) 
     IF (ifail2 /= 1) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifail2 = ',ifail2,&
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I7)") 'ifail2 = ',ifail2,&
             &'. Abnormal termination of alam3 solution Rlam1 integration at p=',plam
     ENDIF
     CALL davint(theta,Rint2,ntheta,0.,pi,Rlam2,ifail2) 
     IF (ifail2 /= 1) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifail2 = ',ifail2,&
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I7)") 'ifail2 = ',ifail2,&
             &'. Abnormal termination of alam3 solution Rlam2 integration at p=',plam
     ENDIF
     alam3int = Rlam2/Rlam1*1./(4.*pi)*Tlam
@@ -1226,7 +1226,7 @@ CONTAINS
     CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifail2) 
 
     IF (ifail2 /= 1) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifail2 = ',ifail2,&
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I7)") 'ifail2 = ',ifail2,&
             &'. Abnormal termination of alam4 solution Tlam integration at p=',plam
     ENDIF
 
@@ -1235,12 +1235,12 @@ CONTAINS
     Rint2=Rint1 * SQRT(1.-lamin*(1.+2.*epsilon(plam)*SIN(theta/2.)**2))**4. 
     CALL davint(theta,Rint1,ntheta,0.,pi,Rlam1,ifail2) 
     IF (ifail2 /= 1) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifail2 = ',ifail2,&
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I7)") 'ifail2 = ',ifail2,&
             &'. Abnormal termination of alam4 solution Rlam1 integration at p=',plam
     ENDIF
     CALL davint(theta,Rint2,ntheta,0.,pi,Rlam2,ifail2) 
     IF (ifail2 /= 1) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifail2 = ',ifail2,&
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I7)") 'ifail2 = ',ifail2,&
             &'. Abnormal termination of alam4 solution Rlam2 integration at p=',plam
     ENDIF
     alam4int = Rlam2/Rlam1*1./(4.*pi)*Tlam
@@ -1261,7 +1261,7 @@ CONTAINS
     CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifail2) 
 
     IF (ifail2 /= 1) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifail2 = ',ifail2,&
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I7)") 'ifail2 = ',ifail2,&
             &'. Abnormal termination of alam5 solution Tlam integration at p=',plam
     ENDIF
 
@@ -1270,12 +1270,12 @@ CONTAINS
     Rint2=Rint1 * SQRT(1.-lamin*(1.+2.*epsilon(plam)*SIN(theta/2.)**2))**5. 
     CALL davint(theta,Rint1,ntheta,0.,pi,Rlam1,ifail2) 
     IF (ifail2 /= 1) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifail2 = ',ifail2,&
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I7)") 'ifail2 = ',ifail2,&
             &'. Abnormal termination of alam5 solution Rlam1 integration at p=',plam
     ENDIF
     CALL davint(theta,Rint2,ntheta,0.,pi,Rlam2,ifail2) 
     IF (ifail2 /= 1) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifail2 = ',ifail2,&
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I7)") 'ifail2 = ',ifail2,&
             &'. Abnormal termination of alam5 solution Rlam2 integration at p=',plam
     ENDIF
     alam5int = Rlam2/Rlam1*1./(4.*pi)*Tlam

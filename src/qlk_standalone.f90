@@ -100,8 +100,8 @@ PROGRAM qlk_standalone
   !Local data dictionary.
 
   !Time measuring variables
-  REAL(kind=DBL) :: cputime1, cputime2, tpstot
-  INTEGER :: time1, time2, timetot, freq, cputimetot
+  REAL(kind=DBL) :: cputime1, cputime2, tpstot, timetot
+  INTEGER :: time1, time2, freq, cputimetot
   CHARACTER(len=20) :: myfmt, myint
   CHARACTER(len=:), ALLOCATABLE :: debugdir, outputdir, primitivedir, inputdir
 
@@ -392,7 +392,7 @@ PROGRAM qlk_standalone
   !IF (myrank==0) WRITE(stdout,"(A,I0,A)") 'We have missed ',Nsolrat,' eigenvalues.'
 
   IF (myrank==0) THEN 
-     WRITE(stdout,"(A,I0,A)") 'Hurrah! Job completed! Total time = ',timetot,' s'  !final write
+     WRITE(stdout,"(A,F11.3,A)") 'Hurrah! Job completed! Total time = ',timetot,' s'  !final write
   ENDIF
 
   !Deallocating all
