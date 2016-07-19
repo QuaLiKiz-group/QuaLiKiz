@@ -12,7 +12,7 @@ MODULE mod_make_io
 
 CONTAINS
 
-  SUBROUTINE make_input(dimxin, dimnin, nionsin, numsolsin, phys_methin, coll_flagin, rot_flagin, verbosein, kthetarhosin, & !general param
+  SUBROUTINE make_input(dimxin, dimnin, nionsin, numsolsin, phys_methin, coll_flagin, rot_flagin, verbosein, separatefluxin, kthetarhosin, & !general param
        & xin, rhoin, Roin, Rminin, R0in, Boin, qxin, smagin, alphaxin, & !geometry
        & el_typein, Texin, Nexin, Atein, Anein, anisein, danisedrin, & !electrons
        & ion_typein, Aiin, Ziin, Tixin, ninormin, Atiin, Aniin, anisin, danisdrin, & !ions
@@ -20,7 +20,7 @@ CONTAINS
        & maxrunsin, maxptsin, relacc1in, relacc2in, timeoutin)  !code specific inputs
 
     ! List of input variables
-    INTEGER, INTENT(IN) :: dimxin, dimnin, nionsin, numsolsin, phys_methin, coll_flagin, rot_flagin, el_typein,verbosein
+    INTEGER, INTENT(IN) :: dimxin, dimnin, nionsin, numsolsin, phys_methin, coll_flagin, rot_flagin, el_typein,verbosein, separatefluxin
     INTEGER, DIMENSION(:,:), INTENT(IN) :: ion_typein
     REAL(kind=DBL), INTENT(IN) :: R0in
     REAL(kind=DBL), DIMENSION(:), INTENT(IN) :: xin, rhoin, Roin, Rminin, Boin, kthetarhosin, qxin, smagin, alphaxin
@@ -44,6 +44,9 @@ CONTAINS
     rot_flag = rot_flagin
     IF (verbosein == 1) verbose = .TRUE.
     IF (verbosein == 0) verbose = .FALSE.
+    IF (separatefluxin == 1) separateflux = .TRUE.
+    IF (separatefluxin == 0) separateflux = .FALSE.
+
     el_type = el_typein
 
     maxruns=maxrunsin

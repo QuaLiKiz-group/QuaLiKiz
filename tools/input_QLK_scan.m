@@ -134,51 +134,51 @@ p{kc} = phys_meth;	            kc=kc+1;%p{4} (-) Flag for additional calculation
 p{kc} = coll_flag;	            kc=kc+1;%p{5} (-) Flag for collisionality (default 0.0)
 p{kc} = rot_flag;	            kc=kc+1;%p{6} (-) Flag  for rotation (default 0.0)
 p{kc} = verbose;	            kc=kc+1;%p{7} (-) Flag  for setting level of output verbosity
-p{kc} = numsols;	            kc=kc+1;%p{8} (-) Number of solutions requested
-p{kc} = relacc1;	 	    kc=kc+1;%p{9} (-) Relative accuracy in 1D integrals
-p{kc} = relacc2;	 	    kc=kc+1;%p{10} (-) Relative accuracy in 2D integrals
-p{kc} = maxruns; 	            kc=kc+1;%p{11} (-) Number of runs jumping directly to Newton between contour checks
-p{kc} = maxpts;                     kc=kc+1;%p{12}(-) Number of integrand evaluations done in 2D integral
-p{kc} = timeout;                    kc=kc+1;%p{13}(-) Upper time limit (s) beyond which solutions are not sought after at a given wavenumber and radius
+p{kc} = separateflux;	            kc=kc+1;%p{8} (-) Flag  for separate outputs of ETG, TEM, ITG fluxes
+p{kc} = numsols;	            kc=kc+1;%p{9} (-) Number of solutions requested
+p{kc} = relacc1;	 	    kc=kc+1;%p{10} (-) Relative accuracy in 1D integrals
+p{kc} = relacc2;	 	    kc=kc+1;%p{11} (-) Relative accuracy in 2D integrals
+p{kc} = maxruns; 	            kc=kc+1;%p{12} (-) Number of runs jumping directly to Newton between contour checks
+p{kc} = maxpts;                     kc=kc+1;%p{13}(-) Number of integrand evaluations done in 2D integral
+p{kc} = timeout;                    kc=kc+1;%p{14}(-) Upper time limit (s) beyond which solutions are not sought after at a given wavenumber and radius
 
 %Geometry input
-p{kc} = kthetarhos;                 kc=kc+1;%p{14} (-) Wave spectrum input: Vector (dimn)
-p{kc} = x;                          kc=kc+1;%p{15} (-) radial normalised coordinate (midplane average)
-p{kc} = rho;                        kc=kc+1;%p{16} (-) normalized toroidal flux coordinate
-p{kc} = Ro;		            kc=kc+1;%p{17} (m) Major radius. Radial profile due to Shafranov shift
-p{kc} = Rmin;	                    kc=kc+1;%p{18} (m) Geometric minor radius. Assumed to be a midplane average at LCFS. Currently a profile but should probably be shifted to a scalar
-p{kc} = Bo;		            kc=kc+1;%p{19} (T) Likely not very rigorous to use this sqrt(<B²>) for calculating the Larmor radius % quite close to <Bphi> in practice however 
-p{kc} = R0;		            kc=kc+1;%p{20} (m) Geometric major radius used for normalizations
-p{kc} = qx;               	    kc=kc+1;%p{21} (-) Vector (radial grid x(aa))
-p{kc} = smag;            	    kc=kc+1;%p{22} (-) Vector (radial grid x(aa))  q is a flux surface quantity --> makes sense to consider s = rho/q dq/drho
-p{kc} = alphax;            	    kc=kc+1;%p{23} (-) Vector (radial grid x(aa)) 
+p{kc} = kthetarhos;                 kc=kc+1;%p{15} (-) Wave spectrum input: Vector (dimn)
+p{kc} = x;                          kc=kc+1;%p{16} (-) radial normalised coordinate (midplane average)
+p{kc} = rho;                        kc=kc+1;%p{17} (-) normalized toroidal flux coordinate
+p{kc} = Ro;		            kc=kc+1;%p{18} (m) Major radius. Radial profile due to Shafranov shift
+p{kc} = Rmin;	                    kc=kc+1;%p{19} (m) Geometric minor radius. Assumed to be a midplane average at LCFS. Currently a profile but should probably be shifted to a scalar
+p{kc} = Bo;		            kc=kc+1;%p{20} (T) Likely not very rigorous to use this sqrt(<B²>) for calculating the Larmor radius % quite close to <Bphi> in practice however 
+p{kc} = R0;		            kc=kc+1;%p{21} (m) Geometric major radius used for normalizations
+p{kc} = qx;               	    kc=kc+1;%p{22} (-) Vector (radial grid x(aa))
+p{kc} = smag;            	    kc=kc+1;%p{23} (-) Vector (radial grid x(aa))  q is a flux surface quantity --> makes sense to consider s = rho/q dq/drho
+p{kc} = alphax;            	    kc=kc+1;%p{24} (-) Vector (radial grid x(aa)) 
 
 %Rotation input
-p{kc} = Machtor;            	    kc=kc+1;%p{24} (-) Vector (radial grid x(aa)) 
-p{kc} = Autor;            	    kc=kc+1;%p{25} (-) Vector (radial grid x(aa)) 
-p{kc} = Machpar;            	    kc=kc+1;%p{26} (-) Vector (radial grid x(aa)) 
-p{kc} = Aupar;            	    kc=kc+1;%p{27} (-) Vector (radial grid x(aa)) 
-p{kc} = gammaE;            	    kc=kc+1;%p{28} (-) Vector (radial grid x(aa)) 
-
+p{kc} = Machtor;            	    kc=kc+1;%p{25} (-) Vector (radial grid x(aa)) 
+p{kc} = Autor;            	    kc=kc+1;%p{26} (-) Vector (radial grid x(aa)) 
+p{kc} = Machpar;            	    kc=kc+1;%p{27} (-) Vector (radial grid x(aa)) 
+p{kc} = Aupar;            	    kc=kc+1;%p{28} (-) Vector (radial grid x(aa)) 
+p{kc} = gammaE;            	    kc=kc+1;%p{29} (-) Vector (radial grid x(aa))
 %Electron input
-p{kc} = Tex;       		    kc=kc+1;%p{29} (keV) Vector (radial grid x(aa))
-p{kc} = Nex;    		    kc=kc+1;%p{30} (10^19 m^-3) Vector (radial grid x(aa))
-p{kc} = Ate;                        kc=kc+1;%p{31} (-) Vector (radial grid x(aa))
-p{kc} = Ane;                	    kc=kc+1;%p{32} (-) Vector (radial grid x(aa))
-p{kc} = el_type;                    kc=kc+1;%p{33} Kinetic or adiabatic
-p{kc} = anise;                      kc=kc+1;%p{34}  Tperp/Tpar at LFS
-p{kc} = danisedr;                   kc=kc+1;%p{35}  d/dr(Tperp/Tpar) at LFS
+p{kc} = Tex;       		    kc=kc+1;%p{30} (keV) Vector (radial grid x(aa))
+p{kc} = Nex;    		    kc=kc+1;%p{31} (10^19 m^-3) Vector (radial grid x(aa))
+p{kc} = Ate;                        kc=kc+1;%p{32} (-) Vector (radial grid x(aa))
+p{kc} = Ane;                	    kc=kc+1;%p{33} (-) Vector (radial grid x(aa))
+p{kc} = el_type;                    kc=kc+1;%p{34} Kinetic or adiabatic
+p{kc} = anise;                      kc=kc+1;%p{35}  Tperp/Tpar at LFS
+p{kc} = danisedr;                   kc=kc+1;%p{36}  d/dr(Tperp/Tpar) at LFS
 
 %Ion inputs (can be for multiple species)
-p{kc} = Ai;	            kc=kc+1;%p{36} (-) Ion mass
-p{kc} = Zi;     	    kc=kc+1;%p{37} (-) Ion charge
-p{kc} = Tix;                kc=kc+1;%p{38} (keV) Vector (radial grid x(aa))
-p{kc} = ninorm;             kc=kc+1;%p{39} ni/ne Vector (radial grid x(aa))
-p{kc} = Ati;      	    kc=kc+1;%p{40}  (-) Vector (radial grid x(aa))
-p{kc} = Ani;                kc=kc+1;%p{41}  (-) Vector (radial grid x(aa))  check calculation w.r.t. Qualikiz electroneutrality assumption
-p{kc} = ion_type;           kc=kc+1;%p{42}  Kinetic, adiabatic, tracer
-p{kc} = anis;               kc=kc+1;%p{43}  Tperp/Tpar at LFS
-p{kc} = danisdr;            kc=kc+1;%p{44}  d/dr(Tperp/Tpar) at LFS
+p{kc} = Ai;	            kc=kc+1;%p{37} (-) Ion mass
+p{kc} = Zi;     	    kc=kc+1;%p{38} (-) Ion charge
+p{kc} = Tix;                kc=kc+1;%p{39} (keV) Vector (radial grid x(aa))
+p{kc} = ninorm;             kc=kc+1;%p{40} ni/ne Vector (radial grid x(aa))
+p{kc} = Ati;      	    kc=kc+1;%p{41}  (-) Vector (radial grid x(aa))
+p{kc} = Ani;                kc=kc+1;%p{42}  (-) Vector (radial grid x(aa))  check calculation w.r.t. Qualikiz electroneutrality assumption
+p{kc} = ion_type;           kc=kc+1;%p{43}  Kinetic, adiabatic, tracer
+p{kc} = anis;               kc=kc+1;%p{44}  Tperp/Tpar at LFS
+p{kc} = danisdr;            kc=kc+1;%p{45}  d/dr(Tperp/Tpar) at LFS
 
 nargu = kc-1;
 stringind=[]; %no string indexes. Kept if adding any future string inputs

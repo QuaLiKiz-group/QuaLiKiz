@@ -192,7 +192,7 @@ class QuaLiKizRun(OrderedDict):
     class Meta(OrderedDict):
         """ Wraps variables that stay constant during the whole QuaLiKiz run """
         keynames = ['numscan', 'numwave', 'nion', 'phys_meth', 'coll_flag',
-                    'rot_flag', 'verbose', 'numsols', 'relacc1', 'relacc2',
+                    'rot_flag', 'verbose','separateflux', 'numsols', 'relacc1', 'relacc2',
                     'maxruns', 'maxpts', 'timeout', 'R_0']
         def __init__(self, **kwargs):
             """ Initialize Meta class
@@ -204,6 +204,7 @@ class QuaLiKizRun(OrderedDict):
                 coll_flag: Flag for collisionality
                 rot_flag:  Flag for rotation
                 verbose:   Flag for level of output verbosity
+                separateflux: Flag for toggling output of separate ITG, TEM, ETG fluxes
                 numsols:   Number of requested solutions
                 relacc1:   Relative accuracy of 1D integrals
                 relacc2:   Relative accuracy of 2D integrals
@@ -222,6 +223,7 @@ class QuaLiKizRun(OrderedDict):
                 'coll_flag': True,
                 'rot_flag':  False,
                 'verbose':   True,
+                'separateflux':   False,
                 'numsols':   3,
                 'relacc1':   1e-3,
                 'relacc2':   2e-2,
@@ -477,20 +479,20 @@ class QuaLiKizRun(OrderedDict):
     @classmethod
     def convert_to_legacy_QLK280416(cls, inputdir):
        # Magic to fix ordering of the p-files
-        os.rename(path.join(inputdir, 'p14.bin'), 'temp')
-        for i in range(15, 21):
+        os.rename(path.join(inputdir, 'p15.bin'), 'temp')
+        for i in range(16, 22):
             os.rename(path.join(inputdir, 'p' + str(i) + '.bin'),
                       path.join(inputdir, 'p' + str(i - 1) + '.bin'))
-        os.rename('temp', path.join(inputdir, 'p20.bin'))
+        os.rename('temp', path.join(inputdir, 'p21.bin'))
 
 
-        os.rename(path.join(inputdir, 'p43.bin'), 'temp')
-        os.rename(path.join(inputdir, 'p44.bin'), 'temp2')
-        for i in reversed(range(36, 43)):
+        os.rename(path.join(inputdir, 'p44.bin'), 'temp')
+        os.rename(path.join(inputdir, 'p45.bin'), 'temp2')
+        for i in reversed(range(37, 44)):
             os.rename(path.join(inputdir, 'p' + str(i) + '.bin'),
                       path.join(inputdir, 'p' + str(i + 2) + '.bin'))
-        os.rename('temp', path.join(inputdir, 'p36.bin'))
-        os.rename('temp2', path.join(inputdir, 'p37.bin'))
+        os.rename('temp', path.join(inputdir, 'p37.bin'))
+        os.rename('temp2', path.join(inputdir, 'p38.bin'))
 
     def legacy(self):
         #

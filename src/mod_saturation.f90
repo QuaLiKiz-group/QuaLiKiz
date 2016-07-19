@@ -19,10 +19,8 @@ CONTAINS
 
     ALLOCATE(modeflag(dimx))
     ALLOCATE(epf_SI(dimx)); epf_SI=0
-    ALLOCATE(epfETG_SI(dimx)); epfETG_SI=0
     ALLOCATE(epf_GB(dimx)); epf_GB=0
     ALLOCATE(eef_SI(dimx)); eef_SI=0
-    ALLOCATE(eefETG_SI(dimx)); eefETG_SI=0
     ALLOCATE(eef_GB(dimx)); eef_GB=0
     ALLOCATE(evf_SI(dimx)); evf_SI=0 
     ALLOCATE(evf_GB(dimx)); evf_GB=0
@@ -31,6 +29,7 @@ CONTAINS
     ALLOCATE(ief_SI(dimx,nions)); ief_SI=0
     ALLOCATE(ief_GB(dimx,nions)); ief_GB=0
     ALLOCATE(ivf_SI(dimx,nions)); ivf_SI=0
+
     ALLOCATE(ivf_GB(dimx,nions)); ivf_GB=0
 
     IF (phys_meth /= 0) THEN
@@ -38,11 +37,13 @@ CONTAINS
        ALLOCATE(vte_SI(dimx)); vte_SI=0
        ALLOCATE(vce_SI(dimx)); vce_SI=0
        ALLOCATE(vre_SI(dimx)); vre_SI=0
+
        ALLOCATE(cke(dimx))
        ALLOCATE(dfi_SI(dimx,nions)); dfi_SI=0
        ALLOCATE(vti_SI(dimx,nions)); vti_SI=0
        ALLOCATE(vci_SI(dimx,nions)); vci_SI=0
        ALLOCATE(vri_SI(dimx,nions)); vri_SI=0
+
        ALLOCATE(cki(dimx,nions))
 !!!
        IF (phys_meth == 2) THEN
@@ -79,10 +80,8 @@ CONTAINS
 
     DEALLOCATE(modeflag)
     DEALLOCATE(epf_SI)
-    DEALLOCATE(epfETG_SI)
     DEALLOCATE(epf_GB)
     DEALLOCATE(eef_SI)
-    DEALLOCATE(eefETG_SI)
     DEALLOCATE(eef_GB)
     DEALLOCATE(evf_SI)
     DEALLOCATE(evf_GB)
@@ -129,7 +128,7 @@ CONTAINS
   END SUBROUTINE deallocate_endoutput
 
   SUBROUTINE saturation(outputcase)
-    INTEGER, INTENT(IN) :: outputcase !0 for both ion and electron modes, 1 for only ion modes, 2 for only electron modes
+    INTEGER, INTENT(IN) :: outputcase !0 for all modes, 1 for ITG only, 2 for TEM only, 3 for ETG only
     INTEGER :: ir,j,k,gg,ifail
     REAL(KIND=DBL), DIMENSION(dimx,dimn) :: kteta,kthr,kxshift,nwgmat,smagn,qxn,dw
     REAL(KIND=DBL), DIMENSION(dimx,dimn) :: kx2shear,kxadd,kxnl
@@ -146,7 +145,8 @@ CONTAINS
     COMPLEX(KIND=DBL), DIMENSION(dimx,dimn,numsols) :: solbck,solbcktmp
     REAL(KIND=DBL), DIMENSION(dimx,dimn) :: cmpfe, cmefe, cmvfe, cmpfgne, cmpfgte, cmpfgue, cmpfce, cmefgne, cmefgte, cmefgue, cmefce
     REAL(KIND=DBL), DIMENSION(dimx,dimn,nions) :: cmpfi, cmefi, cmvfi, cmpfgni, cmpfgti, cmpfgui, cmpfci, cmefgni, cmefgti, cmefgui, cmefci
-    REAL(KIND=DBL), DIMENSION(dimx) :: pfe, pfeETG,dpfe,efe, efeETG, defe,vfe, dvfe, dffte, vthte, vcpte, vrdte, deffte, vethte, vecpte, verdte, ion_epf_GB, ion_eef_GB, ion_evf_GB, ele_epf_GB, ele_eef_GB, ele_evf_GB
+    REAL(KIND=DBL), DIMENSION(dimx) :: pfe, dpfe,efe, defe,vfe, dvfe, dffte, vthte, vcpte, vrdte, deffte, vethte, vecpte, verdte, ion_epf_GB, ion_eef_GB, ion_evf_GB, ele_epf_GB, ele_eef_GB, ele_evf_GB
+!!$    REAL(KIND=DBL), DIMENSION(dimx) :: pfeETG, efeETG
     REAL(KIND=DBL), DIMENSION(dimx,nions) :: pfi, dpfi,efi, defi,vfi, dvfi, dffti, vthti, vcpti, vrdti, deffti, vethti, vecpti, verdti, ion_ipf_GB, ion_ief_GB, ion_ivf_GB, ele_ipf_GB, ele_ief_GB, ele_ivf_GB
     REAL(KIND=DBL) :: alphp,alphm,lowlim
     CHARACTER(len=7) :: fmtx,fmtn,fmtion !for debugging
@@ -200,15 +200,37 @@ CONTAINS
     DO gg=1,3
        solbck=sol
 
-       ! We go through 3 iterations of calculation in order to 
+       ! If outputcase=0 (all modes included) We go through 3 iterations of calculation in order to 
        ! test whether ion or electron modes are negligible. 
        ! An output array for each radius signifying 'all ion modes', 'all electron modes', or 'stable' is returned
-       IF (gg == 1) THEN
-          WHERE (REAL(solbck) > 0.) solbck=0.  !kill all electron modes
+       IF (outputcase == 0) THEN
+          IF (gg == 1) THEN
+             WHERE (REAL(solbck) > 0.) solbck=0.  !kill all electron modes
+          ENDIF
+          IF (gg == 2) THEN
+             WHERE (REAL(solbck) < 0.) solbck=0.  !kill all ion modes
+          END IF
+       ELSE ! If outputcase=1, then only keep ITG modes, if =2, then only TEM, if =3, then only ETG. In all cases, no need for gg for loop
+          IF (outputcase == 1) THEN
+             WHERE (REAL(solbck) > 0.) solbck=0.  !kill all electron modes
+             IF (gg<3) CYCLE
+          ELSEIF (outputcase == 2) THEN !kill all ion modes and electron-scale modes
+             WHERE (REAL(solbck) < 0.) solbck=0.  
+             DO ir=1,dimx
+                DO k=1,numsols
+                   WHERE (kthetarhos > ETGk) solbck(ir,:,k) = 0
+                ENDDO
+             ENDDO
+             IF (gg<3) CYCLE
+          ELSEIF (outputcase == 3) THEN !kill all ion scale modes
+             DO ir=1,dimx
+                DO k=1,numsols
+                   WHERE (kthetarhos < ETGk) solbck(ir,:,k) = 0
+                ENDDO
+             ENDDO
+             IF (gg<3) CYCLE
+          ENDIF
        ENDIF
-       IF (gg == 2) THEN
-          WHERE (REAL(solbck) < 0.) solbck=0.  !kill all ion modes
-       END IF
 
        DO ir=1,dimx 
           DO j=1,dimn
@@ -548,17 +570,17 @@ CONTAINS
           ! Energy diffusivity using all unstable roots
           defe(ir) = (efe(ir)/(Nex(ir)*1e19*Tex(ir)*1e3*qe*Ate(ir)/R0))/chi_GB(ir)
 
-          !Only ETG scales particle and heat transport (if they exist)
-          IF (ETGind > 0) THEN
-             xint= (/0._DBL,kthr(ir,ETGind:dimn)/) ; yint=(/0._DBL,cmpfe(ir,ETGind:dimn)/)
-             CALL davint (xint, yint ,dimn-ETGind+2,kthr(ir,ETGind), kthr(ir,dimn), pfeETG(ir), ifail)
-
-             xint= (/0._DBL,kthr(ir,ETGind:dimn)/) ; yint=(/0._DBL,cmefe(ir,ETGind:dimn)/)
-             CALL davint (xint, yint ,dimn-ETGind+2,kthr(ir,ETGind), kthr(ir,dimn), efeETG(ir), ifail)
-          ELSE
-             pfeETG(ir) = 0.
-             efeETG(ir) = 0.
-          ENDIF
+!!$          !Only ETG scales particle and heat transport (if they exist)
+!!$          IF (ETGind > 0) THEN
+!!$             xint= (/0._DBL,kthr(ir,ETGind:dimn)/) ; yint=(/0._DBL,cmpfe(ir,ETGind:dimn)/)
+!!$             CALL davint (xint, yint ,dimn-ETGind+2,kthr(ir,ETGind), kthr(ir,dimn), pfeETG(ir), ifail)
+!!$
+!!$             xint= (/0._DBL,kthr(ir,ETGind:dimn)/) ; yint=(/0._DBL,cmefe(ir,ETGind:dimn)/)
+!!$             CALL davint (xint, yint ,dimn-ETGind+2,kthr(ir,ETGind), kthr(ir,dimn), efeETG(ir), ifail)
+!!$          ELSE
+!!$             pfeETG(ir) = 0.
+!!$             efeETG(ir) = 0.
+!!$          ENDIF
 
           ! Ang mom flux using all roots
           xint= (/0._DBL,kthr(ir,:)/) ; yint=(/0._DBL,cmvfe(ir,:)/)
@@ -688,7 +710,6 @@ CONTAINS
           ipf_SI(ir,:) = pfi(ir,:)*normNL
           !          epf_SI(ir) = dpfe(ir)*Nex(ir)*1e19*Ane(ir)/R0*chi_GB(ir)
           epf_SI(ir) = pfe(ir)*normNL
-          epfETG_SI(ir) = pfeETG(ir)*normNL
 
           ipf_GB(ir,:) = dpfi(ir,:)
           epf_GB(ir) = dpfe(ir)
@@ -697,7 +718,7 @@ CONTAINS
           ief_SI(ir,:) = efi(ir,:)*normNL
           !          eef_SI(ir) = defe(ir)*Nex(ir)*1e19*Tex(ir)*1e3*qe*Ate(ir)/R0*chi_GB(ir)
           eef_SI(ir) = efe(ir)*normNL
-          eefETG_SI(ir) = efeETG(ir)*normNL
+!!$          eefETG_SI(ir) = efeETG(ir)*normNL
 
           ief_GB(ir,:) = defi(ir,:)
           eef_GB(ir) = defe(ir)
@@ -821,9 +842,6 @@ CONTAINS
              ENDIF
           ENDIF
        ENDDO
-
-       IF ( ( gg == 1) .AND. (outputcase == 1) ) EXIT
-       IF ( ( gg == 2) .AND. (outputcase == 2) ) EXIT
 
     ENDDO !end do on gg
 
