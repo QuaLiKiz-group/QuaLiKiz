@@ -100,8 +100,8 @@ PROGRAM qlk_standalone
   !Local data dictionary.
 
   !Time measuring variables
-  REAL(kind=DBL) :: cputime1, cputime2, tpstot, timetot
-  INTEGER :: time1, time2, freq, cputimetot
+  REAL(kind=DBL) :: tpstot, timetot, datainittime
+  INTEGER :: time1, time2, time3,time4,freq
   CHARACTER(len=20) :: myfmt, myint
   CHARACTER(len=:), ALLOCATABLE :: debugdir, outputdir, primitivedir, inputdir
 
@@ -173,7 +173,6 @@ PROGRAM qlk_standalone
 
   ! Begin time measurement
   CALL SYSTEM_CLOCK(time1)
-  CALL CPU_TIME(cputime1)
 
   ! Read input and initialize all arrays
   CALL data_init()
@@ -185,6 +184,10 @@ PROGRAM qlk_standalone
      WRITE(stdout,*) ' _________________________________________________________________________________ '
      WRITE(stdout,*) ' '
      WRITE(stdout,'(1X,1A,I4,1A,/)') 'Executed in parallel on: ',nproc,' processors'
+
+     CALL SYSTEM_CLOCK(time2)
+     CALL SYSTEM_CLOCK(count_rate=freq)
+     datainittime = REAL(time2-time1) / REAL(freq)
   ENDIF
 
 !!!! CALL THE CALCULATION PHASE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -371,19 +374,16 @@ PROGRAM qlk_standalone
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   IF (myrank == 0) THEN
+     CALL SYSTEM_CLOCK(time3)
      CALL outputascii
+     CALL SYSTEM_CLOCK(time4)
+     CALL SYSTEM_CLOCK(count_rate=freq)
+     timetot = REAL(time4-time3) / REAL(freq)
+     WRITE(stdout,"(A,F11.3,A)") 'Profiling: input read and data initialization time = ',datainittime,' s'  
+     WRITE(stdout,"(A,F11.3,A)") 'Profiling: output write time = ',timetot,' s'  
   ENDIF
 
-  !Write run info in output file
-  CALL CPU_TIME(cputime2)
-  cputimetot = (cputime2-cputime1)
-
-  !WRITE(stdout,"(A,I0,A,I0,A)") '*** Rank ',myrank,' finished! CPU time: ', cputimetot,' s' 
-  CALL SYSTEM_CLOCK(time2)
-  CALL SYSTEM_CLOCK(count_rate=freq)
-
   CALL MPI_Barrier(mpi_comm_world,ierror)
-  timetot = REAL(time2-time1) / REAL(freq)
 
   !WRITE(stdout,*) 'Z function was called ',weidcount,' times' 
   !WRITE(stdout,*)
@@ -391,12 +391,20 @@ PROGRAM qlk_standalone
   !WRITE(stdout,"(A,I0)") '*** End of job for rank ',myrank
   !IF (myrank==0) WRITE(stdout,"(A,I0,A)") 'We have missed ',Nsolrat,' eigenvalues.'
 
-  IF (myrank==0) THEN 
-     WRITE(stdout,"(A,F11.3,A)") 'Hurrah! Job completed! Total time = ',timetot,' s'  !final write
-  ENDIF
-
   !Deallocating all
   CALL deallocate_all()
+
+  IF (myrank==0) THEN 
+     CALL SYSTEM_CLOCK(time2)
+     CALL SYSTEM_CLOCK(count_rate=freq)
+     timetot = REAL(time2-time1) / REAL(freq)
+     WRITE(stdout,"(A,F11.3,A)") 'Profiling: Hurrah! Job completed! Total time = ',timetot,' s'  !final write
+     WRITE(stdout,*)
+     !Write time of run to disk
+     OPEN(unit=900, file="lastruntime.dat", action="write", status="replace")
+     WRITE(900,"(A,F11.3,A)") 'Last completed run time = ',timetot,' s'  !final write
+     CLOSE(900)
+  ENDIF
 
   ! MPI finalization
   CALL mpi_finalize(ierror)
@@ -992,28 +1000,28 @@ CONTAINS
           DEALLOCATE(veri_SI)
           DEALLOCATE(ceki)
 
-       IF (separateflux == 1) THEN
-          DEALLOCATE(chieeETG_SI)
-          DEALLOCATE(veneETG_SI)
-          DEALLOCATE(veceETG_SI)
-          DEALLOCATE(vereETG_SI)
-          DEALLOCATE(chieeITG_SI)
-          DEALLOCATE(veneITG_SI)
-          DEALLOCATE(veceITG_SI)
-          DEALLOCATE(vereITG_SI)
-          DEALLOCATE(chieeTEM_SI)
-          DEALLOCATE(veneTEM_SI)
-          DEALLOCATE(veceTEM_SI)
-          DEALLOCATE(vereTEM_SI)
-          DEALLOCATE(chieiITG_SI)
-          DEALLOCATE(veniITG_SI)
-          DEALLOCATE(veciITG_SI)
-          DEALLOCATE(veriITG_SI)
-          DEALLOCATE(chieiTEM_SI)
-          DEALLOCATE(veniTEM_SI)
-          DEALLOCATE(veciTEM_SI)
-          DEALLOCATE(veriTEM_SI)
-       ENDIF
+          IF (separateflux == 1) THEN
+             DEALLOCATE(chieeETG_SI)
+             DEALLOCATE(veneETG_SI)
+             DEALLOCATE(veceETG_SI)
+             DEALLOCATE(vereETG_SI)
+             DEALLOCATE(chieeITG_SI)
+             DEALLOCATE(veneITG_SI)
+             DEALLOCATE(veceITG_SI)
+             DEALLOCATE(vereITG_SI)
+             DEALLOCATE(chieeTEM_SI)
+             DEALLOCATE(veneTEM_SI)
+             DEALLOCATE(veceTEM_SI)
+             DEALLOCATE(vereTEM_SI)
+             DEALLOCATE(chieiITG_SI)
+             DEALLOCATE(veniITG_SI)
+             DEALLOCATE(veciITG_SI)
+             DEALLOCATE(veriITG_SI)
+             DEALLOCATE(chieiTEM_SI)
+             DEALLOCATE(veniTEM_SI)
+             DEALLOCATE(veciTEM_SI)
+             DEALLOCATE(veriTEM_SI)
+          ENDIF
 
 
        ENDIF

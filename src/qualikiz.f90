@@ -230,14 +230,22 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
   !If rank0, then carry out the saturation rules and output final results
   IF (myrank==0) THEN 
 
+     CALL SYSTEM_CLOCK(time2)
+     CALL SYSTEM_CLOCK(count_rate=freq)
+     timetot = REAL(time2-time1) / REAL(freq)
+     WRITE(stdout,*)
+     WRITE(stdout,"(A,F11.3,A)") 'Profiling: Hurrah! All eigenmodes calculated! Time = ',timetot,' s'  !final write
+
      IF (verbose .EQV. .TRUE.) WRITE(stdout,*)     
-     IF (verbose .EQV. .TRUE.) WRITE(stdout,"(A)") '*** Carrying out NL saturation rule for all modes'
+     IF (verbose .EQV. .TRUE.) WRITE(stdout,"(A)") '*** Calculating nonlinear saturation rule'
+
+     CALL SYSTEM_CLOCK(time1)
 
      CALL allocate_endoutput()
 
      IF (separateflux .EQV. .TRUE.) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stdout,"(A)") '*** separateflux=T ,  NL saturation rule for separate modes also calculated'
         IF (verbose .EQV. .TRUE.) WRITE(stdout,*)     
-        IF (verbose .EQV. .TRUE.) WRITE(stdout,"(A)") '*** Carrying out NL saturation rule for ITG only'
         CALL saturation(1) !set 0 for including all modes, 1 for only ITG, 2 for only TEM, 3 for only ETG
         IF (PRESENT(eefITG_SIout))   eefITG_SIout=eef_SI; 
         IF (PRESENT(epfITG_SIout))   epfITG_SIout=epf_SI; 
@@ -260,8 +268,6 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
         IF (PRESENT(vtiITG_SIout))  vtiITG_SIout=vti_SI; 
         IF (PRESENT(vciITG_SIout))  vciITG_SIout=vci_SI; 
         IF (PRESENT(vriITG_SIout))  vriITG_SIout=vri_SI; 
-        IF (verbose .EQV. .TRUE.) WRITE(stdout,*)     
-        IF (verbose .EQV. .TRUE.) WRITE(stdout,"(A)") '*** Carrying out NL saturation rule for TEM only'
         CALL saturation(2) !set 0 for including all modes, 1 for only ITG, 2 for only TEM, 3 for only ETG
         IF (PRESENT(eefTEM_SIout))   eefTEM_SIout=eef_SI; 
         IF (PRESENT(epfTEM_SIout))   epfTEM_SIout=epf_SI; 
@@ -285,8 +291,6 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
         IF (PRESENT(vciTEM_SIout))  vciTEM_SIout=vci_SI; 
         IF (PRESENT(vriTEM_SIout))  vriTEM_SIout=vri_SI; 
 
-        IF (verbose .EQV. .TRUE.) WRITE(stdout,*)     
-        IF (verbose .EQV. .TRUE.) WRITE(stdout,"(A)") '*** Carrying out NL saturation rule for ETG only'
         CALL saturation(3) !set 0 for including all modes, 1 for only ITG, 2 for only TEM, 3 for only ETG
         IF (PRESENT(eefETG_SIout))   eefETG_SIout=eef_SI; 
         IF (PRESENT(chieeETG_SIout)) chieeETG_SIout=chiee_SI; 
@@ -304,12 +308,9 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
      CALL SYSTEM_CLOCK(time2)
      CALL SYSTEM_CLOCK(count_rate=freq)
      timetot = REAL(time2-time1) / REAL(freq)
-     WRITE(stdout,"(A,F11.3,A)") 'Hurrah! QuaLiKiz Job completed! Total time = ',timetot,' s'  !final write
+     WRITE(stdout,"(A,F11.3,A)") 'Profiling: saturation rule calculation time = ',timetot,' s'  
 
-     !Write time of run to disk
-     OPEN(unit=900, file="lastruntime.dat", action="write", status="replace")
-     WRITE(900,"(A,F11.3,A)") 'Last completed run time = ',timetot,' s'  !final write
-     CLOSE(900)
+
 
 !!!DEBUGGING FOR DIFFERENT FLUID SOLUTIONS
      WRITE(fmtn,'(A,I0, A)') '(',dimn,'G15.7)'
@@ -350,6 +351,7 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
   !Deallocate optional oldsol
   IF (PRESENT(oldsolin)) DEALLOCATE(oldsol)
   IF (PRESENT(oldfdsolin)) DEALLOCATE(oldfdsol)
+
 
 CONTAINS 
 
