@@ -85,7 +85,7 @@ CONTAINS
     INTEGER           :: numcols
     CHARACTER(LEN=30) :: rowfmt 
 
-    numcols = SIZE(mold,1)
+    numcols = 1 !Write out 1D array as a single column
     CALL open_file_out_txt(filename)
     WRITE(rowfmt,'(A,I0,A)') '(',numcols,'G15.7)'
     WRITE(unit=myunit,fmt=rowfmt) mold
