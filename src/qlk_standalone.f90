@@ -183,7 +183,10 @@ PROGRAM qlk_standalone
      WRITE(stdout,*) '  gyrokinetic calculation of linear growth rates and quasilinear transport fluxes  '
      WRITE(stdout,*) ' _________________________________________________________________________________ '
      WRITE(stdout,*) ' '
-     WRITE(stdout,'(1X,1A,I4,1A,/)') 'Executed in parallel on: ',nproc,' processors'
+     WRITE(stdout,'(A,I10)') 'Profiling: Amount of parallel processors = ', nproc
+     WRITE(stdout,'(A,I10)') 'Profiling: Number of radial or scan points (dimx) =', dimx
+     WRITE(stdout,'(A,I10)') 'Profiling: Number of wavenumbers (dimn)  = ', dimn
+     WRITE(stdout,*) ' '
 
      CALL SYSTEM_CLOCK(time2)
      CALL SYSTEM_CLOCK(count_rate=freq)
