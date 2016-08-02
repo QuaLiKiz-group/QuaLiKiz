@@ -29,6 +29,7 @@ CONTAINS
     COMPLEX(KIND=DBL) :: Aiz, Biz, Ciz
     REAL(KIND=DBL)    :: xa, ya, za, var, k2, nwgi
     REAL(KIND=DBL)    :: fki, Eg, Kg
+    INTEGER :: ifailloc
 
     k2 = kk*kk
     ! The term weighting the vertical drift of the trapped (fk) is calculated 
@@ -36,10 +37,10 @@ CONTAINS
     xa = 0.
     ya = 1.-k2
     za = 1.
-    ifail = 0
-    Kg = rf(xa, ya, za, ifail)
-    ifail = 0
-    var   = rd(xa, ya, za, ifail)
+    ifailloc = 0
+    Kg = rf(xa, ya, za, ifailloc)
+    ifailloc = 0
+    var   = rd(xa, ya, za, ifailloc)
     Eg = Kg - (k2)/3. * var
     fki = -1. + (smag(pFFk)*4. + 4./3. * alphax(pFFk)) * &
          &     (k2-1.+Eg/Kg) + 2.*Eg/Kg *(1-4./3. * k2 * alphax(pFFk))
@@ -57,7 +58,7 @@ CONTAINS
     IF (AIMAG(zik)<0.) zik = -zik
 
     !The plasma dispersion function is calculated (analytical energy integration)
-    ifail = 0;  Zgik = ci * sqrtpi * wofzweid(zik)
+    ifailloc = 0;  Zgik = ci * sqrtpi * wofzweid(zik)
 
     !Now the function is calculated based on the dispersion function calculation
     Aiz = 1. + zik * Zgik !Z1/z 
@@ -155,6 +156,7 @@ CONTAINS
     COMPLEX(KIND=DBL) :: ompFFk
     REAL(KIND=DBL)    :: xa, ya, za, var, k2, nwgi, nwe,vpar2
     REAL(KIND=DBL)    :: fki, Eg, E2g, Kg, gau2mshift
+    INTEGER :: ifailloc
 
     k2 = kk*kk
     ! The term weighting the vertical drift of the trapped (fk) is calculated 
@@ -162,10 +164,10 @@ CONTAINS
     xa = 0.
     ya = 1.-k2
     za = 1.
-    ifail = 0
-    Kg = rf(xa, ya, za, ifail)
-    ifail = 0
-    var   = rd(xa, ya, za, ifail)
+    ifailloc = 0
+    Kg = rf(xa, ya, za, ifailloc)
+    ifailloc = 0
+    var   = rd(xa, ya, za, ifailloc)
     Eg = Kg - (k2)/3. * var
     E2g = 1./kk * (Eg - Kg*(1.-k2)) !Specialized form of incomplete 2nd elliptic integral. Used for bounce average of Vpar^2
 
@@ -193,7 +195,7 @@ CONTAINS
     IF (AIMAG(zik)<0.) zik = -zik
 
     !The plasma dispersion function is calculated (analytical energy integration)
-    ifail = 0;  Zgik = ci * sqrtpi * wofzweid(zik)
+    ifailloc = 0;  Zgik = ci * sqrtpi * wofzweid(zik)
 
     !Now the function is calculated based on the dispersion function calculation
     Aiz = 1. + zik * Zgik !Z1/z
@@ -272,6 +274,7 @@ CONTAINS
     REAL(KIND=DBL)    :: v, v2, v3, v4, v5
     REAL(KIND=DBL)    :: xa, ya, za, var, k2, kk, nwge
     REAL(KIND=DBL)    :: fki, Eg, Kg, delta, Anuen, Anuent
+    INTEGER :: ifailloc
 
     kk = kv(1)
     v = kv(2)
@@ -283,8 +286,8 @@ CONTAINS
     ya = 1.-k2
     za = 1.
 
-    ifail = 0; Kg = rf(xa, ya, za, ifail)
-    ifail = 0; var   = rd(xa, ya, za, ifail)
+    ifailloc = 0; Kg = rf(xa, ya, za, ifailloc)
+    ifailloc = 0; var   = rd(xa, ya, za, ifailloc)
 
     Eg = Kg - (k2)/3. * var
 
@@ -369,17 +372,18 @@ CONTAINS
     COMPLEX(KIND=DBL) :: Aiz, Biz, Ciz
     REAL(KIND=DBL)    :: xa, ya, za, var, k2, nwge
     REAL(KIND=DBL)    :: fki, Eg, Kg
-   
+    INTEGER :: ifailloc
+
     k2 = kk*kk
     ! The term weighting the vertical drift of the trapped (fk) is calculated 
     ! The formulation with elliptic integrals is used
     xa = 0.
     ya = 1.-k2
     za = 1.
-    ifail = 0
-    Kg = rf(xa, ya, za, ifail)
-    ifail = 0
-    var   = rd(xa, ya, za, ifail)
+    ifailloc = 0
+    Kg = rf(xa, ya, za, ifailloc)
+    ifailloc = 0
+    var   = rd(xa, ya, za, ifailloc)
     Eg = Kg - (k2)/3. * var
     fki = -1. + (smag(pFFk)*4. + 4./3. * alphax(pFFk)) * &
          &     (k2-1.+Eg/Kg) + 2.*Eg/Kg *(1-4./3. * k2 * alphax(pFFk))
@@ -394,7 +398,7 @@ CONTAINS
     IF (AIMAG(zik)<0.) zik = -zik
 
     !The plasma dispersion function is calculated (analytical energy integration)
-    ifail = 0;  Zgik = ci * sqrtpi * wofzweid(zik)
+    ifailloc = 0;  Zgik = ci * sqrtpi * wofzweid(zik)
 
     !Now the function is calculated based on the dispersion function calculation
     Aiz = 1. + zik * Zgik !Z1
@@ -497,6 +501,7 @@ CONTAINS
     REAL(KIND=DBL)    :: v, v2, v3, v4, v5,gau2mshift
     REAL(KIND=DBL)    :: xa, ya, za, var, k2, kk, nwge, nwe
     REAL(KIND=DBL)    :: fki, Eg, E2g, Kg, delta, Anuen, Anuent,vpar2
+    INTEGER :: ifailloc
 
     kk = kv(1)
     v = kv(2)
@@ -508,8 +513,8 @@ CONTAINS
     ya = 1.-k2
     za = 1.
 
-    ifail = 0; Kg = rf(xa, ya, za, ifail)
-    ifail = 0; var   = rd(xa, ya, za, ifail)
+    ifailloc = 0; Kg = rf(xa, ya, za, ifailloc)
+    ifailloc = 0; var   = rd(xa, ya, za, ifailloc)
 
     Eg = Kg - (k2)/3. * var
     E2g = 1./kk * (Eg - Kg*(1.-k2)) !Specialized form of incomplete 2nd elliptic integral. Used for bounce average of Vpar^2
@@ -606,6 +611,7 @@ CONTAINS
     REAL(KIND=DBL)    :: v, v2, v3, v4, v5,gau2mshift
     REAL(KIND=DBL)    :: xa, ya, za, var, k2, kk, nwge, nwe
     REAL(KIND=DBL)    :: fki, Eg, E2g, Kg, delta, Anuen, Anuent,vpar2
+    INTEGER :: ifailloc
 
     kk = kv(1)
     v = kv(2)
@@ -617,8 +623,8 @@ CONTAINS
     ya = 1.-k2
     za = 1.
 
-    ifail = 0; Kg = rf(xa, ya, za, ifail)
-    ifail = 0; var   = rd(xa, ya, za, ifail)
+    ifailloc = 0; Kg = rf(xa, ya, za, ifailloc)
+    ifailloc = 0; var   = rd(xa, ya, za, ifailloc)
 
     Eg = Kg - (k2)/3. * var
     E2g = 1./kk * (Eg - Kg*(1.-k2)) !Specialized form of incomplete 2nd elliptic integral. Used for bounce average of Vpar^2
@@ -713,6 +719,7 @@ CONTAINS
     COMPLEX(KIND=DBL) :: ompFFk
     REAL(KIND=DBL)    :: xa, ya, za, var, k2, nwge, nwe
     REAL(KIND=DBL)    :: fki, Eg, E2g, Kg, gau2mshift,vpar2
+    INTEGER :: ifailloc
 
     k2 = kk*kk
     ! The term weighting the vertical drift of the trapped (fk) is calculated 
@@ -720,10 +727,10 @@ CONTAINS
     xa = 0.
     ya = 1.-k2
     za = 1.
-    ifail = 0
-    Kg = rf(xa, ya, za, ifail)
-    ifail = 0
-    var   = rd(xa, ya, za, ifail)
+    ifailloc = 0
+    Kg = rf(xa, ya, za, ifailloc)
+    ifailloc = 0
+    var   = rd(xa, ya, za, ifailloc)
     Eg = Kg - (k2)/3. * var
     E2g = 1./kk * (Eg - Kg*(1.-k2)) !Specialized form of incomplete 2nd elliptic integral. Used for bounce average of Vpar^2
     fki = -1. + (smag(pFFk)*4. + 4./3. * alphax(pFFk)) * &
@@ -751,7 +758,7 @@ CONTAINS
     IF (AIMAG(zik)<0.) zik = -zik
 
     !The plasma dispersion function is calculated (analytical energy integration)
-    ifail = 0;  Zgik = ci * sqrtpi * wofzweid(zik)
+    ifailloc = 0;  Zgik = ci * sqrtpi * wofzweid(zik)
 
     !Now the function is calculated based on the dispersion function calculation
     Aiz = 1. + zik * Zgik !Z1/z
@@ -831,6 +838,7 @@ CONTAINS
     COMPLEX(KIND=DBL) :: ompFFk
     REAL(KIND=DBL)    :: xa, ya, za, var, k2, nwge, nwe
     REAL(KIND=DBL)    :: fki, Eg, E2g, Kg, gau2mshift,vpar2
+    INTEGER :: ifailloc
 
     k2 = kk*kk
     ! The term weighting the vertical drift of the trapped (fk) is calculated 
@@ -838,10 +846,10 @@ CONTAINS
     xa = 0.
     ya = 1.-k2
     za = 1.
-    ifail = 0
-    Kg = rf(xa, ya, za, ifail)
-    ifail = 0
-    var   = rd(xa, ya, za, ifail)
+    ifailloc = 0
+    Kg = rf(xa, ya, za, ifailloc)
+    ifailloc = 0
+    var   = rd(xa, ya, za, ifailloc)
     Eg = Kg - (k2)/3. * var
     E2g = 1./kk * (Eg - Kg*(1.-k2)) !Specialized form of incomplete 2nd elliptic integral. Used for bounce average of Vpar^2
     fki = -1. + (smag(pFFk)*4. + 4./3. * alphax(pFFk)) * &
@@ -869,7 +877,7 @@ CONTAINS
     IF (AIMAG(zik)<0.) zik = -zik
 
     !The plasma dispersion function is calculated (analytical energy integration)
-    ifail = 0;  Zgik = ci * sqrtpi * wofzweid(zik)
+    ifailloc = 0;  Zgik = ci * sqrtpi * wofzweid(zik)
 
     !Now the function is calculated based on the dispersion function calculation
     Aiz = 1. + zik * Zgik !Z1/z

@@ -240,7 +240,7 @@ CONTAINS
     !transport coefficients and gradients. Done for each species. Also calcuates the poloidal profile of R/Ln for each species
     REAL(KIND=DBL), DIMENSION(ntheta) :: Aneprof, Rth,Ee,Ei,dtpernormedr,dtpernormidr
     REAL(KIND=DBL) :: Rlfs,theta1,relerr,thmin,thmax
-    INTEGER :: ith,ifail
+    INTEGER :: ith,ifailloc
     INTEGER :: npts !output of number of integral evaluations
 
     !Allocate work arrays for integration routine
@@ -281,85 +281,85 @@ CONTAINS
           !DQAGSE is a 1D integration routine in mathlib/dqagse.f
 
           !Calculate the flux surface averaged e0 coefficient. 
-!!$          CALL DQAGSE(e01,thmin,thmax,0.,epsFLR,limit,ecoefs(irad,ion,1),relerr,npts,ifail,&
+!!$          CALL DQAGSE(e01,thmin,thmax,0.,epsFLR,limit,ecoefs(irad,ion,1),relerr,npts,ifailloc,&
 !!$               alist, blist, rlist, elist, iord, last)
 
-          ifail = 1
-          ecoefs(irad,ion,1) = d01ahf(thmin,thmax,epsFLR,npts,relerr,e01,lw2,ifail)
-          IF (ifail .NE. 0) THEN
-             IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef failed for coef 1 in list. ifail=',ifail,'. irad=,',irad,'. ion=',ion
+          ifailloc = 1
+          ecoefs(irad,ion,1) = d01ahf(thmin,thmax,epsFLR,npts,relerr,e01,lw2,ifailloc)
+          IF (ifailloc .NE. 0) THEN
+             IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef failed for coef 1 in list. ifailloc=',ifailloc,'. irad=,',irad,'. ion=',ion
           ENDIF
           !Calculate the flux surface averaged e1 coefficient. 
 
-          ifail = 1
-          ecoefs(irad,ion,2) = d01ahf(thmin,thmax,epsFLR,npts,relerr,e11,lw2,ifail)
-!!$          CALL DQAGSE(e11,thmin,thmax,0.,epsFLR,limit,ecoefs(irad,ion,2),relerr,npts,ifail,&
+          ifailloc = 1
+          ecoefs(irad,ion,2) = d01ahf(thmin,thmax,epsFLR,npts,relerr,e11,lw2,ifailloc)
+!!$          CALL DQAGSE(e11,thmin,thmax,0.,epsFLR,limit,ecoefs(irad,ion,2),relerr,npts,ifailloc,&
 !!$               alist, blist, rlist, elist, iord, last)
-          IF (ifail .NE. 0) THEN
-             IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef failed for coef 2 in list. ifail=',ifail,'. irad=,',irad,'. ion=',ion
+          IF (ifailloc .NE. 0) THEN
+             IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef failed for coef 2 in list. ifailloc=',ifailloc,'. irad=,',irad,'. ion=',ion
           ENDIF
           !Calculate the flux surface averaged e2 coefficient. 
 
-          ifail = 1
-          ecoefs(irad,ion,3) = d01ahf(thmin,thmax,epsFLR,npts,relerr,e21,lw2,ifail)
-!!$          CALL DQAGSE(e21,thmin,thmax,0.,epsFLR,limit,ecoefs(irad,ion,3),relerr,npts,ifail,&
+          ifailloc = 1
+          ecoefs(irad,ion,3) = d01ahf(thmin,thmax,epsFLR,npts,relerr,e21,lw2,ifailloc)
+!!$          CALL DQAGSE(e21,thmin,thmax,0.,epsFLR,limit,ecoefs(irad,ion,3),relerr,npts,ifailloc,&
 !!$               alist, blist, rlist, elist, iord, last)
-          IF (ifail .NE. 0) THEN
-             IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef failed for coef 3 in list. ifail=',ifail,'. irad=,',irad,'. ion=',ion
+          IF (ifailloc .NE. 0) THEN
+             IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef failed for coef 3 in list. ifailloc=',ifailloc,'. irad=,',irad,'. ion=',ion
           ENDIF
           !Calculate the flux surface averaged e3 coefficient. PROBLEM HERE
 
-          ifail = 1
-          ecoefs(irad,ion,4) = d01ahf(thmin,thmax,epsFLR,npts,relerr,e31,lw2,ifail)
-!!$          CALL DQAGSE(e31,thmin,thmax,0.,epsFLR,limit,ecoefs(irad,ion,4),relerr,npts,ifail,&
+          ifailloc = 1
+          ecoefs(irad,ion,4) = d01ahf(thmin,thmax,epsFLR,npts,relerr,e31,lw2,ifailloc)
+!!$          CALL DQAGSE(e31,thmin,thmax,0.,epsFLR,limit,ecoefs(irad,ion,4),relerr,npts,ifailloc,&
 !!$               alist, blist, rlist, elist, iord, last)
-          IF (ifail .NE. 0) THEN
-             IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef failed for coef 4 in list. ifail=',ifail,'. irad=,',irad,'. ion=',ion
+          IF (ifailloc .NE. 0) THEN
+             IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef failed for coef 4 in list. ifailloc=',ifailloc,'. irad=,',irad,'. ion=',ion
           ENDIF
           !Calculate the flux surface averaged e4 coefficient. 
 
-          ifail = 1
-          ecoefs(irad,ion,5) = d01ahf(thmin,thmax,epsFLR,npts,relerr,e41,lw2,ifail)
-!!$          CALL DQAGSE(e41,thmin,thmax,0.,epsFLR,limit,ecoefs(irad,ion,5),relerr,npts,ifail,&
+          ifailloc = 1
+          ecoefs(irad,ion,5) = d01ahf(thmin,thmax,epsFLR,npts,relerr,e41,lw2,ifailloc)
+!!$          CALL DQAGSE(e41,thmin,thmax,0.,epsFLR,limit,ecoefs(irad,ion,5),relerr,npts,ifailloc,&
 !!$               alist, blist, rlist, elist, iord, last)
-          IF (ifail .NE. 0) THEN
-             IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef failed for coef 5 in list. ifail=',ifail,'. irad=,',irad,'. ion=',ion
+          IF (ifailloc .NE. 0) THEN
+             IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef failed for coef 5 in list. ifailloc=',ifailloc,'. irad=,',irad,'. ion=',ion
           ENDIF
 
           ecoefs(irad,ion,6)=0 !The e5 coefficient, which is 0 in Hamada coordinates
 
           !Calculate the flux surface averaged e6 coefficient (new coefficient not defined in GKW Manual) 
-          ifail = 1
-          ecoefs(irad,ion,7) = d01ahf(thmin,thmax,epsFLR,npts,relerr,e61,lw2,ifail)
-!!$          CALL DQAGSE(e61,thmin,thmax,0.,epsFLR,limit,ecoefs(irad,ion,7),relerr,npts,ifail,&
+          ifailloc = 1
+          ecoefs(irad,ion,7) = d01ahf(thmin,thmax,epsFLR,npts,relerr,e61,lw2,ifailloc)
+!!$          CALL DQAGSE(e61,thmin,thmax,0.,epsFLR,limit,ecoefs(irad,ion,7),relerr,npts,ifailloc,&
 !!$               alist, blist, rlist, elist, iord, last)
-          IF (ifail .NE. 0) THEN
-             IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef failed for coef 7 in list. ifail=',ifail,'. irad=,',irad,'. ion=',ion
+          IF (ifailloc .NE. 0) THEN
+             IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef failed for coef 7 in list. ifailloc=',ifailloc,'. irad=,',irad,'. ion=',ion
           ENDIF
 
           !e0-6, then <R/Ln>, <n>, and (nmax-nmin)/<n>
-          ifail = 1
-          ecoefs(irad,ion,8) = d01ahf(thmin,thmax,epsFLR,npts,relerr,e71,lw2,ifail)
-!!$          CALL DQAGSE(e71,thmin,thmax,0.,epsFLR,limit,ecoefs(irad,ion,8),relerr,npts,ifail,&
+          ifailloc = 1
+          ecoefs(irad,ion,8) = d01ahf(thmin,thmax,epsFLR,npts,relerr,e71,lw2,ifailloc)
+!!$          CALL DQAGSE(e71,thmin,thmax,0.,epsFLR,limit,ecoefs(irad,ion,8),relerr,npts,ifailloc,&
 !!$               alist, blist, rlist, elist, iord, last)
-          IF (ifail .NE. 0) THEN
-             IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef failed for coef 8 in list. ifail=',ifail,'. irad=,',irad,'. ion=',ion
+          IF (ifailloc .NE. 0) THEN
+             IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef failed for coef 8 in list. ifailloc=',ifailloc,'. irad=,',irad,'. ion=',ion
           ENDIF
 
-          ifail = 1
-          ecoefs(irad,ion,9) = d01ahf(thmin,thmax,epsFLR,npts,relerr,e81,lw2,ifail)
-!!$          CALL DQAGSE(e81,thmin,thmax,0.,epsFLR,limit,ecoefs(irad,ion,9),relerr,npts,ifail,&
+          ifailloc = 1
+          ecoefs(irad,ion,9) = d01ahf(thmin,thmax,epsFLR,npts,relerr,e81,lw2,ifailloc)
+!!$          CALL DQAGSE(e81,thmin,thmax,0.,epsFLR,limit,ecoefs(irad,ion,9),relerr,npts,ifailloc,&
 !!$               alist, blist, rlist, elist, iord, last)
-          IF (ifail .NE. 0) THEN
-             IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef failed for coef 9 in list. ifail=',ifail,'. irad=,',irad,'. ion=',ion
+          IF (ifailloc .NE. 0) THEN
+             IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef failed for coef 9 in list. ifailloc=',ifailloc,'. irad=,',irad,'. ion=',ion
           ENDIF
 
-          ifail = 1
-          ecoefs(irad,ion,10) = d01ahf(thmin,thmax,epsFLR,npts,relerr,e91,lw2,ifail)
-!!$          CALL DQAGSE(e91,thmin,thmax,0.,epsFLR,limit,ecoefs(irad,ion,10),relerr,npts,ifail,&
+          ifailloc = 1
+          ecoefs(irad,ion,10) = d01ahf(thmin,thmax,epsFLR,npts,relerr,e91,lw2,ifailloc)
+!!$          CALL DQAGSE(e91,thmin,thmax,0.,epsFLR,limit,ecoefs(irad,ion,10),relerr,npts,ifailloc,&
 !!$               alist, blist, rlist, elist, iord, last)
-          IF (ifail .NE. 0) THEN
-             IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef failed for coef 10 in list. ifail=',ifail,'. irad=,',irad,'. ion=',ion
+          IF (ifailloc .NE. 0) THEN
+             IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef failed for coef 10 in list. ifailloc=',ifailloc,'. irad=,',irad,'. ion=',ion
           ENDIF
           !R/Ln (defined as R*<dn/dr>/<n>)
           IF (ion == 0) THEN
@@ -768,7 +768,7 @@ END FUNCTION FSAnorm
 SUBROUTINE makeecoefsgau(p,nu)
   INTEGER, INTENT(IN) :: p, nu
   REAL(KIND=DBL) :: relerr,thmin,thmax, intnorm
-  INTEGER :: ifail
+  INTEGER :: ifailloc
   INTEGER :: npts !output of number of integral evaluations
 
   !limits for integration
@@ -779,10 +779,10 @@ SUBROUTINE makeecoefsgau(p,nu)
   inu = nu
 
   !Calculate integration norm
-  ifail = 1
-  intnorm = d01ahf(thmin,thmax,relacc1,npts,relerr,FSAnorm,lw2,ifail)
-  IF (ifail .NE. 0) THEN
-     IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef gau normalization failed with ifail=',ifail,'. irad=,',irad,'. ion=',ion
+  ifailloc = 1
+  intnorm = d01ahf(thmin,thmax,relacc1,npts,relerr,FSAnorm,lw2,ifailloc)
+  IF (ifailloc .NE. 0) THEN
+     IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef gau normalization failed with ifailloc=',ifailloc,'. irad=,',irad,'. ion=',ion
   ENDIF
 
   !Calculate the averages including full FSA and the Gaussian width weighting
@@ -790,58 +790,58 @@ SUBROUTINE makeecoefsgau(p,nu)
   DO ion=0,nions !loop over species in plasma (0=electrons, >=1 for ions)
 
      !Calculate the flux surface averaged e0 coefficient. 
-     ifail = 1
-     ecoefsgau(irad,inu,ion,0) = d01ahf(thmin,thmax,relacc1,npts,relerr,e01d,lw2,ifail)
-     IF (ifail .NE. 0) THEN
-        IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef gau failed for coef 0 in list. ifail=',ifail,'. irad=,',irad,'. ion=',ion
+     ifailloc = 1
+     ecoefsgau(irad,inu,ion,0) = d01ahf(thmin,thmax,relacc1,npts,relerr,e01d,lw2,ifailloc)
+     IF (ifailloc .NE. 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef gau failed for coef 0 in list. ifailloc=',ifailloc,'. irad=,',irad,'. ion=',ion
      ENDIF
      !Calculate the flux surface averaged e1 coefficient. 
-     ifail = 1
-     ecoefsgau(irad,inu,ion,1) = d01ahf(thmin,thmax,relacc1,npts,relerr,e11d,lw2,ifail)
-     IF (ifail .NE. 0) THEN
-        IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef gau failed for coef 1 in list. ifail=',ifail,'. irad=,',irad,'. ion=',ion
+     ifailloc = 1
+     ecoefsgau(irad,inu,ion,1) = d01ahf(thmin,thmax,relacc1,npts,relerr,e11d,lw2,ifailloc)
+     IF (ifailloc .NE. 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef gau failed for coef 1 in list. ifailloc=',ifailloc,'. irad=,',irad,'. ion=',ion
      ENDIF
      !Calculate the flux surface averaged e2 coefficient. 
-     ifail = 1
-     ecoefsgau(irad,inu,ion,2) = d01ahf(thmin,thmax,relacc1,npts,relerr,e21d,lw2,ifail)
-     IF (ifail .NE. 0) THEN
-        IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef gau failed for coef 2 in list. ifail=',ifail,'. irad=,',irad,'. ion=',ion
+     ifailloc = 1
+     ecoefsgau(irad,inu,ion,2) = d01ahf(thmin,thmax,relacc1,npts,relerr,e21d,lw2,ifailloc)
+     IF (ifailloc .NE. 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef gau failed for coef 2 in list. ifailloc=',ifailloc,'. irad=,',irad,'. ion=',ion
      ENDIF
      !Calculate the flux surface averaged e3 coefficient. 
-     ifail = 1 
-     ecoefsgau(irad,inu,ion,3) = d01ahf(thmin,thmax,relacc1,npts,relerr,e31d,lw2,ifail)
-     IF (ifail .NE. 0) THEN
-        IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef gau failed for coef 3 in list. ifail=',ifail,'. irad=,',irad,'. ion=',ion
+     ifailloc = 1 
+     ecoefsgau(irad,inu,ion,3) = d01ahf(thmin,thmax,relacc1,npts,relerr,e31d,lw2,ifailloc)
+     IF (ifailloc .NE. 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef gau failed for coef 3 in list. ifailloc=',ifailloc,'. irad=,',irad,'. ion=',ion
      ENDIF
      !Calculate the flux surface averaged e4 coefficient. 
-     ifail = 1 
-     ecoefsgau(irad,inu,ion,4) = d01ahf(thmin,thmax,relacc1,npts,relerr,e41d,lw2,ifail)
-     IF (ifail .NE. 0) THEN
-        IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef gau failed for coef 4 in list. ifail=',ifail,'. irad=,',irad,'. ion=',ion
+     ifailloc = 1 
+     ecoefsgau(irad,inu,ion,4) = d01ahf(thmin,thmax,relacc1,npts,relerr,e41d,lw2,ifailloc)
+     IF (ifailloc .NE. 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef gau failed for coef 4 in list. ifailloc=',ifailloc,'. irad=,',irad,'. ion=',ion
      ENDIF
      ecoefsgau(irad,inu,ion,5)=0 !The e5 coefficient, which is 0 in Hamada coordinates
 
      !Calculate the flux surface averaged e6 coefficient (new coefficient not defined in GKW Manual) 
-     ifail = 1 
-     ecoefsgau(irad,inu,ion,6) = d01ahf(thmin,thmax,relacc1,npts,relerr,e61d,lw2,ifail)
-     IF (ifail .NE. 0) THEN
-        IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef gau failed for coef 6 in list. ifail=',ifail,'. irad=,',irad,'. ion=',ion
+     ifailloc = 1 
+     ecoefsgau(irad,inu,ion,6) = d01ahf(thmin,thmax,relacc1,npts,relerr,e61d,lw2,ifailloc)
+     IF (ifailloc .NE. 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef gau failed for coef 6 in list. ifailloc=',ifailloc,'. irad=,',irad,'. ion=',ion
      ENDIF
      !e0-6, then <R/Ln>, <n>, and (nmax-nmin)/<n>
-     ifail = 1 
-     ecoefsgau(irad,inu,ion,7) = d01ahf(thmin,thmax,relacc1,npts,relerr,e71d,lw2,ifail)
-     IF (ifail .NE. 0) THEN
-        IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef gau failed for coef 7 in list. ifail=',ifail,'. irad=,',irad,'. ion=',ion
+     ifailloc = 1 
+     ecoefsgau(irad,inu,ion,7) = d01ahf(thmin,thmax,relacc1,npts,relerr,e71d,lw2,ifailloc)
+     IF (ifailloc .NE. 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef gau failed for coef 7 in list. ifailloc=',ifailloc,'. irad=,',irad,'. ion=',ion
      ENDIF
-     ifail = 1 
-     ecoefsgau(irad,inu,ion,8) = d01ahf(thmin,thmax,relacc1,npts,relerr,e81d,lw2,ifail)
-     IF (ifail .NE. 0) THEN
-        IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef gau failed for coef 8 in list. ifail=',ifail,'. irad=,',irad,'. ion=',ion
+     ifailloc = 1 
+     ecoefsgau(irad,inu,ion,8) = d01ahf(thmin,thmax,relacc1,npts,relerr,e81d,lw2,ifailloc)
+     IF (ifailloc .NE. 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef gau failed for coef 8 in list. ifailloc=',ifailloc,'. irad=,',irad,'. ion=',ion
      ENDIF
-     ifail = 1 
-     ecoefsgau(irad,inu,ion,9) = d01ahf(thmin,thmax,relacc1,npts,relerr,e91d,lw2,ifail)
-     IF (ifail .NE. 0) THEN
-        IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef gau failed for coef 9 in list. ifail=',ifail,'. irad=,',irad,'. ion=',ion
+     ifailloc = 1 
+     ecoefsgau(irad,inu,ion,9) = d01ahf(thmin,thmax,relacc1,npts,relerr,e91d,lw2,ifailloc)
+     IF (ifailloc .NE. 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef gau failed for coef 9 in list. ifailloc=',ifailloc,'. irad=,',irad,'. ion=',ion
      ENDIF
   ENDDO
 
@@ -854,7 +854,7 @@ END SUBROUTINE makeecoefsgau
 SUBROUTINE makeecoefsgaucub(p,nu)
   INTEGER, INTENT(IN) :: p, nu
   REAL(KIND=DBL) :: relerr,thmin,thmax, intnorm
-  INTEGER :: ifail
+  INTEGER :: ifailloc
   INTEGER :: npts !output of number of integral evaluations
 
   !Allocate work arrays for integration routine
@@ -872,10 +872,10 @@ SUBROUTINE makeecoefsgaucub(p,nu)
   inu = nu
 
   !Calculate integration norm
-  CALL DQAGSE(FSAnorm,thmin,thmax,0.,epsFLR,limit,intnorm,relerr,npts,ifail,&
+  CALL DQAGSE(FSAnorm,thmin,thmax,0.,epsFLR,limit,intnorm,relerr,npts,ifailloc,&
           alist, blist, rlist, elist, iord, last)
-     IF (ifail .NE. 0) THEN
-        IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef gau normalization failed with ifail=',ifail,'. irad=,',irad,'. ion=',ion
+     IF (ifailloc .NE. 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef gau normalization failed with ifailloc=',ifailloc,'. irad=,',irad,'. ion=',ion
      ENDIF
 
   !Calculate the averages including full FSA and the Gaussian width weighting
@@ -883,64 +883,64 @@ SUBROUTINE makeecoefsgaucub(p,nu)
   DO ion=0,nions !loop over species in plasma (0=electrons, >=1 for ions)
 
      !Calculate the flux surface averaged e0 coefficient. 
-     CALL DQAGSE(e01d,thmin,thmax,0.,epsFLR,limit,ecoefsgau(irad,inu,ion,0),relerr,npts,ifail,&
+     CALL DQAGSE(e01d,thmin,thmax,0.,epsFLR,limit,ecoefsgau(irad,inu,ion,0),relerr,npts,ifailloc,&
           alist, blist, rlist, elist, iord, last)
-     IF (ifail .NE. 0) THEN
-        IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef gau failed for coef 0 in list. ifail=',ifail,'. irad=,',irad,'. ion=',ion
+     IF (ifailloc .NE. 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef gau failed for coef 0 in list. ifailloc=',ifailloc,'. irad=,',irad,'. ion=',ion
      ENDIF
 
      !Calculate the flux surface averaged e1 coefficient. 
-     CALL DQAGSE(e11d,thmin,thmax,0.,epsFLR,limit,ecoefsgau(irad,inu,ion,1),relerr,npts,ifail,&
+     CALL DQAGSE(e11d,thmin,thmax,0.,epsFLR,limit,ecoefsgau(irad,inu,ion,1),relerr,npts,ifailloc,&
           alist, blist, rlist, elist, iord, last)
-     IF (ifail .NE. 0) THEN
-        IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef gau failed for coef 1 in list. ifail=',ifail,'. irad=,',irad,'. ion=',ion
+     IF (ifailloc .NE. 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef gau failed for coef 1 in list. ifailloc=',ifailloc,'. irad=,',irad,'. ion=',ion
      ENDIF
 
      !Calculate the flux surface averaged e2 coefficient. 
-     CALL DQAGSE(e21d,thmin,thmax,0.,epsFLR,limit,ecoefsgau(irad,inu,ion,2),relerr,npts,ifail,&
+     CALL DQAGSE(e21d,thmin,thmax,0.,epsFLR,limit,ecoefsgau(irad,inu,ion,2),relerr,npts,ifailloc,&
           alist, blist, rlist, elist, iord, last)
-     IF (ifail .NE. 0) THEN
-        IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef gau failed for coef 2 in list. ifail=',ifail,'. irad=,',irad,'. ion=',ion
+     IF (ifailloc .NE. 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef gau failed for coef 2 in list. ifailloc=',ifailloc,'. irad=,',irad,'. ion=',ion
      ENDIF
      !Calculate the flux surface averaged e3 coefficient. 
-     CALL DQAGSE(e31d,thmin,thmax,0.,epsFLR,limit,ecoefsgau(irad,inu,ion,3),relerr,npts,ifail,&
+     CALL DQAGSE(e31d,thmin,thmax,0.,epsFLR,limit,ecoefsgau(irad,inu,ion,3),relerr,npts,ifailloc,&
           alist, blist, rlist, elist, iord, last)
-     IF (ifail .NE. 0) THEN
-        IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef gau failed for coef 3 in list. ifail=',ifail,'. irad=,',irad,'. ion=',ion
+     IF (ifailloc .NE. 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef gau failed for coef 3 in list. ifailloc=',ifailloc,'. irad=,',irad,'. ion=',ion
      ENDIF
      !Calculate the flux surface averaged e4 coefficient. 
-     CALL DQAGSE(e41d,thmin,thmax,0.,epsFLR,limit,ecoefsgau(irad,inu,ion,4),relerr,npts,ifail,&
+     CALL DQAGSE(e41d,thmin,thmax,0.,epsFLR,limit,ecoefsgau(irad,inu,ion,4),relerr,npts,ifailloc,&
           alist, blist, rlist, elist, iord, last)
-     IF (ifail .NE. 0) THEN
-        IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef gau failed for coef 4 in list. ifail=',ifail,'. irad=,',irad,'. ion=',ion
+     IF (ifailloc .NE. 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef gau failed for coef 4 in list. ifailloc=',ifailloc,'. irad=,',irad,'. ion=',ion
      ENDIF
 
      ecoefsgau(irad,inu,ion,5)=0 !The e5 coefficient, which is 0 in Hamada coordinates
 
      !Calculate the flux surface averaged e6 coefficient (new coefficient not defined in GKW Manual) 
-     CALL DQAGSE(e61d,thmin,thmax,0.,epsFLR,limit,ecoefsgau(irad,inu,ion,6),relerr,npts,ifail,&
+     CALL DQAGSE(e61d,thmin,thmax,0.,epsFLR,limit,ecoefsgau(irad,inu,ion,6),relerr,npts,ifailloc,&
           alist, blist, rlist, elist, iord, last)
-     IF (ifail .NE. 0) THEN
-        IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef gau failed for coef 6 in list. ifail=',ifail,'. irad=,',irad,'. ion=',ion
+     IF (ifailloc .NE. 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef gau failed for coef 6 in list. ifailloc=',ifailloc,'. irad=,',irad,'. ion=',ion
      ENDIF
 
      !e0-6, then <R/Ln>, <n>, and (nmax-nmin)/<n>
-     CALL DQAGSE(e71d,thmin,thmax,0.,epsFLR,limit,ecoefsgau(irad,inu,ion,7),relerr,npts,ifail,&
+     CALL DQAGSE(e71d,thmin,thmax,0.,epsFLR,limit,ecoefsgau(irad,inu,ion,7),relerr,npts,ifailloc,&
           alist, blist, rlist, elist, iord, last)
-     IF (ifail .NE. 0) THEN
-        IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef gau failed for coef 7 in list. ifail=',ifail,'. irad=,',irad,'. ion=',ion
+     IF (ifailloc .NE. 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef gau failed for coef 7 in list. ifailloc=',ifailloc,'. irad=,',irad,'. ion=',ion
      ENDIF
 
-     CALL DQAGSE(e81d,thmin,thmax,0.,epsFLR,limit,ecoefsgau(irad,inu,ion,8),relerr,npts,ifail,&
+     CALL DQAGSE(e81d,thmin,thmax,0.,epsFLR,limit,ecoefsgau(irad,inu,ion,8),relerr,npts,ifailloc,&
           alist, blist, rlist, elist, iord, last)
-     IF (ifail .NE. 0) THEN
-        IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef gau failed for coef 8 in list. ifail=',ifail,'. irad=,',irad,'. ion=',ion
+     IF (ifailloc .NE. 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef gau failed for coef 8 in list. ifailloc=',ifailloc,'. irad=,',irad,'. ion=',ion
      ENDIF
 
-     CALL DQAGSE(e91d,thmin,thmax,0.,epsFLR,limit,ecoefsgau(irad,inu,ion,9),relerr,npts,ifail,&
+     CALL DQAGSE(e91d,thmin,thmax,0.,epsFLR,limit,ecoefsgau(irad,inu,ion,9),relerr,npts,ifailloc,&
           alist, blist, rlist, elist, iord, last)
-     IF (ifail .NE. 0) THEN
-        IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef gau failed for coef 9 in list. ifail=',ifail,'. irad=,',irad,'. ion=',ion
+     IF (ifailloc .NE. 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef gau failed for coef 9 in list. ifailloc=',ifailloc,'. irad=,',irad,'. ion=',ion
      ENDIF
 
   ENDDO

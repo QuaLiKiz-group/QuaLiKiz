@@ -39,6 +39,7 @@ CONTAINS
     INTEGER, DIMENSION(1) :: iloc  
     INTEGER :: maxiter
     LOGICAL :: x02shift,x02poly,x02width
+    INTEGER :: ifailloc
 
     !!    For testing and debugging
 !!$    gammaE=0.3* cthi(p,1)/cref(p)
@@ -62,32 +63,32 @@ CONTAINS
 
     pFFk=p !to pass rdadial coordinate into integrand functions which can only have one argument
 
-!!$    fk = ft(p)*d01ahf(a,b,relacc1,npts,relerr,fkint,lw,ifail)
-    ifail = 1
-    fk = d01ahf(a,b,relacc1,npts,relerr,fkint,lw,ifail)
-    IF (ifail /= 0) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifail = ',ifail,&
+!!$    fk = ft(p)*d01ahf(a,b,relacc1,npts,relerr,fkint,lw,ifailloc)
+    ifailloc = 1
+    fk = d01ahf(a,b,relacc1,npts,relerr,fkint,lw,ifailloc)
+    IF (ifailloc /= 0) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of fluid solution fk integration at p=',p,', nu=',nu
     ENDIF
 
-    ifail = 1
-    VT = d01ahf(a,b,relacc1,npts,relerr,VTint,lw,ifail)
-    IF (ifail /= 0) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifail = ',ifail,&
+    ifailloc = 1
+    VT = d01ahf(a,b,relacc1,npts,relerr,VTint,lw,ifailloc)
+    IF (ifailloc /= 0) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of fluid solution VT integration at p=',p,', nu=',nu
     ENDIF
 
-    ifail = 1
-    WvT2 = d01ahf(a,b,relacc1,npts,relerr,WvT2int,lw,ifail)
-    IF (ifail /= 0) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifail = ',ifail,&
+    ifailloc = 1
+    WvT2 = d01ahf(a,b,relacc1,npts,relerr,WvT2int,lw,ifailloc)
+    IF (ifailloc /= 0) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of fluid solution WvT2 integration at p=',p,', nu=',nu
     ENDIF
 
-    ifail = 1
-    norm = d01ahf(a,c,relacc1,npts,relerr,normint,lw,ifail)
-    IF (ifail /= 0) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifail = ',ifail,&
+    ifailloc = 1
+    norm = d01ahf(a,c,relacc1,npts,relerr,normint,lw,ifailloc)
+    IF (ifailloc /= 0) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of fluid solution norm integration at p=',p,', nu=',nu
     ENDIF
 
@@ -96,82 +97,82 @@ CONTAINS
 
     fc2 = norm
     ft2 = 1-norm
-    ifail = 1
-    lam = d01ahf(a,c,relacc1,npts,relerr,lamint,lw,ifail)!*fc(p)/norm
-    IF (ifail /= 0) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifail = ',ifail,&
+    ifailloc = 1
+    lam = d01ahf(a,c,relacc1,npts,relerr,lamint,lw,ifailloc)!*fc(p)/norm
+    IF (ifailloc /= 0) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of fluid solution lambda integration at p=',p,', nu=',nu
     ENDIF
 
-    ifail = 1
-    V1 = d01ahf(a,c,relacc1,npts,relerr,V1int,lw,ifail)!*fc(p)/norm
-    IF (ifail /= 0) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifail = ',ifail,&
+    ifailloc = 1
+    V1 = d01ahf(a,c,relacc1,npts,relerr,V1int,lw,ifailloc)!*fc(p)/norm
+    IF (ifailloc /= 0) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of fluid solution V1 integration at p=',p,', nu=',nu
     ENDIF
 
-    ifail = 1
-    V2 = d01ahf(a,c,relacc1,npts,relerr,V2int,lw,ifail)!*fc(p)/norm
-    IF (ifail /= 0) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifail = ',ifail,&
+    ifailloc = 1
+    V2 = d01ahf(a,c,relacc1,npts,relerr,V2int,lw,ifailloc)!*fc(p)/norm
+    IF (ifailloc /= 0) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of fluid solution V2 integration at p=',p,', nu=',nu
     ENDIF
 
 !!$    WRITE(*,*) 'p=',p,'norm,lam,V1,V2,eps=',norm,lam,V1,V2,epsilon(p)
 
-    ifail = 1
-    V3 = d01ahf(a,c,relacc1,npts,relerr,V3int,lw,ifail)!*fc(p)/norm
-    IF (ifail /= 0) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifail = ',ifail,&
+    ifailloc = 1
+    V3 = d01ahf(a,c,relacc1,npts,relerr,V3int,lw,ifailloc)!*fc(p)/norm
+    IF (ifailloc /= 0) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of fluid solution V3 integration at p=',p,', nu=',nu
     ENDIF
 
-    ifail = 1
-    V4 = d01ahf(a,c,relacc1,npts,relerr,V4int,lw,ifail)!*fc(p)/norm
-    IF (ifail /= 0) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifail = ',ifail,&
+    ifailloc = 1
+    V4 = d01ahf(a,c,relacc1,npts,relerr,V4int,lw,ifailloc)!*fc(p)/norm
+    IF (ifailloc /= 0) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of fluid solution V4 integration at p=',p,', nu=',nu
     ENDIF
 
-    ifail = 1
-    Wv3 = d01ahf(a,c,relacc1,npts,relerr,Wv3int,lw,ifail)!*fc(p)/norm
-    IF (ifail /= 0) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifail = ',ifail,&
+    ifailloc = 1
+    Wv3 = d01ahf(a,c,relacc1,npts,relerr,Wv3int,lw,ifailloc)!*fc(p)/norm
+    IF (ifailloc /= 0) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of fluid solution Wv3 integration at p=',p,', nu=',nu
     ENDIF
 
-    ifail = 1
-    Wv4 = d01ahf(a,c,relacc1,npts,relerr,Wv4int,lw,ifail)!*fc(p)/norm
-    IF (ifail /= 0) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifail = ',ifail,&
+    ifailloc = 1
+    Wv4 = d01ahf(a,c,relacc1,npts,relerr,Wv4int,lw,ifailloc)!*fc(p)/norm
+    IF (ifailloc /= 0) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of fluid solution Wv4 integration at p=',p,', nu=',nu
     ENDIF
 
-    ifail = 1
-    Wv5 = d01ahf(a,c,relacc1,npts,relerr,Wv5int,lw,ifail)!*fc(p)/norm
-    IF (ifail /= 0) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifail = ',ifail,&
+    ifailloc = 1
+    Wv5 = d01ahf(a,c,relacc1,npts,relerr,Wv5int,lw,ifailloc)!*fc(p)/norm
+    IF (ifailloc /= 0) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of fluid solution Wv5 integration at p=',p,', nu=',nu
     ENDIF
 
-    ifail = 1
-    Wv6 = d01ahf(a,c,relacc1,npts,relerr,Wv6int,lw,ifail)!*fc(p)/norm
-    IF (ifail /= 0) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifail = ',ifail,&
+    ifailloc = 1
+    Wv6 = d01ahf(a,c,relacc1,npts,relerr,Wv6int,lw,ifailloc)!*fc(p)/norm
+    IF (ifailloc /= 0) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of fluid solution Wv6 integration at p=',p,', nu=',nu
     ENDIF
 
-    ifail = 1
-    Wv7 = d01ahf(a,c,relacc1,npts,relerr,Wv7int,lw,ifail)!*fc(p)/norm
-    IF (ifail /= 0) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifail = ',ifail,&
+    ifailloc = 1
+    Wv7 = d01ahf(a,c,relacc1,npts,relerr,Wv7int,lw,ifailloc)!*fc(p)/norm
+    IF (ifailloc /= 0) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of fluid solution Wv7 integration at p=',p,', nu=',nu
     ENDIF
 
-    ifail = 1
-    Wv8 = d01ahf(a,c,relacc1,npts,relerr,Wv8int,lw,ifail)!*fc(p)/norm
-    IF (ifail /= 0) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifail = ',ifail,&
+    ifailloc = 1
+    Wv8 = d01ahf(a,c,relacc1,npts,relerr,Wv8int,lw,ifailloc)!*fc(p)/norm
+    IF (ifailloc /= 0) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of fluid solution Wv8 integration at p=',p,', nu=',nu
     ENDIF
 
@@ -367,7 +368,7 @@ CONTAINS
 
 !!$          IF (x02shift .EQV. .TRUE.) THEN !WITH X0^2
 !!$             !**FIND ROOT OF POLYNOMIAL** 
-!!$             CALL CPQR79(ndegx0,polyx0,polysolx0,ifail,warrayx0)
+!!$             CALL CPQR79(ndegx0,polyx0,polysolx0,ifailloc,warrayx0)
 !!$
 !!$          IF ( ABS(AIMAG(polysolx0(1))) < ABS(AIMAG(polysolx0(2)))) THEN
 !!$             IF ( ABS(REAL(polysolx0(1))) < ABS(REAL(polysolx0(2)))) THEN
@@ -432,10 +433,10 @@ CONTAINS
 
 
        !**FIND ROOT OF POLYNOMIAL**
-       ifail=1
-       CALL CPQR79(ndegpoly,poly,polysol,ifail,warray)        
-       IF (ifail /= 0) THEN
-          IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifail = ',ifail,&
+       ifailloc=1
+       CALL CPQR79(ndegpoly,poly,polysol,ifailloc,warray)        
+       IF (ifailloc /= 0) THEN
+          IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,&
                &'. Abnormal termination of fluid solution CPQR root finder at p=',p,', nu=',nu
        ENDIF
 
@@ -592,6 +593,7 @@ CONTAINS
     REAL(KIND=DBL) :: converge = 1e-3
     INTEGER, DIMENSION(1) :: iloc  
     INTEGER :: maxiter
+    INTEGER :: ifailloc
 
     !Set integration limits
     a=  0.0d0
@@ -605,15 +607,15 @@ CONTAINS
 
     pFFk=p !to pass rdadial coordinate into integrand functions which can only have one argument
 
-    fk = d01ahf(a,b,relacc1,npts,relerr,fkint,lw,ifail)
-    IF (ifail /= 0) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifail = ',ifail,&
+    fk = d01ahf(a,b,relacc1,npts,relerr,fkint,lw,ifailloc)
+    IF (ifailloc /= 0) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of ele fluid solution fk integration at p=',p,', nu=',nu
     ENDIF
 
-    norm = d01ahf(a,c,relacc1,npts,relerr,normint,lw,ifail)
-    IF (ifail /= 0) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifail = ',ifail,&
+    norm = d01ahf(a,c,relacc1,npts,relerr,normint,lw,ifailloc)
+    IF (ifailloc /= 0) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of ele fluid solution norm integration at p=',p,', nu=',nu
     ENDIF
 !!$    fc2 = fc(p)
@@ -621,33 +623,33 @@ CONTAINS
     fc2 = norm
     ft2 = 1-fc2
 
-    lam = d01ahf(a,c,relacc1,npts,relerr,lamint,lw,ifail)!*fc(p)/norm
-    IF (ifail /= 0) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifail = ',ifail,&
+    lam = d01ahf(a,c,relacc1,npts,relerr,lamint,lw,ifailloc)!*fc(p)/norm
+    IF (ifailloc /= 0) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of ele fluid solution lambda integration at p=',p,', nu=',nu
     ENDIF
 
-    V1 = d01ahf(a,c,relacc1,npts,relerr,V1int,lw,ifail)!*fc(p)/norm
-    IF (ifail /= 0) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifail = ',ifail,&
+    V1 = d01ahf(a,c,relacc1,npts,relerr,V1int,lw,ifailloc)!*fc(p)/norm
+    IF (ifailloc /= 0) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of ele fluid solution V1 integration at p=',p,', nu=',nu
     ENDIF
 
-    V2 = d01ahf(a,c,relacc1,npts,relerr,V2int,lw,ifail)!*fc(p)/norm
-    IF (ifail /= 0) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifail = ',ifail,&
+    V2 = d01ahf(a,c,relacc1,npts,relerr,V2int,lw,ifailloc)!*fc(p)/norm
+    IF (ifailloc /= 0) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of ele fluid solution V2 integration at p=',p,', nu=',nu
     ENDIF
 
-    Wv5 = d01ahf(a,c,relacc1,npts,relerr,Wv5int,lw,ifail)!*fc(p)/norm
-    IF (ifail /= 0) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifail = ',ifail,&
+    Wv5 = d01ahf(a,c,relacc1,npts,relerr,Wv5int,lw,ifailloc)!*fc(p)/norm
+    IF (ifailloc /= 0) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of ele fluid solution Wv5 integration at p=',p,', nu=',nu
     ENDIF
 
-    Wv6 = d01ahf(a,c,relacc1,npts,relerr,Wv6int,lw,ifail)!*fc(p)/norm
-    IF (ifail /= 0) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifail = ',ifail,&
+    Wv6 = d01ahf(a,c,relacc1,npts,relerr,Wv6int,lw,ifailloc)!*fc(p)/norm
+    IF (ifailloc /= 0) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of ele fluid solution Wv6 integration at p=',p,', nu=',nu
     ENDIF
 
@@ -689,8 +691,8 @@ CONTAINS
 
 
        !**FIND ROOT OF POLYNOMIAL**
-       ifail = 1
-       CALL CPQR79(ndegpoly,poly,polysol,ifail,warray)
+       ifailloc = 1
+       CALL CPQR79(ndegpoly,poly,polysol,ifailloc,warray)
        !      WRITE(*,*) 'p=',p,' . Polysol = ',polysol
        !find and set most unstable mode
        iloc = MAXLOC(AIMAG(polysol))
@@ -794,6 +796,7 @@ CONTAINS
     INTEGER, DIMENSION(1) :: iloc    
     LOGICAL :: x02shift = .FALSE.
     LOGICAL :: x02poly = .FALSE.
+    INTEGER :: ifailloc
 
     !!    For testing and debugging
 !!$    gammaE=0.3* cthi(p,1)/cref(p)
@@ -820,28 +823,28 @@ CONTAINS
 
     pFFk=p !to pass radial coordinate into integrand functions which can only have one argument
 
-!!$    fk = ft2*d01ahf(a,b,relacc1,npts,relerr,fkint,lw,ifail)
-    fk = d01ahf(a,b,relacc1,npts,relerr,fkint,lw,ifail)
-    IF (ifail /= 0) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifail = ',ifail,&
+!!$    fk = ft2*d01ahf(a,b,relacc1,npts,relerr,fkint,lw,ifailloc)
+    fk = d01ahf(a,b,relacc1,npts,relerr,fkint,lw,ifailloc)
+    IF (ifailloc /= 0) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of fluid solution fk integration at p=',p,', nu=',nu
     ENDIF
 
-    VT = d01ahf(a,b,relacc1,npts,relerr,VTint,lw,ifail)
-    IF (ifail /= 0) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifail = ',ifail,&
+    VT = d01ahf(a,b,relacc1,npts,relerr,VTint,lw,ifailloc)
+    IF (ifailloc /= 0) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of fluid solution VT integration at p=',p,', nu=',nu
     ENDIF
 
-    WvT2 = d01ahf(a,b,relacc1,npts,relerr,WvT2int,lw,ifail)
-    IF (ifail /= 0) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifail = ',ifail,&
+    WvT2 = d01ahf(a,b,relacc1,npts,relerr,WvT2int,lw,ifailloc)
+    IF (ifailloc /= 0) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of fluid solution WvT2 integration at p=',p,', nu=',nu
     ENDIF
 
-    norm = d01ahf(a,c,relacc1,npts,relerr,normint,lw,ifail)
-    IF (ifail /= 0) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifail = ',ifail,&
+    norm = d01ahf(a,c,relacc1,npts,relerr,normint,lw,ifailloc)
+    IF (ifailloc /= 0) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of fluid solution norm integration at p=',p,', nu=',nu
     ENDIF
 !!$    fc2 = fc(p)
@@ -849,69 +852,69 @@ CONTAINS
     fc2 = norm
     ft2 = 1-fc2
 
-    lam = d01ahf(a,c,relacc1,npts,relerr,lamint,lw,ifail)!*fc(p)/norm
-    IF (ifail /= 0) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifail = ',ifail,&
+    lam = d01ahf(a,c,relacc1,npts,relerr,lamint,lw,ifailloc)!*fc(p)/norm
+    IF (ifailloc /= 0) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of fluid solution lambda integration at p=',p,', nu=',nu
     ENDIF
 
-    V1 = d01ahf(a,c,relacc1,npts,relerr,V1int,lw,ifail)!*fc(p)/norm
-    IF (ifail /= 0) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifail = ',ifail,&
+    V1 = d01ahf(a,c,relacc1,npts,relerr,V1int,lw,ifailloc)!*fc(p)/norm
+    IF (ifailloc /= 0) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of fluid solution V1 integration at p=',p,', nu=',nu
     ENDIF
 
-    V2 = d01ahf(a,c,relacc1,npts,relerr,V2int,lw,ifail)!*fc(p)/norm
-    IF (ifail /= 0) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifail = ',ifail,&
+    V2 = d01ahf(a,c,relacc1,npts,relerr,V2int,lw,ifailloc)!*fc(p)/norm
+    IF (ifailloc /= 0) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of fluid solution V2 integration at p=',p,', nu=',nu
     ENDIF
 
-    V3 = d01ahf(a,c,relacc1,npts,relerr,V3int,lw,ifail)!*fc(p)/norm
-    IF (ifail /= 0) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifail = ',ifail,&
+    V3 = d01ahf(a,c,relacc1,npts,relerr,V3int,lw,ifailloc)!*fc(p)/norm
+    IF (ifailloc /= 0) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of fluid solution V3 integration at p=',p,', nu=',nu
     ENDIF
 
-    V4 = d01ahf(a,c,relacc1,npts,relerr,V4int,lw,ifail)!*fc(p)/norm
-    IF (ifail /= 0) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifail = ',ifail,&
+    V4 = d01ahf(a,c,relacc1,npts,relerr,V4int,lw,ifailloc)!*fc(p)/norm
+    IF (ifailloc /= 0) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of fluid solution V4 integration at p=',p,', nu=',nu
     ENDIF
 
-    Wv3 = d01ahf(a,c,relacc1,npts,relerr,Wv3int,lw,ifail)!*fc(p)/norm
-    IF (ifail /= 0) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifail = ',ifail,&
+    Wv3 = d01ahf(a,c,relacc1,npts,relerr,Wv3int,lw,ifailloc)!*fc(p)/norm
+    IF (ifailloc /= 0) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of fluid solution Wv3 integration at p=',p,', nu=',nu
     ENDIF
 
-    Wv4 = d01ahf(a,c,relacc1,npts,relerr,Wv4int,lw,ifail)!*fc(p)/norm
-    IF (ifail /= 0) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifail = ',ifail,&
+    Wv4 = d01ahf(a,c,relacc1,npts,relerr,Wv4int,lw,ifailloc)!*fc(p)/norm
+    IF (ifailloc /= 0) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of fluid solution Wv4 integration at p=',p,', nu=',nu
     ENDIF
 
-    Wv5 = d01ahf(a,c,relacc1,npts,relerr,Wv5int,lw,ifail)!*fc(p)/norm
-    IF (ifail /= 0) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifail = ',ifail,&
+    Wv5 = d01ahf(a,c,relacc1,npts,relerr,Wv5int,lw,ifailloc)!*fc(p)/norm
+    IF (ifailloc /= 0) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of fluid solution Wv5 integration at p=',p,', nu=',nu
     ENDIF
 
-    Wv6 = d01ahf(a,c,relacc1,npts,relerr,Wv6int,lw,ifail)!*fc(p)/norm
-    IF (ifail /= 0) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifail = ',ifail,&
+    Wv6 = d01ahf(a,c,relacc1,npts,relerr,Wv6int,lw,ifailloc)!*fc(p)/norm
+    IF (ifailloc /= 0) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of fluid solution Wv6 integration at p=',p,', nu=',nu
     ENDIF
 
-    Wv7 = d01ahf(a,c,relacc1,npts,relerr,Wv7int,lw,ifail)!*fc(p)/norm
-    IF (ifail /= 0) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifail = ',ifail,&
+    Wv7 = d01ahf(a,c,relacc1,npts,relerr,Wv7int,lw,ifailloc)!*fc(p)/norm
+    IF (ifailloc /= 0) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of fluid solution Wv7 integration at p=',p,', nu=',nu
     ENDIF
 
-    Wv8 = d01ahf(a,c,relacc1,npts,relerr,Wv8int,lw,ifail)!*fc(p)/norm                 
-    IF (ifail /= 0) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifail = ',ifail,&
+    Wv8 = d01ahf(a,c,relacc1,npts,relerr,Wv8int,lw,ifailloc)!*fc(p)/norm                 
+    IF (ifailloc /= 0) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of fluid solution Wv8 integration at p=',p,', nu=',nu
     ENDIF
 
@@ -975,7 +978,7 @@ CONTAINS
        !      WRITE(*,*) 'p=',p,' . Poly = ',poly
 
        !**FIND ROOT OF POLYNOMIAL**
-       CALL CPQR79(ndegpoly,poly,polysol,ifail,warray)
+       CALL CPQR79(ndegpoly,poly,polysol,ifailloc,warray)
        !      WRITE(*,*) 'p=',p,' . Polysol = ',polysol
        !find and set most unstable mode
        iloc = MAXLOC(AIMAG(polysol))
@@ -1058,17 +1061,17 @@ CONTAINS
     REAL(KIND=DBL), INTENT(IN) :: kk
     REAL(KIND=DBL)    :: xa, ya, za, var, k2
     REAL(KIND=DBL)    :: fki, Eg, Kg
-    INTEGER :: ifail
+    INTEGER :: ifailloc
     k2 = kk*kk
     ! The term weighting the vertical drift of the trapped (fk) is calculated 
     ! The formulation with elliptic integrals is used
     xa = 0.
     ya = 1.-k2
     za = 1.
-    ifail = 0
-    Kg = rf(xa, ya, za, ifail)
-    ifail = 0
-    var   = rd(xa, ya, za, ifail)
+    ifailloc = 0
+    Kg = rf(xa, ya, za, ifailloc)
+    ifailloc = 0
+    var   = rd(xa, ya, za, ifailloc)
     Eg = Kg - (k2)/3. * var
 
     fki = -1. + (smag(pFFk)*4. + 4./3. * alphax(pFFk)) * &
@@ -1088,17 +1091,17 @@ CONTAINS
     REAL(KIND=DBL), INTENT(IN) :: kk
     REAL(KIND=DBL)    :: xa, ya, za, var, k2
     REAL(KIND=DBL)    :: fki, E2g, Eg, Kg
-    INTEGER :: ifail
+    INTEGER :: ifailloc
     k2 = kk*kk
     ! The term weighting the vertical drift of the trapped (fk) is calculated 
     ! The formulation with elliptic integrals is used
     xa = 0.
     ya = 1.-k2
     za = 1.
-    ifail = 0
-    Kg = rf(xa, ya, za, ifail)
-    ifail = 0
-    var   = rd(xa, ya, za, ifail)
+    ifailloc = 0
+    Kg = rf(xa, ya, za, ifailloc)
+    ifailloc = 0
+    var   = rd(xa, ya, za, ifailloc)
     Eg = Kg - (k2)/3. * var
     E2g = 1./kk * (Eg - Kg*(1.-k2)) !Specialized form of incomplete 2nd elliptic integral. Used for bounce average of Vpar^2
 
@@ -1117,17 +1120,17 @@ CONTAINS
     REAL(KIND=DBL), INTENT(IN) :: kk
     REAL(KIND=DBL)    :: xa, ya, za, var, k2
     REAL(KIND=DBL)    :: fki, E2g, Eg, Kg
-    INTEGER :: ifail
+    INTEGER :: ifailloc
     k2 = kk*kk
     ! The term weighting the vertical drift of the trapped (fk) is calculated 
     ! The formulation with elliptic integrals is used
     xa = 0.
     ya = 1.-k2
     za = 1.
-    ifail = 0
-    Kg = rf(xa, ya, za, ifail)
-    ifail = 0
-    var   = rd(xa, ya, za, ifail)
+    ifailloc = 0
+    Kg = rf(xa, ya, za, ifailloc)
+    ifailloc = 0
+    var   = rd(xa, ya, za, ifailloc)
     Eg = Kg - (k2)/3. * var
     E2g = 1./kk * (Eg - Kg*(1.-k2)) !Specialized form of incomplete 2nd elliptic integral. Used for bounce average of Vpar^2
 
@@ -1145,17 +1148,17 @@ CONTAINS
     !integrand for <lambda> in the pinch angle integration for passing particles
     REAL(KIND=DBL), INTENT(IN) :: lamin
     REAL(KIND=DBL) :: Tlam,relerr
-    INTEGER :: ifail2,i
+    INTEGER :: ifailloc2,i
     REAL(KIND=DBL), DIMENSION(ntheta) :: theta,Tint
 
     theta=(/((i * pi/(ntheta-1)),i=0,ntheta-1)/) !set theta = [0,pi]
     Tint = 2./SQRT(1-lamin*(1+2.*epsilon(pFFk)*SIN(theta/2.)**2))
 
-    ifail2=0
-    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifail2) !calculate transit time
+    ifailloc2=0
+    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc2) !calculate transit time
 
-    IF (ifail2 /= 1) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7)") 'ifail2 = ',ifail2,&
+    IF (ifailloc2 /= 1) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7)") 'ifailloc2 = ',ifailloc2,&
             &'. Abnormal termination of fluid solution norm integration at p=',pFFk
     ENDIF
 
@@ -1166,17 +1169,17 @@ CONTAINS
     !integrand for <lambda> in the pinch angle integration for passing particles
     REAL(KIND=DBL), INTENT(IN) :: lamin
     REAL(KIND=DBL) :: Tlam,relerr
-    INTEGER :: ifail2,i
+    INTEGER :: ifailloc2,i
     REAL(KIND=DBL), DIMENSION(ntheta) :: theta,Tint
 
     theta=(/((i * pi/(ntheta-1)),i=0,ntheta-1)/) !set theta = [0,pi]
     Tint = 2./SQRT(1-lamin*(1+2.*epsilon(pFFk)*SIN(theta/2.)**2))
 
-    ifail2=0
-    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifail2) !calculate transit time
+    ifailloc2=0
+    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc2) !calculate transit time
 
-    IF (ifail2 /= 1) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7)") 'ifail2 = ',ifail2,&
+    IF (ifailloc2 /= 1) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7)") 'ifailloc2 = ',ifailloc2,&
             &'. Abnormal termination of fluid solution T integration at p=',pFFk
     ENDIF
 
@@ -1188,17 +1191,17 @@ CONTAINS
     !integrand for <lambda> in the pinch angle integration for passing particles
     REAL(KIND=DBL), INTENT(IN) :: lamin
     REAL(KIND=DBL) :: Tlam,relerr
-    INTEGER :: ifail2,i
+    INTEGER :: ifailloc2,i
     REAL(KIND=DBL), DIMENSION(ntheta) :: theta,Tint
 
     theta=(/((i * pi/(ntheta-1)),i=0,ntheta-1)/) !set theta = [0,pi]
     Tint = 2./SQRT(1-lamin*(1+2.*epsilon(pFFk)*SIN(theta/2.)**2))
 
-    ifail2=0
-    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifail2) !calculate transit time
+    ifailloc2=0
+    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc2) !calculate transit time
 
-    IF (ifail2 /= 1) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7)") 'ifail2 = ',ifail2,&
+    IF (ifailloc2 /= 1) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7)") 'ifailloc2 = ',ifailloc2,&
             &'. Abnormal termination of fluid solution T integration at p=',pFFk
     ENDIF
 
@@ -1210,17 +1213,17 @@ CONTAINS
     !integrand for <lambda> in the pinch angle integration for passing particles
     REAL(KIND=DBL), INTENT(IN) :: lamin
     REAL(KIND=DBL) :: Tlam,relerr
-    INTEGER :: ifail2,i
+    INTEGER :: ifailloc2,i
     REAL(KIND=DBL), DIMENSION(ntheta) :: theta,Tint
 
     theta=(/((i * pi/(ntheta-1)),i=0,ntheta-1)/) !set theta = [0,pi]
     Tint = 2./SQRT(1-lamin*(1+2.*epsilon(pFFk)*SIN(theta/2.)**2))
 
-    ifail2=0
-    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifail2) !calculate transit time
+    ifailloc2=0
+    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc2) !calculate transit time
 
-    IF (ifail2 /= 1) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7)") 'ifail2 = ',ifail2,&
+    IF (ifailloc2 /= 1) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7)") 'ifailloc2 = ',ifailloc2,&
             &'. Abnormal termination of fluid solution T integration at p=',pFFk
     ENDIF
 
@@ -1233,17 +1236,17 @@ CONTAINS
     !integrand for <lambda> in the pinch angle integration for passing particles
     REAL(KIND=DBL), INTENT(IN) :: lamin
     REAL(KIND=DBL) :: Tlam,relerr
-    INTEGER :: ifail2,i
+    INTEGER :: ifailloc2,i
     REAL(KIND=DBL), DIMENSION(ntheta) :: theta,Tint
 
     theta=(/((i * pi/(ntheta-1)),i=0,ntheta-1)/) !set theta = [0,pi]
     Tint = 2./SQRT(1-lamin*(1+2.*epsilon(pFFk)*SIN(theta/2.)**2))
 
-    ifail2=0
-    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifail2) !calculate transit time
+    ifailloc2=0
+    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc2) !calculate transit time
 
-    IF (ifail2 /= 1) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7)") 'ifail2 = ',ifail2,&
+    IF (ifailloc2 /= 1) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7)") 'ifailloc2 = ',ifailloc2,&
             &'. Abnormal termination of fluid solution T integration at p=',pFFk
     ENDIF
 
@@ -1255,17 +1258,17 @@ CONTAINS
     !integrand for <lambda> in the pinch angle integration for passing particles
     REAL(KIND=DBL), INTENT(IN) :: lamin
     REAL(KIND=DBL) :: Tlam,relerr
-    INTEGER :: ifail2,i
+    INTEGER :: ifailloc2,i
     REAL(KIND=DBL), DIMENSION(ntheta) :: theta,Tint
 
     theta=(/((i * pi/(ntheta-1)),i=0,ntheta-1)/) !set theta = [0,pi]
     Tint = 2./SQRT(1-lamin*(1+2.*epsilon(pFFk)*SIN(theta/2.)**2))
 
-    ifail2=0
-    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifail2) !calculate transit time
+    ifailloc2=0
+    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc2) !calculate transit time
 
-    IF (ifail2 /= 1) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7)") 'ifail2 = ',ifail2,&
+    IF (ifailloc2 /= 1) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7)") 'ifailloc2 = ',ifailloc2,&
             &'. Abnormal termination of fluid solution T integration at p=',pFFk
     ENDIF
 
@@ -1278,17 +1281,17 @@ CONTAINS
     !integrand for <lambda> in the pinch angle integration for passing particles
     REAL(KIND=DBL), INTENT(IN) :: lamin
     REAL(KIND=DBL) :: Tlam,relerr
-    INTEGER :: ifail2,i
+    INTEGER :: ifailloc2,i
     REAL(KIND=DBL), DIMENSION(ntheta) :: theta,Tint
 
     theta=(/((i * pi/(ntheta-1)),i=0,ntheta-1)/) !set theta = [0,pi]
     Tint = 2./SQRT(1-lamin*(1+2.*epsilon(pFFk)*SIN(theta/2.)**2))
 
-    ifail2=0
-    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifail2) !calculate transit time
+    ifailloc2=0
+    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc2) !calculate transit time
 
-    IF (ifail2 /= 1) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7)") 'ifail2 = ',ifail2,&
+    IF (ifailloc2 /= 1) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7)") 'ifailloc2 = ',ifailloc2,&
             &'. Abnormal termination of fluid solution T integration at p=',pFFk
     ENDIF
 
@@ -1300,17 +1303,17 @@ CONTAINS
     !integrand for <lambda> in the pinch angle integration for passing particles
     REAL(KIND=DBL), INTENT(IN) :: lamin
     REAL(KIND=DBL) :: Tlam,relerr
-    INTEGER :: ifail2,i
+    INTEGER :: ifailloc2,i
     REAL(KIND=DBL), DIMENSION(ntheta) :: theta,Tint
 
     theta=(/((i * pi/(ntheta-1)),i=0,ntheta-1)/) !set theta = [0,pi]
     Tint = 2./SQRT(1-lamin*(1+2.*epsilon(pFFk)*SIN(theta/2.)**2))
 
-    ifail2=0
-    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifail2) !calculate transit time
+    ifailloc2=0
+    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc2) !calculate transit time
 
-    IF (ifail2 /= 1) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7)") 'ifail2 = ',ifail2,&
+    IF (ifailloc2 /= 1) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7)") 'ifailloc2 = ',ifailloc2,&
             &'. Abnormal termination of fluid solution T integration at p=',pFFk
     ENDIF
 
@@ -1323,17 +1326,17 @@ CONTAINS
     !integrand for <lambda> in the pinch angle integration for passing particles
     REAL(KIND=DBL), INTENT(IN) :: lamin
     REAL(KIND=DBL) :: Tlam,relerr
-    INTEGER :: ifail2,i
+    INTEGER :: ifailloc2,i
     REAL(KIND=DBL), DIMENSION(ntheta) :: theta,Tint
 
     theta=(/((i * pi/(ntheta-1)),i=0,ntheta-1)/) !set theta = [0,pi]
     Tint = 2./SQRT(1-lamin*(1+2.*epsilon(pFFk)*SIN(theta/2.)**2))
 
-    ifail2=0
-    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifail2) !calculate transit time
+    ifailloc2=0
+    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc2) !calculate transit time
 
-    IF (ifail2 /= 1) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7)") 'ifail2 = ',ifail2,&
+    IF (ifailloc2 /= 1) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7)") 'ifailloc2 = ',ifailloc2,&
             &'. Abnormal termination of fluid solution T integration at p=',pFFk
     ENDIF
 
@@ -1345,17 +1348,17 @@ CONTAINS
     !integrand for <lambda> in the pinch angle integration for passing particles
     REAL(KIND=DBL), INTENT(IN) :: lamin
     REAL(KIND=DBL) :: Tlam,relerr
-    INTEGER :: ifail2,i
+    INTEGER :: ifailloc2,i
     REAL(KIND=DBL), DIMENSION(ntheta) :: theta,Tint
 
     theta=(/((i * pi/(ntheta-1)),i=0,ntheta-1)/) !set theta = [0,pi]
     Tint = 2./SQRT(1-lamin*(1+2.*epsilon(pFFk)*SIN(theta/2.)**2))
 
-    ifail2=0
-    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifail2) !calculate transit time
+    ifailloc2=0
+    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc2) !calculate transit time
 
-    IF (ifail2 /= 1) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7)") 'ifail2 = ',ifail2,&
+    IF (ifailloc2 /= 1) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7)") 'ifailloc2 = ',ifailloc2,&
             &'. Abnormal termination of fluid solution T integration at p=',pFFk
     ENDIF
 
@@ -1367,17 +1370,17 @@ CONTAINS
     !integrand for <lambda> in the pinch angle integration for passing particles
     REAL(KIND=DBL), INTENT(IN) :: lamin
     REAL(KIND=DBL) :: Tlam,relerr
-    INTEGER :: ifail2,i
+    INTEGER :: ifailloc2,i
     REAL(KIND=DBL), DIMENSION(ntheta) :: theta,Tint
 
     theta=(/((i * pi/(ntheta-1)),i=0,ntheta-1)/) !set theta = [0,pi]
     Tint = 2./SQRT(1-lamin*(1+2.*epsilon(pFFk)*SIN(theta/2.)**2))
 
-    ifail2=0
-    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifail2) !calculate transit time
+    ifailloc2=0
+    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc2) !calculate transit time
 
-    IF (ifail2 /= 1) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7)") 'ifail2 = ',ifail2,&
+    IF (ifailloc2 /= 1) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7)") 'ifailloc2 = ',ifailloc2,&
             &'. Abnormal termination of fluid solution T integration at p=',pFFk
     ENDIF
 
@@ -1389,17 +1392,17 @@ CONTAINS
     !integrand for <lambda> in the pinch angle integration for passing particles
     REAL(KIND=DBL), INTENT(IN) :: lamin
     REAL(KIND=DBL) :: Tlam,relerr
-    INTEGER :: ifail2,i
+    INTEGER :: ifailloc2,i
     REAL(KIND=DBL), DIMENSION(ntheta) :: theta,Tint
 
     theta=(/((i * pi/(ntheta-1)),i=0,ntheta-1)/) !set theta = [0,pi]
     Tint = 2./SQRT(1-lamin*(1+2.*epsilon(pFFk)*SIN(theta/2.)**2))
 
-    ifail2=0
-    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifail2) !calculate transit time
+    ifailloc2=0
+    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc2) !calculate transit time
 
-    IF (ifail2 /= 1) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7)") 'ifail2 = ',ifail2,&
+    IF (ifailloc2 /= 1) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7)") 'ifailloc2 = ',ifailloc2,&
             &'. Abnormal termination of fluid solution T integration at p=',pFFk
     ENDIF
 
@@ -1603,22 +1606,22 @@ CONTAINS
     COMPLEX(KIND=DBL), DIMENSION(4) :: polysol
     REAL(KIND=DBL), DIMENSION(2*3*4) :: W !work array from CPQR79
     REAL(KIND=DBL) :: wpe,wpi
-    INTEGER :: ndeg=3,ifail
+    INTEGER :: ndeg=3,ifailloc
     INTEGER, DIMENSION(1) :: iloc    
 
     !**BUILD THE POLYNOMIAL COEFFICIENTS
     CALL cot_fonctflu (p, nu, poly)
 
     !**FIND ROOT OF POLYNOMIAL**
-    CALL CPQR79(ndeg,poly,polysol,ifail,W)
+    CALL CPQR79(ndeg,poly,polysol,ifailloc,W)
     iloc = MAXLOC(AIMAG(polysol))
     omeflu = polysol(iloc(1))
 
     ! solflu equivalent to PC QLK_mom : omega_ITG=calculsolfluide(a_fluide,b_fluide,c_fluide)
     ! omega_fluide=cmplx(real(omega_ITG),aimag(omega_ITG)*coeffi) why coeffi in front of imaginary part only??
 
-    IF (ifail /= 0) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I7,A,I3)") 'ifail = ',ifail,&
+    IF (ifailloc /= 0) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I7,A,I3)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of CPQR79 root finding in fluid solution at p=',p,', nu=',nu
     ENDIF
 

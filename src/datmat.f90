@@ -109,7 +109,7 @@ MODULE datmat
 
   INTEGER, SAVE :: weidcount !count the dispersion function calls
   INTEGER, SAVE :: ccount !count the integrand calls
-  INTEGER, SAVE :: Nsolrat, ifail, last
+  INTEGER, SAVE :: Nsolrat, last
   REAL(kind=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: alist, blist, rlist, elist
   INTEGER, SAVE, DIMENSION(:), ALLOCATABLE :: iord
 
