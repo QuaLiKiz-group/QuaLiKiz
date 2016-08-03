@@ -48,7 +48,7 @@ elif command == 'inputgo':
         raise Exception('Please supply run path')
     path = sys.argv[2]
     qualikizrun.recursive_function(path, qualikizrun.generate_input)
-    qualikizrun.run_jobs(path)
+    qualikizrun.recursive_function(path, qualikizrun.run_job)
 
 elif command == 'convertto':
     if len(sys.argv) < 3:
