@@ -8,6 +8,7 @@ import warnings
 from warnings import warn
 from collections import OrderedDict
 import shutil
+import csv
 
 import numpy as np
 
@@ -75,6 +76,7 @@ class Run:
 
 class EmptyJob:
     jobdatafile = 'jobdata.pkl'
+    metadatafile = 'metadata.csv'
     """ Defines an empty QuaLiKiz Job, so no input files are generated"""
     # pylint: disable=too-few-public-methods, too-many-arguments
 
@@ -93,10 +95,6 @@ class EmptyJob:
         Keyword arguments:
             - parameters_script: A string with the script used to 
                                  create the input files
-
-        Undefined at initialization time:
-            - jobnumber:  The jobnumber given by the SLURM system
-            - submittime: The time the job was submitted to the SLURM system
         """
         if os.path.isabs(rootdir):
             self.binary_path = os.path.abspath(os.path.join(rootdir,
@@ -107,8 +105,6 @@ class EmptyJob:
         self.parameters_script = parameters_script
         self.name = name
         self.batch = batch
-        self.jobnumber = None
-        self.submittime = None
 
     def to_file(self, runsdir, qualikizdir, overwrite=False, metapickle=True):
         """ Write all Job folders to file
@@ -210,93 +206,17 @@ def run_job(job_folder):
 
 
     cmd = 'git describe --tags'
-    qualikiz_version = subprocess.check_output(cmd, shell=True)
+    describe = subprocess.check_output(cmd, shell=True)
+    qualikiz_version = describe.strip().decode('utf-8')
 
     cmd = 'sbatch --workdir=' + job_folder + ' ' + os.path.join(job_folder, Run.scriptname)
     output = subprocess.check_output(cmd, shell=True)
-    jobnumber = output.split()[-1]
+    jobnumber = output.split()[-1].decode('utf-8')
     
-    with open(os.path.join(job_folder, EmptyJob.jobdatafile), 'rb') as file_:
-        job = pickle.load(file_)
-        job.jobnumber = jobnumber
-        job.submittime = datetime.datetime.now()
-        job.qualikiz_version = qualikiz_version
-    with open(os.path.join(job_folder, EmptyJob.jobdatafile), 'wb') as file_:
-        pickle.dump(job, file_)
-        print (jobnumber)
-
-
-def poll_dir(path):
-    """ Poll a job in a specific directory using sacct
-    Arguments:
-        - path: Path to poll for sacct data
-
-    Returns:
-        - Dict containing sacct data
-    """
-    with open(os.path.join(path, EmptyJob.jobdatafile), 'rb') as file_:
-        job = pickle.load(file_)
-        acct_data = poll_job(job)
-    return acct_data
-
-def poll_job(job):
-    """ Poll a job using sacct
-    Arguments:
-        - job: An EmptyJob instance. Job should have ran and have metadata
-
-    Returns:
-        - Dict containing sacct data
-    """
-    extra_fields = 'submit,CPUTime,CPUTimeRAW,NNodes'
-    if job.jobnumber is None:
-        raise Exception('Job has not run yet, cannot analyse')
-    cmd = 'sacct -o ' + extra_fields + ' -lP --name ' + job.batch.name + ' -j ' + job.jobnumber.decode("utf-8")
-    output = subprocess.check_output(cmd, shell=True).decode('UTF-8')
-    lines = output.splitlines()
-    table = []
-    header = lines[0]
-    headers = header.split(sep='|')
-    for line in lines[1:]:
-        words = line.split(sep='|')
-        table.append({header: word for header, word in zip(headers, words)})
-    if len(table) > 3:
-        raise Exception('Could not uniquely identify job ' + job.batch.name)
-    for entry in table:
-        if entry['JobName'] == job.batch.name:
-            if entry['State'] != 'COMPLETED':
-                warn('State of ' + entry['JobName'] + ' is ' + entry['State'] + ', not COMPLETED. Results might not be reliable')
-            elapsed = acctstr_to_timedelta(entry['Elapsed'])
-
-
-            raw_cores = job.batch.cores_per_node * int(entry['NNodes'])
-            raw_cpus = elapsed.seconds * raw_cores
-    return table
-
-def poll_to_file(acct_data, path):
-    """ Writes data from poll_job(s) to file
-    Arguments:
-        acct_data: Data returned from poll_job(s)
-        path: file to write to
-    """
-    if not path.endswith('.pkl'):
-        warn('It is advised to add the \'.pkl\' extention,' +
-             'as the file will be pickled')
-    with open(path, 'wb') as file_:
-        pickle.dump(acct_data, file_)
-
-
-def acctstr_to_timedelta(acctstr):
-    """ Covert a timestring generated with acct to timedelta """
-    acctstr_split = acctstr.split(':')
-    first_split = acctstr_split[0].split('-')
-    minutes, seconds = [int(x) for x in acctstr_split[-2:]]
-    if len(acctstr_split) < 3:
-        timedelta = datetime.timedelta(seconds=seconds, minutes=minutes)
-    else:
-        hours = int(first_split[-1])
-        if len(first_split) == 1:
-            timedelta = datetime.timedelta(seconds=seconds, minutes=minutes, hours=hours)
-        elif len(first_split) == 2:
-            days = int(first_split[0])
-            timedelta = datetime.timedelta(seconds=seconds, minutes=minutes, hours=hours, days=days)
-    return timedelta
+    # Dump some important profiling stuff to file
+    with open(os.path.join(job_folder, EmptyJob.metadatafile), 'w', newline='') as file_:
+        writer = csv.writer(file_)
+        writer.writerow(['jobnumber', jobnumber])
+        writer.writerow(['submittime', datetime.datetime.now()])
+        writer.writerow(['qualikiz_version', qualikiz_version])
+    print (jobnumber)

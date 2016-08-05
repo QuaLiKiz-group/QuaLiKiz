@@ -32,17 +32,6 @@ elif command == 'dump':
         raise Exception('Unknown file style \'' + style + '\'')
     print (array)
 
-elif command == 'poll':
-    if len(sys.argv) < 3:
-        raise Exception('Please supply poll path')
-    if len(sys.argv) == 4:
-        targetdir = sys.argv[3]
-    else:
-        targetdir = './polldump.pkl'
-    path = sys.argv[2]
-    acctdata = qualikizrun.recursive_function(path, qualikizrun.poll_dir)
-    qualikizrun.poll_to_file(acctdata, targetdir)
-
 elif command == 'inputgo':
     if len(sys.argv) < 3:
         raise Exception('Please supply run path')
