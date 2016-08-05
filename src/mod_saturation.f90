@@ -17,7 +17,7 @@ CONTAINS
     ALLOCATE(ome_SI(dimx,dimn,numsols)); ome_SI=0
     ALLOCATE(ome_GB(dimx,dimn,numsols)); ome_GB=0
 
-    ALLOCATE(modeflag(dimx))
+    ALLOCATE(modeflag(dimx)); modeflag=0
     ALLOCATE(epf_SI(dimx)); epf_SI=0
     ALLOCATE(epf_GB(dimx)); epf_GB=0
     ALLOCATE(eef_SI(dimx)); eef_SI=0
