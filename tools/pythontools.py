@@ -1,9 +1,7 @@
 """ Command line interface for Python tools """
 import sys
 import os
-from qualikiz import compare
-from qualikiz import qualikizrun
-from qualikiz import legacy
+from qualikiz import compare, legacy, qualikizrun, basicpoll
 import subprocess
 import os, inspect
 
@@ -31,6 +29,16 @@ elif command == 'dump':
     else:
         raise Exception('Unknown file style \'' + style + '\'')
     print (array)
+
+elif command == 'poll':
+    if len(sys.argv) < 3:
+        raise Exception('Please supply poll path')
+    if len(sys.argv) == 4:
+        targetdir = sys.argv[3]
+    else:
+        targetdir = './polldb.sqlite3'
+    path = sys.argv[2]
+    basicpoll.create_database(path, targetdir)
 
 elif command == 'inputgo':
     if len(sys.argv) < 3:
