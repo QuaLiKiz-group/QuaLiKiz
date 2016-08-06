@@ -257,72 +257,73 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
      IF (verbose .EQV. .TRUE.) WRITE(stdout,"(A)") '*** Calculating nonlinear saturation rule'
 
      CALL SYSTEM_CLOCK(time1)
-
-     IF (separateflux .EQV. .TRUE.) THEN
+  ENDIF
+  IF (separateflux .EQV. .TRUE.) THEN
+     IF (myrank==0) THEN
         IF (verbose .EQV. .TRUE.) WRITE(stdout,"(A)") '*** separateflux=T ,  NL saturation rule for separate modes also calculated'
         IF (verbose .EQV. .TRUE.) WRITE(stdout,*)     
-        CALL saturation(1) !set 0 for including all modes, 1 for only ITG, 2 for only TEM, 3 for only ETG
-        IF (PRESENT(eefITG_SIout))   eefITG_SIout=eef_SI; 
-        IF (PRESENT(epfITG_SIout))   epfITG_SIout=epf_SI; 
-        IF (PRESENT(chieeITG_SIout)) chieeITG_SIout=chiee_SI; 
-        IF (PRESENT(veneITG_SIout))  veneITG_SIout=vene_SI; 
-        IF (PRESENT(veceITG_SIout))  veceITG_SIout=vece_SI; 
-        IF (PRESENT(vereITG_SIout))  vereITG_SIout=vere_SI; 
-        IF (PRESENT(dfeITG_SIout))   dfeITG_SIout=dfe_SI; 
-        IF (PRESENT(vteITG_SIout))  vteITG_SIout=vte_SI; 
-        IF (PRESENT(vceITG_SIout))  vceITG_SIout=vce_SI; 
-        IF (PRESENT(vreITG_SIout))  vreITG_SIout=vre_SI; 
-
-        IF (PRESENT(iefITG_SIout))   iefITG_SIout=ief_SI; 
-        IF (PRESENT(ipfITG_SIout))   ipfITG_SIout=ipf_SI; 
-        IF (PRESENT(chieiITG_SIout)) chieiITG_SIout=chiei_SI; 
-        IF (PRESENT(veniITG_SIout))  veniITG_SIout=veni_SI; 
-        IF (PRESENT(veciITG_SIout))  veciITG_SIout=veci_SI; 
-        IF (PRESENT(veriITG_SIout))  veriITG_SIout=veri_SI; 
-        IF (PRESENT(dfiITG_SIout))   dfiITG_SIout=dfi_SI; 
-        IF (PRESENT(vtiITG_SIout))  vtiITG_SIout=vti_SI; 
-        IF (PRESENT(vciITG_SIout))  vciITG_SIout=vci_SI; 
-        IF (PRESENT(vriITG_SIout))  vriITG_SIout=vri_SI; 
-        CALL saturation(2) !set 0 for including all modes, 1 for only ITG, 2 for only TEM, 3 for only ETG
-        IF (PRESENT(eefTEM_SIout))   eefTEM_SIout=eef_SI; 
-        IF (PRESENT(epfTEM_SIout))   epfTEM_SIout=epf_SI; 
-        IF (PRESENT(chieeTEM_SIout)) chieeTEM_SIout=chiee_SI; 
-        IF (PRESENT(veneTEM_SIout))  veneTEM_SIout=vene_SI; 
-        IF (PRESENT(veceTEM_SIout))  veceTEM_SIout=vece_SI; 
-        IF (PRESENT(vereTEM_SIout))  vereTEM_SIout=vere_SI; 
-        IF (PRESENT(dfeTEM_SIout))   dfeTEM_SIout=dfe_SI; 
-        IF (PRESENT(vteTEM_SIout))  vteTEM_SIout=vte_SI; 
-        IF (PRESENT(vceTEM_SIout))  vceTEM_SIout=vce_SI; 
-        IF (PRESENT(vreTEM_SIout))  vreTEM_SIout=vre_SI; 
-
-        IF (PRESENT(iefTEM_SIout))   iefTEM_SIout=ief_SI; 
-        IF (PRESENT(ipfTEM_SIout))   ipfTEM_SIout=ipf_SI; 
-        IF (PRESENT(chieiTEM_SIout)) chieiTEM_SIout=chiei_SI; 
-        IF (PRESENT(veniTEM_SIout))  veniTEM_SIout=veni_SI; 
-        IF (PRESENT(veciTEM_SIout))  veciTEM_SIout=veci_SI; 
-        IF (PRESENT(veriTEM_SIout))  veriTEM_SIout=veri_SI; 
-        IF (PRESENT(dfiTEM_SIout))   dfiTEM_SIout=dfi_SI; 
-        IF (PRESENT(vtiTEM_SIout))  vtiTEM_SIout=vti_SI; 
-        IF (PRESENT(vciTEM_SIout))  vciTEM_SIout=vci_SI; 
-        IF (PRESENT(vriTEM_SIout))  vriTEM_SIout=vri_SI; 
-
-        CALL saturation(3) !set 0 for including all modes, 1 for only ITG, 2 for only TEM, 3 for only ETG
-        IF (PRESENT(eefETG_SIout))   eefETG_SIout=eef_SI; 
-        IF (PRESENT(chieeETG_SIout)) chieeETG_SIout=chiee_SI; 
-        IF (PRESENT(veneETG_SIout))  veneETG_SIout=vene_SI; 
-        IF (PRESENT(veceETG_SIout))  veceETG_SIout=vece_SI; 
-        IF (PRESENT(vereETG_SIout))  vereETG_SIout=vere_SI; 
-
      ENDIF
+     CALL saturation(1) !set 0 for including all modes, 1 for only ITG, 2 for only TEM, 3 for only ETG
+     IF (PRESENT(eefITG_SIout))   eefITG_SIout=eef_SI; 
+     IF (PRESENT(epfITG_SIout))   epfITG_SIout=epf_SI; 
+     IF (PRESENT(chieeITG_SIout)) chieeITG_SIout=chiee_SI; 
+     IF (PRESENT(veneITG_SIout))  veneITG_SIout=vene_SI; 
+     IF (PRESENT(veceITG_SIout))  veceITG_SIout=vece_SI; 
+     IF (PRESENT(vereITG_SIout))  vereITG_SIout=vere_SI; 
+     IF (PRESENT(dfeITG_SIout))   dfeITG_SIout=dfe_SI; 
+     IF (PRESENT(vteITG_SIout))  vteITG_SIout=vte_SI; 
+     IF (PRESENT(vceITG_SIout))  vceITG_SIout=vce_SI; 
+     IF (PRESENT(vreITG_SIout))  vreITG_SIout=vre_SI; 
 
-     CALL saturation(0) !set 0 for including all modes, 1 for only ITG, 2 for only TEM, 3 for only ETG
+     IF (PRESENT(iefITG_SIout))   iefITG_SIout=ief_SI; 
+     IF (PRESENT(ipfITG_SIout))   ipfITG_SIout=ipf_SI; 
+     IF (PRESENT(chieiITG_SIout)) chieiITG_SIout=chiei_SI; 
+     IF (PRESENT(veniITG_SIout))  veniITG_SIout=veni_SI; 
+     IF (PRESENT(veciITG_SIout))  veciITG_SIout=veci_SI; 
+     IF (PRESENT(veriITG_SIout))  veriITG_SIout=veri_SI; 
+     IF (PRESENT(dfiITG_SIout))   dfiITG_SIout=dfi_SI; 
+     IF (PRESENT(vtiITG_SIout))  vtiITG_SIout=vti_SI; 
+     IF (PRESENT(vciITG_SIout))  vciITG_SIout=vci_SI; 
+     IF (PRESENT(vriITG_SIout))  vriITG_SIout=vri_SI; 
+     CALL saturation(2) !set 0 for including all modes, 1 for only ITG, 2 for only TEM, 3 for only ETG
+     IF (PRESENT(eefTEM_SIout))   eefTEM_SIout=eef_SI; 
+     IF (PRESENT(epfTEM_SIout))   epfTEM_SIout=epf_SI; 
+     IF (PRESENT(chieeTEM_SIout)) chieeTEM_SIout=chiee_SI; 
+     IF (PRESENT(veneTEM_SIout))  veneTEM_SIout=vene_SI; 
+     IF (PRESENT(veceTEM_SIout))  veceTEM_SIout=vece_SI; 
+     IF (PRESENT(vereTEM_SIout))  vereTEM_SIout=vere_SI; 
+     IF (PRESENT(dfeTEM_SIout))   dfeTEM_SIout=dfe_SI; 
+     IF (PRESENT(vteTEM_SIout))  vteTEM_SIout=vte_SI; 
+     IF (PRESENT(vceTEM_SIout))  vceTEM_SIout=vce_SI; 
+     IF (PRESENT(vreTEM_SIout))  vreTEM_SIout=vre_SI; 
 
+     IF (PRESENT(iefTEM_SIout))   iefTEM_SIout=ief_SI; 
+     IF (PRESENT(ipfTEM_SIout))   ipfTEM_SIout=ipf_SI; 
+     IF (PRESENT(chieiTEM_SIout)) chieiTEM_SIout=chiei_SI; 
+     IF (PRESENT(veniTEM_SIout))  veniTEM_SIout=veni_SI; 
+     IF (PRESENT(veciTEM_SIout))  veciTEM_SIout=veci_SI; 
+     IF (PRESENT(veriTEM_SIout))  veriTEM_SIout=veri_SI; 
+     IF (PRESENT(dfiTEM_SIout))   dfiTEM_SIout=dfi_SI; 
+     IF (PRESENT(vtiTEM_SIout))  vtiTEM_SIout=vti_SI; 
+     IF (PRESENT(vciTEM_SIout))  vciTEM_SIout=vci_SI; 
+     IF (PRESENT(vriTEM_SIout))  vriTEM_SIout=vri_SI; 
+
+     CALL saturation(3) !set 0 for including all modes, 1 for only ITG, 2 for only TEM, 3 for only ETG
+     IF (PRESENT(eefETG_SIout))   eefETG_SIout=eef_SI; 
+     IF (PRESENT(chieeETG_SIout)) chieeETG_SIout=chiee_SI; 
+     IF (PRESENT(veneETG_SIout))  veneETG_SIout=vene_SI; 
+     IF (PRESENT(veceETG_SIout))  veceETG_SIout=vece_SI; 
+     IF (PRESENT(vereETG_SIout))  vereETG_SIout=vere_SI; 
+
+  ENDIF
+
+  CALL saturation(0) !set 0 for including all modes, 1 for only ITG, 2 for only TEM, 3 for only ETG
+
+  IF (myrank==0) THEN
      CALL SYSTEM_CLOCK(time2)
      CALL SYSTEM_CLOCK(count_rate=freq)
      timetot = REAL(time2-time1) / REAL(freq)
      WRITE(stdout,"(A,F11.3,A)") 'Profiling: saturation rule calculation time = ',timetot,' s'  
-
-
 
 !!!DEBUGGING FOR DIFFERENT FLUID SOLUTIONS
      WRITE(fmtn,'(A,I0, A)') '(',dimn,'G15.7)'
@@ -330,8 +331,8 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
      WRITE(900,fmtn) ((REAL(jon_solflu(i,j)),j=1,dimn),i=1,dimx) ; CLOSE(900)
      OPEN(unit=900, file="output/primitive/ijonsolflu.dat", action="write", status="replace")
      WRITE(900,fmtn) ((AIMAG(jon_solflu(i,j)),j=1,dimn),i=1,dimx) ; CLOSE(900)
-
-     !DEBUG
+  ENDIF
+  !DEBUG
 !!$    OPEN(unit=900, file="FLRec.dat", action="write", status="replace")
 !!$    WRITE(900,'(16G15.7)') ((FLRec(i,j),j=1,dimn),i=1,dimx) ;  CLOSE(900)
 !!$
@@ -355,9 +356,6 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
 !!$
 !!$    OPEN(unit=900, file="imodeshift.dat", action="write", status="replace")
 !!$    WRITE(900,'(16G15.7)') ((AIMAG(modeshift(i,j)),j=1,dimn),i=1,dimx) ;  CLOSE(900)
-
-
-  ENDIF
 
   IF (myrank==0) CALL SYSTEM_CLOCK(time3)
 
