@@ -418,220 +418,489 @@ PROGRAM qlk_standalone
 CONTAINS 
 
   SUBROUTINE data_init()
-    !Read data, allocate input and output arrays
+    !Parallel read data, allocate input and output arrays
     INTEGER, PARAMETER :: ktype = 1 ! BINARY FILES
-    INTEGER :: kc
+    INTEGER :: kc, doit,ierr
     REAL(kind=DBL) :: dummy !dummy variable for obtaining input. Must be real for readvar
-    REAL(kind=DBL), DIMENSION(:,:), ALLOCATABLE :: ion_typer !dummy variable for ion_type array
+
+    REAL(kind=DBL), DIMENSION(:), ALLOCATABLE :: dummyn
+    REAL(kind=DBL), DIMENSION(:), ALLOCATABLE :: dummyx
+    REAL(kind=DBL), DIMENSION(:,:), ALLOCATABLE :: dummyxnions
+
+    INTEGER :: dimxtmp,dimntmp,nionstmp,phys_methtmp,coll_flagtmp,rot_flagtmp,verbosetmp
+    INTEGER :: separatefluxtmp,numsolstmp,maxrunstmp,maxptstmp,el_typetmp,runcountertmp
+    REAL(kind=DBL) :: relacc1tmp,relacc2tmp,timeouttmp,R0tmp
+    REAL(kind=DBL), DIMENSION(:), ALLOCATABLE :: kthetarhostmp 
+    REAL(kind=DBL), DIMENSION(:), ALLOCATABLE :: xtmp,rhotmp,Rotmp,Rmintmp,Botmp,qxtmp,smagtmp,alphaxtmp
+    REAL(kind=DBL), DIMENSION(:), ALLOCATABLE :: Machtortmp,Autortmp,Machpartmp,Aupartmp,gammaEtmp
+    REAL(kind=DBL), DIMENSION(:), ALLOCATABLE :: Textmp,Nextmp,Atetmp,Anetmp,anisetmp,danisedrtmp
+    REAL(kind=DBL), DIMENSION(:,:), ALLOCATABLE :: Tixtmp,ninormtmp,Atitmp,Anitmp,anistmp,danisdrtmp, Aitmp, Zitmp
+    INTEGER, DIMENSION(:,:), ALLOCATABLE :: ion_typetmp
+    COMPLEX(kind=DBL), DIMENSION(:,:,:), ALLOCATABLE :: oldsoltmp, oldfdsoltmp
 
     ! READING INPUT ARRAYS FROM BINARY FILES
 
     inputdir = 'input/'
 
-    ! p{1} Size of radial or scan arrays
-    dimx = INT(readvar(inputdir // 'p1.bin', dummy, ktype, myunit))
-    ! p{2} Size of wavenumber arrays
-    dimn = INT(readvar(inputdir // 'p2.bin', dummy, ktype, myunit))
-    ! p{3} Number of ions in system
-    nions = INT(readvar(inputdir // 'p3.bin', dummy, ktype, myunit))
+    doit = 0
 
-    ALLOCATE(ion_typer(dimx,nions))
+    ! p{1} Size of radial or scan arrays
+    dimx = 0
+    IF (myrank == doit) dimx = INT(readvar(inputdir // 'p1.bin', dummy, ktype, myunit))
+    doit=doit+1; IF (doit==nproc) doit=0 
+
+    ! p{2} Size of wavenumber arrays
+    dimn = 0
+    IF (myrank == doit) dimn = INT(readvar(inputdir // 'p2.bin', dummy, ktype, myunit))
+    doit=doit+1; IF (doit==nproc) doit=0 
+
+    ! p{3} Number of ions in system
+    nions = 0
+    IF (myrank == doit) nions = INT(readvar(inputdir // 'p3.bin', dummy, ktype, myunit))
+    doit=doit+1; IF (doit==nproc) doit=0 
+
+    ! p{9} Number of total saught after solutions
+    numsols = 0
+    IF (myrank == doit) numsols = INT(readvar(inputdir // 'p9.bin', dummy, ktype, myunit))
+    doit=doit+1; IF (doit==nproc) doit=0 
+
+    ! p{12} Number of runs before runcounter resets
+    maxruns = 0
+    IF (myrank == doit) maxruns = INT(readvar(inputdir // 'p12.bin', dummy, ktype, myunit))
+    doit=doit+1; IF (doit==nproc) doit=0 
+
+    CALL MPI_Barrier(mpi_comm_world,ierror)
+    CALL MPI_AllReduce(dimx,dimxtmp,1,MPI_INTEGER,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(dimn,dimntmp,1,MPI_INTEGER,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(nions,nionstmp,1,MPI_INTEGER,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(numsols,numsolstmp,1,MPI_INTEGER,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(maxruns,maxrunstmp,1,MPI_INTEGER,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_Barrier(mpi_comm_world,ierror)
+
+    dimx=dimxtmp
+    dimn=dimntmp
+    nions=nionstmp
+    numsols=numsolstmp
+    maxruns=maxrunstmp !maxruns called before since it is needed for runcounter evaluation
+   
+    ! ALLOCATE TEMP ARRAYS FOR ALLREDUCE
+    ALLOCATE(dummyn(dimn))
+    ALLOCATE(dummyx(dimx))
+    ALLOCATE(dummyxnions(dimx,nions))
+
+    ALLOCATE(kthetarhostmp(dimn))
+    ALLOCATE(xtmp(dimx))
+    ALLOCATE(rhotmp(dimx))
+    ALLOCATE(Rotmp(dimx))
+    ALLOCATE(Rmintmp(dimx))
+    ALLOCATE(Botmp(dimx))
+    ALLOCATE(qxtmp(dimx))
+    ALLOCATE(smagtmp(dimx))
+    ALLOCATE(alphaxtmp(dimx))
+    ALLOCATE(Machtortmp(dimx))
+    ALLOCATE(Autortmp(dimx))
+    ALLOCATE(Machpartmp(dimx))
+    ALLOCATE(Aupartmp(dimx))
+    ALLOCATE(gammaEtmp(dimx))
+    ALLOCATE(Textmp(dimx))
+    ALLOCATE(Nextmp(dimx))
+    ALLOCATE(Atetmp(dimx))
+    ALLOCATE(Anetmp(dimx))
+    ALLOCATE(anisetmp(dimx))
+    ALLOCATE(danisedrtmp(dimx))
+
+    ALLOCATE(Tixtmp(dimx,nions))
+    ALLOCATE(ninormtmp(dimx,nions))
+    ALLOCATE(Atitmp(dimx,nions))
+    ALLOCATE(Anitmp(dimx,nions))
+    ALLOCATE(anistmp(dimx,nions))
+    ALLOCATE(danisdrtmp(dimx,nions))
+    ALLOCATE(ion_typetmp(dimx,nions))
+    ALLOCATE(Aitmp(dimx,nions))
+    ALLOCATE(Zitmp(dimx,nions))
+
+    ALLOCATE(oldsoltmp(dimx,dimn,numsols))
+    ALLOCATE(oldfdsoltmp(dimx,dimn,numsols))
 
     ! p{4} Flag for calculating decomposition of particle and heat transport into diffusive and convective components
-    phys_meth = INT(readvar(inputdir // 'p4.bin', dummy, ktype, myunit))
+    phys_meth = 0
+    IF (myrank == doit) phys_meth = INT(readvar(inputdir // 'p4.bin', dummy, ktype, myunit))
+    doit=doit+1; IF (doit==nproc) doit=0 
+
     ! p{5} Flag for including collisions
-    coll_flag = INT(readvar(inputdir // 'p5.bin', dummy, ktype, myunit))
+    coll_flag = 0
+    IF (myrank == doit) coll_flag = INT(readvar(inputdir // 'p5.bin', dummy, ktype, myunit))
+    doit=doit+1; IF (doit==nproc) doit=0 
+
     ! p{6} Flag for including rotation
-    rot_flag = INT(readvar(inputdir // 'p6.bin', dummy, ktype, myunit))
+    rot_flag = 0
+    IF (myrank == doit) rot_flag = INT(readvar(inputdir // 'p6.bin', dummy, ktype, myunit))
+    doit=doit+1; IF (doit==nproc) doit=0 
+
     ! p{7} Flag for verbose output
-    verbose = INT(readvar(inputdir // 'p7.bin', dummy, ktype, myunit))
+    verbose = 0
+    IF (myrank == doit) verbose = INT(readvar(inputdir // 'p7.bin', dummy, ktype, myunit))
+    doit=doit+1; IF (doit==nproc) doit=0 
+
     ! p{8} Flag for separate mode flux output
-    separateflux = INT(readvar(inputdir // 'p8.bin', dummy, ktype, myunit))
-    ! p{9} Number of total saught after solutions
-    numsols = INT(readvar(inputdir // 'p9.bin', dummy, ktype, myunit))
+    separateflux = 0
+    IF (myrank == doit) separateflux = INT(readvar(inputdir // 'p8.bin', dummy, ktype, myunit))
+    doit=doit+1; IF (doit==nproc) doit=0 
+
     ! p{10} 1D integral accuracy
-    relacc1 = readvar(inputdir // 'p10.bin', dummy, ktype, myunit)
+    relacc1 = 0
+    IF (myrank == doit) relacc1 = readvar(inputdir // 'p10.bin', dummy, ktype, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
+
     ! p{11} 2D integral accuracy
-    relacc2 = readvar(inputdir // 'p11.bin', dummy, ktype, myunit)
-    ! p{12} Number of runs before runcounter resets
-    maxruns = INT(readvar(inputdir // 'p12.bin', dummy, ktype, myunit))
+    relacc2 = 0
+    IF (myrank == doit) relacc2 = readvar(inputdir // 'p11.bin', dummy, ktype, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
+
     ! p{13} Maximum number of integrand evaluations in 2D integration routine
-    maxpts = INT(readvar(inputdir // 'p13.bin', dummy, ktype, myunit))
+    maxpts = 0
+    IF (myrank == doit) maxpts = INT(readvar(inputdir // 'p13.bin', dummy, ktype, myunit))
+    doit=doit+1; IF (doit==nproc) doit=0 
+
     ! p{14} Timeout seconds for a given solution search
-    timeout = readvar(inputdir // 'p14.bin', dummy, ktype, myunit)
+    timeout = 0
+    IF (myrank == doit) timeout = readvar(inputdir // 'p14.bin', dummy, ktype, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
+
     ! p{15} R0 geometric major radius (for normalizations)
-    R0 = readvar(inputdir // 'p15.bin', dummy, ktype, myunit)
-    ALLOCATE(kthetarhos(dimn))
+    RO = 0
+    IF (myrank == doit) R0 = readvar(inputdir // 'p15.bin', dummy, ktype, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
+
     ! p{16} Toroidal wave-number grid
-    kthetarhos = readvar(inputdir // 'p16.bin', kthetarhos, ktype, myunit)
+    ALLOCATE(kthetarhos(dimn)); kthetarhos = 0 
+    IF (myrank == doit) kthetarhos = readvar(inputdir // 'p16.bin', dummyn, ktype, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{17} Normalised radial coordinate (midplane radius)
-    ALLOCATE(x(dimx))
-    x = readvar(inputdir // 'p17.bin', x, ktype, myunit)
+    ALLOCATE(x(dimx)); x=0
+    IF (myrank == doit) x = readvar(inputdir // 'p17.bin', dummyx, ktype, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
+
     ! p{18} Normalised radial coordinate (midplane radius)
-    ALLOCATE(rho(dimx))
-    rho = readvar(inputdir // 'p18.bin', rho, ktype, myunit)
+    ALLOCATE(rho(dimx)); rho=0
+    IF (myrank == doit) rho = readvar(inputdir // 'p18.bin', dummyx, ktype, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{19} <Ro> major radius
-    ALLOCATE(Ro(dimx))
-    Ro = readvar(inputdir // 'p19.bin', Ro, ktype, myunit)
+    ALLOCATE(Ro(dimx)); Ro=0
+    IF (myrank == doit) Ro = readvar(inputdir // 'p19.bin', dummyx, ktype, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{20} <a> minor radius
-    ALLOCATE(Rmin(dimx))
-    Rmin = readvar(inputdir // 'p20.bin', Rmin, ktype, myunit)
+    ALLOCATE(Rmin(dimx)); Rmin=0
+    IF (myrank == doit) Rmin = readvar(inputdir // 'p20.bin', dummyx, ktype, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{21} B(rho) magnetic field
-    ALLOCATE(Bo(dimx))
-    Bo = readvar(inputdir // 'p21.bin', Bo, ktype, myunit)
+    ALLOCATE(Bo(dimx)); Bo=0
+    IF (myrank == doit) Bo = readvar(inputdir // 'p21.bin', dummyx, ktype, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{22} q(rho) profile
-    ALLOCATE(qx(dimx))
-    qx = readvar(inputdir // 'p22.bin', qx, ktype, myunit)
+    ALLOCATE(qx(dimx)); qx=0
+    IF (myrank == doit) qx = readvar(inputdir // 'p22.bin', dummyx, ktype, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{23} s(rho) profile
-    ALLOCATE(smag(dimx))
-    smag = readvar(inputdir // 'p23.bin', smag, ktype, myunit)
+    ALLOCATE(smag(dimx)); smag=0
+    IF (myrank == doit) smag = readvar(inputdir // 'p23.bin', dummyx, ktype, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{24} alpha(rho) profile
-    ALLOCATE(alphax(dimx))
-    alphax = readvar(inputdir // 'p24.bin', alphax, ktype, myunit)
+    ALLOCATE(alphax(dimx)); alphax=0
+    IF (myrank == doit) alphax = readvar(inputdir // 'p24.bin', dummyx, ktype, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{25} Machtor(rho) profile
-    ALLOCATE(Machtor(dimx))
-    Machtor = readvar(inputdir // 'p25.bin', Machtor, ktype, myunit)
+    ALLOCATE(Machtor(dimx)); Machtor=0
+    IF (myrank == doit) Machtor = readvar(inputdir // 'p25.bin', dummyx, ktype, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
+
 !!$    WHERE(ABS(Machtor) < epsD) Machtor = epsD
 
     ! p{26} Autor(rho) profile
-    ALLOCATE(Autor(dimx))
-    Autor = readvar(inputdir // 'p26.bin', Autor, ktype, myunit)
-    WHERE(ABS(Autor) < epsD) Autor = epsD
+    ALLOCATE(Autor(dimx)); Autor=0
+    IF (myrank == doit) THEN 
+       Autor = readvar(inputdir // 'p26.bin', dummyx, ktype, myunit)
+       WHERE(ABS(Autor) < epsD) Autor = epsD
+    ENDIF
+    doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{27} Machpar(rho) profile
-    ALLOCATE(Machpar(dimx))
-    Machpar = readvar(inputdir // 'p27.bin', Machpar, ktype, myunit)
+    ALLOCATE(Machpar(dimx)); Machpar=0
+    IF (myrank == doit) Machpar = readvar(inputdir // 'p27.bin', dummyx, ktype, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
 !!$    WHERE(ABS(Machpar) < epsD) Machpar = epsD
 
     ! p{28} Aupar(rho) profile
-    ALLOCATE(Aupar(dimx))
-    Aupar = readvar(inputdir // 'p28.bin', Aupar, ktype, myunit)
-    WHERE(ABS(Aupar) < epsD) Aupar = epsD
+    ALLOCATE(Aupar(dimx)); Aupar=0
+    IF (myrank == doit) THEN
+       Aupar = readvar(inputdir // 'p28.bin', dummyx, ktype, myunit)
+       WHERE(ABS(Aupar) < epsD) Aupar = epsD
+    ENDIF
+    doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{29} gammaE(rho) profile
-    ALLOCATE(gammaE(dimx))
-    gammaE = readvar(inputdir // 'p29.bin', gammaE, ktype, myunit)
-    WHERE(ABS(gammaE) < epsD) gammaE = epsD
+    ALLOCATE(gammaE(dimx)); gammaE=0
+    IF (myrank == doit) THEN
+       gammaE = readvar(inputdir // 'p29.bin', dummyx, ktype, myunit)
+       WHERE(ABS(gammaE) < epsD) gammaE = epsD
+    ENDIF
+    doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{30} Te(rho) profile
-    ALLOCATE(Tex(dimx))
-    Tex = readvar(inputdir // 'p30.bin', Tex, ktype, myunit)
+    ALLOCATE(Tex(dimx)); Tex=0
+    IF (myrank == doit) Tex = readvar(inputdir // 'p30.bin', dummyx, ktype, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{31} ne(rho) profile
-    ALLOCATE(Nex(dimx))
-    Nex = readvar(inputdir // 'p31.bin', Nex, ktype, myunit)
+    ALLOCATE(Nex(dimx)); Nex=0
+    IF (myrank == doit) Nex = readvar(inputdir // 'p31.bin', dummyx, ktype, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{32} R/LTe(rho) profile
-    ALLOCATE(Ate(dimx))
-    Ate = readvar(inputdir // 'p32.bin', Ate, ktype, myunit)
-    WHERE(ABS(Ate) < epsD) Ate = epsD
+    ALLOCATE(Ate(dimx)); Ate=0
+    IF (myrank == doit) THEN 
+       Ate = readvar(inputdir // 'p32.bin', dummyx, ktype, myunit)
+       WHERE(ABS(Ate) < epsD) Ate = epsD
+    ENDIF
+    doit=doit+1; IF (doit==nproc) doit=0 
 
     kc=33
     ! p{33} R/Lne(rho) profile
-    ALLOCATE(Ane(dimx))
-    Ane = readvar(inputdir // 'p33.bin', Ane, ktype, myunit)
-    WHERE(ABS(Ane) < epsD) Ane = epsD
+    ALLOCATE(Ane(dimx)); Ane=0
+    IF (myrank == doit) THEN 
+       Ane = readvar(inputdir // 'p33.bin', dummyx, ktype, myunit)
+       WHERE(ABS(Ane) < epsD) Ane = epsD
+    ENDIF
+    doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{34} Flag for adiabatic electrons
-    el_type = INT(readvar(inputdir // 'p34.bin', REAL(el_type, kind=DBL), ktype, myunit))
+    el_type = 0
+    IF (myrank == doit) el_type = INT(readvar(inputdir // 'p34.bin', dummy, ktype, myunit))
+    doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{35} Species temp anisotropy at LFS. Zero is electrons
-    ALLOCATE(anise(dimx))
-    anise = readvar(inputdir // 'p35.bin', anise, ktype, myunit)
+    ALLOCATE(anise(dimx)); anise=0
+    IF (myrank == doit) anise = readvar(inputdir // 'p35.bin', dummyx, ktype, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{36} Species temp anisotropy at LFS. Zero is electrons
-    ALLOCATE(danisedr(dimx))
-    danisedr = readvar(inputdir // 'p36.bin', danisedr, ktype, myunit)
-    WHERE(ABS(danisedr) < epsD) danisedr = epsD
+    ALLOCATE(danisedr(dimx)); danisedr=0
+    IF (myrank == doit)  THEN
+       danisedr = readvar(inputdir // 'p36.bin', dummyx, ktype, myunit)
+       WHERE(ABS(danisedr) < epsD) danisedr = epsD
+    ENDIF
+    doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{37} Ti(rho) profiles
-    ALLOCATE(Tix(dimx,nions))
-    Tix = readvar(inputdir // 'p37.bin', Tix, ktype, myunit)
+    ALLOCATE(Tix(dimx,nions)); Tix=0
+    IF (myrank == doit) Tix = readvar(inputdir // 'p37.bin', dummyxnions, ktype, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{38} ni/ne (rho) profiles
-    ALLOCATE(ninorm(dimx,nions))
-    ninorm = readvar(inputdir // 'p38.bin', ninorm, ktype, myunit)
+    ALLOCATE(ninorm(dimx,nions)); ninorm=0
+    IF (myrank == doit) ninorm = readvar(inputdir // 'p38.bin', dummyxnions, ktype, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{39} R/LTi(rho) profiles
-    ALLOCATE(Ati(dimx,nions))
-    Ati = readvar(inputdir // 'p39.bin', Ati, ktype, myunit)
-    WHERE(ABS(Ati) < epsD) Ati = epsD
+    ALLOCATE(Ati(dimx,nions)); Ati=0
+    IF (myrank == doit) THEN
+       Ati = readvar(inputdir // 'p39.bin', dummyxnions, ktype, myunit)
+       WHERE(ABS(Ati) < epsD) Ati = epsD
+    ENDIF
+    doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{40} R/Lni(rho) profiles
-    ALLOCATE(Ani(dimx,nions))
-    Ani = readvar(inputdir // 'p40.bin', Ani, ktype, myunit)
-    WHERE(ABS(Ani) < epsD) Ani = epsD
+    ALLOCATE(Ani(dimx,nions)); Ani=0
+    IF (myrank == doit) THEN 
+       Ani = readvar(inputdir // 'p40.bin', dummyxnions, ktype, myunit)
+       WHERE(ABS(Ani) < epsD) Ani = epsD
+    ENDIF
+    doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{41} Ion types
-    ALLOCATE(ion_type(dimx,nions))
-    ion_type = INT(readvar(inputdir // 'p41.bin', REAL(ion_type, kind=DBL), ktype, myunit))
-    DEALLOCATE(ion_typer)
+    ALLOCATE(ion_type(dimx,nions)); ion_type=0
+    IF (myrank == doit) ion_type = INT(readvar(inputdir // 'p41.bin', dummyxnions, ktype, myunit))
+    doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{42} Species temp anisotropy at LFS. Zero is electrons
-    ALLOCATE(anis(dimx,1:nions))
-    anis = readvar(inputdir // 'p42.bin', anis, ktype, myunit)
+    ALLOCATE(anis(dimx,1:nions)); anis=0
+    IF (myrank == doit) anis = readvar(inputdir // 'p42.bin', dummyxnions, ktype, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{43} Species temp anisotropy at LFS. Zero is electrons
-    ALLOCATE(danisdr(dimx,1:nions))
-    danisdr = readvar(inputdir // 'p43.bin', danisdr, ktype, myunit)
-    WHERE(ABS(danisdr) < epsD) danisdr = epsD
+    ALLOCATE(danisdr(dimx,1:nions)); danisdr=0
+    IF (myrank == doit) THEN 
+       danisdr = readvar(inputdir // 'p43.bin', dummyxnions, ktype, myunit)
+       WHERE(ABS(danisdr) < epsD) danisdr = epsD
+    ENDIF
+    doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{44} Main ion mass
-    ALLOCATE(Ai(dimx,nions))
-    Ai = readvar(inputdir // 'p44.bin', Ai, ktype, myunit)
+    ALLOCATE(Ai(dimx,nions)); Ai=0
+    IF (myrank == doit) Ai = readvar(inputdir // 'p44.bin', dummyxnions, ktype, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{45} Main ion charge
-    ALLOCATE(Zi(dimx,nions))
-    Zi = readvar(inputdir // 'p45.bin', Zi, ktype, myunit)
+    ALLOCATE(Zi(dimx,nions)); Zi=0
+    IF (myrank == doit) Zi = readvar(inputdir // 'p45.bin', dummyxnions, ktype, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
 
-    ! Read and write runcounter input to decide course of action in calcroutines (full solution or start from previous solution)
-    INQUIRE(file="runcounter.dat", EXIST=exist1)
-    INQUIRE(file="output/primitive/rsol.dat", EXIST=exist2)
-    INQUIRE(file="output/primitive/isol.dat", EXIST=exist3)
-    INQUIRE(file="output/primitive/rfdsol.dat", EXIST=exist4)
-    INQUIRE(file="output/primitive/ifdsol.dat", EXIST=exist5)
+    runcounter = 0
+    IF (myrank == doit) THEN
+       ! Read and write runcounter input to decide course of action in calcroutines (full solution or start from previous solution)
+       INQUIRE(file="runcounter.dat", EXIST=exist1)
+       INQUIRE(file="output/primitive/rsol.dat", EXIST=exist2)
+       INQUIRE(file="output/primitive/isol.dat", EXIST=exist3)
+       INQUIRE(file="output/primitive/rfdsol.dat", EXIST=exist4)
+       INQUIRE(file="output/primitive/ifdsol.dat", EXIST=exist5)
 
-    IF ( (exist1) .AND. (exist2) .AND. (exist3) .AND. (exist4) .AND. (exist5) )THEN
-       OPEN(myunit, file="runcounter.dat", status="old", action="read")
-       READ(myunit,*) runcounter;  CLOSE(myunit)
-    ELSE
-       runcounter = 0 !First run
-    END IF
+       IF ( (exist1) .AND. (exist2) .AND. (exist3) .AND. (exist4) .AND. (exist5) )THEN
+          OPEN(myunit, file="runcounter.dat", status="old", action="read")
+          READ(myunit,*) runcounter;  CLOSE(myunit)
+       ELSE
+          runcounter = 0 !First run
+       END IF
 
-    IF (runcounter >= maxruns) THEN !Reset if we're at our maximum number of runs
-       runcounter = 0
+       IF (runcounter >= maxruns) THEN !Reset if we're at our maximum number of runs
+          runcounter = 0
+       ENDIF
     ENDIF
-
+    doit=doit+1; IF (doit==nproc) doit=0 
 
     WRITE(fmtn,'(A,I0, A)') '(',dimn,'G15.7)'
+    CALL MPI_Barrier(mpi_comm_world,ierror)
+
+    !Now do MPIAllReduce to inputs. We need runcounter for potential next stage, so
+    !the reduce operations are split
+
+    CALL MPI_AllReduce(phys_meth,phys_methtmp,1,MPI_INTEGER,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(coll_flag,coll_flagtmp,1,MPI_INTEGER,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(rot_flag,rot_flagtmp,1,MPI_INTEGER,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(verbose,verbosetmp,1,MPI_INTEGER,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(separateflux,separatefluxtmp,1,MPI_INTEGER,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(numsols,numsolstmp,1,MPI_INTEGER,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(maxpts,maxptstmp,1,MPI_INTEGER,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(el_type,el_typetmp,1,MPI_INTEGER,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(runcounter,runcountertmp,1,MPI_INTEGER,MPI_SUM,mpi_comm_world,ierr)
+
+    CALL MPI_AllReduce(relacc1,relacc1tmp,1,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(relacc2,relacc2tmp,1,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(timeout,timeouttmp,1,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(R0,R0tmp,1,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(kthetarhos,kthetarhostmp,dimn,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(x,xtmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(rho,rhotmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(Ro,Rotmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(Rmin,Rmintmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(Bo,Botmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(qx,qxtmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(smag,smagtmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(alphax,alphaxtmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(Machtor,Machtortmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(Autor,Autortmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(Machpar,Machpartmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(Aupar,Aupartmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(gammaE,gammaEtmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(Tex,Textmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(Nex,Nextmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(Ate,Atetmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(Ane,Anetmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(anise,anisetmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(danisedr,danisedrtmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(Tix,Tixtmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(ninorm,ninormtmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(Ati,Atitmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(Ani,Anitmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(anis,anistmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(danisdr,danisdrtmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(ion_type,ion_typetmp,dimx*nions,MPI_INTEGER,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(Ai,Aitmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(Zi,Zitmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+
+    CALL MPI_Barrier(mpi_comm_world,ierror)
+
+    phys_meth=phys_methtmp
+    coll_flag=coll_flagtmp
+    rot_flag=rot_flagtmp
+    verbose=verbosetmp
+    separateflux=separatefluxtmp
+  
+    maxpts=maxptstmp
+    runcounter=runcountertmp
+    el_type=el_typetmp
+    relacc1=relacc1tmp
+    relacc2=relacc2tmp
+    timeout=timeouttmp
+    R0=R0tmp
+    kthetarhos=kthetarhostmp
+    x=xtmp
+    rho=rhotmp
+    Ro=Rotmp
+    Rmin=Rmintmp
+    Bo=Botmp
+    qx=qxtmp
+    smag=smagtmp
+    alphax=alphaxtmp
+    Machtor=Machtortmp
+    Autor=Autortmp
+    Machpar=Machpartmp
+    Aupar=Aupartmp
+    gammaE=gammaEtmp
+    Tex=Textmp
+    Nex=Nextmp
+    Ate=Atetmp
+    Ane=Anetmp
+    anise=anisetmp
+    danisedr=danisedrtmp
+    Tix=Tixtmp
+    ninorm=ninormtmp
+    Ati=Atitmp
+    Ani=Anitmp
+    anis=anistmp
+    danisdr=danisdrtmp
+    ion_type=ion_typetmp
+    Ai=Aitmp
+    Zi=Zitmp
 
     IF (runcounter /= 0) THEN !load old rsol and isol if we're not doing a reset run
-       ALLOCATE( oldrsol (dimx, dimn, numsols) )
-       ALLOCATE( oldisol (dimx, dimn, numsols) )
-       ALLOCATE( oldrfdsol (dimx, dimn, numsols) )
-       ALLOCATE( oldifdsol (dimx, dimn, numsols) )
-       ALLOCATE( oldsol (dimx, dimn, numsols) )
-       ALLOCATE( oldfdsol (dimx, dimn, numsols) )
+       ALLOCATE( oldrsol (dimx, dimn, numsols) ); oldrsol = 0
+       ALLOCATE( oldisol (dimx, dimn, numsols) ); oldisol = 0
+       ALLOCATE( oldrfdsol (dimx, dimn, numsols) ) ; oldrfdsol = 0
+       ALLOCATE( oldifdsol (dimx, dimn, numsols) ); oldifdsol = 0
+       ALLOCATE( oldsol (dimx, dimn, numsols) ); oldsol = 0
+       ALLOCATE( oldfdsol (dimx, dimn, numsols) ); oldfdsol = 0
 
-       OPEN(unit=myunit, file="output/primitive/rsol.dat", action="read", status="old")
-       READ(myunit,fmtn) (((oldrsol(i,j,k),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
+       IF (myrank == doit) THEN
+          OPEN(unit=myunit, file="output/primitive/rsol.dat", action="read", status="old")
+          READ(myunit,fmtn) (((oldrsol(i,j,k),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
+       ENDIF
+       doit=doit+1; IF (doit==nproc) doit=0 
 
-       OPEN(unit=myunit, file="output/primitive/isol.dat", action="read", status="old")
-       READ(myunit,fmtn) (((oldisol(i,j,k),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
+       IF (myrank == doit) THEN
+          OPEN(unit=myunit, file="output/primitive/isol.dat", action="read", status="old")
+          READ(myunit,fmtn) (((oldisol(i,j,k),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
+       ENDIF
+       doit=doit+1; IF (doit==nproc) doit=0 
 
-       OPEN(unit=myunit, file="output/primitive/rfdsol.dat", action="read", status="old")
-       READ(myunit,fmtn) (((oldrfdsol(i,j,k),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
+       IF (myrank == doit) THEN
+          OPEN(unit=myunit, file="output/primitive/rfdsol.dat", action="read", status="old")
+          READ(myunit,fmtn) (((oldrfdsol(i,j,k),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
+       ENDIF
+       doit=doit+1; IF (doit==nproc) doit=0 
 
-       OPEN(unit=myunit, file="output/primitive/ifdsol.dat", action="read", status="old")
-       READ(myunit,fmtn) (((oldifdsol(i,j,k),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
+       IF (myrank == doit) THEN
+          OPEN(unit=myunit, file="output/primitive/ifdsol.dat", action="read", status="old")
+          READ(myunit,fmtn) (((oldifdsol(i,j,k),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
+       ENDIF
+       doit=doit+1; IF (doit==nproc) doit=0 
 
        oldsol = CMPLX(oldrsol,oldisol)
        oldfdsol = CMPLX(oldrfdsol,oldifdsol)
@@ -640,6 +909,15 @@ CONTAINS
        DEALLOCATE( oldisol )
        DEALLOCATE( oldrfdsol )
        DEALLOCATE( oldifdsol )
+
+       CALL MPI_Barrier(mpi_comm_world,ierror)
+       CALL MPI_AllReduce(oldsol,oldsoltmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+       CALL MPI_AllReduce(oldfdsol,oldfdsoltmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+       CALL MPI_Barrier(mpi_comm_world,ierror)
+
+       oldsol=oldsoltmp;
+       oldfdsol=oldfdsoltmp;
+
     ENDIF
 
     CALL MPI_Barrier(mpi_comm_world,ierror)
@@ -648,53 +926,94 @@ CONTAINS
        OPEN(unit=700, file="runcounter.dat", status="replace", action="write") !Replace old runcounter with new runcounter
        WRITE(700,*) runcounter + 1 ; CLOSE(700)
     ENDIF
-
+  
     !DEBUGGING WRITE OUT ALL INPUT TO ASCII FILE
 
     myint='I15'
     myfmt='G15.7'
     debugdir='debug/'
-    CALL writevar(debugdir // 'dimx.dat', dimx, myint, myunit)
-    CALL writevar(debugdir // 'dimn.dat', dimn, myint, myunit)
-    CALL writevar(debugdir // 'nions.dat', nions, myint, myunit)
-    CALL writevar(debugdir // 'phys_meth.dat', phys_meth, myfmt, myunit)
-    CALL writevar(debugdir // 'coll_flag.dat', coll_flag, myfmt, myunit)
-    CALL writevar(debugdir // 'rot_flag.dat', rot_flag, myfmt, myunit)
-    CALL writevar(debugdir // 'verbose.dat', verbose, myfmt, myunit)
-    CALL writevar(debugdir // 'separateflux.dat', separateflux, myfmt, myunit)
-    CALL writevar(debugdir // 'numsols.dat', numsols, myfmt, myunit)
-    CALL writevar(debugdir // 'kthetarhos.dat', kthetarhos, myfmt, myunit)
-    CALL writevar(debugdir // 'x.dat', x, myfmt, myunit)
-    CALL writevar(debugdir // 'rho.dat', rho, myfmt, myunit)
-    CALL writevar(debugdir // 'Ro.dat', Ro, myfmt, myunit)
-    CALL writevar(debugdir // 'R0.dat', R0, myfmt, myunit)
-    CALL writevar(debugdir // 'Rmin.dat', Rmin, myfmt, myunit)
-    CALL writevar(debugdir // 'Bo.dat', Bo, myfmt, myunit)
-    CALL writevar(debugdir // 'qx.dat', qx, myfmt, myunit)
-    CALL writevar(debugdir // 'smag.dat', smag, myfmt, myunit)
-    CALL writevar(debugdir // 'alphax.dat', alphax, myfmt, myunit)
-    CALL writevar(debugdir // 'Machtor.dat', Machtor, myfmt, myunit)
-    CALL writevar(debugdir // 'Autor.dat', Autor, myfmt, myunit)
-    CALL writevar(debugdir // 'Machpar.dat', Machpar, myfmt, myunit)
-    CALL writevar(debugdir // 'Aupar.dat', Aupar, myfmt, myunit)
-    CALL writevar(debugdir // 'gammaE.dat', gammaE, myfmt, myunit)
-    CALL writevar(debugdir // 'Tex.dat', Tex, myfmt, myunit)
-    CALL writevar(debugdir // 'Nex.dat', Nex, myfmt, myunit)
-    CALL writevar(debugdir // 'Ate.dat', Ate, myfmt, myunit)
-    CALL writevar(debugdir // 'Ane.dat', Ane, myfmt, myunit)
-    CALL writevar(debugdir // 'el_type.dat', el_type, myfmt, myunit)
-    CALL writevar(debugdir // 'Ai.dat', Ai, myfmt, myunit)
-    CALL writevar(debugdir // 'Zi.dat', Zi, myfmt, myunit)
-    CALL writevar(debugdir // 'Tix.dat', Tix, myfmt, myunit)
-    CALL writevar(debugdir // 'ninorm.dat', ninorm, myfmt, myunit)
-    CALL writevar(debugdir // 'Ati.dat', Ati, myfmt, myunit)
-    CALL writevar(debugdir // 'Ani.dat', Ani, myfmt, myunit)
-    CALL writevar(debugdir // 'ion_type.dat', ion_type, myint, myunit)
-    CALL writevar(debugdir // 'maxpts.dat', maxpts, myfmt, myunit)
-    CALL writevar(debugdir // 'maxruns.dat', maxruns, myfmt, myunit)
-    CALL writevar(debugdir // 'relacc1.dat', relacc1, myfmt, myunit)
-    CALL writevar(debugdir // 'relacc2.dat', relacc2, myfmt, myunit)
-    CALL writevar(debugdir // 'timeout.dat', timeout, myfmt, myunit)
+    IF (myrank == doit) CALL writevar(debugdir // 'dimx.dat', dimx, myint, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
+    IF (myrank == doit) CALL writevar(debugdir // 'dimn.dat', dimn, myint, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
+    IF (myrank == doit) CALL writevar(debugdir // 'nions.dat', nions, myint, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
+    IF (myrank == doit) CALL writevar(debugdir // 'phys_meth.dat', phys_meth, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
+    IF (myrank == doit) CALL writevar(debugdir // 'coll_flag.dat', coll_flag, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
+    IF (myrank == doit) CALL writevar(debugdir // 'rot_flag.dat', rot_flag, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
+    IF (myrank == doit) CALL writevar(debugdir // 'verbose.dat', verbose, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
+    IF (myrank == doit) CALL writevar(debugdir // 'separateflux.dat', separateflux, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
+    IF (myrank == doit) CALL writevar(debugdir // 'numsols.dat', numsols, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
+    IF (myrank == doit) CALL writevar(debugdir // 'kthetarhos.dat', kthetarhos, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
+    IF (myrank == doit) CALL writevar(debugdir // 'x.dat', x, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
+    IF (myrank == doit) CALL writevar(debugdir // 'rho.dat', rho, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
+    IF (myrank == doit) CALL writevar(debugdir // 'Ro.dat', Ro, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
+    IF (myrank == doit) CALL writevar(debugdir // 'R0.dat', R0, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
+    IF (myrank == doit) CALL writevar(debugdir // 'Rmin.dat', Rmin, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
+    IF (myrank == doit) CALL writevar(debugdir // 'Bo.dat', Bo, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
+    IF (myrank == doit) CALL writevar(debugdir // 'qx.dat', qx, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
+    IF (myrank == doit) CALL writevar(debugdir // 'smag.dat', smag, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
+    IF (myrank == doit) CALL writevar(debugdir // 'alphax.dat', alphax, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
+    IF (myrank == doit) CALL writevar(debugdir // 'Machtor.dat', Machtor, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
+    IF (myrank == doit) CALL writevar(debugdir // 'Autor.dat', Autor, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
+    IF (myrank == doit) CALL writevar(debugdir // 'Machpar.dat', Machpar, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
+    IF (myrank == doit) CALL writevar(debugdir // 'Aupar.dat', Aupar, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
+    IF (myrank == doit) CALL writevar(debugdir // 'gammaE.dat', gammaE, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
+    IF (myrank == doit) CALL writevar(debugdir // 'Tex.dat', Tex, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
+    IF (myrank == doit) CALL writevar(debugdir // 'Nex.dat', Nex, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
+    IF (myrank == doit) CALL writevar(debugdir // 'Ate.dat', Ate, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
+    IF (myrank == doit) CALL writevar(debugdir // 'Ane.dat', Ane, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
+    IF (myrank == doit) CALL writevar(debugdir // 'el_type.dat', el_type, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
+    IF (myrank == doit) CALL writevar(debugdir // 'Ai.dat', Ai, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
+    IF (myrank == doit) CALL writevar(debugdir // 'Zi.dat', Zi, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
+    IF (myrank == doit) CALL writevar(debugdir // 'Tix.dat', Tix, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
+    IF (myrank == doit) CALL writevar(debugdir // 'ninorm.dat', ninorm, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
+    IF (myrank == doit) CALL writevar(debugdir // 'Ati.dat', Ati, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
+    IF (myrank == doit) CALL writevar(debugdir // 'Ani.dat', Ani, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
+    IF (myrank == doit) CALL writevar(debugdir // 'ion_type.dat', ion_type, myint, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
+    IF (myrank == doit) CALL writevar(debugdir // 'maxpts.dat', maxpts, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
+    IF (myrank == doit) CALL writevar(debugdir // 'maxruns.dat', maxruns, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
+    IF (myrank == doit) CALL writevar(debugdir // 'relacc1.dat', relacc1, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
+    IF (myrank == doit) CALL writevar(debugdir // 'relacc2.dat', relacc2, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
+    IF (myrank == doit) CALL writevar(debugdir // 'timeout.dat', timeout, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
 
     !STOP
 
@@ -891,6 +1210,10 @@ CONTAINS
           ALLOCATE( Lepiegci (dimx, dimn, nions, numsols) )
        ENDIF
     ENDIF
+
+    DEALLOCATE(dummyn,dummyx,dummyxnions,kthetarhostmp,xtmp,rhotmp,Rotmp,Rmintmp,Botmp,qxtmp,smagtmp,alphaxtmp,&
+         & Machtortmp,Autortmp,Machpartmp,Aupartmp,gammaEtmp,Textmp,Nextmp,Atetmp,Anetmp,anisetmp,danisedrtmp,Tixtmp,&
+         & ninormtmp,Atitmp,Anitmp,anistmp,danisdrtmp,ion_typetmp,Aitmp,Zitmp,oldsoltmp,oldfdsoltmp)
 
   END SUBROUTINE data_init
 
