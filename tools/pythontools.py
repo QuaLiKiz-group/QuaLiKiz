@@ -1,9 +1,7 @@
 """ Command line interface for Python tools """
 import sys
 import os
-from qualikiz import compare
-from qualikiz import qualikizrun
-from qualikiz import legacy
+from qualikiz import compare, legacy, qualikizrun, basicpoll, sacct, craypat
 import subprocess
 import os, inspect
 
@@ -38,10 +36,41 @@ elif command == 'poll':
     if len(sys.argv) == 4:
         targetdir = sys.argv[3]
     else:
-        targetdir = './polldump.pkl'
+        targetdir = './polldb.sqlite3'
     path = sys.argv[2]
-    acctdata = qualikizrun.recursive_function(path, qualikizrun.poll_dir)
-    qualikizrun.poll_to_file(acctdata, targetdir)
+    basicpoll.create_database(path, targetdir)
+    sacct.create_database(path, targetdir, overwrite=False)
+    craypat.create_database(path, targetdir, overwrite=False)
+
+elif command == 'basicpoll':
+    if len(sys.argv) < 3:
+        raise Exception('Please supply poll path')
+    if len(sys.argv) == 4:
+        targetdir = sys.argv[3]
+    else:
+        targetdir = './polldb.sqlite3'
+    path = sys.argv[2]
+    basicpoll.create_database(path, targetdir)
+
+elif command == 'sacctpoll':
+    if len(sys.argv) < 3:
+        raise Exception('Please supply poll path')
+    if len(sys.argv) == 4:
+        targetdir = sys.argv[3]
+    else:
+        targetdir = './polldb.sqlite3'
+    path = sys.argv[2]
+    sacct.create_database(path, targetdir)
+
+elif command == 'patpoll':
+    if len(sys.argv) < 3:
+        raise Exception('Please supply poll path')
+    if len(sys.argv) == 4:
+        targetdir = sys.argv[3]
+    else:
+        targetdir = './polldb.sqlite3'
+    path = sys.argv[2]
+    craypat.create_database(path, targetdir)
 
 elif command == 'inputgo':
     if len(sys.argv) < 3:
