@@ -39,6 +39,18 @@ elif command == 'poll':
         targetdir = './polldb.sqlite3'
     path = sys.argv[2]
     basicpoll.create_database(path, targetdir)
+    sacct.create_database(path, targetdir, overwrite=False)
+    craypat.create_database(path, targetdir, overwrite=False)
+
+elif command == 'basicpoll':
+    if len(sys.argv) < 3:
+        raise Exception('Please supply poll path')
+    if len(sys.argv) == 4:
+        targetdir = sys.argv[3]
+    else:
+        targetdir = './polldb.sqlite3'
+    path = sys.argv[2]
+    basicpoll.create_database(path, targetdir)
 
 elif command == 'sacctpoll':
     if len(sys.argv) < 3:
