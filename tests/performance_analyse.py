@@ -43,13 +43,14 @@ for line in query:
 db.commit()
 
 # Sanity check, the total time should be the sum of the seperate parts
-query = db.execute('''SELECT Jobnumber, (Total), (Eigenmodes), 
-                      (Saturation), (Initialization), (Output)
+query = db.execute('''SELECT Jobnumber, (Total), First_MPI_AllReduce, (Eigenmodes), 
+                      (Saturation), Second_MPI_AllReduce, (Initialization), (Output)
                    FROM stdout''')
 for line in query:
     sanity = np.isclose(line[1], np.sum(line[1+1:]), atol=1e-3, rtol=1e-2)
     if not sanity:
         warn('Job ' + str(line[0]) + ' is insane! Sum of QuaLiKiz parts time != total time')
+labels = ['First MPI AllReduce', 'Eigenmodes', 'Saturation', 'Second MPI Allreduce', 'Init', 'Output']
 
 # If sacct table exists, also check reported time with NERSC system
 query = db.execute("SELECT name FROM sqlite_master WHERE type='table'")
@@ -140,7 +141,6 @@ colors = ['#e41a1c','#377eb8','#4daf4a','#984ea3',
 # We have to save which marker is used for which dimxn for the legend
 fake_markers = []
 # For each dimxn we have in our database
-labels = ['Eigenmodes', 'Saturation', 'Init', 'Output']
 minrawcpus = np.inf
 for marker, dimxn in zip(markers, dimxns):
     # Reset our color cycle to plot everything in the right color
@@ -149,7 +149,7 @@ for marker, dimxn in zip(markers, dimxns):
     # Add a fake marker for our legend
     fake_markers.append(plt.Line2D((0,1),(0,0), color='k', marker=marker, label=dimxn, linestyle=''))
     # Initialize arrays to save plot data
-    walltimes_mean = np.empty((0, 4))
+    walltimes_mean = np.empty((0, len(labels)))
     walltimes_std = np.empty_like(walltimes_mean)
     if 'patprofile' in tables:
         functimes_mean = np.empty((0, len(slow_functs)))
@@ -166,14 +166,14 @@ for marker, dimxn in zip(markers, dimxns):
     # For each each ppc with a specific dimxn we have in our database
     for rawcpu in rawcpus:
         # Find the walltime profiling parameters
-        query = db.execute('''SELECT (Total), (Eigenmodes), (Saturation),
-                               (Initialization), (Output)
+        query = db.execute('''SELECT (Total), First_MPI_AllReduce, (Eigenmodes), (Saturation),
+                               Second_MPI_AllReduce, (Initialization), (Output)
                            FROM stdout
                            JOIN profile ON stdout.Jobnumber=profile.Jobnumber
                            WHERE NumrawCPU=? AND Dimxn=?''',
                            (int(rawcpu), int(dimxn)))
         # Create an array to correctly handle duplicates
-        walltimes = np.empty((0, 4))
+        walltimes = np.empty((0, len(labels)))
         for line in query:
             walltimes = np.vstack((walltimes, line[1:]))
         walltimes_std = np.vstack((walltimes_std, np.std(walltimes, axis=0)))

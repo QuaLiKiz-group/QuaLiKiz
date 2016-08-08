@@ -175,8 +175,10 @@ def create_qualikiz_out_database(path, database_path, append=None, overwrite=Non
             Numcores       INTEGER,
             Dimx           INTEGER,
             Dimn           INTEGER,
+            First_MPI_AllReduce INTEGER,
             Eigenmodes     INTEGER,
             Saturation     INTEGER,
+            Second_MPI_AllReduce INTEGER,
             Initialization INTEGER,
             Output         INTEGER,
             Total          INTEGER
@@ -193,8 +195,10 @@ def create_qualikiz_out_database(path, database_path, append=None, overwrite=Non
 
         db.execute('''
                    INSERT INTO stdout (
-                   Jobnumber, Numcores, Dimx, Dimn, Eigenmodes, Saturation, Initialization, Output, Total)
-                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)''',
+                   Jobnumber, Numcores, Dimx, Dimn, First_MPI_AllReduce,
+                       Eigenmodes, Saturation, Second_MPI_AllReduce,
+                       Initialization, Output, Total)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
                    data)
     db.commit()
 
