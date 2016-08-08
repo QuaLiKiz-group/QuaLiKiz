@@ -1,22 +1,23 @@
 import numpy as np
 from qualikiz.inputfiles import *
 """ Imitates the old MATLAB script """
-scan_names = ['iAt', 'eAt', 'eAn']
+scan_names = ['iAt', 'iT', 'qx', 'smag']
 xpoints = 3
 scan_ranges = [np.linspace(2, 12, xpoints),
-                              np.linspace(2, 12, xpoints),
-                              np.linspace(1, 4, xpoints)]
+               np.linspace(2.4, 24, xpoints),
+               np.linspace(1, 5, xpoints),
+               np.linspace(0.1, 3, xpoints)]
 
-elec = Electron(T=9., n=5., At=9., An=3., type=1, anis=1., danisdr=0.)
-D = Ion(name='main_D', Ai=2., Zi=1., n=0.8, T=9., At=0., An=3., type=1, anis=1., danisdr=0.)
-Be = Ion(name='Be', Ai=9., Zi=4., n=0.1, T=9., At=0., An=2.9, type=1, anis=1., danisdr=0.)
-W = Ion(name='W+42', Ai=184., Zi=42., n=0.0, T=9., At=0., An=3., type=3, anis=1., danisdr=0.)
+elec = Electron(T=8., n=5., At=9., An=3., type=1, anis=1., danisdr=0.)
+D = Ion(name='main_D', Ai=2., Zi=1., n=0.8, T=8., At=0., An=3., type=1, anis=1., danisdr=0.)
+Be = Ion(name='Be', Ai=9., Zi=4., n=0.1, T=8., At=0., An=2.9, type=1, anis=1., danisdr=0.)
+W = Ion(name='W+42', Ai=184., Zi=42., n=0.0, T=8., At=0., An=3., type=3, anis=1., danisdr=0.)
 
 ions = IonList(D, Be, W)
 
 npoints = 8
 kthetarhos = np.append(np.linspace(0.1, 0.8, npoints),
-                                              np.linspace(6, 48, npoints))
+                       np.linspace(6, 48, npoints))
 dict_ = {
         'R_0':     3,
         'x':        .5,

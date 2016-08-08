@@ -27,21 +27,22 @@ with open(os.path.join(run.qualikizdir,
                        'parameters_template.py')) as file_:
     parameters_template_script = file_.readlines()
 
-xpoints_scan = [18*48, 2*18*48, 3*18*48, 4*18*48, 6*18*48, 8*18*48]
+xpoints_scan = [9*48, 18*48, 2*18*48, 3*18*48, 4*18*48, 6*18*48, 8*18*48]
+dimensions = 4
 prev_nice_potxpt = [i for i in range(1, xpoints_scan[-1])]
 for xpoints in xpoints_scan:
    nice_potxpt = []
-   for potxpt in range(1, 3*xpoints):
+   for potxpt in range(1, dimensions*xpoints):
       if potxpt in prev_nice_potxpt:
          if (xpoints % potxpt) == 0:
-            if (3*xpoints/potxpt % 24) == 0:
+            if (dimensions*xpoints/potxpt % 24) == 0:
                nice_potxpt.append( potxpt)
    prev_nice_potxpt = nice_potxpt
-   #print (nice_potxpt)
+   print (nice_potxpt)
 
-xpoints_per_tasks_scan = [9, 12, 18, 27, 36, 54]
+xpoints_per_tasks_scan = [9, 12, 18, 24, 36, 72]
 xpoints_per_task_grid, xpoints_grid = np.meshgrid(xpoints_per_tasks_scan, xpoints_scan)
-tasks_grid = (3 * xpoints_grid / xpoints_per_task_grid).astype(int)
+tasks_grid = (dimensions * xpoints_grid / xpoints_per_task_grid).astype(int)
 print ('xpoints_per_task = ' + str(xpoints_per_tasks_scan))
 print ('xpoints = ' + str(xpoints_scan))
 
@@ -53,8 +54,8 @@ worst_case_cputime = []
 
 mask = max_cputime_grid > 100
 mask = np.ones_like(max_cputime_grid)
-mask[:2,:] = 0
-mask[1,0:2] = 1
+mask[:3,:] = 0
+mask[1:3,0:2] = 1
 
 xpoints_per_task_grid = np.ma.array(xpoints_per_task_grid, mask=mask)
 tasks_grid = np.ma.array(tasks_grid, mask=mask)
@@ -80,7 +81,7 @@ print ('uses at max ' + str(max_cputime_grid.sum()) + ' CPUh')
 
 for tasks_slice, xpoints_slice in zip(tasks_grid, xpoints_grid):
     for tasks, xpoints in zip(tasks_slice.compressed(), xpoints_slice.compressed()):
-        binary_basename = 'QuaLiKiz'
+        binary_basename = 'QuaLiKiz+pat'
         parameters_script = []
         for line in parameters_template_script:
             if 'xpoints =' in line:
@@ -96,10 +97,10 @@ for tasks_slice, xpoints_slice in zip(tasks_grid, xpoints_grid):
                 parameters_script.append(line)
 
 
-        name = 'dimxn' + str(xpoints*3*npoints*2) + \
+        name = 'dimxn' + str(xpoints*dimensions*npoints*2) + \
                 'mpi' + str(tasks)
     
-        if xpoints*3 % tasks != 0:
+        if xpoints*dimensions % tasks != 0:
              warn('xpoints not divisable')
         srun = Srun(binary_basename, tasks)
         batch = Batch('regular', srun, HT=True)

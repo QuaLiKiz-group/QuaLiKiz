@@ -180,13 +180,21 @@ def recursive_function(path, function, dotprint=False):
     """
     results = []
     if Run.scriptname in os.listdir(path):
-        results.append(function(path))
+        try:
+            results.append(function(path))
+        except Exception as e:
+            warn(e)
+            warn('found exception during recursive run. Skipping..')
     else:
         for folder in os.listdir(path):
             job_folder = os.path.join(path, folder)
             if os.path.isdir(job_folder):
                 if Run.scriptname in os.listdir(job_folder):
-                    results.append(function(job_folder))
+                    try:
+                        results.append(function(job_folder))
+                    except Exception as e:
+                        warn(e)
+                        warn('found exception during recursive run. Skipping..')
                     if dotprint:
                         print ('.', end='', flush=True)
     return results

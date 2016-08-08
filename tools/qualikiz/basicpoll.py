@@ -95,6 +95,9 @@ def poll_qualikiz_out(path):
         list.append((sec, msec))
 
     # Sanity check
+    if len(header) < 11:
+        raise Exception('Could not extract all profiling data')
+
     if len(header) != len(list):
         raise Exception('Header and list do not have the same length')
 

@@ -136,8 +136,8 @@ if 'patprofile' in tables:
     axes.append(plt.figure().add_subplot(111))
 markers = ('o', 'v', 's', 'p', '*', 'h', 'H', 'D', 'd')
 # color scheme from http://colorbrewer2.org/?type=qualitative&scheme=Set1&n=9
-colors = ['#e41a1c','#377eb8','#4daf4a','#984ea3',
-          '#ff7f00','#ffff33','#a65628','#f781bf','#999999']
+colors = ['#ff7f00','#e41a1c','#377eb8','#ffff33','#4daf4a','#984ea3',
+          '#a65628','#f781bf','#999999']
 # We have to save which marker is used for which dimxn for the legend
 fake_markers = []
 # For each dimxn we have in our database
@@ -233,12 +233,14 @@ for marker, dimxn in zip(markers, dimxns):
                          yerr=100*yerr/np.sum(walltimes_mean, axis=1), marker=marker)
     if 'patprofile' in tables:
         for label, line, yerr in zip(slow_functs, functimes_mean.T, functimes_std.T):
-            axes[2].set_xscale('log')
-            axes[2].errorbar(rawcpus, line, yerr=yerr, marker=marker)
+            if not np.all(np.isnan(line)):
+                axes[2].set_xscale('log')
+                axes[2].errorbar(rawcpus, line, yerr=yerr, marker=marker)
         for label, line, yerr in zip(slow_functs_lines,
                                      functimes_lines_mean.T, functimes_lines_std.T):
-            axes[3].set_xscale('log')
-            axes[3].errorbar(rawcpus, line, yerr=yerr, marker=marker)
+            if not np.all(np.isnan(line)):
+                axes[3].set_xscale('log')
+                axes[3].errorbar(rawcpus, line, yerr=yerr, marker=marker)
 
 fake_colors = []
 for color, label in zip(colors, labels):
