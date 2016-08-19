@@ -2,6 +2,7 @@ import os
 import subprocess
 import sqlite3
 import csv
+from warnings import warn
 from itertools import islice
 
 import numpy as np
@@ -33,7 +34,7 @@ def profile_dir(path):
         if file_.startswith('QuaLiKiz+pat+'):
             pat_result = file_
     if pat_result is None:
-        warn('No xf file found in ' + path + ', skipping..')
+        warn('No folder starting with QuaLiKiz+pat+ found in ' + path + ', skipping..')
     else:
         with open(os.path.join(path, EmptyJob.metadatafile), 'r') as file_:
             reader = csv.reader(file_)

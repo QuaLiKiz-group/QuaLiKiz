@@ -5,6 +5,8 @@ MODULE mod_saturation
   USE kind
   USE datmat
   USE datcal
+  USE mod_make_io ! for MPI include
+
   IMPLICIT NONE
 
 CONTAINS
@@ -17,7 +19,7 @@ CONTAINS
     ALLOCATE(ome_SI(dimx,dimn,numsols)); ome_SI=0
     ALLOCATE(ome_GB(dimx,dimn,numsols)); ome_GB=0
 
-    ALLOCATE(modeflag(dimx))
+    ALLOCATE(modeflag(dimx)); modeflag=0
     ALLOCATE(epf_SI(dimx)); epf_SI=0
     ALLOCATE(epf_GB(dimx)); epf_GB=0
     ALLOCATE(eef_SI(dimx)); eef_SI=0
@@ -128,7 +130,7 @@ CONTAINS
   END SUBROUTINE deallocate_endoutput
 
   SUBROUTINE saturation(outputcase)
-    INTEGER, INTENT(IN) :: outputcase !0 for all modes, 1 for ITG only, 2 for TEM only, 3 for ETG only
+    INTEGER, INTENT(IN) :: outputcase!0 for all modes, 1 for ITG only, 2 for TEM only, 3 for ETG only
     INTEGER :: ir,j,k,gg,ifailloc
     REAL(KIND=DBL), DIMENSION(dimx,dimn) :: kteta,kthr,kxshift,nwgmat,smagn,qxn,dw
     REAL(KIND=DBL), DIMENSION(dimx,dimn) :: kx2shear,kxadd,kxnl
@@ -151,6 +153,11 @@ CONTAINS
     REAL(KIND=DBL) :: alphp,alphm,lowlim
     CHARACTER(len=7) :: fmtx,fmtn,fmtion !for debugging
     INTEGER :: kk,i,myunit=700,ETGind
+    !MPI variables:
+    INTEGER :: doit,ierror,myrank,nproc
+
+    CALL mpi_comm_size(mpi_comm_world,nproc,ierror)
+    CALL mpi_comm_rank(mpi_comm_world,myrank,ierror)
 
     !The all important normalization factor tuned from GASTD ion heat transport nonlinear simulation
     normNL=211.
@@ -164,28 +171,12 @@ CONTAINS
     !Intialize fi
     fi(:,:,:) = 0.
 
+    modeflag(:)=0 !set default that both modes are important (also true if stable, since we don't know where they could pop up)
+
     !Carry out the nonlinear saturation rules!
 
     !Define auxilliary variables
     gamGB(:)=csou(:)/Rmin(:) !gyrobohm 1/s unit
-
-    DO ir = 1,dimx 
-       DO j = 1,dimn
-          kteta(ir,j)  = ntor(ir,j)*qx(ir)/(Rmin(ir)*x(ir))  
-          kthr(ir,j)   = ntor(ir,j)*qx(ir)*rhostar(ir)/x(ir)
-          nwgmat(ir,j) = ntor(ir,j)*wg(ir)
-          solflu_SI(ir,j) = solflu(ir,j)*nwgmat(ir,j)
-          solflu_GB(ir,j) = solflu_SI(ir,j)/gamGB(ir)
-
-          DO k=1,numsols
-             gam_SI(ir,j,k)=AIMAG(sol(ir,j,k))*nwgmat(ir,j)
-             gam_GB(ir,j,k)=AIMAG(sol(ir,j,k))*nwgmat(ir,j)/gamGB(ir)
-             ome_SI(ir,j,k)=REAL(sol(ir,j,k))*nwgmat(ir,j)
-             ome_GB(ir,j,k)=REAL(sol(ir,j,k))*nwgmat(ir,j)/gamGB(ir)
-          END DO
-
-       END DO
-    END DO
 
     !Find index of first ETG-scale mode (if it exists)
     ETGind=0
@@ -232,13 +223,6 @@ CONTAINS
           ENDIF
        ENDIF
 
-       DO ir=1,dimx 
-          DO j=1,dimn
-             smagn(ir,j)=smag(ir) !2D versions of smag and qx useful for calculations
-             qxn(ir,j)=qx(ir)
-          END DO
-       END DO
-
        ! dw=distan**2/(ABS(modewidth)**2 / SQRT(REAL(modewidth**2)))**2*DGAMMA(0.75)/DGAMMA(0.25) 
 
        kxshift = (distan*AIMAG(modeshift)/REAL(modewidth**2))**2 !kx contribution from modeshift
@@ -247,7 +231,36 @@ CONTAINS
        alphp   = -3.0 !used for spectrum shape above kymax
        alphm   = 1.0 !used for spectrum shape below kymax
 
+       doit = 0 !initialize counter for distributing tasks
+
        DO ir = 1,dimx !big cycle on scan (or radial) parameter
+
+          IF (myrank == doit) THEN ! distribute independent loop indices to tasks
+             doit=doit+1; 
+             IF (doit==nproc) doit=0 
+          ELSE
+             doit=doit+1; 
+             IF (doit==nproc) doit=0 
+             CYCLE
+          ENDIF
+
+          DO j = 1,dimn
+             smagn(ir,j)=smag(ir) !2D versions of smag and qx useful for calculations
+             qxn(ir,j)=qx(ir)
+             kteta(ir,j)  = ntor(ir,j)*qx(ir)/(Rmin(ir)*x(ir))  
+             kthr(ir,j)   = ntor(ir,j)*qx(ir)*rhostar(ir)/x(ir)
+             nwgmat(ir,j) = ntor(ir,j)*wg(ir)
+             solflu_SI(ir,j) = solflu(ir,j)*nwgmat(ir,j)
+             solflu_GB(ir,j) = solflu_SI(ir,j)/gamGB(ir)
+
+             DO k=1,numsols
+                gam_SI(ir,j,k)=AIMAG(sol(ir,j,k))*nwgmat(ir,j)
+                gam_GB(ir,j,k)=AIMAG(sol(ir,j,k))*nwgmat(ir,j)/gamGB(ir)
+                ome_SI(ir,j,k)=REAL(sol(ir,j,k))*nwgmat(ir,j)
+                ome_GB(ir,j,k)=REAL(sol(ir,j,k))*nwgmat(ir,j)/gamGB(ir)
+             END DO
+
+          END DO
 
           !CALCULATE NEW NON-LINEAR CONTRIBUTION TO Kx (JC 12.2011)
           rhos=SQRT(Tex(ir)*1d3*qe*mi(ir,1))/(qe*Bo(ir)) !Larmor radius with respect to sound speed (no sqrt(2))
@@ -705,7 +718,18 @@ CONTAINS
 
        ! CREATE ADDITIONAL FINAL OUTPUT ARRAYS
        !      IF (gg == 3) THEN
+       doit=0
        DO ir=1,dimx
+
+          IF (myrank == doit) THEN ! distribute independent loop indices to tasks
+             doit=doit+1; 
+             IF (doit==nproc) doit=0 
+          ELSE
+             doit=doit+1; 
+             IF (doit==nproc) doit=0 
+             CYCLE
+          ENDIF
+
           !          ipf_SI(ir,:) = dpfi(ir,:)*Nix(ir,:)*1e19*Ani(ir,:)/R0*chi_GB(ir)
           ipf_SI(ir,:) = pfi(ir,:)*normNL
           !          epf_SI(ir) = dpfe(ir)*Nex(ir)*1e19*Ane(ir)/R0*chi_GB(ir)
@@ -800,48 +824,42 @@ CONTAINS
                      &	Nix(ir,:)*1d19*Tix(ir,:)*qe*1d3*(veni_SI(ir,:)+veci_SI(ir,:)+veri_SI(ir,:)) ) )/ (ief_SI(ir,:)+epsD)
              ENDIF
 
-          END IF!! end of statement on additional calculation
-       END DO !end of radial cycle
+          ENDIF!! end of statement on additional calculation
 
-       !END IF !end gg=3 if statement
-
-       IF (gg==1) THEN !save ion mode only output
-          DO ir=1,dimx
+          IF (gg==1) THEN !save ion mode only output
              ion_epf_GB(ir) = dpfe(ir)
              ion_ipf_GB(ir,:) = dpfi(ir,:)
              ion_eef_GB(ir) = defe(ir)
              ion_ief_GB(ir,:) = defi(ir,:)
              ion_evf_GB(ir) = dvfe(ir)
              ion_ivf_GB(ir,:) = dvfi(ir,:)
-          END DO
-       END IF
-       IF (gg==2) THEN !save electron mode only output
-          DO ir=1,dimx 
+          END IF
+          IF (gg==2) THEN !save electron mode only output
              ele_epf_GB(ir) = dpfe(ir)
              ele_ipf_GB(ir,:) = dpfi(ir,:)
              ele_eef_GB(ir) = defe(ir)
              ele_ief_GB(ir,:) = defi(ir,:)
              ele_evf_GB(ir) = dvfe(ir)
              ele_ivf_GB(ir,:) = dvfi(ir,:)
-          END DO
-       END IF
+          END IF
 
-       !Testing for existence of ion or electron modes
-       modeflag(:)=0 !set default that both modes are important (also true if stable, since we don't know where they could pop up)
-
-       DO ir=1,dimx
-          IF ( (ABS(epf_GB(ir)) > epsD) .OR. (ABS(eef_GB(ir)) > epsD) .OR. (ABS(ipf_GB(ir,1)) > epsD) & 
-               & .OR. (ABS(ief_GB(ir,1)) > epsD)) THEN !If an instability is active on ele or main ion then check following
-             IF ( (ele_epf_GB(ir)/(epf_GB(ir)+epsD) < impfac) .AND. (ele_eef_GB(ir)/(eef_GB(ir)+epsD) < impfac) & 
-                  & .AND. (ele_ipf_GB(ir,1)/(ipf_GB(ir,1)+epsD) < impfac) .AND. (ele_ief_GB(ir,1)/(ief_GB(ir,1)+epsD) < impfac)) THEN
-                modeflag(ir)=1 !At this radial location, only ion modes are important
-             ENDIF
-             IF ( (ion_epf_GB(ir)/(epf_GB(ir)+epsD) < impfac) .AND. (ion_eef_GB(ir)/(eef_GB(ir)+epsD) < impfac) & 
-                  & .AND. (ion_ipf_GB(ir,1)/(ipf_GB(ir,1)+epsD) < impfac) .AND. (ion_ief_GB(ir,1)/(ief_GB(ir,1)+epsD) < impfac)) THEN
-                modeflag(ir)=2 !At this radial location, only electron modes are important
+          !Testing for existence of ion or electron modes
+          IF (gg==3) THEN
+             IF ( (ABS(epf_GB(ir)) > epsD) .OR. (ABS(eef_GB(ir)) > epsD) .OR. (ABS(ipf_GB(ir,1)) > epsD) & 
+                  & .OR. (ABS(ief_GB(ir,1)) > epsD)) THEN !If an instability is active on ele or main ion then check following
+                IF ( (ele_epf_GB(ir)/(epf_GB(ir)+epsD) < impfac) .AND. (ele_eef_GB(ir)/(eef_GB(ir)+epsD) < impfac) & 
+                     & .AND. (ele_ipf_GB(ir,1)/(ipf_GB(ir,1)+epsD) < impfac) .AND. (ele_ief_GB(ir,1)/(ief_GB(ir,1)+epsD) < impfac)) THEN
+                   modeflag(ir)=1 !At this radial location, only ion modes are important
+                ENDIF
+                IF ( (ion_epf_GB(ir)/(epf_GB(ir)+epsD) < impfac) .AND. (ion_eef_GB(ir)/(eef_GB(ir)+epsD) < impfac) & 
+                     & .AND. (ion_ipf_GB(ir,1)/(ipf_GB(ir,1)+epsD) < impfac) .AND. (ion_ief_GB(ir,1)/(ief_GB(ir,1)+epsD) < impfac)) THEN
+                   modeflag(ir)=2 !At this radial location, only electron modes are important
+                ENDIF
              ENDIF
           ENDIF
-       ENDDO
+       END DO !end of radial cycle
+
+       !END IF !end gg=3 if statement
 
     ENDDO !end do on gg
 

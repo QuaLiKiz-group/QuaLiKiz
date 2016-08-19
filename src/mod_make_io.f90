@@ -293,8 +293,8 @@ CONTAINS
     ALLOCATE(fonxvcirci(nions)); fonxvcirci=0; fonxvcirce=0
     ALLOCATE(fonxvpiegi(nions)); fonxvpiegi=0; fonxvpiege=0
 
-    ALLOCATE( krmmuITG (dimx) );
-    ALLOCATE( krmmuETG (dimx) );
+    ALLOCATE( krmmuITG (dimx) ); krmmuITG=0;
+    ALLOCATE( krmmuETG (dimx) ); krmmuETG=0;
 
     !Real 2D arrays
     ALLOCATE( kperp2 (dimx, dimn) ); kperp2=0
@@ -703,7 +703,7 @@ CONTAINS
   END SUBROUTINE save_qlfunc
 
   SUBROUTINE collectarrays()
-    ! Collect all output into rank 0
+    ! Collect all output into all cores
     INTEGER :: ierr,myrank, i, nproc
 
     REAL(KIND=DBL), DIMENSION(dimx,dimn) :: distantmp,FLRectmp,FLReptmp
@@ -721,161 +721,319 @@ CONTAINS
     CALL mpi_comm_rank(mpi_comm_world,myrank,ierr)
     CALL mpi_comm_size(mpi_comm_world,nproc,ierr)
 
-    CALL MPI_Reduce(distan,distantmp,dimx*dimn,MPI_DOUBLE_PRECISION,MPI_SUM,0,mpi_comm_world,ierr)
-    CALL MPI_Reduce(modewidth,modewidthtmp,dimx*dimn,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-    CALL MPI_Reduce(modeshift,modeshifttmp,dimx*dimn,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-    CALL MPI_Reduce(jon_modewidth,jon_modewidthtmp,dimx*dimn,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-    CALL MPI_Reduce(jon_modeshift,jon_modeshifttmp,dimx*dimn,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-    CALL MPI_Reduce(cot_modewidth,cot_modewidthtmp,dimx*dimn,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-    CALL MPI_Reduce(cot_modeshift,cot_modeshifttmp,dimx*dimn,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-    CALL MPI_Reduce(old_modewidth,old_modewidthtmp,dimx*dimn,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-    CALL MPI_Reduce(old_modeshift,old_modeshifttmp,dimx*dimn,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(distan,distantmp,dimx*dimn,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(modewidth,modewidthtmp,dimx*dimn,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(modeshift,modeshifttmp,dimx*dimn,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(jon_modewidth,jon_modewidthtmp,dimx*dimn,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(jon_modeshift,jon_modeshifttmp,dimx*dimn,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(cot_modewidth,cot_modewidthtmp,dimx*dimn,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(cot_modeshift,cot_modeshifttmp,dimx*dimn,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(old_modewidth,old_modewidthtmp,dimx*dimn,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(old_modeshift,old_modeshifttmp,dimx*dimn,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
 
-    CALL MPI_Reduce(FLRec,FLRectmp,dimx*dimn,MPI_DOUBLE_PRECISION,MPI_SUM,0,mpi_comm_world,ierr)
-    CALL MPI_Reduce(FLRep,FLReptmp,dimx*dimn,MPI_DOUBLE_PRECISION,MPI_SUM,0,mpi_comm_world,ierr)
-    CALL MPI_Reduce(gamma,gammatmp,dimx*dimn*numsols,MPI_DOUBLE_PRECISION,MPI_SUM,0,mpi_comm_world,ierr)
-    CALL MPI_Reduce(Ladia,Ladiatmp,dimx*dimn*numsols,MPI_DOUBLE_PRECISION,MPI_SUM,0,mpi_comm_world,ierr)
-    CALL MPI_Reduce(FLRic,FLRictmp,dimx*dimn*nions,MPI_DOUBLE_PRECISION,MPI_SUM,0,mpi_comm_world,ierr)
-    CALL MPI_Reduce(FLRip,FLRiptmp,dimx*dimn*nions,MPI_DOUBLE_PRECISION,MPI_SUM,0,mpi_comm_world,ierr)
-    CALL MPI_Reduce(ommax,ommaxtmp,dimx*dimn,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-    CALL MPI_Reduce(solflu,solflutmp,dimx*dimn,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-    CALL MPI_Reduce(jon_solflu,jon_solflutmp,dimx*dimn,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-    CALL MPI_Reduce(cot_solflu,cot_solflutmp,dimx*dimn,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-    CALL MPI_Reduce(ana_solflu,ana_solflutmp,dimx*dimn,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-    CALL MPI_Reduce(sol,soltmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-    CALL MPI_Reduce(fdsol,fdsoltmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(FLRec,FLRectmp,dimx*dimn,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(FLRep,FLReptmp,dimx*dimn,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(gamma,gammatmp,dimx*dimn*numsols,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(Ladia,Ladiatmp,dimx*dimn*numsols,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(FLRic,FLRictmp,dimx*dimn*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(FLRip,FLRiptmp,dimx*dimn*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(ommax,ommaxtmp,dimx*dimn,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(solflu,solflutmp,dimx*dimn,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(jon_solflu,jon_solflutmp,dimx*dimn,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(cot_solflu,cot_solflutmp,dimx*dimn,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(ana_solflu,ana_solflutmp,dimx*dimn,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(sol,soltmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(fdsol,fdsoltmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
 
-    CALL MPI_Reduce(Lcirce,Lcircetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-    CALL MPI_Reduce(Lpiege,Lpiegetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-    CALL MPI_Reduce(Lecirce,Lecircetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-    CALL MPI_Reduce(Lepiege,Lepiegetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-    CALL MPI_Reduce(Lvcirce,Lvcircetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-    CALL MPI_Reduce(Lvpiege,Lvpiegetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-    CALL MPI_Reduce(Lcirci,Lcircitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-    CALL MPI_Reduce(Lpiegi,Lpiegitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-    CALL MPI_Reduce(Lecirci,Lecircitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-    CALL MPI_Reduce(Lepiegi,Lepiegitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-    CALL MPI_Reduce(Lvcirci,Lvcircitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-    CALL MPI_Reduce(Lvpiegi,Lvpiegitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(Lcirce,Lcircetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(Lpiege,Lpiegetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(Lecirce,Lecircetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(Lepiege,Lepiegetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(Lvcirce,Lvcircetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(Lvpiege,Lvpiegetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(Lcirci,Lcircitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(Lpiegi,Lpiegitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(Lecirci,Lecircitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(Lepiegi,Lepiegitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(Lvcirci,Lvcircitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(Lvpiegi,Lvpiegitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
 
-    CALL MPI_Reduce(ecoefsgau,ecoefsgautmp,dimx*dimn*(nions+1)*10,MPI_DOUBLE_PRECISION,MPI_SUM,0,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(ecoefsgau,ecoefsgautmp,dimx*dimn*(nions+1)*10,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
 
     IF (phys_meth /= 0) THEN
-       CALL MPI_Reduce(Lcircgte,Lcircgtetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-       CALL MPI_Reduce(Lpieggte,Lpieggtetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-       CALL MPI_Reduce(Lcircgne,Lcircgnetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-       CALL MPI_Reduce(Lpieggne,Lpieggnetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-       CALL MPI_Reduce(Lcircgue,Lcircguetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-       CALL MPI_Reduce(Lpieggue,Lpiegguetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-       CALL MPI_Reduce(Lcircce,Lcirccetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-       CALL MPI_Reduce(Lpiegce,Lpiegcetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
+       CALL MPI_AllReduce(Lcircgte,Lcircgtetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+       CALL MPI_AllReduce(Lpieggte,Lpieggtetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+       CALL MPI_AllReduce(Lcircgne,Lcircgnetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+       CALL MPI_AllReduce(Lpieggne,Lpieggnetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+       CALL MPI_AllReduce(Lcircgue,Lcircguetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+       CALL MPI_AllReduce(Lpieggue,Lpiegguetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+       CALL MPI_AllReduce(Lcircce,Lcirccetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+       CALL MPI_AllReduce(Lpiegce,Lpiegcetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
 
-       CALL MPI_Reduce(Lcircgti,Lcircgtitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-       CALL MPI_Reduce(Lpieggti,Lpieggtitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-       CALL MPI_Reduce(Lcircgni,Lcircgnitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-       CALL MPI_Reduce(Lpieggni,Lpieggnitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-       CALL MPI_Reduce(Lcircgui,Lcircguitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-       CALL MPI_Reduce(Lpieggui,Lpiegguitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-       CALL MPI_Reduce(Lcircci,Lcirccitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-       CALL MPI_Reduce(Lpiegci,Lpiegcitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
+       CALL MPI_AllReduce(Lcircgti,Lcircgtitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+       CALL MPI_AllReduce(Lpieggti,Lpieggtitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+       CALL MPI_AllReduce(Lcircgni,Lcircgnitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+       CALL MPI_AllReduce(Lpieggni,Lpieggnitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+       CALL MPI_AllReduce(Lcircgui,Lcircguitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+       CALL MPI_AllReduce(Lpieggui,Lpiegguitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+       CALL MPI_AllReduce(Lcircci,Lcirccitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+       CALL MPI_AllReduce(Lpiegci,Lpiegcitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
 !!!
        IF (phys_meth == 2) THEN
-          CALL MPI_Reduce(Lecircgte,Lecircgtetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-          CALL MPI_Reduce(Lepieggte,Lepieggtetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-          CALL MPI_Reduce(Lecircgne,Lecircgnetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-          CALL MPI_Reduce(Lepieggne,Lepieggnetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-          CALL MPI_Reduce(Lecircgue,Lecircguetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-          CALL MPI_Reduce(Lepieggue,Lepiegguetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-          CALL MPI_Reduce(Lecircce,Lecirccetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-          CALL MPI_Reduce(Lepiegce,Lepiegcetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
+          CALL MPI_AllReduce(Lecircgte,Lecircgtetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+          CALL MPI_AllReduce(Lepieggte,Lepieggtetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+          CALL MPI_AllReduce(Lecircgne,Lecircgnetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+          CALL MPI_AllReduce(Lepieggne,Lepieggnetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+          CALL MPI_AllReduce(Lecircgue,Lecircguetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+          CALL MPI_AllReduce(Lepieggue,Lepiegguetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+          CALL MPI_AllReduce(Lecircce,Lecirccetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+          CALL MPI_AllReduce(Lepiegce,Lepiegcetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
 
-          CALL MPI_Reduce(Lecircgti,Lecircgtitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-          CALL MPI_Reduce(Lepieggti,Lepieggtitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-          CALL MPI_Reduce(Lecircgni,Lecircgnitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-          CALL MPI_Reduce(Lepieggni,Lepieggnitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-          CALL MPI_Reduce(Lecircgui,Lecircguitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-          CALL MPI_Reduce(Lepieggui,Lepiegguitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-          CALL MPI_Reduce(Lecircci,Lecirccitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-          CALL MPI_Reduce(Lepiegci,Lepiegcitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
+          CALL MPI_AllReduce(Lecircgti,Lecircgtitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+          CALL MPI_AllReduce(Lepieggti,Lepieggtitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+          CALL MPI_AllReduce(Lecircgni,Lecircgnitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+          CALL MPI_AllReduce(Lepieggni,Lepieggnitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+          CALL MPI_AllReduce(Lecircgui,Lecircguitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+          CALL MPI_AllReduce(Lepieggui,Lepiegguitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+          CALL MPI_AllReduce(Lecircci,Lecirccitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+          CALL MPI_AllReduce(Lepiegci,Lepiegcitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
        ENDIF
     ENDIF
 
-    IF (myrank == 0) THEN
-       modewidth=modewidthtmp
-       modeshift=modeshifttmp
-       jon_modewidth=jon_modewidthtmp
-       jon_modeshift=jon_modeshifttmp
-       cot_modewidth=cot_modewidthtmp
-       cot_modeshift=cot_modeshifttmp
-       old_modewidth=old_modewidthtmp
-       old_modeshift=old_modeshifttmp
+    modewidth=modewidthtmp
+    modeshift=modeshifttmp
+    jon_modewidth=jon_modewidthtmp
+    jon_modeshift=jon_modeshifttmp
+    cot_modewidth=cot_modewidthtmp
+    cot_modeshift=cot_modeshifttmp
+    old_modewidth=old_modewidthtmp
+    old_modeshift=old_modeshifttmp
 
-       distan=distantmp
-       FLRec=FLRectmp
-       FLRep=FLReptmp
-       gamma=gammatmp
-       Ladia=Ladiatmp
-       FLRip=FLRiptmp
-       FLRic=FLRictmp
-       ommax=ommaxtmp
-       solflu=solflutmp
-       jon_solflu=jon_solflutmp
-       cot_solflu=cot_solflutmp
-       ana_solflu=ana_solflutmp
-       sol=soltmp
-       fdsol=fdsoltmp
-       Lcirce=Lcircetmp
-       Lpiege=Lpiegetmp
-       Lecirce=Lecircetmp
-       Lepiege=Lepiegetmp
-       Lvcirce=Lvcircetmp
-       Lvpiege=Lvpiegetmp
-       Lcirci=Lcircitmp
-       Lpiegi=Lpiegitmp
-       Lecirci=Lecircitmp
-       Lepiegi=Lepiegitmp
-       Lvcirci=Lvcircitmp
-       Lvpiegi=Lvpiegitmp
-       ecoefsgau=ecoefsgautmp
+    distan=distantmp
+    FLRec=FLRectmp
+    FLRep=FLReptmp
+    gamma=gammatmp
+    Ladia=Ladiatmp
+    FLRip=FLRiptmp
+    FLRic=FLRictmp
+    ommax=ommaxtmp
+    solflu=solflutmp
+    jon_solflu=jon_solflutmp
+    cot_solflu=cot_solflutmp
+    ana_solflu=ana_solflutmp
+    sol=soltmp
+    fdsol=fdsoltmp
+    Lcirce=Lcircetmp
+    Lpiege=Lpiegetmp
+    Lecirce=Lecircetmp
+    Lepiege=Lepiegetmp
+    Lvcirce=Lvcircetmp
+    Lvpiege=Lvpiegetmp
+    Lcirci=Lcircitmp
+    Lpiegi=Lpiegitmp
+    Lecirci=Lecircitmp
+    Lepiegi=Lepiegitmp
+    Lvcirci=Lvcircitmp
+    Lvpiegi=Lvpiegitmp
+    ecoefsgau=ecoefsgautmp
 
-       IF (phys_meth /= 0) THEN
-          Lcircgte=Lcircgtetmp
-          Lpieggte=Lpieggtetmp
-          Lcircgne=Lcircgnetmp
-          Lpieggne=Lpieggnetmp
-          Lcircgue=Lcircguetmp
-          Lpieggue=Lpiegguetmp
-          Lcircce=Lcirccetmp
-          Lpiegce=Lpiegcetmp
-          Lcircgti=Lcircgtitmp
-          Lpieggti=Lpieggtitmp
-          Lcircgni=Lcircgnitmp
-          Lpieggni=Lpieggnitmp
-          Lcircgui=Lcircguitmp
-          Lpieggui=Lpiegguitmp
-          Lcircci=Lcirccitmp
-          Lpiegci=Lpiegcitmp   
-          IF (phys_meth == 2) THEN
-             Lecircgte=Lecircgtetmp
-             Lepieggte=Lepieggtetmp
-             Lecircgne=Lecircgnetmp
-             Lepieggne=Lepieggnetmp
-             Lecircgue=Lecircguetmp
-             Lepieggue=Lepiegguetmp
-             Lecircce=Lecirccetmp
-             Lepiegce=Lepiegcetmp
-             Lecircgti=Lecircgtitmp
-             Lepieggti=Lepieggtitmp
-             Lecircgni=Lecircgnitmp
-             Lepieggni=Lepieggnitmp
-             Lecircgui=Lecircguitmp
-             Lepieggui=Lepiegguitmp
-             Lecircci=Lecirccitmp
-             Lepiegci=Lepiegcitmp   
-          ENDIF
+    IF (phys_meth /= 0) THEN
+       Lcircgte=Lcircgtetmp
+       Lpieggte=Lpieggtetmp
+       Lcircgne=Lcircgnetmp
+       Lpieggne=Lpieggnetmp
+       Lcircgue=Lcircguetmp
+       Lpieggue=Lpiegguetmp
+       Lcircce=Lcirccetmp
+       Lpiegce=Lpiegcetmp
+       Lcircgti=Lcircgtitmp
+       Lpieggti=Lpieggtitmp
+       Lcircgni=Lcircgnitmp
+       Lpieggni=Lpieggnitmp
+       Lcircgui=Lcircguitmp
+       Lpieggui=Lpiegguitmp
+       Lcircci=Lcirccitmp
+       Lpiegci=Lpiegcitmp   
+       IF (phys_meth == 2) THEN
+          Lecircgte=Lecircgtetmp
+          Lepieggte=Lepieggtetmp
+          Lecircgne=Lecircgnetmp
+          Lepieggne=Lepieggnetmp
+          Lecircgue=LecirCguetmp
+          Lepieggue=Lepiegguetmp
+          Lecircce=Lecirccetmp
+          Lepiegce=Lepiegcetmp
+          Lecircgti=Lecircgtitmp
+          Lepieggti=Lepieggtitmp
+          Lecircgni=Lecircgnitmp
+          Lepieggni=Lepieggnitmp
+          Lecircgui=Lecircguitmp
+          Lepieggui=Lepiegguitmp
+          Lecircci=Lecirccitmp
+          Lepiegci=Lepiegcitmp   
        ENDIF
     ENDIF
 
   END SUBROUTINE collectarrays
+
+  SUBROUTINE reduceoutput()
+    ! collect all output into all cores for parallel writing
+    INTEGER :: ierr,myrank, i, nproc
+
+    REAL(KIND=DBL), DIMENSION(dimx) :: epf_SItmp, eef_SItmp, evf_SItmp,epf_GBtmp, eef_GBtmp, evf_GBtmp,modeflagtmp
+    REAL(KIND=DBL), DIMENSION(dimx) :: krmmuITGtmp, krmmuETGtmp
+    REAL(KIND=DBL), DIMENSION(dimx) :: dfe_SItmp, vte_SItmp, vce_SItmp, vre_SItmp, cketmp
+    REAL(KIND=DBL), DIMENSION(dimx) :: chiee_SItmp, vene_SItmp, vece_SItmp, vere_SItmp, ceketmp
+    REAL(KIND=DBL), DIMENSION(dimx,nions) :: ipf_SItmp, ief_SItmp, ivf_SItmp, ipf_GBtmp, ief_GBtmp, ivf_GBtmp
+    REAL(KIND=DBL), DIMENSION(dimx,nions) :: dfi_SItmp, vti_SItmp, vci_SItmp, vri_SItmp, ckitmp
+    REAL(KIND=DBL), DIMENSION(dimx,nions) :: chiei_SItmp, veni_SItmp, veci_SItmp, veri_SItmp, cekitmp
+
+    COMPLEX(KIND=DBL), DIMENSION(dimx,dimn) :: solflu_SItmp, solflu_GBtmp
+    REAL(KIND=DBL), DIMENSION(dimx,dimn) :: epf_cmtmp, eef_cmtmp, evf_cmtmp, kperp2tmp
+    REAL(KIND=DBL), DIMENSION(dimx,dimn,nions) :: ipf_cmtmp, ief_cmtmp, ivf_cmtmp
+
+    REAL(KIND=DBL), DIMENSION(dimx,dimn,numsols) :: gam_SItmp, gam_GBtmp, ome_SItmp, ome_GBtmp
+    REAL(KIND=DBL), DIMENSION(dimx,ntheta) :: phitmp
+    REAL(KIND=DBL), DIMENSION(dimx,ntheta,nions) :: npoltmp
+    REAL(KIND=DBL), DIMENSION(dimx,0:nions,numecoefs) :: ecoefstmp
+    REAL(KIND=DBL), DIMENSION(dimx,nions,6) :: cftranstmp
+
+    CALL mpi_comm_rank(mpi_comm_world,myrank,ierr)
+    CALL mpi_comm_size(mpi_comm_world,nproc,ierr)
+
+    CALL MPI_AllReduce(epf_SI,epf_SItmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(eef_SI,eef_SItmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(evf_SI,evf_SItmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(epf_GB,epf_GBtmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(eef_GB,eef_GBtmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(evf_GB,evf_GBtmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(modeflag,modeflagtmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(krmmuITG,krmmuITGtmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(krmmuETG,krmmuETGtmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+
+    CALL MPI_AllReduce(epf_cm,epf_cmtmp,dimx*dimn,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(eef_cm,eef_cmtmp,dimx*dimn,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(evf_cm,evf_cmtmp,dimx*dimn,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+
+    CALL MPI_AllReduce(kperp2,kperp2tmp,dimx*dimn,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(solflu_SI,solflu_SItmp,dimx*dimn,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(solflu_GB,solflu_GBtmp,dimx*dimn,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
+
+    CALL MPI_AllReduce(ipf_SI,ipf_SItmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(ief_SI,ief_SItmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(ivf_SI,ivf_SItmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(ipf_GB,ipf_GBtmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(ivf_GB,ivf_GBtmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(ief_GB,ief_GBtmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+
+    CALL MPI_AllReduce(ipf_cm,ipf_cmtmp,dimx*dimn*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(ief_cm,ief_cmtmp,dimx*dimn*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(ivf_cm,ivf_cmtmp,dimx*dimn*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+
+
+    CALL MPI_AllReduce(gam_SI,gam_SItmp,dimx*dimn*numsols,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(gam_GB,gam_GBtmp,dimx*dimn*numsols,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(ome_SI,ome_SItmp,dimx*dimn*numsols,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(ome_GB,ome_GBtmp,dimx*dimn*numsols,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+
+    CALL MPI_AllReduce(phi,phitmp,dimx*ntheta,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(npol,npoltmp,dimx*ntheta*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(ecoefs,ecoefstmp,dimx*(1+nions)*numecoefs,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(cftrans,cftranstmp,dimx*nions*6,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+
+    IF (phys_meth /= 0.0) THEN
+       CALL MPI_AllReduce(dfe_SI,dfe_SItmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+       CALL MPI_AllReduce(vte_SI,vte_SItmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+       CALL MPI_AllReduce(vce_SI,vce_SItmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+       CALL MPI_AllReduce(vre_SI,vre_SItmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+       CALL MPI_AllReduce(cke,cketmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+       CALL MPI_AllReduce(dfi_SI,dfi_SItmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+       CALL MPI_AllReduce(vti_SI,vti_SItmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+       CALL MPI_AllReduce(vri_SI,vri_SItmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+       CALL MPI_AllReduce(vci_SI,vci_SItmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+       CALL MPI_AllReduce(cki,ckitmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+       IF (phys_meth == 2) THEN
+          CALL MPI_AllReduce(chiee_SI,chiee_SItmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+          CALL MPI_AllReduce(vene_SI,vene_SItmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+          CALL MPI_AllReduce(vere_SI,vere_SItmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+          CALL MPI_AllReduce(vece_SI,vece_SItmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+          CALL MPI_AllReduce(ceke,ceketmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+          CALL MPI_AllReduce(chiei_SI,chiei_SItmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+          CALL MPI_AllReduce(veni_SI,veni_SItmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+          CALL MPI_AllReduce(veri_SI,veri_SItmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+          CALL MPI_AllReduce(veci_SI,veci_SItmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+          CALL MPI_AllReduce(ceki,cekitmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+       ENDIF
+    ENDIF
+
+    epf_SI=epf_SItmp
+    eef_SI=eef_SItmp
+    evf_SI=evf_SItmp
+    epf_GB=epf_GBtmp
+    eef_GB=eef_GBtmp
+    evf_GB=evf_GBtmp
+    modeflag=modeflagtmp
+    krmmuITG=krmmuITGtmp
+    krmmuETG=krmmuETGtmp
+
+    epf_cm=epf_cmtmp
+    eef_cm=eef_cmtmp
+    evf_cm=evf_cmtmp
+
+    kperp2=kperp2tmp
+    solflu_SI=solflu_SItmp
+    solflu_GB=solflu_GBtmp
+
+    ipf_SI=ipf_SItmp
+    ief_SI=ief_SItmp
+    ivf_SI=ivf_SItmp
+    ipf_GB=ipf_GBtmp
+    ivf_GB=ivf_GBtmp
+    ief_GB=ief_GBtmp
+
+    ipf_cm=ipf_cmtmp
+    ief_cm=ief_cmtmp
+    ivf_cm=ivf_cmtmp
+
+    gam_SI=gam_SItmp
+    gam_GB=gam_GBtmp
+    ome_SI=ome_SItmp
+    ome_GB=ome_GBtmp
+
+    phi=phitmp
+    npol=npoltmp
+    ecoefs=ecoefstmp
+    cftrans=cftranstmp
+
+    IF (phys_meth /= 0.0) THEN
+
+       dfe_SI=dfe_SItmp
+       vte_SI=vte_SItmp
+       vce_SI=vce_SItmp
+       vre_SI=vre_SItmp
+       cke=cketmp
+       chiee_SI=chiee_SItmp
+       dfi_SI=dfi_SItmp
+       vti_SI=vti_SItmp
+       vri_SI=vri_SItmp
+       vci_SI=vci_SItmp
+       cki=ckitmp
+
+       IF (phys_meth == 2) THEN
+
+          vene_SI=vene_SItmp
+          vere_SI=vere_SItmp
+          vece_SI=vece_SItmp
+          ceke=ceketmp
+          chiei_SI=chiei_SItmp
+          veni_SI=veni_SItmp
+          veri_SI=veri_SItmp
+          veci_SI=veci_SItmp
+          ceki=cekitmp
+
+       ENDIF
+    ENDIF
+  END SUBROUTINE reduceoutput
+
 
 END MODULE mod_make_io

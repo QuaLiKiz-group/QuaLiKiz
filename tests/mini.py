@@ -15,7 +15,7 @@ rootdir =  os.path.abspath(
    os.path.join(os.path.abspath(inspect.getfile(inspect.currentframe())),
                 '../../'))
 run = Run(rootdir, runsdir=runsdir)
-srun = Srun('QuaLiKiz', 2)
+srun = Srun('QuaLiKiz', 24)
 batch = Batch('debug', srun)
 batch.name = 'mini'
 batch.optimize_sbatch()

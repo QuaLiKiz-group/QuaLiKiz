@@ -280,7 +280,7 @@ CONTAINS
 
              IF ( (gkw_is_nan(AIMAG(oldsol(p,nu,j)))) .OR. (gkw_is_nan(REAL(oldsol(p,nu,j))))) THEN
                 IF (verbose .EQV. .TRUE.) THEN 
-                   WRITE(stderr,'(A,I2,A,I2,A)') 'Jump to Newton phase: old solution had a NaN (how did that happen)! Skipping solution. (p,nu)=(',p,',',nu,')'
+                   WRITE(stderr,'(A,I7,A,I2,A)') 'Jump to Newton phase: old solution had a NaN (how did that happen)! Skipping solution. (p,nu)=(',p,',',nu,')'
                 ENDIF
                 soll(j)   = (0.,0.)
                 fdsoll(j)   = (0.,0.)
@@ -289,7 +289,7 @@ CONTAINS
 
              IF ( (AIMAG(oldsol(p,nu,j)) < 0. ) .OR. (ABS(AIMAG(oldsol(p,nu,j))) > ABS(AIMAG(ommax(p,nu)))) .OR. (ABS(REAL(oldsol(p,nu,j))) > ABS(REAL(ommax(p,nu))))  ) THEN
                 IF (verbose .EQV. .TRUE.) THEN
-                   WRITE(stderr,'(A,I2,A,I2,A)') 'Jump to Newton phase: old solution outside of allowed contour range (how did that happen?) Skipping solution. (p,nu)=(',p,',',nu,')'
+                   WRITE(stderr,'(A,I7,A,I2,A)') 'Jump to Newton phase: old solution outside of allowed contour range (how did that happen?) Skipping solution. (p,nu)=(',p,',',nu,')'
                 ENDIF
                 soll(j)   = (0.,0.)
                 fdsoll(j)   = (0.,0.)
@@ -424,7 +424,7 @@ CONTAINS
                 DO j=1,numsols 
                    IF ( (AIMAG(solltmp(j)) < 0. ) .OR. (ABS(AIMAG(solltmp(j))) > ABS(AIMAG(ommax(p,nu)))) .OR. (ABS(REAL(solltmp(j))) > ABS(REAL(ommax(p,nu))))  ) THEN
                       IF (verbose .EQV. .TRUE.) THEN 
-                         WRITE(stderr,'(A,I2,A,I2,A)') 'Solution found but outside of allowed contour range. Skipping solution. (p,nu)=(',p,',',nu,')'
+                         WRITE(stderr,'(A,I7,A,I2,A)') 'Solution found but outside of allowed contour range. Skipping solution. (p,nu)=(',p,',',nu,')'
                       ENDIF
                       solltmp(j) = (0.,0.)
                       fdsolltmp(j) = (0.,0.)
@@ -477,7 +477,7 @@ CONTAINS
 
           IF ( (AIMAG(sol(p,nu,j)) < 0. ) .OR. (ABS(AIMAG(sol(p,nu,j))) > ABS(AIMAG(ommax(p,nu)))) .OR. (ABS(REAL(sol(p,nu,j))) > ABS(REAL(ommax(p,nu))))  ) THEN
              IF (verbose .EQV. .TRUE.) THEN 
-                WRITE(stderr,'(A,I2,A,I2,A)') 'Before makeQLflux: solution outside of allowed contour range (how did that happen?) Skipping QL integrals. (p,nu)=(',p,',',nu,')'
+                WRITE(stderr,'(A,I7,A,I2,A)') 'Before makeQLflux: solution outside of allowed contour range (how did that happen?) Skipping QL integrals. (p,nu)=(',p,',',nu,')'
              ENDIF
              CYCLE
           ENDIF
@@ -595,7 +595,7 @@ CONTAINS
 
        IF ( (AIMAG(omega) < 0. ) .OR. (ABS(AIMAG(omega)) > ABS(2.*AIMAG(ommax(p,nu)))) .OR. (ABS(REAL(omega)) > ABS(REAL(2.*ommax(p,nu))))  ) THEN
           IF (verbose .EQV. .TRUE.) THEN 
-             WRITE(stderr,'(A,2G15.7,A,I2,A,I2,A)') 'In contours: omega outside of allowed contour range (how did that happen?) Skipping solution. Omega=,',omega,'. (p,nu)=(',p,',',nu,')'
+             WRITE(stderr,'(A,2G15.7,A,I7,A,I2,A)') 'In contours: omega outside of allowed contour range (how did that happen?) Skipping solution. Omega=,',omega,'. (p,nu)=(',p,',',nu,')'
           ENDIF
           anomflag = .TRUE.
           fonct(i) = 0. 
@@ -656,7 +656,7 @@ CONTAINS
 
        IF ( (AIMAG(omtemp) < 0. ) .OR. (ABS(AIMAG(omtemp)) > ABS(2.*AIMAG(ommax(p,nu)))) .OR. (ABS(REAL(omtemp)) > ABS(REAL(2.*ommax(p,nu))))  ) THEN
           IF (verbose .EQV. .TRUE.) THEN 
-             WRITE(stderr,'(A,2G15.7,A,I2,A,I2,A)') 'In refined contours: omega outside of allowed contour range (how did that happen?) Skipping solution. Omega=,',omega,'. (p,nu)=(',p,',',nu,')'
+             WRITE(stderr,'(A,2G15.7,A,I7,A,I2,A)') 'In refined contours: omega outside of allowed contour range (how did that happen?) Skipping solution. Omega=,',omega,'. (p,nu)=(',p,',',nu,')'
           ENDIF
           anomflag = .TRUE.
           foncttemp = 0. 
@@ -682,7 +682,7 @@ CONTAINS
 
        !DEBUGGING
        IF (M==maxM) THEN
-          IF (verbose .EQV. .TRUE.) WRITE(stdout,"(A,I3,A,I2,A,I2)") 'Warning, maxM reached! M=',M,' for p=',p,' and nu=',nu
+          IF (verbose .EQV. .TRUE.) WRITE(stdout,"(A,I3,A,I7,A,I2)") 'Warning, maxM reached! M=',M,' for p=',p,' and nu=',nu
           !WRITE(stdout,*) alphan
        ENDIF
 
@@ -849,7 +849,7 @@ CONTAINS
 
           IF ( (gkw_is_nan(AIMAG(solli))) .OR. (gkw_is_nan(REAL(solli)))) THEN
              IF (verbose .EQV. .TRUE.) THEN 
-                WRITE(stderr,'(A,I2,A,I2,A)') 'Main contour phase: solution had a NaN! Skipping solution. (p,nu)=(',p,',',nu,')'
+                WRITE(stderr,'(A,I7,A,I2,A)') 'Main contour phase: solution had a NaN! Skipping solution. (p,nu)=(',p,',',nu,')'
              ENDIF
              soll(j)   = (0.,0.)
              fdsoll(j)   = (0.,0.)
@@ -858,7 +858,7 @@ CONTAINS
 
           IF ( (AIMAG(solli) < 0. ) .OR. (ABS(AIMAG(solli)) > ABS(AIMAG(ommax(p,nu)))) .OR. (ABS(REAL(solli)) > ABS(REAL(ommax(p,nu))))  ) THEN
              IF (verbose .EQV. .TRUE.) THEN 
-                WRITE(stderr,'(A,I2,A,I2,A)') 'Main contour phase: solution outside of allowed contour range (how did that happen?) Skipping solution. (p,nu)=(',p,',',nu,')'
+                WRITE(stderr,'(A,I7,A,I2,A)') 'Main contour phase: solution outside of allowed contour range (how did that happen?) Skipping solution. (p,nu)=(',p,',',nu,')'
              ENDIF
              soll(j)   = (0.,0.)
              fdsoll(j)   = (0.,0.)
@@ -1058,14 +1058,14 @@ CONTAINS
        zo = zo+CMPLX(deltau(1,1),deltau(2,1))
 
        IF ( (gkw_is_nan(AIMAG(zo))) .OR. (gkw_is_nan(REAL(zo)))) THEN
-          IF (verbose .EQV. .TRUE.) WRITE(stderr,'(A,I2,A,I2,A)') 'Newton: solution had a NaN! Skipping solution. (p,nu)=(',p,',',nu,')'
+          IF (verbose .EQV. .TRUE.) WRITE(stderr,'(A,I7,A,I2,A)') 'Newton: solution had a NaN! Skipping solution. (p,nu)=(',p,',',nu,')'
           zo   = (0.,0.)
           fzo  = (0.,0.)
           EXIT
        ENDIF
 
        IF ( (AIMAG(zo) < 0. ) .OR. (ABS(AIMAG(zo)) > ABS(AIMAG(ommax(p,nu)))) .OR. (ABS(REAL(zo)) > ABS(REAL(ommax(p,nu))))  ) THEN 
-          IF (verbose .EQV. .TRUE.) WRITE(stderr,'(A,I2,A,I2,A)') 'Newton: solution outside of allowed contour range! Skipping solution. (p,nu)=(',p,',',nu,')'
+          IF (verbose .EQV. .TRUE.) WRITE(stderr,'(A,I7,A,I2,A)') 'Newton: solution outside of allowed contour range! Skipping solution. (p,nu)=(',p,',',nu,')'
           zo   = (0.,0.)
           fzo  = (0.,0.)
           EXIT
