@@ -90,8 +90,16 @@ elif command == 'convertto':
         raise Exception('Please supply input path to convert')
     path = sys.argv[4]
     if current == 'current':
-        if target == '2.3.0':
-            legacy.convert_current_to_2_3_0(path)
+        if target == '2.3.1' or target == '2.3.0':
+            legacy.convert_current_to_2_3_2(path)
+            legacy.convert_2_3_2_to_2_3_1(path)
+        elif target == '2.3.2':
+            legacy.convert_current_to_2_3_2(path)
+        else:
+            raise Exception('Unkown target')
+    elif current == '2.3.2':
+        if target == '2.3.1' or target == '2.3.0':
+            legacy.convert_2_3_2_to_2_3_1(path)
         else:
             raise Exception('Unkown target')
     else:
