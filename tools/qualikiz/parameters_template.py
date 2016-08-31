@@ -1,7 +1,7 @@
 import numpy as np
 from qualikiz.inputfiles import *
 """ Imitates the old MATLAB script """
-scan_names = ['iAt', 'iT', 'qx', 'smag']
+scan_names = ['Ati', 'Ti', 'qx', 'smag']
 xpoints = 3
 scan_ranges = [np.linspace(2, 12, xpoints),
                np.linspace(2.4, 24, xpoints),
@@ -9,9 +9,9 @@ scan_ranges = [np.linspace(2, 12, xpoints),
                np.linspace(0.1, 3, xpoints)]
 
 elec = Electron(T=8., n=5., At=9., An=3., type=1, anis=1., danisdr=0.)
-D = Ion(name='main_D', Ai=2., Zi=1., n=0.8, T=8., At=0., An=3., type=1, anis=1., danisdr=0.)
-Be = Ion(name='Be', Ai=9., Zi=4., n=0.1, T=8., At=0., An=2.9, type=1, anis=1., danisdr=0.)
-W = Ion(name='W+42', Ai=184., Zi=42., n=0.0, T=8., At=0., An=3., type=3, anis=1., danisdr=0.)
+D = Ion(name='main_D', A=2., Z=1., n=0.8, T=8., At=0., An=3., type=1, anis=1., danisdr=0.)
+Be = Ion(name='Be', A=9., Z=4., n=0.1, T=8., At=0., An=2.9, type=1, anis=1., danisdr=0.)
+W = Ion(name='W+42', A=184., Z=42., n=0.0, T=8., At=0., An=3., type=3, anis=1., danisdr=0.)
 
 ions = IonList(D, Be, W)
 

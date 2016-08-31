@@ -446,27 +446,27 @@ CONTAINS
 
     ! p{1} Size of radial or scan arrays
     dimx = 0
-    IF (myrank == doit) dimx = INT(readvar(inputdir // 'p1.bin', dummy, ktype, myunit))
+    IF (myrank == doit) dimx = INT(readvar(inputdir // 'dimx.bin', dummy, ktype, myunit))
     doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{2} Size of wavenumber arrays
     dimn = 0
-    IF (myrank == doit) dimn = INT(readvar(inputdir // 'p2.bin', dummy, ktype, myunit))
+    IF (myrank == doit) dimn = INT(readvar(inputdir // 'dimn.bin', dummy, ktype, myunit))
     doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{3} Number of ions in system
     nions = 0
-    IF (myrank == doit) nions = INT(readvar(inputdir // 'p3.bin', dummy, ktype, myunit))
+    IF (myrank == doit) nions = INT(readvar(inputdir // 'nions.bin', dummy, ktype, myunit))
     doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{9} Number of total saught after solutions
     numsols = 0
-    IF (myrank == doit) numsols = INT(readvar(inputdir // 'p9.bin', dummy, ktype, myunit))
+    IF (myrank == doit) numsols = INT(readvar(inputdir // 'numsols.bin', dummy, ktype, myunit))
     doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{12} Number of runs before runcounter resets
     maxruns = 0
-    IF (myrank == doit) maxruns = INT(readvar(inputdir // 'p12.bin', dummy, ktype, myunit))
+    IF (myrank == doit) maxruns = INT(readvar(inputdir // 'maxruns.bin', dummy, ktype, myunit))
     doit=doit+1; IF (doit==nproc) doit=0 
 
     CALL MPI_Barrier(mpi_comm_world,ierror)
@@ -524,102 +524,102 @@ CONTAINS
 
     ! p{4} Flag for calculating decomposition of particle and heat transport into diffusive and convective components
     phys_meth = 0
-    IF (myrank == doit) phys_meth = INT(readvar(inputdir // 'p4.bin', dummy, ktype, myunit))
+    IF (myrank == doit) phys_meth = INT(readvar(inputdir // 'phys_meth.bin', dummy, ktype, myunit))
     doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{5} Flag for including collisions
     coll_flag = 0
-    IF (myrank == doit) coll_flag = INT(readvar(inputdir // 'p5.bin', dummy, ktype, myunit))
+    IF (myrank == doit) coll_flag = INT(readvar(inputdir // 'coll_flag.bin', dummy, ktype, myunit))
     doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{6} Flag for including rotation
     rot_flag = 0
-    IF (myrank == doit) rot_flag = INT(readvar(inputdir // 'p6.bin', dummy, ktype, myunit))
+    IF (myrank == doit) rot_flag = INT(readvar(inputdir // 'rot_flag.bin', dummy, ktype, myunit))
     doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{7} Flag for verbose output
     verbose = 0
-    IF (myrank == doit) verbose = INT(readvar(inputdir // 'p7.bin', dummy, ktype, myunit))
+    IF (myrank == doit) verbose = INT(readvar(inputdir // 'verbose.bin', dummy, ktype, myunit))
     doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{8} Flag for separate mode flux output
     separateflux = 0
-    IF (myrank == doit) separateflux = INT(readvar(inputdir // 'p8.bin', dummy, ktype, myunit))
+    IF (myrank == doit) separateflux = INT(readvar(inputdir // 'separateflux.bin', dummy, ktype, myunit))
     doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{10} 1D integral accuracy
     relacc1 = 0
-    IF (myrank == doit) relacc1 = readvar(inputdir // 'p10.bin', dummy, ktype, myunit)
+    IF (myrank == doit) relacc1 = readvar(inputdir // 'relacc1.bin', dummy, ktype, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{11} 2D integral accuracy
     relacc2 = 0
-    IF (myrank == doit) relacc2 = readvar(inputdir // 'p11.bin', dummy, ktype, myunit)
+    IF (myrank == doit) relacc2 = readvar(inputdir // 'relacc2.bin', dummy, ktype, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{13} Maximum number of integrand evaluations in 2D integration routine
     maxpts = 0
-    IF (myrank == doit) maxpts = INT(readvar(inputdir // 'p13.bin', dummy, ktype, myunit))
+    IF (myrank == doit) maxpts = INT(readvar(inputdir // 'maxpts.bin', dummy, ktype, myunit))
     doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{14} Timeout seconds for a given solution search
     timeout = 0
-    IF (myrank == doit) timeout = readvar(inputdir // 'p14.bin', dummy, ktype, myunit)
+    IF (myrank == doit) timeout = readvar(inputdir // 'timeout.bin', dummy, ktype, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{15} R0 geometric major radius (for normalizations)
     RO = 0
-    IF (myrank == doit) R0 = readvar(inputdir // 'p15.bin', dummy, ktype, myunit)
+    IF (myrank == doit) R0 = readvar(inputdir // 'R0.bin', dummy, ktype, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{16} Toroidal wave-number grid
     ALLOCATE(kthetarhos(dimn)); kthetarhos = 0 
-    IF (myrank == doit) kthetarhos = readvar(inputdir // 'p16.bin', dummyn, ktype, myunit)
+    IF (myrank == doit) kthetarhos = readvar(inputdir // 'kthetarhos.bin', dummyn, ktype, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{17} Normalised radial coordinate (midplane radius)
     ALLOCATE(x(dimx)); x=0
-    IF (myrank == doit) x = readvar(inputdir // 'p17.bin', dummyx, ktype, myunit)
+    IF (myrank == doit) x = readvar(inputdir // 'x.bin', dummyx, ktype, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{18} Normalised radial coordinate (midplane radius)
     ALLOCATE(rho(dimx)); rho=0
-    IF (myrank == doit) rho = readvar(inputdir // 'p18.bin', dummyx, ktype, myunit)
+    IF (myrank == doit) rho = readvar(inputdir // 'rho.bin', dummyx, ktype, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{19} <Ro> major radius
     ALLOCATE(Ro(dimx)); Ro=0
-    IF (myrank == doit) Ro = readvar(inputdir // 'p19.bin', dummyx, ktype, myunit)
+    IF (myrank == doit) Ro = readvar(inputdir // 'Ro.bin', dummyx, ktype, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{20} <a> minor radius
     ALLOCATE(Rmin(dimx)); Rmin=0
-    IF (myrank == doit) Rmin = readvar(inputdir // 'p20.bin', dummyx, ktype, myunit)
+    IF (myrank == doit) Rmin = readvar(inputdir // 'Rmin.bin', dummyx, ktype, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{21} B(rho) magnetic field
     ALLOCATE(Bo(dimx)); Bo=0
-    IF (myrank == doit) Bo = readvar(inputdir // 'p21.bin', dummyx, ktype, myunit)
+    IF (myrank == doit) Bo = readvar(inputdir // 'Bo.bin', dummyx, ktype, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{22} q(rho) profile
     ALLOCATE(qx(dimx)); qx=0
-    IF (myrank == doit) qx = readvar(inputdir // 'p22.bin', dummyx, ktype, myunit)
+    IF (myrank == doit) qx = readvar(inputdir // 'qx.bin', dummyx, ktype, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{23} s(rho) profile
     ALLOCATE(smag(dimx)); smag=0
-    IF (myrank == doit) smag = readvar(inputdir // 'p23.bin', dummyx, ktype, myunit)
+    IF (myrank == doit) smag = readvar(inputdir // 'smag.bin', dummyx, ktype, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{24} alpha(rho) profile
     ALLOCATE(alphax(dimx)); alphax=0
-    IF (myrank == doit) alphax = readvar(inputdir // 'p24.bin', dummyx, ktype, myunit)
+    IF (myrank == doit) alphax = readvar(inputdir // 'alphax.bin', dummyx, ktype, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{25} Machtor(rho) profile
     ALLOCATE(Machtor(dimx)); Machtor=0
-    IF (myrank == doit) Machtor = readvar(inputdir // 'p25.bin', dummyx, ktype, myunit)
+    IF (myrank == doit) Machtor = readvar(inputdir // 'Machtor.bin', dummyx, ktype, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
 
 !!$    WHERE(ABS(Machtor) < epsD) Machtor = epsD
@@ -627,21 +627,21 @@ CONTAINS
     ! p{26} Autor(rho) profile
     ALLOCATE(Autor(dimx)); Autor=0
     IF (myrank == doit) THEN 
-       Autor = readvar(inputdir // 'p26.bin', dummyx, ktype, myunit)
+       Autor = readvar(inputdir // 'Autor.bin', dummyx, ktype, myunit)
        WHERE(ABS(Autor) < epsD) Autor = epsD
     ENDIF
     doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{27} Machpar(rho) profile
     ALLOCATE(Machpar(dimx)); Machpar=0
-    IF (myrank == doit) Machpar = readvar(inputdir // 'p27.bin', dummyx, ktype, myunit)
+    IF (myrank == doit) Machpar = readvar(inputdir // 'Machpar.bin', dummyx, ktype, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
 !!$    WHERE(ABS(Machpar) < epsD) Machpar = epsD
 
     ! p{28} Aupar(rho) profile
     ALLOCATE(Aupar(dimx)); Aupar=0
     IF (myrank == doit) THEN
-       Aupar = readvar(inputdir // 'p28.bin', dummyx, ktype, myunit)
+       Aupar = readvar(inputdir // 'Aupar.bin', dummyx, ktype, myunit)
        WHERE(ABS(Aupar) < epsD) Aupar = epsD
     ENDIF
     doit=doit+1; IF (doit==nproc) doit=0 
@@ -649,25 +649,25 @@ CONTAINS
     ! p{29} gammaE(rho) profile
     ALLOCATE(gammaE(dimx)); gammaE=0
     IF (myrank == doit) THEN
-       gammaE = readvar(inputdir // 'p29.bin', dummyx, ktype, myunit)
+       gammaE = readvar(inputdir // 'gammaE.bin', dummyx, ktype, myunit)
        WHERE(ABS(gammaE) < epsD) gammaE = epsD
     ENDIF
     doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{30} Te(rho) profile
     ALLOCATE(Tex(dimx)); Tex=0
-    IF (myrank == doit) Tex = readvar(inputdir // 'p30.bin', dummyx, ktype, myunit)
+    IF (myrank == doit) Tex = readvar(inputdir // 'Te.bin', dummyx, ktype, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{31} ne(rho) profile
     ALLOCATE(Nex(dimx)); Nex=0
-    IF (myrank == doit) Nex = readvar(inputdir // 'p31.bin', dummyx, ktype, myunit)
+    IF (myrank == doit) Nex = readvar(inputdir // 'ne.bin', dummyx, ktype, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{32} R/LTe(rho) profile
     ALLOCATE(Ate(dimx)); Ate=0
     IF (myrank == doit) THEN 
-       Ate = readvar(inputdir // 'p32.bin', dummyx, ktype, myunit)
+       Ate = readvar(inputdir // 'Ate.bin', dummyx, ktype, myunit)
        WHERE(ABS(Ate) < epsD) Ate = epsD
     ENDIF
     doit=doit+1; IF (doit==nproc) doit=0 
@@ -676,43 +676,43 @@ CONTAINS
     ! p{33} R/Lne(rho) profile
     ALLOCATE(Ane(dimx)); Ane=0
     IF (myrank == doit) THEN 
-       Ane = readvar(inputdir // 'p33.bin', dummyx, ktype, myunit)
+       Ane = readvar(inputdir // 'Ane.bin', dummyx, ktype, myunit)
        WHERE(ABS(Ane) < epsD) Ane = epsD
     ENDIF
     doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{34} Flag for adiabatic electrons
     el_type = 0
-    IF (myrank == doit) el_type = INT(readvar(inputdir // 'p34.bin', dummy, ktype, myunit))
+    IF (myrank == doit) el_type = INT(readvar(inputdir // 'typee.bin', dummy, ktype, myunit))
     doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{35} Species temp anisotropy at LFS. Zero is electrons
     ALLOCATE(anise(dimx)); anise=0
-    IF (myrank == doit) anise = readvar(inputdir // 'p35.bin', dummyx, ktype, myunit)
+    IF (myrank == doit) anise = readvar(inputdir // 'anise.bin', dummyx, ktype, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{36} Species temp anisotropy at LFS. Zero is electrons
     ALLOCATE(danisedr(dimx)); danisedr=0
     IF (myrank == doit)  THEN
-       danisedr = readvar(inputdir // 'p36.bin', dummyx, ktype, myunit)
+       danisedr = readvar(inputdir // 'danisdre.bin', dummyx, ktype, myunit)
        WHERE(ABS(danisedr) < epsD) danisedr = epsD
     ENDIF
     doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{37} Ti(rho) profiles
     ALLOCATE(Tix(dimx,nions)); Tix=0
-    IF (myrank == doit) Tix = readvar(inputdir // 'p37.bin', dummyxnions, ktype, myunit)
+    IF (myrank == doit) Tix = readvar(inputdir // 'Ti.bin', dummyxnions, ktype, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{38} ni/ne (rho) profiles
     ALLOCATE(ninorm(dimx,nions)); ninorm=0
-    IF (myrank == doit) ninorm = readvar(inputdir // 'p38.bin', dummyxnions, ktype, myunit)
+    IF (myrank == doit) ninorm = readvar(inputdir // 'normni.bin', dummyxnions, ktype, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{39} R/LTi(rho) profiles
     ALLOCATE(Ati(dimx,nions)); Ati=0
     IF (myrank == doit) THEN
-       Ati = readvar(inputdir // 'p39.bin', dummyxnions, ktype, myunit)
+       Ati = readvar(inputdir // 'Ati.bin', dummyxnions, ktype, myunit)
        WHERE(ABS(Ati) < epsD) Ati = epsD
     ENDIF
     doit=doit+1; IF (doit==nproc) doit=0 
@@ -720,37 +720,37 @@ CONTAINS
     ! p{40} R/Lni(rho) profiles
     ALLOCATE(Ani(dimx,nions)); Ani=0
     IF (myrank == doit) THEN 
-       Ani = readvar(inputdir // 'p40.bin', dummyxnions, ktype, myunit)
+       Ani = readvar(inputdir // 'Ani.bin', dummyxnions, ktype, myunit)
        WHERE(ABS(Ani) < epsD) Ani = epsD
     ENDIF
     doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{41} Ion types
     ALLOCATE(ion_type(dimx,nions)); ion_type=0
-    IF (myrank == doit) ion_type = INT(readvar(inputdir // 'p41.bin', dummyxnions, ktype, myunit))
+    IF (myrank == doit) ion_type = INT(readvar(inputdir // 'typei.bin', dummyxnions, ktype, myunit))
     doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{42} Species temp anisotropy at LFS. Zero is electrons
     ALLOCATE(anis(dimx,1:nions)); anis=0
-    IF (myrank == doit) anis = readvar(inputdir // 'p42.bin', dummyxnions, ktype, myunit)
+    IF (myrank == doit) anis = readvar(inputdir // 'anisi.bin', dummyxnions, ktype, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{43} Species temp anisotropy at LFS. Zero is electrons
     ALLOCATE(danisdr(dimx,1:nions)); danisdr=0
     IF (myrank == doit) THEN 
-       danisdr = readvar(inputdir // 'p43.bin', dummyxnions, ktype, myunit)
+       danisdr = readvar(inputdir // 'danisdri.bin', dummyxnions, ktype, myunit)
        WHERE(ABS(danisdr) < epsD) danisdr = epsD
     ENDIF
     doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{44} Main ion mass
     ALLOCATE(Ai(dimx,nions)); Ai=0
-    IF (myrank == doit) Ai = readvar(inputdir // 'p44.bin', dummyxnions, ktype, myunit)
+    IF (myrank == doit) Ai = readvar(inputdir // 'Ai.bin', dummyxnions, ktype, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{45} Main ion charge
     ALLOCATE(Zi(dimx,nions)); Zi=0
-    IF (myrank == doit) Zi = readvar(inputdir // 'p45.bin', dummyxnions, ktype, myunit)
+    IF (myrank == doit) Zi = readvar(inputdir // 'Zi.bin', dummyxnions, ktype, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
 
     runcounter = 0

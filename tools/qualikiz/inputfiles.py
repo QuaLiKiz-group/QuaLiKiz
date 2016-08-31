@@ -7,13 +7,7 @@ from collections import OrderedDict
 import itertools
 import numpy as np
 import inspect
-
-def to_bytelist_proto(self):
-    """ Protype of converting a class to a list of bytes
-    """
-    bytelist = [array.array('d', [value]) for value in self.values()]
-    return bytelist
-
+import re
 
 class Particle(OrderedDict):
     """ Particle (ion or electron)
@@ -35,7 +29,7 @@ class Particle(OrderedDict):
               2:  adiabatic
               3:  passing at ion scales
         anise:    Temperature anisotropy T_perp / T_para at LFS
-        danisedr: Radial gradient of temperature anisotropy
+        danisdr: Radial gradient of temperature anisotropy
 
         kwargs (ion only):
             Ai: Ion mass in amu
@@ -44,26 +38,19 @@ class Particle(OrderedDict):
         values = [kwargs[arg] for arg in Particle.keynames]
         super().__init__(zip(Particle.keynames, values))
 
-    def to_nparray(self):
-        nparray = np.fromiter(self.values(), float)
-        return nparray
-
 
 class Electron(Particle):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-    def to_bytelist(self):
-        return to_bytelist_proto(self)
-
 
 class Ion(Particle):
-    keynames = ['Ai', 'Zi']
+    keynames = ['A', 'Z']
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.name = kwargs['name']
-        self['Ai'] = kwargs['Ai']
-        self['Zi'] = kwargs['Zi']
+        self['A'] = kwargs['A']
+        self['Z'] = kwargs['Z']
 
 
 class IonList(list):
@@ -75,14 +62,6 @@ class IonList(list):
     """
     def __init__(self, *args):
         super().__init__(args)
-
-    def to_bytelist(self):
-        ionarray = [array.array('d', range(len(self))) for i in range(9)]
-        for i, ion in enumerate(self):
-            for j, entry in enumerate(ion.values()):
-                ionarray[j][i] = entry
-
-        return ionarray
 
     def __setitem__(self, key, value):
         for ion in self:
@@ -136,9 +115,9 @@ class QuaLiKizRun(OrderedDict):
         self._scan_ranges = _scan_ranges
         self._scan_names = _scan_names
 
-        numwave = len(kthetarhos)
-        nion = len(ions)
-        self['meta'] = self.Meta(numwave=numwave, nion=nion, **kwargs)
+        dimn = len(kthetarhos)
+        nions = len(ions)
+        self['meta'] = self.Meta(dimn=dimn, nions=nions, **kwargs)
         self['special'] = self.Special(kthetarhos)
         self['spatial'] = self.Spatial(**kwargs)
         self['elec'] = electrons
@@ -153,9 +132,9 @@ class QuaLiKizRun(OrderedDict):
         """ Set up a new scan based on the old QuaLiKizRun """
         kwargs = {}
         kwargs.update(self['meta'])
-        kwargs.pop('numwave')
-        kwargs.pop('numscan')
-        kwargs.pop('nion')
+        kwargs.pop('dimn')
+        kwargs.pop('dimx')
+        kwargs.pop('nions')
         kwargs.update(self['special'])
         kwargs.pop('kthetarhos')
         kwargs.update(self['spatial'])
@@ -176,31 +155,31 @@ class QuaLiKizRun(OrderedDict):
     def normalize_density(self):
         ninormd = [ion['n'] if ion['type'] != 3 and ion['type'] != 4 else 0 for ion in self['ions']]
         if self.ninorm1 and len(self['ions']) > 1: #sets ninorm of 1st species to maintian quasineutrality
-            self['ions'][0]['n'] = (1 - np.sum([ninorm * ion['Zi'] for ninorm, ion in zip(ninormd[1:], self['ions'][1:])]))/self['ions'][0]['Zi']
+            self['ions'][0]['n'] = (1 - np.sum([ninorm * ion['Z'] for ninorm, ion in zip(ninormd[1:], self['ions'][1:])]))/self['ions'][0]['Z']
 
     def normalize_gradient(self):
         ninormd = [ion['n'] if ion['type'] != 3 and ion['type'] != 4 else 0 for ion in self['ions']]
         if self.Ani1 and len(self['ions']) > 1: #sets Ani of 1st species to maintian quasineutrality
-            self['ions'][0]['An'] = (self['elec']['An'] - np.sum([ninorm * ion['An'] * ion['Zi'] for ninorm, ion in zip(ninormd[1:], self['ions'][1:])]))/(self['ions'][0]['Zi'] * self['ions'][0]['n'])
+            self['ions'][0]['An'] = (self['elec']['An'] - np.sum([ninorm * ion['An'] * ion['Z'] for ninorm, ion in zip(ninormd[1:], self['ions'][1:])]))/(self['ions'][0]['Z'] * self['ions'][0]['n'])
 
     def check_quasi(self):
-        quasicheck = [ion['Zi'] * ion['n'] for ion in self['ions']]
-        quasicheck_grad = [ion['Zi'] * ion['n'] * ion['An'] for ion in self['ions']]
+        quasicheck = [ion['Z'] * ion['n'] for ion in self['ions']]
+        quasicheck_grad = [ion['Z'] * ion['n'] * ion['A'] for ion in self['ions']]
         quasitol = 1e-5
 
 
     class Meta(OrderedDict):
         """ Wraps variables that stay constant during the whole QuaLiKiz run """
-        keynames = ['numscan', 'numwave', 'nion', 'phys_meth', 'coll_flag',
+        keynames = ['dimx', 'dimn', 'nions', 'phys_meth', 'coll_flag',
                     'rot_flag', 'verbose','separateflux', 'numsols', 'relacc1', 'relacc2',
-                    'maxruns', 'maxpts', 'timeout', 'R_0']
+                    'maxruns', 'maxpts', 'timeout', 'R0']
         def __init__(self, **kwargs):
             """ Initialize Meta class
             kwargs:
-                numscan:   Number of scan points
-                numwave:   Number of wavenumbers
+                dimx:   Number of scan points
+                dimn:   Number of wavenumbers
                 nions:     Number of ions in the system
-                phys_meth: Flag for additional calculation
+                phys_meth: Flag for additional calculation of output parameters
                 coll_flag: Flag for collisionality
                 rot_flag:  Flag for rotation
                 verbose:   Flag for level of output verbosity
@@ -213,13 +192,13 @@ class QuaLiKizRun(OrderedDict):
                 maxpts:    Number of integrant evaluations done in 2D integral
                 timeout:   Upper time limit [s] for wavenumber/scan point
                            solution finding
-                R_0:       [m] Geometric major radius used for normalizations
+                R0:       [m] Geometric major radius used for normalizations
             """
             defaults = {
-                'numscan':   None,
-                'numwave':   None,
-                'nion':      None,
-                'phys_meth': 1,
+                'dimx':   None,
+                'dimn':   None,
+                'nions':      None,
+                'phys_meth': 2,
                 'coll_flag': True,
                 'rot_flag':  False,
                 'verbose':   True,
@@ -230,13 +209,10 @@ class QuaLiKizRun(OrderedDict):
                 'maxruns':   1,
                 'maxpts':    5e5,
                 'timeout':   60,
-                'R_0':       None
+                'R0':       None
             }
             values = [kwargs.get(arg, defaults[arg]) for arg in self.keynames]
             super().__init__(zip(self.keynames, values))
-
-        def to_bytelist(self):
-            return to_bytelist_proto(self)
 
 
     class Special(OrderedDict):
@@ -248,15 +224,12 @@ class QuaLiKizRun(OrderedDict):
             """
             super().__init__(kthetarhos=kthetarhos)
 
-        def to_bytelist(self):
-            return [array.array('d', value) for value in self.values()]
-
 
     class Spatial(OrderedDict):
         """ Wraps variables that change per scan point """
         in_args = ['x', 'rho', 'Ro', 'Rmin', 'Bo', 'qx', 'smag',
                    'alphax', 'Machtor', 'Autor']
-        extra_args = ['Machpar', 'Aupar']
+        extra_args = ['Machpar', 'Aupar', 'gammaE']
 
         def __init__(self, **kwargs):
             """ Initialize Spatial class
@@ -288,25 +261,23 @@ class QuaLiKizRun(OrderedDict):
             self['Aupar'] = Autor/ np.sqrt(1+(epsilon/qx)**2)
             self['gammaE'] = -epsilon/qx*Autor # - Machtor./qx.*(1-smag./qx)   #ExB shear velocity normalized by cref/R. This form assumes pure toroidal rotation in the problem, but free to choose any number
 
-        def to_bytelist(self):
-            return to_bytelist_proto(self)
 
     def howto_isequal(self, name):
         """ Creates function that checks if a variable has a specific value
         This function hides the internal complexity of the QuaLiKizRun
         class. You can check a specific internal variable, or check for
-        an Electron variable by prepending 'e', or check for all Ions
-        by prepending 'i'. You can also check for a specific Ion with
+        an Electron variable by appending 'e', or check for all Ions
+        by appending 'i'. You can also check for a specific Ion with
         'i#', for example 'i1'
         """
-        if name.startswith('i'):
-            try:
-                ionnumber = int(name[1])
-                name = name[2:]
+        if name.endswith('i') or name[-1].isdigit():
+            if name[-1].isdigit():
+                ionnumber = int(name[-1])
+                name = name[:-2]
                 def isequal(self, value):
                     return self['ions'][ionnumber][name] == value
-            except ValueError:
-                name = name[1:]
+            else:
+                name = name[:-1]
                 def isequal(self, value):
                     return all([ion[name] == value for ion in self['ions']])
 
@@ -317,8 +288,8 @@ class QuaLiKizRun(OrderedDict):
             if name in self.Spatial.in_args + self.Spatial.extra_args:
                 def isequal(self, value):
                     return self['spatial'].__getitem__(name) == value
-            elif name.startswith('e'):
-                name = name[1:]
+            elif name.endswith('e'):
+                name = name[:-1]
                 def isequal(self, value):
                     return self['elec'].__getitem__(name) == value
         return isequal
@@ -329,14 +300,14 @@ class QuaLiKizRun(OrderedDict):
         to setting a value by hand as you would do in a normal dict.
         This is because of the multi-layered structure of the QuaLiKizRun class.
         You can set a specific internal variable, or set
-        an Electron variable by prepending 'e', or set all Ions
-        by prepending 'i'. You can also set a specific Ion with
+        an Electron variable by appending 'e', or set all Ions
+        by appending 'i'. You can also set a specific Ion with
         'i#', for example 'i1'
         """
-        if name.startswith('i'):
-            try:
-                ionnumber = int(name[1])
-                name = name[2:]
+        if name.endswith('i') or name[-1].isdigit():
+            if name[-1].isdigit():
+                ionnumber = int(name[-1])
+                name = name[:-2]
                 if (name == 'n' or name == 'Zi') and self.ninorm1:
                     def set(self, value):
                         self['ions'][ionnumber][name] = value
@@ -348,8 +319,8 @@ class QuaLiKizRun(OrderedDict):
                 else:
                     def set(self, value):
                         self['ions'][ionnumber][name] = value
-            except ValueError:
-                name = name[1:]
+            else:
+                name = name[:-1]
                 if (name == 'n' or name == 'Zi') and self.ninorm1:
                     def set(self, value):
                         self['ions'].__setitem__(name, value)
@@ -369,8 +340,8 @@ class QuaLiKizRun(OrderedDict):
             if name in self.Spatial.in_args + self.Spatial.extra_args:
                 def set(self, value):
                     self['spatial'].__setitem__(name, value)
-            elif name.startswith('e'):
-                name = name[1:]
+            elif name.endswith('e'):
+                name = name[:-1]
                 if (name == 'n' or name == 'Zi') and self.ninorm1:
                     def set(self, value):
                         self['elec'].__setitem__(name, value)
@@ -388,13 +359,18 @@ class QuaLiKizRun(OrderedDict):
         set_items = [self.howto_setitem(name) for name in self._scan_names]
 
         lenlist = [len(range) for range in self._scan_ranges]
-        self['meta']['numscan'] = int(np.sum(lenlist))
+        self['meta']['dimx'] = int(np.sum(lenlist))
 
-        numbytes = self['meta']['numscan']
-        spat_bytelist = [array.array('d', [0] * numbytes) for i in range(13)]
-        elec_bytelist = [array.array('d', [0] * numbytes) for i in range(7)]
-        numbytes = self['meta']['numscan'] * self['meta']['nion']
-        ions_bytelist = [array.array('d', [0] * numbytes) for i in range(9)]
+        dimx = self['meta']['dimx']
+        spat_bytes = dict(zip(self.Spatial.in_args + self.Spatial.extra_args,
+                              [array.array('d', [0] * dimx) for i in range(13)]))
+        elec_bytes = dict(zip([x + 'e' for x in Electron.keynames],
+                              [array.array('d', [0] * dimx) for i in range(7)]))
+        dimxi = self['meta']['dimx'] * self['meta']['nions']
+        ions_bytes = dict(zip([x + 'i' for x in Electron.keynames + Ion.keynames],
+                              [array.array('d', [0] * dimxi) for i in range(9)]))
+        bytes = {**spat_bytes, **elec_bytes, **ions_bytes}
+        bytes['normni'] = bytes.pop('ni')
 
         # As order is important, initialize to edge intersection
         for edgenum, edge in enumerate(self._scan_ranges):
@@ -410,21 +386,30 @@ class QuaLiKizRun(OrderedDict):
 
                 # Here we exploit the ordered nature of the spatial and elec dicts.
                 # We iterate over both of them and put them in our initialized
-                # array.
+                # array.)
                 values = itertools.chain(self['spatial'].values(),
                                          self['elec'].values())
-                for i, value in enumerate(values):
-                    (spat_bytelist + elec_bytelist)[i][numscan] = value
+                for name, value in self['spatial'].items():
+                    bytes[name][numscan] = value
+                for name, value in self['elec'].items():
+                    bytes[name + 'e'][numscan] = value
 
                 # Note that the ion array is in C ordering, not F ordering
                 for j, ion in enumerate(self['ions']):
-                    for k, value in enumerate(ion.values()):
-                        ions_bytelist[k][j * self['meta']['numscan'] + numscan] = value
+                    for name, value in ion.items():
+                        if name == 'n':
+                            name = 'normn'
+                        bytes[name + 'i'][j * self['meta']['dimx'] + numscan] = value
 
         # Some magic because electron type is a QuaLiKizRun constant
-        elec_bytelist[4] = array.array('d', [elec_bytelist[4][0]])
-        return (self['meta'].to_bytelist() + self['special'].to_bytelist() +
-                spat_bytelist + elec_bytelist + ions_bytelist)
+        bytes['typee'] = array.array('d', [bytes['typee'][0]])
+
+        for name, value in self['special'].items():
+            bytes[name] = array.array('d', value)
+
+        for name, value in self['meta'].items():
+            bytes[name] = array.array('d', [value])
+        return (bytes)
 
     def setup_hypercube(self):
         set_items = [self.howto_setitem(name) for name in self._scan_names]
@@ -436,7 +421,7 @@ class QuaLiKizRun(OrderedDict):
         numbytes = self['meta']['numscan']
         spat_bytelist = [array.array('d', [0] * numbytes) for i in range(13)]
         elec_bytelist = [array.array('d', [0] * numbytes) for i in range(7)]
-        numbytes = self['meta']['numscan'] * self['meta']['nion']
+        numbytes = self['meta']['numscan'] * self['meta']['nions']
         ions_bytelist = [array.array('d', [0] * numbytes) for i in range(9)]
         hypercube_scan_values = itertools.product(*self._scan_ranges)
         for numscan, scan_values in enumerate(hypercube_scan_values):
@@ -464,7 +449,7 @@ class QuaLiKizRun(OrderedDict):
 
 
     @classmethod
-    def to_file(cls, bytelist):
+    def to_file(cls, bytes):
         """ Writes a bytelist to file """
         inputdir = path.join(path.dirname(sys.argv[0]), 'input')
         try:
@@ -472,9 +457,9 @@ class QuaLiKizRun(OrderedDict):
         except FileExistsError:
             pass
 
-        for i, byte in enumerate(bytelist, 1):
-            with open(path.join(inputdir, 'p' + str(i) + '.bin'), 'wb') as file:
-                byte.tofile(file)
+        for name, value in bytes.items():
+            with open(path.join(inputdir, name + '.bin'), 'wb') as file:
+                value.tofile(file)
 
     def legacy(self):
         #
