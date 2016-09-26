@@ -2,7 +2,7 @@
 """ Command line interface for Python tools """
 import sys
 import os
-from qualikiz import compare, legacy, qualikizrun, basicpoll, sacct, craypat
+from qualikiz import compare, legacy, qualikizrun, basicpoll, sacct, craypat, fs_manipulation
 import subprocess
 import os, inspect
 
@@ -72,6 +72,14 @@ elif command == 'patpoll':
         targetdir = './polldb.sqlite3'
     path = sys.argv[2]
     craypat.create_database(path, targetdir)
+
+elif command == 'movecomplete':
+    if len(sys.argv) < 4:
+         raise Exception('please supply source and target')
+    else:
+         sourcedir =  sys.argv[2]
+         targetdir = sys.argv[3]
+    fs_manipulation.move_completed(sourcedir, targetdir)
 
 elif command == 'inputgo':
     if len(sys.argv) < 3:
