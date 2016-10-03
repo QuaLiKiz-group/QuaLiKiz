@@ -2,30 +2,32 @@ import os
 import datetime
 import sys
 import inspect
-from qualikiz.qualikizrun import Run, EmptyJob, run_job, generate_input
-from qualikiz.edisonbatch import Srun, Batch
+from qualikiz.qualikizrun import QuaLiKizBatch, QuaLiKizRun
+from qualikiz.edisonbatch import Srun, Sbatch
 """ Creates a mini-job based on the reference example """
 
-runsdir = ''
+dirname = 'runs'
 if len(sys.argv) == 2:
     if sys.argv[1] != '':
-        runsdir = os.path.abspath(sys.argv[1])
+        dirname = sys.argv[1]
 
+# We know where this script lives, so we can find the rootdir like this
 rootdir =  os.path.abspath(
    os.path.join(os.path.abspath(inspect.getfile(inspect.currentframe())),
                 '../../'))
-run = Run(rootdir, runsdir=runsdir)
-srun = Srun('QuaLiKiz', 24)
-batch = Batch('debug', srun)
-batch.name = 'mini'
-batch.optimize_sbatch()
-batch.maxtime = datetime.timedelta(seconds=1*60)
-job = EmptyJob(run.rootdir, 'mini', 'QuaLiKiz', batch)
-run.jobs.update({job.name: job})
-run.to_file()
+runsdir = os.path.join(rootdir, dirname)
+binreldir = os.path.relpath(os.path.join(rootdir, 'QuaLiKiz'),
+                            os.path.join(runsdir, 'mini'))
+pythonreldir = os.path.relpath(os.path.join(rootdir, 'tools/qualikiz'),
+                               os.path.join(runsdir, 'mini'))
+
+run = QuaLiKizRun(runsdir, 'mini', 
+                  binreldir)
+runlist = [run]
+batch = QuaLiKizBatch(runsdir, 'mini', runlist, 24, partition='debug')
+batch.prepare()
+batch.generate_input()
 
 resp = input('Submit job to queue? [Y/n]')
 if resp == '' or resp == 'Y' or resp == 'y':
-    job_path = os.path.join(run.runsdir, batch.name)
-    generate_input(job_path)
-    run_job(job_path)
+    batch.queue_batch()
