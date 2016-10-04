@@ -938,24 +938,24 @@ CONTAINS
     doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'nions.dat', nions, myint, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
-    IF (myrank == doit) CALL writevar(debugdir // 'phys_meth.dat', phys_meth, myfmt, myunit)
-    doit=doit+1; IF (doit==nproc) doit=0 
+!    IF (myrank == doit) CALL writevar(debugdir // 'phys_meth.dat', phys_meth, myfmt, myunit)
+!    doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'coll_flag.dat', coll_flag, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
-    IF (myrank == doit) CALL writevar(debugdir // 'rot_flag.dat', rot_flag, myfmt, myunit)
-    doit=doit+1; IF (doit==nproc) doit=0 
-    IF (myrank == doit) CALL writevar(debugdir // 'verbose.dat', verbose, myfmt, myunit)
-    doit=doit+1; IF (doit==nproc) doit=0 
+!    IF (myrank == doit) CALL writevar(debugdir // 'rot_flag.dat', rot_flag, myfmt, myunit)
+!    doit=doit+1; IF (doit==nproc) doit=0 
+!    IF (myrank == doit) CALL writevar(debugdir // 'verbose.dat', verbose, myfmt, myunit)
+!    doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'separateflux.dat', separateflux, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
-    IF (myrank == doit) CALL writevar(debugdir // 'numsols.dat', numsols, myfmt, myunit)
-    doit=doit+1; IF (doit==nproc) doit=0 
+!    IF (myrank == doit) CALL writevar(debugdir // 'numsols.dat', numsols, myfmt, myunit)
+!    doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'kthetarhos.dat', kthetarhos, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'x.dat', x, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
-    IF (myrank == doit) CALL writevar(debugdir // 'rho.dat', rho, myfmt, myunit)
-    doit=doit+1; IF (doit==nproc) doit=0 
+ !   IF (myrank == doit) CALL writevar(debugdir // 'rho.dat', rho, myfmt, myunit)
+ !   doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'Ro.dat', Ro, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'R0.dat', R0, myfmt, myunit)
@@ -968,18 +968,18 @@ CONTAINS
     doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'smag.dat', smag, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
-    IF (myrank == doit) CALL writevar(debugdir // 'alphax.dat', alphax, myfmt, myunit)
-    doit=doit+1; IF (doit==nproc) doit=0 
-    IF (myrank == doit) CALL writevar(debugdir // 'Machtor.dat', Machtor, myfmt, myunit)
-    doit=doit+1; IF (doit==nproc) doit=0 
-    IF (myrank == doit) CALL writevar(debugdir // 'Autor.dat', Autor, myfmt, myunit)
-    doit=doit+1; IF (doit==nproc) doit=0 
-    IF (myrank == doit) CALL writevar(debugdir // 'Machpar.dat', Machpar, myfmt, myunit)
-    doit=doit+1; IF (doit==nproc) doit=0 
-    IF (myrank == doit) CALL writevar(debugdir // 'Aupar.dat', Aupar, myfmt, myunit)
-    doit=doit+1; IF (doit==nproc) doit=0 
-    IF (myrank == doit) CALL writevar(debugdir // 'gammaE.dat', gammaE, myfmt, myunit)
-    doit=doit+1; IF (doit==nproc) doit=0 
+ !   IF (myrank == doit) CALL writevar(debugdir // 'alphax.dat', alphax, myfmt, myunit)
+ !   doit=doit+1; IF (doit==nproc) doit=0 
+ !   IF (myrank == doit) CALL writevar(debugdir // 'Machtor.dat', Machtor, myfmt, myunit)
+ !   doit=doit+1; IF (doit==nproc) doit=0 
+ !   IF (myrank == doit) CALL writevar(debugdir // 'Autor.dat', Autor, myfmt, myunit)
+ !   doit=doit+1; IF (doit==nproc) doit=0 
+ !   IF (myrank == doit) CALL writevar(debugdir // 'Machpar.dat', Machpar, myfmt, myunit)
+ !   doit=doit+1; IF (doit==nproc) doit=0 
+ !   IF (myrank == doit) CALL writevar(debugdir // 'Aupar.dat', Aupar, myfmt, myunit)
+ !   doit=doit+1; IF (doit==nproc) doit=0 
+ !   IF (myrank == doit) CALL writevar(debugdir // 'gammaE.dat', gammaE, myfmt, myunit)
+ !   doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'Tex.dat', Tex, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'Nex.dat', Nex, myfmt, myunit)
@@ -988,8 +988,8 @@ CONTAINS
     doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'Ane.dat', Ane, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
-    IF (myrank == doit) CALL writevar(debugdir // 'el_type.dat', el_type, myfmt, myunit)
-    doit=doit+1; IF (doit==nproc) doit=0 
+ !   IF (myrank == doit) CALL writevar(debugdir // 'el_type.dat', el_type, myfmt, myunit)
+ !   doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'Ai.dat', Ai, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'Zi.dat', Zi, myfmt, myunit)
