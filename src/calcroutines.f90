@@ -482,7 +482,7 @@ CONTAINS
              CYCLE
           ENDIF
 
-          CALL make_QLflux(p,nu,sol(p,nu,j),fdsol(p,nu,j))
+          CALL make_QLflux(p,nu,sol(p,nu,j))
           issol = .TRUE.
        ELSE
           issol = .FALSE.
