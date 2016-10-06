@@ -35,10 +35,10 @@ MODULE datmat
   COMPLEX(KIND=DBL), SAVE, DIMENSION(:,:), ALLOCATABLE :: modewidth, modeshift
   COMPLEX(KIND=DBL), SAVE, DIMENSION(:,:), ALLOCATABLE :: ommax, solflu
   COMPLEX(KIND=DBL), SAVE, DIMENSION(:,:,:), ALLOCATABLE :: sol, fdsol, oldsol, oldfdsol
-  COMPLEX(KIND=DBL), SAVE, DIMENSION(:,:,:), ALLOCATABLE :: Lcirce, Lpiege, Lecirce, Lepiege, Lvcirce, Lvpiege, Lcircgte, Lpieggte,  Lcircgne, Lpieggne,  Lcircgue, Lpieggue, Lcircce, Lpiegce
-  COMPLEX(KIND=DBL), SAVE, DIMENSION(:,:,:,:), ALLOCATABLE :: Lcirci, Lpiegi, Lecirci, Lepiegi, Lvcirci, Lvpiegi, Lcircgti, Lpieggti, Lcircgni, Lpieggni, Lcircgui, Lpieggui, Lcircci, Lpiegci
-  COMPLEX(KIND=DBL), SAVE, DIMENSION(:,:,:), ALLOCATABLE :: Lecircgte, Lepieggte,  Lecircgne, Lepieggne,  Lecircgue, Lepieggue, Lecircce, Lepiegce
-  COMPLEX(KIND=DBL), SAVE, DIMENSION(:,:,:,:), ALLOCATABLE :: Lecircgti, Lepieggti, Lecircgni, Lepieggni, Lecircgui, Lepieggui, Lecircci, Lepiegci
+  REAL(KIND=DBL), SAVE, DIMENSION(:,:,:), ALLOCATABLE :: Lcirce, Lpiege, Lecirce, Lepiege, Lvcirce, Lvpiege, Lcircgte, Lpieggte,  Lcircgne, Lpieggne,  Lcircgue, Lpieggue, Lcircce, Lpiegce
+  REAL(KIND=DBL), SAVE, DIMENSION(:,:,:,:), ALLOCATABLE :: Lcirci, Lpiegi, Lecirci, Lepiegi, Lvcirci, Lvpiegi, Lcircgti, Lpieggti, Lcircgni, Lpieggni, Lcircgui, Lpieggui, Lcircci, Lpiegci
+  REAL(KIND=DBL), SAVE, DIMENSION(:,:,:), ALLOCATABLE :: Lecircgte, Lepieggte,  Lecircgne, Lepieggne,  Lecircgue, Lepieggue, Lecircce, Lepiegce
+  REAL(KIND=DBL), SAVE, DIMENSION(:,:,:,:), ALLOCATABLE :: Lecircgti, Lepieggti, Lecircgni, Lepieggni, Lecircgui, Lepieggui, Lecircci, Lepiegci
 
   ! Final output arrays following saturation rule. These can be printed as ASCII output
   COMPLEX(KIND=DBL), SAVE, DIMENSION(:,:), ALLOCATABLE :: solflu_SI, solflu_GB
