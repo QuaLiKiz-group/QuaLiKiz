@@ -882,10 +882,10 @@ CONTAINS
 
     REAL(KIND=DBL), DIMENSION(dimx) :: epf_SItmp, eef_SItmp, evf_SItmp,epf_GBtmp, eef_GBtmp, evf_GBtmp,modeflagtmp
     REAL(KIND=DBL), DIMENSION(dimx) :: krmmuITGtmp, krmmuETGtmp
-    REAL(KIND=DBL), DIMENSION(dimx) :: dfe_SItmp, vte_SItmp, vce_SItmp, vre_SItmp, cketmp
+    REAL(KIND=DBL), DIMENSION(dimx) :: dfe_SItmp, vte_SItmp, vce_SItmp, vre_SItmp,dfe_GBtmp, vte_GBtmp, vce_GBtmp, vre_GBtmp, cketmp
     REAL(KIND=DBL), DIMENSION(dimx) :: chiee_SItmp, vene_SItmp, vece_SItmp, vere_SItmp, ceketmp
     REAL(KIND=DBL), DIMENSION(dimx,nions) :: ipf_SItmp, ief_SItmp, ivf_SItmp, ipf_GBtmp, ief_GBtmp, ivf_GBtmp
-    REAL(KIND=DBL), DIMENSION(dimx,nions) :: dfi_SItmp, vti_SItmp, vci_SItmp, vri_SItmp, ckitmp
+    REAL(KIND=DBL), DIMENSION(dimx,nions) :: dfi_SItmp, vti_SItmp, vci_SItmp, vri_SItmp,dfi_GBtmp, vti_GBtmp, vci_GBtmp, vri_GBtmp, ckitmp
     REAL(KIND=DBL), DIMENSION(dimx,nions) :: chiei_SItmp, veni_SItmp, veci_SItmp, veri_SItmp, cekitmp
 
     COMPLEX(KIND=DBL), DIMENSION(dimx,dimn) :: solflu_SItmp, solflu_GBtmp
@@ -930,7 +930,6 @@ CONTAINS
     CALL MPI_AllReduce(ief_cm,ief_cmtmp,dimx*dimn*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
     CALL MPI_AllReduce(ivf_cm,ivf_cmtmp,dimx*dimn*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
 
-
     CALL MPI_AllReduce(gam_SI,gam_SItmp,dimx*dimn*numsols,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
     CALL MPI_AllReduce(gam_GB,gam_GBtmp,dimx*dimn*numsols,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
     CALL MPI_AllReduce(ome_SI,ome_SItmp,dimx*dimn*numsols,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
@@ -946,12 +945,22 @@ CONTAINS
        CALL MPI_AllReduce(vte_SI,vte_SItmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
        CALL MPI_AllReduce(vce_SI,vce_SItmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
        CALL MPI_AllReduce(vre_SI,vre_SItmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+       CALL MPI_AllReduce(dfe_GB,dfe_GBtmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+       CALL MPI_AllReduce(vte_GB,vte_GBtmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+       CALL MPI_AllReduce(vce_GB,vce_GBtmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+       CALL MPI_AllReduce(vre_GB,vre_GBtmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+
        CALL MPI_AllReduce(cke,cketmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
        CALL MPI_AllReduce(dfi_SI,dfi_SItmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
        CALL MPI_AllReduce(vti_SI,vti_SItmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
        CALL MPI_AllReduce(vri_SI,vri_SItmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
        CALL MPI_AllReduce(vci_SI,vci_SItmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+       CALL MPI_AllReduce(dfi_GB,dfi_GBtmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+       CALL MPI_AllReduce(vti_GB,vti_GBtmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+       CALL MPI_AllReduce(vri_GB,vri_GBtmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+       CALL MPI_AllReduce(vci_GB,vci_GBtmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
        CALL MPI_AllReduce(cki,ckitmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+
        IF (phys_meth == 2) THEN
           CALL MPI_AllReduce(chiee_SI,chiee_SItmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
           CALL MPI_AllReduce(vene_SI,vene_SItmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
@@ -1012,15 +1021,25 @@ CONTAINS
        vce_SI=vce_SItmp
        vre_SI=vre_SItmp
        cke=cketmp
-       chiee_SI=chiee_SItmp
        dfi_SI=dfi_SItmp
        vti_SI=vti_SItmp
        vri_SI=vri_SItmp
        vci_SI=vci_SItmp
        cki=ckitmp
 
+       dfe_GB=dfe_GBtmp
+       vte_GB=vte_GBtmp
+       vce_GB=vce_GBtmp
+       vre_GB=vre_GBtmp
+        
+       dfi_GB=dfi_GBtmp
+       vti_GB=vti_GBtmp
+       vri_GB=vri_GBtmp
+       vci_GB=vci_GBtmp
+
        IF (phys_meth == 2) THEN
 
+          chiee_SI=chiee_SItmp
           vene_SI=vene_SItmp
           vere_SI=vere_SItmp
           vece_SI=vece_SItmp

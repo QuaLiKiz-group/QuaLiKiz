@@ -40,11 +40,21 @@ CONTAINS
        ALLOCATE(vce_SI(dimx)); vce_SI=0
        ALLOCATE(vre_SI(dimx)); vre_SI=0
 
+       ALLOCATE(dfe_GB(dimx)); dfe_GB=0
+       ALLOCATE(vte_GB(dimx)); vte_GB=0
+       ALLOCATE(vce_GB(dimx)); vce_GB=0
+       ALLOCATE(vre_GB(dimx)); vre_GB=0
+
        ALLOCATE(cke(dimx))
        ALLOCATE(dfi_SI(dimx,nions)); dfi_SI=0
        ALLOCATE(vti_SI(dimx,nions)); vti_SI=0
        ALLOCATE(vci_SI(dimx,nions)); vci_SI=0
        ALLOCATE(vri_SI(dimx,nions)); vri_SI=0
+
+       ALLOCATE(dfi_GB(dimx,nions)); dfi_GB=0
+       ALLOCATE(vti_GB(dimx,nions)); vti_GB=0
+       ALLOCATE(vci_GB(dimx,nions)); vci_GB=0
+       ALLOCATE(vri_GB(dimx,nions)); vri_GB=0
 
        ALLOCATE(cki(dimx,nions))
 !!!
@@ -105,6 +115,16 @@ CONTAINS
        DEALLOCATE(vci_SI)
        DEALLOCATE(vri_SI)
        DEALLOCATE(cki)
+
+       DEALLOCATE(dfe_GB)
+       DEALLOCATE(vte_GB)
+       DEALLOCATE(vce_GB)
+       DEALLOCATE(vre_GB)
+       DEALLOCATE(dfi_GB)
+       DEALLOCATE(vti_GB)
+       DEALLOCATE(vci_GB)
+       DEALLOCATE(vri_GB)
+
        IF (phys_meth == 2) THEN
           DEALLOCATE(vene_SI)
           DEALLOCATE(chiee_SI)
@@ -574,14 +594,14 @@ CONTAINS
           CALL davint (xint, yint ,dimn+1,lowlim, kthr(ir,dimn), pfe(ir), ifailloc)
 
           ! Total particle diffusivity Gyro-Bohm using all roots. Assumes that all particle transport is diagonal (typically not the case)
-          dpfe(ir) = (pfe(ir)/(Nex(ir)*1e19*Ane(ir)/R0))/chi_GB(ir)
+          dpfe(ir) = (pfe(ir)/(Nex(ir)*1e19/R0))/chi_GB(ir)
 
           ! Energy flux using all roots
           xint= (/0._DBL,kthr(ir,:)/) ; yint=(/0._DBL,cmefe(ir,:)/)
           CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),efe(ir),ifailloc)
 
           ! Energy diffusivity using all unstable roots
-          defe(ir) = (efe(ir)/(Nex(ir)*1e19*Tex(ir)*1e3*qe*Ate(ir)/R0))/chi_GB(ir)
+          defe(ir) = (efe(ir)/(Nex(ir)*1e19*Tex(ir)*1e3*qe/R0))/chi_GB(ir)
 
 !!$          !Only ETG scales particle and heat transport (if they exist)
 !!$          IF (ETGind > 0) THEN
@@ -600,7 +620,7 @@ CONTAINS
           CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),vfe(ir),ifailloc)
 
           ! Mom diffusivity using all unstable roots
-          dvfe(ir) = (vfe(ir)/(Nex(ir)*1e19*cthe(ir)*Aue(ir)/R0))/chi_GB(ir)
+          dvfe(ir) = (vfe(ir)/(Nex(ir)*1e19*cthe(ir)*R0*me/R0))/chi_GB(ir)
 
           DO ion=1,nions
              !Remove any residual ETG particle transport to maintain quasineutrality
@@ -618,9 +638,9 @@ CONTAINS
              CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),efi(ir,ion),ifailloc)        
              xint= (/0._DBL,kthr(ir,:)/) ; yint=(/0._DBL,cmvfi(ir,:,ion)/)
              CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),vfi(ir,ion),ifailloc)        
-             dpfi(ir,ion) = (pfi(ir,ion)/(Nix(ir,ion)*1e19*Ani(ir,ion)/R0))/chi_GB(ir)
-             defi(ir,ion) = (efi(ir,ion)/(Nix(ir,ion)*1e19*Tix(ir,ion)*1e3*qe*Ati(ir,ion)/R0))/chi_GB(ir)
-             dvfi(ir,ion) = (vfi(ir,ion)/(Nix(ir,ion)*1e19*cthi(ir,ion)*Aui(ir,ion)/R0))/chi_GB(ir)
+             dpfi(ir,ion) = (pfi(ir,ion)/(Nix(ir,ion)*1e19/R0))/chi_GB(ir)
+             defi(ir,ion) = (efi(ir,ion)/(Nix(ir,ion)*1e19*Tix(ir,ion)*1e3*qe/R0))/chi_GB(ir)
+             dvfi(ir,ion) = (vfi(ir,ion)/(Nix(ir,ion)*1e19*Ai(ir,ion)*mp*cthi(ir,ion)*R0/R0))/chi_GB(ir)
           ENDDO
 
 
@@ -792,6 +812,21 @@ CONTAINS
              !! roto diffusion terms
              vre_SI(ir) = vrdte(ir)
              vri_SI(ir,:) = vrdti(ir,:)
+
+             dfe_GB(ir) = dfe_SI(ir)/chi_GB(ir)
+             dfi_GB(ir,:) = dfi_SI(ir,:)/chi_GB(ir)
+
+             vte_GB(ir) = vte_SI(ir)*Ro(ir)/chi_GB(ir)
+             vti_GB(ir,:) = vti_SI(ir,:)*Ro(ir)/chi_GB(ir)
+
+             vce_GB(ir) = vce_SI(ir)*Ro(ir)/chi_GB(ir)
+             vci_GB(ir,:) = vci_SI(ir,:)*Ro(ir)/chi_GB(ir)
+
+             vre_GB(ir) = vre_SI(ir)*Ro(ir)/chi_GB(ir)
+             vri_GB(ir,:) = vri_SI(ir,:)*Ro(ir)/chi_GB(ir)
+
+
+
 
              !! check on particle fluxes
              cke(ir) = 1d2* ( epf_SI(ir) - ( dffte(ir)*Ane(ir)*Nex(ir)*1d19/R0 + & 
