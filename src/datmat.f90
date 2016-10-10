@@ -130,8 +130,8 @@ MODULE datmat
   !EXTERNAL FUNCTION AND SUBROUTINE DECLARATIONS
 
   !Elliptic integrals (from SLATEC)
-  REAL(KIND=DBL) :: rf, rd, DGAMMA
-  EXTERNAL  rf, rd, DGAMMA
+  REAL(KIND=DBL) :: ceik, ceie, DGAMMA
+  EXTERNAL ceik, ceie, DGAMMA
 
   !Scaled modified Bessel functions routines (from SPECFUN)
   REAL(KIND=DBL) :: BESEI0, BESEI1

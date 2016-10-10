@@ -8,14 +8,16 @@ GENZ_DIR?=$(LIBSRC)/genz
 NAG_DIR?=$(LIBSRC)/nag
 SLATEC_DIR?=$(LIBSRC)/slatec
 SPECFUN_DIR?=$(LIBSRC)/specfun
+FUKUSHIMA_DIR?=$(LIBSRC)/fukushima
 
 CUBPACK_LIB?=$(CUBPACK_DIR)/libcubpack.a
 GENZ_LIB?=$(GENZ_DIR)/libgenz.a
 NAG_LIB?=$(NAG_DIR)/libnag.a
 SLATEC_LIB?=$(SLATEC_DIR)/libslatec.a
 SPECFUN_LIB?=$(SPECFUN_DIR)/libspecfun.a
+FUKUSHIMA_LIB?=$(FUKUSHIMA_DIR)/libfukushima.a
 
-LIBS?=$(CUBPACK_LIB) $(GENZ_LIB) $(NAG_LIB) $(SLATEC_LIB) $(SPECFUN_LIB)
+LIBS?=$(CUBPACK_LIB) $(GENZ_LIB) $(NAG_LIB) $(SLATEC_LIB) $(SPECFUN_LIB) $(FUKUSHIMA_LIB)
 LIBS_CLEAN?=$(LIBS:%=%.clean)
 
 ##############################################################################

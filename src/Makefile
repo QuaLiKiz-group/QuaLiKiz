@@ -9,6 +9,7 @@ GENZ_DIR?=$(LIBSRC)/genz
 NAG_DIR?=$(LIBSRC)/nag
 SLATEC_DIR?=$(LIBSRC)/slatec
 SPECFUN_DIR?=$(LIBSRC)/specfun
+FUKUSHIMA_DIR?=$(LIBSRC)/fukushima
 
 CUBPACK_INC?=-I$(CUBPACK_DIR)
 CUBPACK?=$(CUBPACK_INC) -L$(CUBPACK_DIR) -lcubpack
@@ -16,8 +17,9 @@ GENZ?=-L$(GENZ_DIR) -lgenz
 NAG?=-L$(NAG_DIR) -lnag
 SLATEC?=-L$(SLATEC_DIR) -lslatec
 SPECFUN?=-L$(SPECFUN_DIR) -lspecfun
+FUKUSHIMA?=-L$(FUKUSHIMA_DIR) -lfukushima
 
-LIBS=$(CUBPACK) $(GENZ) $(NAG) $(SLATEC) $(SPECFUN)
+LIBS=$(CUBPACK) $(GENZ) $(NAG) $(SLATEC) $(SPECFUN) $(FUKUSHIMA)
 # Parallel or serial compilation
 ifneq ($(MPI_FLAGS),-DMPI)
       OBJS_QUALIKIZ += mpivoid.o

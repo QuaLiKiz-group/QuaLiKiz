@@ -1059,20 +1059,14 @@ CONTAINS
   REAL(KIND=DBL) FUNCTION fkint(kk)
     !integrand for <f(k)>, the pinch angle integration of the vertical drift frequency for trapped particles
     REAL(KIND=DBL), INTENT(IN) :: kk
-    REAL(KIND=DBL)    :: xa, ya, za, var, k2
+    REAL(KIND=DBL)    :: ya, k2
     REAL(KIND=DBL)    :: fki, Eg, Kg
-    INTEGER :: ifailloc
     k2 = kk*kk
     ! The term weighting the vertical drift of the trapped (fk) is calculated 
     ! The formulation with elliptic integrals is used
-    xa = 0.
     ya = 1.-k2
-    za = 1.
-    ifailloc = 0
-    Kg = rf(xa, ya, za, ifailloc)
-    ifailloc = 0
-    var   = rd(xa, ya, za, ifailloc)
-    Eg = Kg - (k2)/3. * var
+    Kg = ceik(ya)
+    Eg = ceie(ya)
 
     fki = -1. + (smag(pFFk)*4. + 4./3. * alphax(pFFk)) * &
          &     (k2-1.+Eg/Kg) + 2.*Eg/Kg *(1-4./3. * k2 * alphax(pFFk))
@@ -1089,20 +1083,14 @@ CONTAINS
   REAL(KIND=DBL) FUNCTION VTint(kk)
     !integrand for <vpar^2>, the pinch angle integration of the bounce averaged vpar^2 for trapped particles
     REAL(KIND=DBL), INTENT(IN) :: kk
-    REAL(KIND=DBL)    :: xa, ya, za, var, k2
+    REAL(KIND=DBL)    :: ya, k2
     REAL(KIND=DBL)    :: fki, E2g, Eg, Kg
-    INTEGER :: ifailloc
     k2 = kk*kk
     ! The term weighting the vertical drift of the trapped (fk) is calculated 
     ! The formulation with elliptic integrals is used
-    xa = 0.
     ya = 1.-k2
-    za = 1.
-    ifailloc = 0
-    Kg = rf(xa, ya, za, ifailloc)
-    ifailloc = 0
-    var   = rd(xa, ya, za, ifailloc)
-    Eg = Kg - (k2)/3. * var
+    Kg = ceik(ya)
+    Eg = ceie(ya)
     E2g = 1./kk * (Eg - Kg*(1.-k2)) !Specialized form of incomplete 2nd elliptic integral. Used for bounce average of Vpar^2
 
     fki = -1. + (smag(pFFk)*4. + 4./3. * alphax(pFFk)) * &
@@ -1118,20 +1106,14 @@ CONTAINS
   REAL(KIND=DBL) FUNCTION WvT2int(kk)
     !integrand for <fk*vpar^2>, the pinch angle integration of the bounce averaged fk*vpar^2 for trapped particles
     REAL(KIND=DBL), INTENT(IN) :: kk
-    REAL(KIND=DBL)    :: xa, ya, za, var, k2
+    REAL(KIND=DBL)    :: ya, k2
     REAL(KIND=DBL)    :: fki, E2g, Eg, Kg
-    INTEGER :: ifailloc
     k2 = kk*kk
     ! The term weighting the vertical drift of the trapped (fk) is calculated 
     ! The formulation with elliptic integrals is used
-    xa = 0.
     ya = 1.-k2
-    za = 1.
-    ifailloc = 0
-    Kg = rf(xa, ya, za, ifailloc)
-    ifailloc = 0
-    var   = rd(xa, ya, za, ifailloc)
-    Eg = Kg - (k2)/3. * var
+    Kg = ceik(ya)
+    Eg = ceie(ya)
     E2g = 1./kk * (Eg - Kg*(1.-k2)) !Specialized form of incomplete 2nd elliptic integral. Used for bounce average of Vpar^2
 
     fki = -1. + (smag(pFFk)*4. + 4./3. * alphax(pFFk)) * &
