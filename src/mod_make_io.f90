@@ -119,6 +119,7 @@ CONTAINS
     ALLOCATE(tau(dimx,nions))
     ALLOCATE(Nix(dimx,nions))
     ALLOCATE(Zeffx(dimx))
+    ALLOCATE(Nustar(dimx))
     ALLOCATE(qprim(dimx))
     ALLOCATE(Anue(dimx))
     ALLOCATE(wg(dimx))
@@ -216,6 +217,7 @@ CONTAINS
 
     Lambe(:) = 15.2_DBL - 0.5_DBL*LOG(0.1_DBL*Nex(:)) + LOG(Tex(:))  !Coulomb constant and collisionality. Wesson 2nd edition p661-663
     Nue(:) = 1._DBL/(1.09d-3) *Zeffx(:)*Nex(:)*Lambe(:)/(Tex(:))**1.5_DBL 
+    Nustar(:) = Nue(:)*qx(:)*Ro(:)/epsilon(:)**1.5/(SQRT(Tex(:)*1.d3*qe/me))
 
     ! Collisionality array
     IF (coll_flag .NE. 0.0) THEN
@@ -225,6 +227,7 @@ CONTAINS
     ENDIF
 
     !DEBUGGING
+
 !!$    OPEN(unit=700, file="input/Zeffx.dat", action="write", status="replace")
 !!$    WRITE(700,'(G15.7)') (Zeffx(i),i=1,dimx) ; CLOSE(700)
 !!$    OPEN(unit=700, file="input/Anue.dat", action="write", status="replace")
@@ -416,6 +419,7 @@ CONTAINS
     DEALLOCATE(Tex)
     DEALLOCATE(Tix)
     DEALLOCATE(Nex)
+    DEALLOCATE(Nustar)
     DEALLOCATE(anise)
     DEALLOCATE(danisedr)
     DEALLOCATE(anis)
