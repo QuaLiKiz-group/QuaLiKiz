@@ -255,6 +255,8 @@ CONTAINS
 
        DO ir = 1,dimx !big cycle on scan (or radial) parameter
 
+          chi_GB(ir)=SQRT(Ai(ir,1)*mp)/(qe**2*Bo(ir)**2)*((Tex(ir)*1e3*qe)**1.5)/Rmin(ir)  !GyroBohm normalisation in m^2/s based on main ion
+
           IF (myrank == doit) THEN ! distribute independent loop indices to tasks
              doit=doit+1; 
              IF (doit==nproc) doit=0 
@@ -334,7 +336,7 @@ CONTAINS
              ENDIF
 
              !Saturation rules for each unstable root
-             chi_GB(ir)=SQRT(Ai(ir,1)*mp)/(qe**2*Bo(ir)**2)*((Tex(ir)*1e3*qe)**1.5)/Rmin(ir)  !GyroBohm normalisation in m^2/s based on main ion
+
              DO k=1,numsols
                 !Some of the above is actually repeated here. Have to look deeper to see if code can be slightly reduced
                 mdml(ir) = MAXVAL(AIMAG(solbck(ir,:,k))*nwgmat(ir,:)/kperp2(ir,:))
@@ -387,8 +389,6 @@ CONTAINS
                    krmmuETG(ir) = kthetarhos(inddmlmu(ir))
                 ENDIF
 
-                !Saturation rules for each unstable root
-                chi_GB(ir)=SQRT(Ai(ir,1)*mp)/(qe**2*Bo(ir)**2)*((Tex(ir)*1e3*qe)**1.5)/Rmin(ir)  !GyroBohm normalisation in m^2/s based on main ion
                 DO k=1,numsols
                    !Some of the above is actually repeated here. Have to look deeper to see if code can be slightly reduced
                    mdml(ir) = MAXVAL(AIMAG(solbcktmp(ir,:,k))*nwgmat(ir,:)/kperp2(ir,:))
