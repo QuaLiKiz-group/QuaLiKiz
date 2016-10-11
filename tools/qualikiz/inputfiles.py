@@ -7,9 +7,13 @@ import json
 import sys
 import itertools
 import numpy as np
+import scipy as sc
+import scipy.optimize
+import cmath
 import inspect
 import re
 from collections import OrderedDict
+from warnings import warn
 
 
 class Particle(dict):
@@ -105,7 +109,7 @@ class QuaLiKizXpoint(dict):
             Ani1:        Flag to normalize main ion gradient to maintain
                          quasineutrality
             QN_grad:     Flag for maintaining quasineutrality of gradients
-
+            x_rho:       Flag to keep rho and x equal if set with __setitem__
         """
         super().__init__()
 
@@ -127,6 +131,7 @@ class QuaLiKizXpoint(dict):
         self['norm']['QN_grad'] = kwargs.get('QN_grad', True)
         if self['norm']['QN_grad']:
             self.check_quasi()
+        self['norm']['x_rho'] = kwargs.get('x_rho', True)
 
     def normalize_density(self):
         """ Set density of 1st ion species to maintian quasineutrality """
@@ -152,6 +157,40 @@ class QuaLiKizXpoint(dict):
         if quasicheck_grad > quasitol:
             raise Exception('Quasineutrality gradient violated!')
 
+    def match_zeff(self, zeff):
+        """ Adjust ni1 to match the given Zeff """
+        ions = filter(lambda x: x['type'] < 3, self['ions'][2:])
+        if len(self['ions']) > 1:
+            self['ions'][1]['n'] = (zeff - self['ions'][0]['n'] * self['ions'][0]['Z'] ** 2 - sum(ion['n'] * ion['Z'] ** 2 for ion in ions)) / self['ions'][1]['Z'] ** 2
+        # Sanity check
+        #print (np.isclose(self.calc_zeff(), zeff))
+
+    def calc_zeff(self):
+        """ Calculate Zeff """
+        ions = filter(lambda x: x['type'] < 3, self['ions'])
+        return sum(ion['n'] * ion['Z'] ** 2 for ion in ions)
+
+    def match_nustar(self, nustar):
+        """ Set Te to match the given Nustar """
+        # First set everything needed for nustar, namely Zeff, Ne, q, R0, Rmin, x
+        # Rewrite formula for nustar to form nustar = c1 / Te^2 (c2 + ln(Te))
+        zeff = self.calc_zeff()
+        c1 = 6.9224e-5 * zeff * self['elec']['n'] * self['geometry']['qx'] * self['geometry']['Ro'] * (self['geometry']['Rmin'] * self['geometry']['x'] / self['geometry']['Ro']) ** -1.5
+        c2 = 15.2 - 0.5 * np.log(0.1 * self['elec']['n'])
+
+        Tex = lambda x: c1 / x ** 2 * (c2 + np.log(x)) - nustar
+
+        # Initial guess
+        Tex0 = np.sqrt(c1 * c2 / nustar)
+        self['elec']['T'] = sc.optimize.newton(Tex, Tex0)
+
+        #nustar_calc = c1 / Te ** 2 * (c2 + np.log(Te))
+        # Sanity check
+        #print (np.isclose(nustar_calc, nustar))
+
+    def match_tite(self, tite):
+        """ Set all Ions temperature to match the given Ti/Te """
+        self['ions']['T'] = tite * self['elec']['T']
  
     class Meta(dict):
         """ Wraps variables that stay constant during the whole QuaLiKiz run """
@@ -294,7 +333,17 @@ class QuaLiKizXpoint(dict):
                 and self['norm']['QN_grad']):
                 self.check_quasi()
         elif key in self.Geometry.in_args + self.Geometry.extra_args:
+            if key == 'x' and self['norm']['x_rho']:
+                self['geometry'].__setitem__('rho', value)
+            if key == 'rho' and self['norm']['x_rho']:
+                self['geometry'].__setitem__('x', value)
             self['geometry'].__setitem__(key, value)
+        elif key == 'Zeff':
+            self.match_zeff(value)
+        elif key == 'Nustar':
+            self.match_nustar(value)
+        elif key == 'Ti_Te_rel':
+            self.match_tite(value)
         else:
             super().__setitem__(key, value)
 
@@ -361,17 +410,49 @@ class QuaLiKizPlan(dict):
         scan_type
         """
         if self['scan_type'] == 'hyperedge':
-            names = self['scan_dict'].keys()
+            names = list(self['scan_dict'].keys())
             bytes = self.setup_scan(names, self.edge_generator())
         elif self['scan_type'] == 'hyperrect':
             values = itertools.product(*self['scan_dict'].values())
-            names = self['scan_dict'].keys()
+            names = list(self['scan_dict'].keys())
             bytes = self.setup_scan(names, values)
         else:
             raise Exception('Unknown scan_type \'' + self['scan_type'] + '\'')
         return bytes
 
+    def _sanity_check_setup(self, scan_names):
+        """ Check if the order of scan_names is correct """
+        try:
+            index = scan_names.index('Zeff')
+        except ValueError:
+            pass
+        else:
+            if any(name in scan_names[index:] for name in ['ni', 'ni0']):
+                warn('Warning! Set ni before setting Zeff')
+        try:
+            index = scan_names.index('Nustar')
+        except ValueError:
+            pass
+        else:
+            if any(name in scan_names[index:] for name in ['Zeff', 'ne', 'q', 'Ro', 'Rmin', 'x', 'rho']):
+                warn('Warning! Set Zeff, ne, q, Ro, Rmin, x and rho before setting Nustar')
+        try:
+            index = scan_names.index('Ti_Te_rel')
+        except ValueError:
+            pass
+        else:
+            if any(name in scan_names[index:] for name in ['Te']):
+                warn('Warning! Set Te before setting Ti_Te_rel')
+
     def setup_scan(self, scan_names, scan_list):
+        """ Set up a QuaLiKiz scan
+        
+        scan_names should be the names of the parameters being scanned over.
+        This is a list with the same length of list-like objects generated
+        by scan_list. Scan_list should be a generator (or list of lists) 
+        that generates the values matching the values of the scan_names.
+        """
+        self._sanity_check_setup(scan_names)
         dimxpoint = copy.deepcopy(self['xpoint_base'])
 
         # Initialize all the arrays that will eventually be written to file

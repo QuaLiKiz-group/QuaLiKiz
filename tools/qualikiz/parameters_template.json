@@ -119,7 +119,8 @@
         "norm": {
             "Ani1": true,
             "ninorm1": true,
-            "QN_grad": true
+            "QN_grad": true,
+            "x_rho": true
         }
     }
 }
