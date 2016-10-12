@@ -1,15 +1,18 @@
-#!/bin/python3
+#!/usr/bin/env python3
 import array
 import os
+import copy
 from os import path
+import json
 import sys
-from collections import OrderedDict
 import itertools
 import numpy as np
 import inspect
 import re
+from collections import OrderedDict
 
-class Particle(OrderedDict):
+
+class Particle(dict):
     """ Particle (ion or electron)
     """
     keynames = ['T', 'n', 'At', 'An', 'type', 'anis', 'danisdr']
@@ -17,23 +20,23 @@ class Particle(OrderedDict):
         """ Initialize a Particle.
         Usually it is better to create an Electron or Ion instead.
 
-    kwargs:
-        T :       Temperature in keV
-        n :       Density in 10^19 m^-3 for electrons, relative factor to
-                  electron denisity for ions
-        At:       Normalized logarithmic temperature gradient
-                  A_t = - (R/T) * (dT/dr)
-        An:       Normalized logarithmic density gradient
-                  A_n = - (R/n) * (dn/dr)
-        type: 1:  active
-              2:  adiabatic
-              3:  passing at ion scales
-        anise:    Temperature anisotropy T_perp / T_para at LFS
-        danisdr: Radial gradient of temperature anisotropy
+        kwargs:
+            T :       Temperature in keV
+            n :       Density in 10^19 m^-3 for electrons, relative factor to
+                      electron denisity for ions
+            At:       Normalized logarithmic temperature gradient
+                      A_t = - (R/T) * (dT/dr)
+            An:       Normalized logarithmic density gradient
+                      A_n = - (R/n) * (dn/dr)
+            type: 1:  active
+                  2:  adiabatic
+                  3:  passing at ion scales
+            anise:    Temperature anisotropy T_perp / T_para at LFS
+            danisdr: Radial gradient of temperature anisotropy
 
-        kwargs (ion only):
-            Ai: Ion mass in amu
-            Zi: Ion charge in e
+            kwargs (ion only):
+                Ai: Ion mass in amu
+                Zi: Ion charge in e
         """
         values = [kwargs[arg] for arg in Particle.keynames]
         super().__init__(zip(Particle.keynames, values))
@@ -48,7 +51,6 @@ class Ion(Particle):
     keynames = ['A', 'Z']
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.name = kwargs['name']
         self['A'] = kwargs['A']
         self['Z'] = kwargs['Z']
 
@@ -69,41 +71,35 @@ class IonList(list):
         return self
 
 
-class QuaLiKizRun(OrderedDict):
-    """ Wraps multi-dimensional QuaLiKiz scan input files
-
-    This class contains multiple dicts sorted by meaning. Those dicts are:
-    elec: an Electron that describes the electrons in the plasma
-    ions: an IonList with all ions contained in the plasma
-    meta: a Meta instance with all values that don't change for different
-          radial points
-    special: a Special instance with all values that need special treatment
-             when writing to binary
-    spatial: a Spatial instance with all values that change for different
-             radial points
+class QuaLiKizXpoint(dict):
+    """ A single xpoint in a QuaLiKiz run.
+    
+    Typically a QuaLiKiz run scans over multiple xpoints. This class 
+    contains multiple dicts sorted by meaning. Those dicts are:
+        elec: an Electron that describes the electrons in the plasma
+        ions: an IonList with all ions contained in the plasma
+        meta: a Meta instance with all values that don't change for different
+              radial points
+        special: a Special instance with all values that need special treatment
+                 when writing to binary
+        geometric: a Geometry instance with all values that change for different
+                   radial points
 
     """
-    def __init__(self, _scan_names, _scan_ranges, kthetarhos, electrons, ions, **kwargs):
+    def __init__(self, kthetarhos, electrons, ions, **kwargs):
         """ Initialize a single QuaLiKiz run
         Normally you would initialize your QuaLiKiz run with this, then set
         up a N-dimensional scan with setup_hypercube and write the
         QuaLiKiz input files with to_file
 
         args:
-            _scan_names:  Names of the parameters to be scanned. Ion parameters
-                         can be scanned by prepending 'i' and electron
-                         parameters can be scanned by prepending 'e'. If you
-                         want to scan over a specific ions parameter, you can
-                         prepend 'in' for example, 'i1'.
-            _scan_values: The values to be scanned matching the names in
-                         _scan_names
             kthetarhos:  The wave spectrum to be scanned
             electrons:   An Electron instance describing the electron
                          population
             ions:        An IonList instance describing the ion population
 
         kwargs:
-            all kwargs described in the Meta, Special and Spatial classes
+            all kwargs described in the Meta, Special and Geometry classes
             ninorm1:     Flag to normalize main ion concentration to maintain
                          quasineutrality
             Ani1:        Flag to normalize main ion gradient to maintain
@@ -112,73 +108,59 @@ class QuaLiKizRun(OrderedDict):
 
         """
         super().__init__()
-        self._scan_ranges = _scan_ranges
-        self._scan_names = _scan_names
 
         dimn = len(kthetarhos)
         nions = len(ions)
         self['meta'] = self.Meta(dimn=dimn, nions=nions, **kwargs)
         self['special'] = self.Special(kthetarhos)
-        self['spatial'] = self.Spatial(**kwargs)
+        self['geometry'] = self.Geometry(**kwargs)
         self['elec'] = electrons
         self['ions'] = ions
 
-        self.ninorm1 = kwargs.get('ninorm1', True)
-        self.Ani1 = kwargs.get('Ani1', True)
-        self.QN_grad = kwargs.get('QN_grad', True)
-        self.normalize()
-
-    def newscan(self, scan_names, scan_ranges):
-        """ Set up a new scan based on the old QuaLiKizRun """
-        kwargs = {}
-        kwargs.update(self['meta'])
-        kwargs.pop('dimn')
-        kwargs.pop('dimx')
-        kwargs.pop('nions')
-        kwargs.update(self['special'])
-        kwargs.pop('kthetarhos')
-        kwargs.update(self['spatial'])
-        kwargs.update({'ninorm1': self.ninorm1,
-                       'Ani1': self.Ani1,
-                       'QN_grad': self.QN_grad})
-        return QuaLiKizRun(scan_names, scan_ranges,
-                           self['special']['kthetarhos'],
-                           self['elec'], self['ions'], **kwargs)
-    def normalize(self):
-        if self.ninorm1:
+        self['norm'] = {}
+        self['norm']['ninorm1'] = kwargs.get('ninorm1', True)
+        if self['norm']['ninorm1']:
             self.normalize_density()
-        if self.Ani1:
+        self['norm']['Ani1'] = kwargs.get('Ani1', True)
+        if self['norm']['Ani1']:
             self.normalize_gradient()
-        if self.QN_grad:
+        self['norm']['QN_grad'] = kwargs.get('QN_grad', True)
+        if self['norm']['QN_grad']:
             self.check_quasi()
 
     def normalize_density(self):
-        ninormd = [ion['n'] if ion['type'] != 3 and ion['type'] != 4 else 0 for ion in self['ions']]
-        if self.ninorm1 and len(self['ions']) > 1: #sets ninorm of 1st species to maintian quasineutrality
-            self['ions'][0]['n'] = (1 - np.sum([ninorm * ion['Z'] for ninorm, ion in zip(ninormd[1:], self['ions'][1:])]))/self['ions'][0]['Z']
+        """ Set density of 1st ion species to maintian quasineutrality """
+        if len(self['ions']) > 1:
+            ions = filter(lambda x: x['type'] < 3, self['ions'][1:])
+            self['ions'][0]['n'] = 1 - sum(ion['n'] * ion['Z'] for ion in ions) / self['ions'][0]['Z']
 
     def normalize_gradient(self):
-        ninormd = [ion['n'] if ion['type'] != 3 and ion['type'] != 4 else 0 for ion in self['ions']]
-        if self.Ani1 and len(self['ions']) > 1: #sets Ani of 1st species to maintian quasineutrality
-            self['ions'][0]['An'] = (self['elec']['An'] - np.sum([ninorm * ion['An'] * ion['Z'] for ninorm, ion in zip(ninormd[1:], self['ions'][1:])]))/(self['ions'][0]['Z'] * self['ions'][0]['n'])
+        """ Set density gradient of 1st ion species to maintian quasineutrality """
+        if len(self['ions']) > 1:
+            ions = filter(lambda x: x['type'] < 3, self['ions'][1:])
+            self['ions'][0]['An'] = (self['elec']['An'] - sum(ion['n'] * ion['An'] * ion['Z'] for ion in ions)) / (self['ions'][0]['Z']  * self['ions'][0]['n'])
 
     def check_quasi(self):
-        quasicheck = [ion['Z'] * ion['n'] for ion in self['ions']]
-        quasicheck_grad = [ion['Z'] * ion['n'] * ion['A'] for ion in self['ions']]
+        """ Check if quasineutrality is maintained """
+        ions = filter(lambda x: x['type'] < 3, self['ions'])
+        quasicheck = abs(sum(ion['n'] * ion['Z'] for ion in ions) - 1)
+        ions = filter(lambda x: x['type'] < 3, self['ions'])
+        quasicheck_grad = abs(sum(ion['n'] * ion['An'] * ion['Z'] for ion in ions) - self['elec']['An'])
         quasitol = 1e-5
+        if quasicheck > quasitol:
+            raise Exception('Quasineutrality violated!')
+        if quasicheck_grad > quasitol:
+            raise Exception('Quasineutrality gradient violated!')
 
-
-    class Meta(OrderedDict):
+ 
+    class Meta(dict):
         """ Wraps variables that stay constant during the whole QuaLiKiz run """
-        keynames = ['dimx', 'dimn', 'nions', 'phys_meth', 'coll_flag',
+        keynames = ['phys_meth', 'coll_flag',
                     'rot_flag', 'verbose','separateflux', 'numsols', 'relacc1', 'relacc2',
                     'maxruns', 'maxpts', 'timeout', 'R0']
         def __init__(self, **kwargs):
             """ Initialize Meta class
             kwargs:
-                dimx:   Number of scan points
-                dimn:   Number of wavenumbers
-                nions:     Number of ions in the system
                 phys_meth: Flag for additional calculation of output parameters
                 coll_flag: Flag for collisionality
                 rot_flag:  Flag for rotation
@@ -195,9 +177,6 @@ class QuaLiKizRun(OrderedDict):
                 R0:       [m] Geometric major radius used for normalizations
             """
             defaults = {
-                'dimx':   None,
-                'dimn':   None,
-                'nions':      None,
                 'phys_meth': 2,
                 'coll_flag': True,
                 'rot_flag':  False,
@@ -215,7 +194,7 @@ class QuaLiKizRun(OrderedDict):
             super().__init__(zip(self.keynames, values))
 
 
-    class Special(OrderedDict):
+    class Special(dict):
         """ Wraps variables that need special convertion to binary"""
         def __init__(self, kthetarhos):
             """ Initialize Special class
@@ -225,14 +204,14 @@ class QuaLiKizRun(OrderedDict):
             super().__init__(kthetarhos=kthetarhos)
 
 
-    class Spatial(OrderedDict):
+    class Geometry(dict):
         """ Wraps variables that change per scan point """
         in_args = ['x', 'rho', 'Ro', 'Rmin', 'Bo', 'qx', 'smag',
                    'alphax', 'Machtor', 'Autor']
         extra_args = ['Machpar', 'Aupar', 'gammaE']
 
         def __init__(self, **kwargs):
-            """ Initialize Spatial class
+            """ Initialize Geometry class
             kwargs:
                 x:       [m] Radial normalized coordinate
                 rho:     [-] Normalized toroidal flux coordinate
@@ -261,276 +240,231 @@ class QuaLiKizRun(OrderedDict):
             self['Aupar'] = Autor/ np.sqrt(1+(epsilon/qx)**2)
             self['gammaE'] = -epsilon/qx*Autor # - Machtor./qx.*(1-smag./qx)   #ExB shear velocity normalized by cref/R. This form assumes pure toroidal rotation in the problem, but free to choose any number
 
-
-    def howto_isequal(self, name):
-        """ Creates function that checks if a variable has a specific value
-        This function hides the internal complexity of the QuaLiKizRun
-        class. You can check a specific internal variable, or check for
-        an Electron variable by appending 'e', or check for all Ions
-        by appending 'i'. You can also check for a specific Ion with
-        'i#', for example 'i1'
-        """
-        if name.endswith('i') or name[-1].isdigit():
-            if name[-1].isdigit():
-                ionnumber = int(name[-1])
-                name = name[:-2]
-                def isequal(self, value):
-                    return self['ions'][ionnumber][name] == value
-            else:
-                name = name[:-1]
-                def isequal(self, value):
-                    return all([ion[name] == value for ion in self['ions']])
-
-            if (not name in Ion.keynames) and (not name in Particle.keynames):
-                raise Exception(name + ' does not exist!')
-
-        else:
-            if name in self.Spatial.in_args + self.Spatial.extra_args:
-                def isequal(self, value):
-                    return self['spatial'].__getitem__(name) == value
-            elif name.endswith('e'):
-                name = name[:-1]
-                def isequal(self, value):
-                    return self['elec'].__getitem__(name) == value
-        return isequal
-
-    def howto_setitem(self, name):
-        """ Created a function that can set a value by keyname
-        Use this method to set a value in the QuaLiKizRun class. This is prefered
-        to setting a value by hand as you would do in a normal dict.
-        This is because of the multi-layered structure of the QuaLiKizRun class.
-        You can set a specific internal variable, or set
+    def __setitem__(self, key, value):
+        """ Set value in nested dict
+        Use this method to set a value in the QuaLiKizRun class.
+        It adds some extra abstraction for the multi-layered structure 
+        of the QuaLiKizRun class. You can set a specific internal variable, or set
         an Electron variable by appending 'e', or set all Ions
         by appending 'i'. You can also set a specific Ion with
         'i#', for example 'i1'
         """
-        if name.endswith('i') or name[-1].isdigit():
-            if name[-1].isdigit():
-                ionnumber = int(name[-1])
-                name = name[:-2]
-                if (name == 'n' or name == 'Zi') and self.ninorm1:
-                    def set(self, value):
-                        self['ions'][ionnumber][name] = value
-                        self.normalize_density()
-                elif name == 'An':
-                    def set(self, value):
-                        self['ions'][ionnumber][name] = value
-                        self.normalize_gradient()
+        if key.endswith('i') or key[-1].isdigit():
+            if key[-1].isdigit():
+                ionnumber = int(key[-1])
+                key = key[:-2]
+                if (key == 'n' or key == 'Z') and self['norm']['ninorm1']:
+                    self['ions'][ionnumber][key] = value
+                    self.normalize_density()
+                elif key == 'An' and self['norm']['Ani1']:
+                    self['ions'][ionnumber][key] = value
+                    self.normalize_gradient()
                 else:
-                    def set(self, value):
-                        self['ions'][ionnumber][name] = value
+                    self['ions'][ionnumber][key] = value
+                if ((key == 'n' or key == 'Z' or key == 'An') 
+                    and self['norm']['QN_grad']):
+                    self.check_quasi()
             else:
-                name = name[:-1]
-                if (name == 'n' or name == 'Zi') and self.ninorm1:
-                    def set(self, value):
-                        self['ions'].__setitem__(name, value)
-                        self.normalize_density()
-                elif name == 'An':
-                    def set(self, value):
-                        self['ions'].__setitem__(name, value)
-                        self.normalize_gradient()
+                key = key[:-1]
+                if (key == 'n' or key == 'Zi') and self['norm']['ninorm1']:
+                    self['ions'].__setitem__(key, value)
+                    self.normalize_density()
+                elif key == 'An' and self['norm']['Ani1']:
+                    self['ions'].__setitem__(key, value)
+                    self.normalize_gradient()
                 else:
-                    def set(self, value):
-                        self['ions'].__setitem__(name, value)
+                    self['ions'].__setitem__(key, value)
+                if ((key == 'n' or key == 'Z' or key == 'An') 
+                    and self['norm']['QN_grad']):
+                    self.check_quasi()
 
-            if (not name in Ion.keynames) and (not name in Particle.keynames):
-                raise Exception(name + ' does not exist!')
-
+            if (not key in Ion.keynames) and (not key in Particle.keynames):
+                raise Exception(key + ' does not exist!')
+        elif key.endswith('e'):
+            key = key[:-1]
+            if (key == 'n' or key == 'Zi') and self['norm']['ninorm1']:
+                self['elec'].__setitem__(key, value)
+                self.normalize_density()
+            elif key == 'An' and self['norm']['Ani1']:
+                self['elec'].__setitem__(key, value)
+                self.normalize_gradient()
+            else:
+                self['elec'].__setitem__(key, value)
+            if ((key == 'n' or key == 'Z' or key == 'An') 
+                and self['norm']['QN_grad']):
+                self.check_quasi()
+        elif key in self.Geometry.in_args + self.Geometry.extra_args:
+            self['geometry'].__setitem__(key, value)
         else:
-            if name in self.Spatial.in_args + self.Spatial.extra_args:
-                def set(self, value):
-                    self['spatial'].__setitem__(name, value)
-            elif name.endswith('e'):
-                name = name[:-1]
-                if (name == 'n' or name == 'Zi') and self.ninorm1:
-                    def set(self, value):
-                        self['elec'].__setitem__(name, value)
-                        self.normalize_density()
-                elif name == 'An':
-                    def set(self, value):
-                        self['elec'].__setitem__(name, value)
-                        self.normalize_gradient()
-                else:
-                    def set(self, value):
-                        self['elec'].__setitem__(name, value)
-        return set
+            super().__setitem__(key, value)
 
-    def setup_hyperedge(self):
-        set_items = [self.howto_setitem(name) for name in self._scan_names]
 
-        lenlist = [len(range) for range in self._scan_ranges]
-        self['meta']['dimx'] = int(np.sum(lenlist))
+class QuaLiKizPlan(dict):
+    """ Wrapper for the scan plan for a QuaLiKiz run
 
-        dimx = self['meta']['dimx']
-        spat_bytes = dict(zip(self.Spatial.in_args + self.Spatial.extra_args,
+    This class can be used to define a scan plan, in other words, over which
+    values will be scanned in the QuaLiKiz run. This is given in the form of
+    a xpoint base and a strategy how the exact points will be generated
+    from this base. Usually this is a line or its N-D equivalent the edges of
+    a hyperrectangle, or a hyperrectangle itself.
+    """
+    def __init__(self, scan_dict, scan_type, xpoint_base):
+        """ Initialize the QuaLiKizPlan
+
+        args:
+            scan_dict:   A dictionary with as keys the names of the variables to 
+                         be scanned and as values the numeric values to be scanned.
+                         Use an OrderedDict to conserve ordering.
+            scan_type:   How the points are generated. Currently accepts 'hyperedge'
+                         and 'hyperrect'
+            xpoint_base: The xpoint base used as base for the generation
+        """
+        self['scan_dict'] = scan_dict
+        self['scan_type'] = scan_type
+        self['xpoint_base'] = xpoint_base
+
+    def calculate_dimx(self):
+        """ Calculate the amount of xpoints, also known as dimx
+
+        This depends on the scan_type
+        """
+        lenlist = [len(range) for range in self['scan_dict'].values()]
+        if self['scan_type'] == 'hyperedge':
+            dimx = int(np.sum(lenlist))
+        elif self['scan_type'] == 'hyperrect':
+            dimx = int(np.product(lenlist))
+        else:
+            raise Exception('Unknown scan_type \'' + self['scan_type'] + '\'')
+        return dimx
+
+    def calculate_dimxn(self):
+        """ Calculate dimxn
+        """
+        return self.calculate_dimx() * len(self['xpoint_base']['special']['kthetarhos'])
+
+    def edge_generator(self):
+        """ Generates the points on the edge of a hyperrectangle
+        """
+        intersec = [x[0] for x in self['scan_dict'].values()]
+        #yield intersec
+        for i, (name, values) in enumerate(self['scan_dict'].items()):
+            for value in values:
+                point = copy.deepcopy(intersec)
+                point[i] = value
+                #if point != intersec:
+                yield point
+
+    def setup(self):
+        """ Set up the QuaLiKiz scan
+
+        Pass the binary generator the correct generator depending on the
+        scan_type
+        """
+        if self['scan_type'] == 'hyperedge':
+            names = self['scan_dict'].keys()
+            bytes = self.setup_scan(names, self.edge_generator())
+        elif self['scan_type'] == 'hyperrect':
+            values = itertools.product(*self['scan_dict'].values())
+            names = self['scan_dict'].keys()
+            bytes = self.setup_scan(names, values)
+        else:
+            raise Exception('Unknown scan_type \'' + self['scan_type'] + '\'')
+        return bytes
+
+    def setup_scan(self, scan_names, scan_list):
+        dimxpoint = copy.deepcopy(self['xpoint_base'])
+
+        # Initialize all the arrays that will eventually be written to file
+        dimx = self.calculate_dimx()
+        dimn = len(dimxpoint['special']['kthetarhos'])
+        nions = len(dimxpoint['ions'])
+
+        bytes = dict(zip(QuaLiKizXpoint.Geometry.in_args + QuaLiKizXpoint.Geometry.extra_args,
                               [array.array('d', [0] * dimx) for i in range(13)]))
-        elec_bytes = dict(zip([x + 'e' for x in Electron.keynames],
-                              [array.array('d', [0] * dimx) for i in range(7)]))
-        dimxi = self['meta']['dimx'] * self['meta']['nions']
-        ions_bytes = dict(zip([x + 'i' for x in Electron.keynames + Ion.keynames],
-                              [array.array('d', [0] * dimxi) for i in range(9)]))
-        bytes = {**spat_bytes, **elec_bytes, **ions_bytes}
+        bytes.update(dict(zip([x + 'e' for x in Electron.keynames],
+                              [array.array('d', [0] * dimx) for i in range(7)])))
+        dimxi = dimx * nions
+        bytes.update(dict(zip([x + 'i' for x in Electron.keynames + Ion.keynames],
+                              [array.array('d', [0] * dimxi) for i in range(9)])))
+        calc = {'dimx': dimx, 
+                'dimn': dimn,
+                'nions': nions}
+
+        # Put the three numbers we already calculated in an array
+        for key, value in calc.items():
+            bytes[key] = array.array('d', [value])
+
+        # Rename what we call 'ni' to what QuaLiKiz calls 'normni'
         bytes['normni'] = bytes.pop('ni')
 
-        # As order is important, initialize to edge intersection
-        for edgenum, edge in enumerate(self._scan_ranges):
-            set_items[edgenum](self, self._scan_ranges[edgenum][0])
+        numscan = -1
+        # Iterate over the scan_list, each next() should provide a list-like
+        # object with as many entries as we have different parameters
+        for scan_values in scan_list:
+            numscan += 1
+            # Set the dimxn point value to the value in the list.
+            for scan_name, scan_value in zip(scan_names, scan_values):
+                dimxpoint[scan_name] = scan_value
 
-        # Iterate over each edge. Note the the intersection point is iterated
-        # over len(_scan_ranges) times. We take this performance hit for
-        # code simplicity
-        for edgenum, edge in enumerate(self._scan_ranges):
-            for valuenum, scan_value in enumerate(reversed(edge)):
-                numscan = np.sum(lenlist[:edgenum], dtype=int) + valuenum
-                set_items[edgenum](self, scan_value)
+            # Now iterate over all the values in the xpoint dict and add them
+            # to our array
+            for name, value in dimxpoint['geometry'].items():
+                bytes[name][numscan] = value
+            for name, value in dimxpoint['elec'].items():
+                bytes[name + 'e'][numscan] = value
 
-                # Here we exploit the ordered nature of the spatial and elec dicts.
-                # We iterate over both of them and put them in our initialized
-                # array.)
-                values = itertools.chain(self['spatial'].values(),
-                                         self['elec'].values())
-                for name, value in self['spatial'].items():
-                    bytes[name][numscan] = value
-                for name, value in self['elec'].items():
-                    bytes[name + 'e'][numscan] = value
-
-                # Note that the ion array is in C ordering, not F ordering
-                for j, ion in enumerate(self['ions']):
-                    for name, value in ion.items():
-                        if name == 'n':
-                            name = 'normn'
-                        bytes[name + 'i'][j * self['meta']['dimx'] + numscan] = value
+            # Note that the ion array is in C ordering, not F ordering
+            for j, ion in enumerate(dimxpoint['ions']):
+                for name, value in ion.items():
+                    if name == 'n':
+                        name = 'normn'
+                    bytes[name + 'i'][j * dimx + numscan] = value
 
         # Some magic because electron type is a QuaLiKizRun constant
         bytes['typee'] = array.array('d', [bytes['typee'][0]])
 
-        for name, value in self['special'].items():
+        for name, value in dimxpoint['special'].items():
             bytes[name] = array.array('d', value)
 
-        for name, value in self['meta'].items():
+        for name, value in dimxpoint['meta'].items():
             bytes[name] = array.array('d', [value])
         return (bytes)
 
-    def setup_hypercube(self):
-        set_items = [self.howto_setitem(name) for name in self._scan_names]
-        isequal_items = [self.howto_isequal(name) for name in self._scan_names]
+    def to_json(self, filename):
+        """ Dump the QuaLiKiz plan to json file
 
-        lenlist = [len(range) for range in self._scan_ranges]
-        self['meta']['numscan'] = int(np.product(lenlist))
+        The QuaLiKiz plan, including the xpoint base, can be fully
+        recontructed later using the from_json function
+        """
+        with open(filename, 'w') as file_:
+            json.dump(self, file_, indent=4)
 
-        numbytes = self['meta']['numscan']
-        spat_bytelist = [array.array('d', [0] * numbytes) for i in range(13)]
-        elec_bytelist = [array.array('d', [0] * numbytes) for i in range(7)]
-        numbytes = self['meta']['numscan'] * self['meta']['nions']
-        ions_bytelist = [array.array('d', [0] * numbytes) for i in range(9)]
-        hypercube_scan_values = itertools.product(*self._scan_ranges)
-        for numscan, scan_values in enumerate(hypercube_scan_values):
-            for i, scan_value in enumerate(scan_values):
-                if not isequal_items[i](self, scan_value):
-                    set_items[i](self, scan_value)
-
-            # Here we exploit the ordered nature of the spatial and elec dicts.
-            # We iterate over both of them and put them in our initialized
-            # array.
-            values = itertools.chain(self['spatial'].values(),
-                                     self['elec'].values())
-            for i, value in enumerate(values):
-                (spat_bytelist + elec_bytelist)[i][numscan] = value
-
-            # Note that the ion array is in C ordering, not F ordering
-            for j, ion in enumerate(self['ions']):
-                for k, value in enumerate(ion.values()):
-                    ions_bytelist[k][j * self['meta']['numscan'] + numscan] = value
-
-        # Some magic because electron type is a QuaLiKizRun constant
-        elec_bytelist[4] = array.array('d', [elec_bytelist[4][0]])
-        return (self['meta'].to_bytelist() + self['special'].to_bytelist() +
-                spat_bytelist + elec_bytelist + ions_bytelist)
-
-
+    
     @classmethod
-    def to_file(cls, bytes):
-        """ Writes a bytelist to file """
-        inputdir = path.join(path.dirname(sys.argv[0]), 'input')
-        try:
-            os.mkdir(inputdir)
-        except FileExistsError:
-            pass
+    def from_json(cls, filename):
+        """ Load the QuaLiKiz plan from json
 
-        for name, value in bytes.items():
-            with open(path.join(inputdir, name + '.bin'), 'wb') as file:
-                value.tofile(file)
+        Reconstruct the QuaLiKiz plan based on the given json file.
+        Backwards compatibility is not guaranteed, so preferably
+        generate the json with the same version as which you load it
+        with.
+        """
+        with open(filename, 'r') as file_:
+            data = json.load(file_, object_pairs_hook=OrderedDict)
+            scan_dict = data.pop('scan_dict')
+            scan_type = data.pop('scan_type')
 
-    def legacy(self):
-        #
-        ##Set the number and range of wave number points
-        #
-        #
-        ##NOTE: for general scans, any of the below can be changed to a vector of size (ones(scann,1))
-        ##e.g. for a q-profile scan: qx=linspace(1,4,scann)'
-        #
-        qe = 1.602176565e-19
-        mp = 1.672621777e-27
-        cref = np.sqrt(qe*1e3/mp)
-        #cthi = np.sqrt(2*qe*Tix(:,1)*1e3/Ai(1)/mp)
-        cthi = np.sqrt(2*qe*D['T']*1e3/D['Ai']/mp)
-        #
-        #
-        ##Calculate auxilliary quantities for plotting
-        Epsilonx=Rmin*x/Ro
-        ft=2*(2*Epsilonx)**(0.5)/np.pi; #trapped particle fraction
-        tau=elec['T']/D['T']
-#for i=1:scann
-        ninormz= [ion['n'] if ion['type'] != 3 else 0 for ion in ions]
-        Ziz2 = [ion['Zi'] ** 2 for ion in ions]
-        Zeffx = np.sum([x * y for x, y in zip(ninormz, Ziz2)])
-
-#   Zeffx(i)=sum(ninormz(i,:).*Zi(i,:).^2); #calculate Zeff
-#end
-#
-#figure;
-#disp('Figures displayed such that the input data can be verified by eye')
-#subplot(221)
-#value(gca,'FontSize',18)
-#plot(1:scann,Ati(:,1),'r',1:scann,Tix(:,1),'r--',1:scann,Ate,'b',1:scann,Tex,'b--','LineWidth',2)
-#xlabel('Scan index')
-#
-#l1=legend('-R\nabla{T_i}/T_i','Ti','-R\nabla{T_e}/T_e','T_e');
-#value(l1,'FontSize',12)
-#legend boxoff
-#grid on
-#subplot(222)
-#value(gca,'FontSize',18)
-#plot(1:scann,Ane,'g',1:scann,Nex,'g--','LineWidth',2)
-#xlabel('Scan index')
-#
-#l2=legend('-R\nabla{n_e}/n_e','n_e');
-#value(l2,'FontSize',12)
-#legend boxoff
-#grid on
-#subplot(223)
-#value(gca,'FontSize',18)
-#plot(1:scann,tau,'c',1:scann,Zeffx,'c--',1:scann,ft,'c-.','LineWidth',2)
-#xlabel('Scan index')
-#
-#l3=legend('T_e/T_i','Z_{eff}','f_t');
-#value(l3,'FontSize',12)
-#legend boxoff
-#grid on
-#subplot(224)
-#value(gca,'FontSize',18)
-#plot(1:scann,smag,'m',1:scann,qx,'m--',1:scann,alphax,'m-.s','LineWidth',2)
-#xlabel('Scan index')
-#l4=legend('s','q','\alpha');
-#value(l4,'FontSize',12)
-#legend boxoff
-#grid on
-#
-#### End
-#
-#if(1)
-#
-#### Saving binary files
-### ---------------------------------
-### MANAGING QUALIKIZ INPUT VARIABLES
-### ---------------------------------
+            kthetarhos = data['xpoint_base']['special'].pop('kthetarhos')
+            data['xpoint_base'].pop('special')
+            elec = Electron(**data['xpoint_base'].pop('elec'))
+            ionlist = []
+            for ion in data['xpoint_base']['ions']:
+                ionlist.append(Ion(**ion))
+            ions = IonList(*ionlist)
+            data['xpoint_base'].pop('ions')
+            dict_ = {}
+            for dicts in data['xpoint_base'].values():
+                dict_.update(dicts)
+                
+            xpoint_base = QuaLiKizXpoint(kthetarhos, elec, ions, **dict_)
+            return QuaLiKizPlan(scan_dict, scan_type, xpoint_base)

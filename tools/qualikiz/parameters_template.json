@@ -1,0 +1,125 @@
+{
+    "scan_dict": {
+        "Ati": [
+            2.0,
+            7.0,
+            12.0
+        ],
+        "Ti": [
+            2.4,
+            13.2,
+            24.0
+        ],
+        "qx": [
+            1.0,
+            3.0,
+            5.0
+        ],
+        "smag": [
+            0.1,
+            2.55,
+            5.0
+        ]
+    },
+    "scan_type": "hyperedge",
+    "xpoint_base": {
+        "meta": {
+            "phys_meth": 2,
+            "coll_flag": true,
+            "rot_flag": false,
+            "verbose": true,
+            "separateflux": false,
+            "numsols": 3,
+            "relacc1": 0.001,
+            "relacc2": 0.02,
+            "maxruns": 1,
+            "maxpts": 500000.0,
+            "timeout": 60,
+            "R0": 3.0
+        },
+        "special": {
+            "kthetarhos": [
+                0.1,
+                0.2,
+                0.3,
+                0.4,
+                0.5,
+                0.6,
+                0.7,
+                0.8,
+                6.0,
+                12.0,
+                18.0,
+                24.0,
+                30.0,
+                36.0,
+                42.0,
+                48.0
+            ]
+        },
+        "spatial": {
+            "x": 0.5,
+            "rho": 0.5,
+            "Ro": 3.0,
+            "Rmin": 1.0,
+            "Bo": 3.0,
+            "qx": 2.0,
+            "smag": 1.0,
+            "alphax": 0.0,
+            "Machtor": 0.0,
+            "Autor": 0.0,
+            "Machpar": 0.0,
+            "Aupar": 0.0,
+            "gammaE": 0.0
+        },
+        "elec": {
+            "T": 8.0,
+            "n": 5.0,
+            "At": 9.0,
+            "An": 3.0,
+            "type": 1,
+            "anis": 1.0,
+            "danisdr": 0.0
+        },
+        "ions": [
+            {
+                "T": 8.0,
+                "n": 0.8,
+                "At": 0.0,
+                "An": 3.0,
+                "type": 1,
+                "anis": 1.0,
+                "danisdr": 0.0,
+                "A": 2.0,
+                "Z": 1.0
+            },
+            {
+                "T": 8.0,
+                "n": 0.1,
+                "At": 0.0,
+                "An": 2.9,
+                "type": 1,
+                "anis": 1.0,
+                "danisdr": 0.0,
+                "A": 9.0,
+                "Z": 4.0
+            },
+            {
+                "T": 8.0,
+                "n": 0.0,
+                "At": 0.0,
+                "An": 3.0,
+                "type": 3,
+                "anis": 1.0,
+                "danisdr": 0.0,
+                "A": 184.0,
+                "Z": 42.0
+            }
+        ],
+        "norm": {
+            "Ani1": true,
+            "ninorm1": true,
+            "QN_grad": true
+        }
+    }
+}

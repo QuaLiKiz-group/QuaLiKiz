@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """ Command line interface for Python tools """
 import sys
 import os
@@ -76,8 +77,11 @@ elif command == 'inputgo':
     if len(sys.argv) < 3:
         raise Exception('Please supply run path')
     path = sys.argv[2]
-    qualikizrun.recursive_function(path, qualikizrun.generate_input)
-    qualikizrun.recursive_function(path, qualikizrun.run_job)
+    batchlist = qualikizrun.QuaLiKizBatch.from_dir_recursive(path)
+    for batch in batchlist:
+        batch.prepare()
+        batch.generate_input()
+        batch.queue_batch()
 
 elif command == 'convertto':
     if len(sys.argv) < 3:
@@ -119,11 +123,11 @@ else:
             target_dir = ''
 
         if create_target == 'mini':
-            cmd = ['python',
+            cmd = ['python3',
                    os.path.join(testsdir, 'mini.py'),
                    target_dir ]
         elif create_target == 'performance':
-            cmd = ['python',
+            cmd = ['python3',
                    os.path.join(testsdir, 'performance.py'),
                    target_dir]
         else:
@@ -134,7 +138,7 @@ else:
         if len(sys.argv) < 3:
              raise Exception('Please supply path to analyse')
         path = sys.argv[2]
-        cmd = ['python',
+        cmd = ['python3',
                os.path.join(testsdir, 'performance_analyse.py'),
                path]
         subprocess.check_call(cmd)

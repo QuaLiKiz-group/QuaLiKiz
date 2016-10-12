@@ -1,10 +1,11 @@
 import os
 import sqlite3
 import pickle
-import csv
+import json
 import re
+import warnings
 
-from .qualikizrun import EmptyJob, recursive_function
+from .qualikizrun import QuaLiKizRun, QuaLiKizBatch
 from .tabulate.tabulate import tabulate
 
 
@@ -54,7 +55,7 @@ def database_exists(database_path, table_name, append=None, overwrite=None):
 
     return create_table
 
-def poll_qualikiz_out(path):
+def poll_stdout(stdoutpath):
     """ Read QuaLiKiz STDOUT
     This function polls for the QuaLiKiz STDOUT. It needs the metadata
     containing the jobdata. This is always generated if QuaLiKiz was
@@ -71,39 +72,34 @@ def poll_qualikiz_out(path):
                   further.
         - list:   A list with the values of the aforementioned header
     """
-    with open(os.path.join(path, EmptyJob.metadatafile), 'r') as file_:
-        reader = csv.reader(file_)
-        job_meta = {line[0]: line[1] for line in reader}
-    with open(os.path.join(path, EmptyJob.jobdatafile), 'rb') as file_:
-        job = pickle.load(file_)
     profile_lines = []
-    with open(os.path.join(path, job.batch.stdout), 'r') as file_:
+    with open(stdoutpath, 'r') as file_:
         for line in file_:
             if line.startswith('Profiling'):
                 profile_lines.append(line)
 
-    header = ['jobnumber']
-    list = [int(job_meta['jobnumber'])]
+    header = []
+    list_ = []
     for line in profile_lines[:3]:
         header.append(line.split('=')[0])
         num = [int(n) for n in re.split(r'\D', line) if n is not '']
-        list.append(num)
+        list_.append(num[0])
 
     for line in profile_lines[3:]:
         header.append(line.split('=')[0])
         sec, msec = [int(n) for n in re.split(r'\D', line) if n is not '']
-        list.append((sec, msec))
+        list_.append((sec, msec))
 
     # Sanity check
-    if len(header) < 11:
+    if len(header) < 10:
         raise Exception('Could not extract all profiling data')
 
-    if len(header) != len(list):
+    if len(header) != len(list_):
         raise Exception('Header and list do not have the same length')
 
-    return header, list
+    return header, list_
 
-def poll_jobdata(path):
+def poll_batchdata(batch):
     """ Read QuaLiKiz jobdata
     This is always generated if QuaLiKiz was run with one of the
     pythontools scripts. For example, with 'pythontools.py inputgo runs/mini'
@@ -112,11 +108,10 @@ def poll_jobdata(path):
         - path: Path to poll. Path should contain a metadata
                and job file.
     """
-    with open(os.path.join(path, EmptyJob.metadatafile), 'r') as file_:
-        reader = csv.reader(file_)
-        job_meta = {line[0]: line[1] for line in reader}
-    with open(os.path.join(path, EmptyJob.jobdatafile), 'rb') as file_:
-        job = pickle.load(file_)
+    batchdir = os.path.join(batch.batchsdir, batch.name)
+    batchinfopath = os.path.join(batchdir, QuaLiKizBatch.batchinfofile)
+    with open(batchinfopath, 'r') as file_:
+        batchinfo = json.load(file_)
     header = ['jobnumber', 'nodes', 'vcores_per_task', 'tasks']
     table = [job_meta['jobnumber'],
              job.batch.nodes,
@@ -125,7 +120,7 @@ def poll_jobdata(path):
     table = [int(x) for x in table]
     return header, table
 
-def create_jobdata_database(path, database_path, append=None, overwrite=None):
+def create_jobdata_database(batchlist, database_path, append=None, overwrite=None):
     """ Create a database with QuaLiKiz metadata
     Arguments:
         - path:          The path to be polled
@@ -145,9 +140,18 @@ def create_jobdata_database(path, database_path, append=None, overwrite=None):
             Vcores_per_task INTEGER,
             Tasks           INTEGER
           )''')
-    result = recursive_function(path, poll_jobdata)
 
-    for __, row in result:
+    for batch in batchlist:
+        batchdir = os.path.join(batch.batchsdir, batch.name)
+        batchinfopath = os.path.join(batchdir, QuaLiKizBatch.batchinfofile)
+        tottasks = 0
+        for srun_instance in batch.batch.srun_instances:
+            tottasks += srun_instance.tasks
+
+        with open(batchinfopath, 'r') as file_:
+            batchinfo = json.load(file_)
+        jobnumber = batchinfo['jobnumber']
+        row = [jobnumber, batch.batch.nodes, batch.batch.vcores_per_task, tottasks]
         db.execute('''
                    INSERT INTO jobdata(
                    Jobnumber, Nodes, Vcores_per_task, Tasks)
@@ -159,7 +163,7 @@ def create_jobdata_database(path, database_path, append=None, overwrite=None):
     headers = [x[0] for x in query.description]
     print (tabulate(query, headers=headers, floatfmt='.0f'))
 
-def create_qualikiz_out_database(path, database_path, append=None, overwrite=None):
+def create_stdout_database(batchlist, database_path, append=None, overwrite=None):
     """ Create a database with parsed QuaLiKiz STDOUT
     Arguments:
         - path:          The path to be polled
@@ -175,6 +179,7 @@ def create_qualikiz_out_database(path, database_path, append=None, overwrite=Non
     if create_table:
         db.execute('''CREATE TABLE stdout (
             Jobnumber      INTEGER,
+            Runnumber      INTEGER,
             Numcores       INTEGER,
             Dimx           INTEGER,
             Dimn           INTEGER,
@@ -186,22 +191,34 @@ def create_qualikiz_out_database(path, database_path, append=None, overwrite=Non
             Output         INTEGER,
             Total          INTEGER
           )''')
-    result = recursive_function(path, poll_qualikiz_out)
+
+    # Try to reconstruct the batches. 
+    result = []
+    for batch in batchlist:
+        batchdir = os.path.join(batch.batchsdir, batch.name)
+        batchinfopath = os.path.join(batchdir, QuaLiKizBatch.batchinfofile)
+        with open(batchinfopath, 'r') as file_:
+            batchinfo = json.load(file_)
+        jobnumber = batchinfo['jobnumber']
+        for i, run in enumerate(batch.runlist):
+            if run.is_done():
+                poll_result = poll_stdout(run.stdout)
+                poll_result[0].insert(0, 'runnumber')
+                poll_result[1].insert(0, i)
+                poll_result[0].insert(0, 'jobnumber')
+                poll_result[1].insert(0, int(jobnumber))
+                result.append(poll_result)
 
     for __, row in result:
-        data = [row[0]]
-        data.extend(row[1])
-        data.extend(row[2])
-        data.extend(row[3])
-        msec = [1000 * tup[0] + tup[1] for tup in row[4:]]
+        data = []
+        for col in row[:5]:
+            data.append(col)
+        msec = [1000 * tup[0] + tup[1] for tup in row[5:]]
         data.extend(msec)
 
         db.execute('''
-                   INSERT INTO stdout (
-                   Jobnumber, Numcores, Dimx, Dimn, First_MPI_AllReduce,
-                       Eigenmodes, Saturation, Second_MPI_AllReduce,
-                       Initialization, Output, Total)
-                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
+                   INSERT INTO stdout 
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
                    data)
     db.commit()
 
@@ -218,5 +235,6 @@ def create_database(path, database_path, append=None, overwrite=None):
         - overwrite: Overwrite database if exists? Default 'ask user'
         - append:    Append to table if exists? Default 'ask user'
     """
-    create_qualikiz_out_database(path, database_path, append=None, overwrite=None)
-    create_jobdata_database(path, database_path, append=None, overwrite=False)
+    batchlist = QuaLiKizBatch.from_dir_recursive(path)
+    create_stdout_database(batchlist, database_path, append=append, overwrite=overwrite)
+    create_jobdata_database(batchlist, database_path, append=None, overwrite=False)
