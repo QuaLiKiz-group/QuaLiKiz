@@ -11,12 +11,11 @@ MODULE QLflux
 
 CONTAINS
 
-  SUBROUTINE make_QLflux(p, nu, omega, fonx)
+  SUBROUTINE make_QLflux(p, nu, omega)
     !Extracts the QL linear response based on solution
 
     INTEGER, INTENT(IN)  :: p, nu
     COMPLEX, INTENT(IN)  :: omega
-    COMPLEX, INTENT(OUT) :: fonx
 
     COMPLEX(KIND=DBL) :: fonctce, fonctcgte, fonctcgne, fonctcgue, fonctcce, fonctece, fonctvce, fonctecgte, fonctecgne, fonctecgue, fonctecce
     COMPLEX(KIND=DBL) :: fonctpe, fonctpgte, fonctpgne, fonctpgue, fonctpce, fonctepe, fonctvpe, fonctepgte, fonctepgne, fonctepgue, fonctepce
@@ -127,8 +126,6 @@ CONTAINS
        CALL momtrapQLintsrot( p, nu, omega, fonctvpi)
        CALL mompassQLintsrot( p, nu, omega, fonctvci)
     ENDIF
-
-    fonx = CMPLX(Ac(p),0.) - fonctce - SUM(fonctci) - fonctpe - SUM(fonctpi)
 
     fonxad = Ac(p)
 

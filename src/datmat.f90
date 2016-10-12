@@ -25,7 +25,7 @@ MODULE datmat
   ! List of derived 'radial' variables (see mod_make_input.f90 for details)
   REAL(KIND=DBL), SAVE :: widthtuneITG, widthtuneETG
   REAL(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: csou, cref,cthe, de, epsilon, qprim, ft, fc
-  REAL(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: Ac, Rhoe, Anue, Zeffx, omegator, domegatordr
+  REAL(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: Ac, Rhoe, Anue, Zeffx, omegator, domegatordr, Nustar
   REAL(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: wg, rhostar, Rhoeff, ktetasn, Mache, Aue, krmmuITG,krmmuETG
   REAL(KIND=DBL), SAVE, DIMENSION(:,:), ALLOCATABLE :: coefi, Machi, Aui, Nix, Rhoi, di, cthi, tau, mi
 
@@ -35,17 +35,19 @@ MODULE datmat
   COMPLEX(KIND=DBL), SAVE, DIMENSION(:,:), ALLOCATABLE :: modewidth, modeshift
   COMPLEX(KIND=DBL), SAVE, DIMENSION(:,:), ALLOCATABLE :: ommax, solflu
   COMPLEX(KIND=DBL), SAVE, DIMENSION(:,:,:), ALLOCATABLE :: sol, fdsol, oldsol, oldfdsol
-  COMPLEX(KIND=DBL), SAVE, DIMENSION(:,:,:), ALLOCATABLE :: Lcirce, Lpiege, Lecirce, Lepiege, Lvcirce, Lvpiege, Lcircgte, Lpieggte,  Lcircgne, Lpieggne,  Lcircgue, Lpieggue, Lcircce, Lpiegce
-  COMPLEX(KIND=DBL), SAVE, DIMENSION(:,:,:,:), ALLOCATABLE :: Lcirci, Lpiegi, Lecirci, Lepiegi, Lvcirci, Lvpiegi, Lcircgti, Lpieggti, Lcircgni, Lpieggni, Lcircgui, Lpieggui, Lcircci, Lpiegci
-  COMPLEX(KIND=DBL), SAVE, DIMENSION(:,:,:), ALLOCATABLE :: Lecircgte, Lepieggte,  Lecircgne, Lepieggne,  Lecircgue, Lepieggue, Lecircce, Lepiegce
-  COMPLEX(KIND=DBL), SAVE, DIMENSION(:,:,:,:), ALLOCATABLE :: Lecircgti, Lepieggti, Lecircgni, Lepieggni, Lecircgui, Lepieggui, Lecircci, Lepiegci
+  REAL(KIND=DBL), SAVE, DIMENSION(:,:,:), ALLOCATABLE :: Lcirce, Lpiege, Lecirce, Lepiege, Lvcirce, Lvpiege, Lcircgte, Lpieggte,  Lcircgne, Lpieggne,  Lcircgue, Lpieggue, Lcircce, Lpiegce
+  REAL(KIND=DBL), SAVE, DIMENSION(:,:,:,:), ALLOCATABLE :: Lcirci, Lpiegi, Lecirci, Lepiegi, Lvcirci, Lvpiegi, Lcircgti, Lpieggti, Lcircgni, Lpieggni, Lcircgui, Lpieggui, Lcircci, Lpiegci
+  REAL(KIND=DBL), SAVE, DIMENSION(:,:,:), ALLOCATABLE :: Lecircgte, Lepieggte,  Lecircgne, Lepieggne,  Lecircgue, Lepieggue, Lecircce, Lepiegce
+  REAL(KIND=DBL), SAVE, DIMENSION(:,:,:,:), ALLOCATABLE :: Lecircgti, Lepieggti, Lecircgni, Lepieggni, Lecircgui, Lepieggui, Lecircci, Lepiegci
 
   ! Final output arrays following saturation rule. These can be printed as ASCII output
   COMPLEX(KIND=DBL), SAVE, DIMENSION(:,:), ALLOCATABLE :: solflu_SI, solflu_GB
   REAL(KIND=DBL), SAVE, DIMENSION(:,:,:), ALLOCATABLE :: gam_SI,gam_GB,ome_SI,ome_GB
   REAL(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: epf_SI,epf_GB,eef_SI,eef_GB,evf_SI,evf_GB 
   REAL(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: dfe_SI,vte_SI,vce_SI,vre_SI,cke,modeflag
+  REAL(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: dfe_GB,vte_GB,vce_GB,vre_GB
   REAL(KIND=DBL), SAVE, DIMENSION(:,:), ALLOCATABLE :: ipf_SI,ipf_GB,ief_SI,ief_GB,ivf_SI,ivf_GB, dfi_SI,vti_SI,vci_SI,vri_SI,cki,eef_cm,epf_cm,evf_cm
+  REAL(KIND=DBL), SAVE, DIMENSION(:,:), ALLOCATABLE :: dfi_GB,vti_GB,vci_GB,vri_GB
 
   REAL(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: vene_SI,chiee_SI,vece_SI,vere_SI, ceke
   REAL(KIND=DBL), SAVE, DIMENSION(:,:), ALLOCATABLE :: veni_SI,chiei_SI,veci_SI,veri_SI,ceki
@@ -128,8 +130,8 @@ MODULE datmat
   !EXTERNAL FUNCTION AND SUBROUTINE DECLARATIONS
 
   !Elliptic integrals (from SLATEC)
-  REAL(KIND=DBL) :: rf, rd, DGAMMA
-  EXTERNAL  rf, rd, DGAMMA
+  REAL(KIND=DBL) :: ceik, ceie, DGAMMA
+  EXTERNAL ceik, ceie, DGAMMA
 
   !Scaled modified Bessel functions routines (from SPECFUN)
   REAL(KIND=DBL) :: BESEI0, BESEI1

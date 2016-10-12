@@ -20,8 +20,9 @@ PROGRAM qlk_standalone
           & solflu_SIout, solflu_GBout, gam_SIout,gam_GBout,ome_SIout,ome_GBout, & !growth rate and frequency output
           & epf_GBout,eef_GBout, evf_GBout, dfe_SIout,vte_SIout,vre_SIout,vce_SIout,epf_cmout,eef_cmout,evf_cmout,ckeout, & !electron flux outputs
           & ipf_GBout,ief_GBout, ivf_GBout, dfi_SIout,vti_SIout,vri_SIout,vci_SIout,ipf_cmout,ief_cmout,ivf_cmout,ckiout, & !ion flux outputs
+          & dfe_GBout,vte_GBout,vre_GBout,vce_GBout,dfi_GBout,vti_GBout,vri_GBout,vci_GBout, &
           & vene_SIout,chiee_SIout,vere_SIout,vece_SIout, cekeout, veni_SIout,chiei_SIout,veci_SIout,veri_SIout,cekiout, & !heat pinch outputs
-          & modeflagout, & ! flags type of modes in output per radial position
+          & modeflagout, Nustarout, Zeffxout, &  
           & phiout, npolout, ecoefsout, cftransout, &  ! poloidal asymmetry outputs for heavy impurities
           & solfluout, modewidthout, modeshiftout, distanout, ntorout, solout, fdsolout,&  !optional 'primitive' outputs from dispersion relation solver needed to build QL flux. Useful for standalone
           & kperp2out,krmmuITGout,krmmuETGout, &
@@ -30,11 +31,11 @@ PROGRAM qlk_standalone
           & Lecircgteout, Lepieggteout, Lecircgneout, Lepieggneout, Lecircgueout, Lepieggueout, Lecircceout, Lepiegceout, Lecircgtiout, Lepieggtiout, Lecircgniout, Lepieggniout, Lecircguiout, Lepiegguiout, Lecircciout, Lepiegciout,&
           & oldsolin, oldfdsolin, runcounterin,&
           & rhominin,rhomaxin,&
-          & eefETG_SIout,chieeETG_SIout,veneETG_SIout,veceETG_SIout,vereETG_SIout,&  !optional outputs from separation of fluxes
-          & eefTEM_SIout,epfTEM_SIout,dfeTEM_SIout,vteTEM_SIout,vceTEM_SIout,vreTEM_SIout,chieeTEM_SIout,veneTEM_SIout,veceTEM_SIout,vereTEM_SIout,&
-          & eefITG_SIout,epfITG_SIout,dfeITG_SIout,vteITG_SIout,vceITG_SIout,vreITG_SIout,chieeITG_SIout,veneITG_SIout,veceITG_SIout,vereITG_SIout,&
-          & iefTEM_SIout,ipfTEM_SIout,dfiTEM_SIout,vtiTEM_SIout,vciTEM_SIout,vriTEM_SIout,chieiTEM_SIout,veniTEM_SIout,veciTEM_SIout,veriTEM_SIout,ivfTEM_SIout,&
-          & iefITG_SIout,ipfITG_SIout,dfiITG_SIout,vtiITG_SIout,vciITG_SIout,vriITG_SIout,chieiITG_SIout,veniITG_SIout,veciITG_SIout,veriITG_SIout,ivfITG_SIout)
+          & eefETG_SIout,eefETG_GBout,&  !optional outputs from separation of fluxes
+          & eefTEM_SIout,eefTEM_GBout,epfTEM_SIout,dfeTEM_SIout,vteTEM_SIout,vceTEM_SIout,vreTEM_SIout,dfeTEM_GBout,vteTEM_GBout,vceTEM_GBout,vreTEM_GBout,&
+          & eefITG_SIout,eefITG_GBout,epfITG_SIout,dfeITG_SIout,vteITG_SIout,vceITG_SIout,vreITG_SIout,dfeITG_GBout,vteITG_GBout,vceITG_GBout,vreITG_GBout,&
+          & iefTEM_SIout,iefTEM_GBout,ipfTEM_SIout,ivfTEM_SIout,ivfTEM_GBout,dfiTEM_SIout,vtiTEM_SIout,vciTEM_SIout,vriTEM_SIout,dfiTEM_GBout,vtiTEM_GBout,vciTEM_GBout,vriTEM_GBout,&
+          & iefITG_SIout,iefITG_GBout,ipfITG_SIout,ivfITG_SIout,ivfITG_GBout,dfiITG_SIout,vtiITG_SIout,vciITG_SIout,vriITG_SIout,dfiITG_GBout,vtiITG_GBout,vciITG_GBout,vriITG_GBout)
 
 
        INTEGER, INTENT(IN) :: dimxin, dimnin, nionsin, numsolsin, phys_methin, coll_flagin, rot_flagin, verbosein, separatefluxin, el_typein
@@ -61,17 +62,17 @@ PROGRAM qlk_standalone
        REAL, DIMENSION(dimxin), INTENT(OUT)  :: epf_SIout,eef_SIout,evf_SIout
        REAL, DIMENSION(dimxin,nionsin), INTENT(OUT)  :: ipf_SIout,ief_SIout,ivf_SIout
 
-       REAL, DIMENSION(dimxin), OPTIONAL, INTENT(OUT) :: eefETG_SIout,chieeETG_SIout,veneETG_SIout,veceETG_SIout,vereETG_SIout
-       REAL, DIMENSION(dimxin), OPTIONAL, INTENT(OUT) :: eefTEM_SIout,epfTEM_SIout,dfeTEM_SIout,vteTEM_SIout,vceTEM_SIout,vreTEM_SIout,chieeTEM_SIout,veneTEM_SIout,veceTEM_SIout,vereTEM_SIout
-       REAL, DIMENSION(dimxin), OPTIONAL, INTENT(OUT) :: eefITG_SIout,epfITG_SIout,dfeITG_SIout,vteITG_SIout,vceITG_SIout,vreITG_SIout,chieeITG_SIout,veneITG_SIout,veceITG_SIout,vereITG_SIout
-       REAL, DIMENSION(dimxin,nionsin), OPTIONAL, INTENT(OUT) :: iefTEM_SIout,ipfTEM_SIout,dfiTEM_SIout,vtiTEM_SIout,vciTEM_SIout
-       REAL, DIMENSION(dimxin,nionsin), OPTIONAL, INTENT(OUT) :: vriTEM_SIout,chieiTEM_SIout,veniTEM_SIout,veciTEM_SIout,veriTEM_SIout,ivfTEM_SIout
-       REAL, DIMENSION(dimxin,nionsin), OPTIONAL, INTENT(OUT) :: iefITG_SIout,ipfITG_SIout,dfiITG_SIout,vtiITG_SIout,vciITG_SIout,vriITG_SIout
-       REAL, DIMENSION(dimxin,nionsin), OPTIONAL, INTENT(OUT) :: chieiITG_SIout,veniITG_SIout,veciITG_SIout,veriITG_SIout,ivfITG_SIout
+       REAL, DIMENSION(dimxin), OPTIONAL, INTENT(OUT) :: eefETG_SIout,eefETG_GBout
+       REAL, DIMENSION(dimxin), OPTIONAL, INTENT(OUT) :: eefTEM_SIout,eefTEM_GBout,epfTEM_SIout,dfeTEM_SIout,vteTEM_SIout,vceTEM_SIout,vreTEM_SIout,dfeTEM_GBout,vteTEM_GBout,vceTEM_GBout,vreTEM_GBout
+       REAL, DIMENSION(dimxin), OPTIONAL, INTENT(OUT) :: eefITG_SIout,eefITG_GBout,epfITG_SIout,dfeITG_SIout,vteITG_SIout,vceITG_SIout,vreITG_SIout,dfeITG_GBout,vteITG_GBout,vceITG_GBout,vreITG_GBout
+       REAL, DIMENSION(dimxin,nionsin), OPTIONAL, INTENT(OUT) :: iefTEM_SIout,iefTEM_GBout,ipfTEM_SIout,dfiTEM_SIout,vtiTEM_SIout,vciTEM_SIout,dfiTEM_GBout,vtiTEM_GBout,vciTEM_GBout
+       REAL, DIMENSION(dimxin,nionsin), OPTIONAL, INTENT(OUT) :: vriTEM_SIout,vriTEM_GBout,ivfTEM_SIout,ivfTEM_GBout
+       REAL, DIMENSION(dimxin,nionsin), OPTIONAL, INTENT(OUT) :: iefITG_SIout,iefITG_GBout,ipfITG_SIout,dfiITG_SIout,vtiITG_SIout,vciITG_SIout,vriITG_SIout,dfiITG_GBout,vtiITG_GBout,vciITG_GBout,vriITG_GBout
+       REAL, DIMENSION(dimxin,nionsin), OPTIONAL, INTENT(OUT) :: ivfITG_SIout,ivfITG_GBout
 
-       REAL, DIMENSION(dimxin), OPTIONAL, INTENT(OUT)  :: epf_GBout,eef_GBout, evf_GBout,dfe_SIout, vte_SIout, vre_SIout,vce_SIout, ckeout, modeflagout
+       REAL, DIMENSION(dimxin), OPTIONAL, INTENT(OUT)  :: epf_GBout,eef_GBout, evf_GBout,dfe_SIout, vte_SIout, vre_SIout,vce_SIout, dfe_GBout, vte_GBout, vre_GBout,vce_GBout, ckeout, modeflagout, Nustarout, Zeffxout
        REAL, DIMENSION(dimxin), OPTIONAL, INTENT(OUT)  :: vene_SIout, chiee_SIout, vere_SIout,vece_SIout, cekeout
-       REAL, DIMENSION(dimxin,nionsin), OPTIONAL, INTENT(OUT)  :: ipf_GBout,ief_GBout, ivf_GBout,dfi_SIout, vti_SIout, vri_SIout,vci_SIout, ckiout
+       REAL, DIMENSION(dimxin,nionsin), OPTIONAL, INTENT(OUT)  :: ipf_GBout,ief_GBout, ivf_GBout,dfi_SIout, vti_SIout, vri_SIout,vci_SIout,dfi_GBout,vti_GBout,vri_GBout,vci_GBout,ckiout
        REAL, DIMENSION(dimxin,nionsin), OPTIONAL, INTENT(OUT)  :: veni_SIout, chiei_SIout, veci_SIout, veri_SIout,cekiout
        REAL, DIMENSION(dimxin,dimnin), OPTIONAL, INTENT(OUT)  ::  epf_cmout, eef_cmout,evf_cmout
        REAL, DIMENSION(dimxin,dimnin,nionsin), OPTIONAL, INTENT(OUT) :: ipf_cmout,ief_cmout,ivf_cmout
@@ -85,10 +86,10 @@ PROGRAM qlk_standalone
        REAL , DIMENSION(dimxin), OPTIONAL, INTENT(OUT)  :: krmmuITGout,krmmuETGout
        COMPLEX, DIMENSION(dimxin,dimnin), OPTIONAL, INTENT(OUT)  :: modewidthout, modeshiftout
        COMPLEX, DIMENSION(dimxin,dimnin,numsolsin), OPTIONAL, INTENT(OUT)  :: solout,fdsolout
-       COMPLEX, DIMENSION(dimxin,dimnin,numsolsin), OPTIONAL, INTENT(OUT)  :: Lcirceout, Lpiegeout, Lecirceout, Lepiegeout, Lvcirceout, Lvpiegeout, Lcircgteout, Lpieggteout,  Lcircgneout, Lpieggneout,  Lcircgueout, Lpieggueout, Lcircceout, Lpiegceout
-       COMPLEX, DIMENSION(dimxin,dimnin,numsolsin), OPTIONAL, INTENT(OUT)  :: Lecircgteout, Lepieggteout,  Lecircgneout, Lepieggneout,  Lecircgueout, Lepieggueout, Lecircceout, Lepiegceout
-       COMPLEX, DIMENSION(dimxin,dimnin,nionsin,numsolsin), OPTIONAL, INTENT(OUT)  :: Lcirciout, Lpiegiout, Lecirciout, Lepiegiout, Lvcirciout, Lvpiegiout, Lcircgtiout, Lpieggtiout, Lcircgniout, Lpieggniout, Lcircguiout, Lpiegguiout, Lcircciout, Lpiegciout
-       COMPLEX, DIMENSION(dimxin,dimnin,nionsin,numsolsin), OPTIONAL, INTENT(OUT)  :: Lecircgtiout, Lepieggtiout, Lecircgniout, Lepieggniout, Lecircguiout, Lepiegguiout, Lecircciout, Lepiegciout
+       REAL, DIMENSION(dimxin,dimnin,numsolsin), OPTIONAL, INTENT(OUT)  :: Lcirceout, Lpiegeout, Lecirceout, Lepiegeout, Lvcirceout, Lvpiegeout, Lcircgteout, Lpieggteout,  Lcircgneout, Lpieggneout,  Lcircgueout, Lpieggueout, Lcircceout, Lpiegceout
+       REAL, DIMENSION(dimxin,dimnin,numsolsin), OPTIONAL, INTENT(OUT)  :: Lecircgteout, Lepieggteout,  Lecircgneout, Lepieggneout,  Lecircgueout, Lepieggueout, Lecircceout, Lepiegceout
+       REAL, DIMENSION(dimxin,dimnin,nionsin,numsolsin), OPTIONAL, INTENT(OUT)  :: Lcirciout, Lpiegiout, Lecirciout, Lepiegiout, Lvcirciout, Lvpiegiout, Lcircgtiout, Lpieggtiout, Lcircgniout, Lpieggniout, Lcircguiout, Lpiegguiout, Lcircciout, Lpiegciout
+       REAL, DIMENSION(dimxin,dimnin,nionsin,numsolsin), OPTIONAL, INTENT(OUT)  :: Lecircgtiout, Lepieggtiout, Lecircgniout, Lepieggniout, Lecircguiout, Lepiegguiout, Lecircciout, Lepiegciout
 
        !optional input arrays for going directly to newton solver
        INTEGER, OPTIONAL, INTENT(IN)  :: runcounterin
@@ -126,10 +127,10 @@ PROGRAM qlk_standalone
   COMPLEX(KIND=DBL), DIMENSION(:,:), ALLOCATABLE :: modewidth, modeshift
   COMPLEX(KIND=DBL), DIMENSION(:,:), ALLOCATABLE :: ommax, solflu
   COMPLEX(KIND=DBL), DIMENSION(:,:,:), ALLOCATABLE :: sol, fdsol
-  COMPLEX(KIND=DBL), DIMENSION(:,:,:), ALLOCATABLE :: Lcirce, Lpiege, Lecirce, Lepiege, Lvcirce, Lvpiege, Lcircgte, Lpieggte,  Lcircgne, Lpieggne,  Lcircgue, Lpieggue, Lcircce, Lpiegce
-  COMPLEX(KIND=DBL), DIMENSION(:,:,:), ALLOCATABLE :: Lecircgte, Lepieggte,  Lecircgne, Lepieggne,  Lecircgue, Lepieggue, Lecircce, Lepiegce
-  COMPLEX(KIND=DBL), DIMENSION(:,:,:,:), ALLOCATABLE :: Lcirci, Lpiegi, Lecirci, Lepiegi, Lvcirci, Lvpiegi, Lcircgti, Lpieggti, Lcircgni, Lpieggni, Lcircgui, Lpieggui, Lcircci, Lpiegci
-  COMPLEX(KIND=DBL), DIMENSION(:,:,:,:), ALLOCATABLE :: Lecircgti, Lepieggti, Lecircgni, Lepieggni, Lecircgui, Lepieggui, Lecircci, Lepiegci
+  REAL(KIND=DBL), DIMENSION(:,:,:), ALLOCATABLE :: Lcirce, Lpiege, Lecirce, Lepiege, Lvcirce, Lvpiege, Lcircgte, Lpieggte,  Lcircgne, Lpieggne,  Lcircgue, Lpieggue, Lcircce, Lpiegce
+  REAL(KIND=DBL), DIMENSION(:,:,:), ALLOCATABLE :: Lecircgte, Lepieggte,  Lecircgne, Lepieggne,  Lecircgue, Lepieggue, Lecircce, Lepiegce
+  REAL(KIND=DBL), DIMENSION(:,:,:,:), ALLOCATABLE :: Lcirci, Lpiegi, Lecirci, Lepiegi, Lvcirci, Lvpiegi, Lcircgti, Lpieggti, Lcircgni, Lpieggni, Lcircgui, Lpieggui, Lcircci, Lpiegci
+  REAL(KIND=DBL), DIMENSION(:,:,:,:), ALLOCATABLE :: Lecircgti, Lepieggti, Lecircgni, Lepieggni, Lecircgui, Lepieggui, Lecircci, Lepiegci
 
   ! Old solution for non-reset runs
   REAL(KIND=DBL), DIMENSION(:,:,:), ALLOCATABLE :: oldrsol,oldisol,oldrfdsol,oldifdsol
@@ -138,17 +139,17 @@ PROGRAM qlk_standalone
   ! Final output arrays following saturation rule. These can be printed as ASCII output
   COMPLEX(KIND=DBL), DIMENSION(:,:), ALLOCATABLE :: solflu_SI, solflu_GB
   REAL(KIND=DBL), DIMENSION(:,:,:), ALLOCATABLE :: gam_SI,gam_GB,ome_SI,ome_GB
-  REAL(KIND=DBL), DIMENSION(:), ALLOCATABLE :: epf_SI,epf_GB,eef_SI,eef_GB, evf_SI,evf_GB,dfe_SI,vte_SI,vce_SI,vre_SI,cke,modeflag
+  REAL(KIND=DBL), DIMENSION(:), ALLOCATABLE :: epf_SI,epf_GB,eef_SI,eef_GB, evf_SI,evf_GB,dfe_SI,vte_SI,vce_SI,vre_SI,dfe_GB,vte_GB,vce_GB,vre_GB,cke,modeflag, Nustar, Zeffx
   REAL(KIND=DBL), DIMENSION(:), ALLOCATABLE :: vene_SI,chiee_SI,vece_SI,vere_SI,ceke
-  REAL(KIND=DBL), DIMENSION(:,:), ALLOCATABLE :: ipf_SI,ipf_GB,ief_SI,ief_GB, ivf_SI,ivf_GB,dfi_SI,vti_SI,vri_SI,vci_SI,cki,eef_cm,epf_cm,evf_cm
+  REAL(KIND=DBL), DIMENSION(:,:), ALLOCATABLE :: ipf_SI,ipf_GB,ief_SI,ief_GB, ivf_SI,ivf_GB,dfi_SI,vti_SI,vri_SI,vci_SI,dfi_GB,vti_GB,vri_GB,vci_GB,cki,eef_cm,epf_cm,evf_cm
   REAL(KIND=DBL), DIMENSION(:,:), ALLOCATABLE :: veni_SI,chiei_SI,veci_SI,ceki,veri_SI
   REAL(KIND=DBL), DIMENSION(:,:,:), ALLOCATABLE :: ipf_cm,ief_cm,ivf_cm
 
-  REAL(KIND=DBL), DIMENSION(:), ALLOCATABLE :: eefETG_SI,chieeETG_SI,veneETG_SI,veceETG_SI,vereETG_SI  !optional outputs from separation of fluxes
-  REAL(KIND=DBL), DIMENSION(:), ALLOCATABLE :: eefTEM_SI,epfTEM_SI,dfeTEM_SI,vteTEM_SI,vceTEM_SI,vreTEM_SI,chieeTEM_SI,veneTEM_SI,veceTEM_SI,vereTEM_SI
-  REAL(KIND=DBL), DIMENSION(:), ALLOCATABLE :: eefITG_SI,epfITG_SI,dfeITG_SI,vteITG_SI,vceITG_SI,vreITG_SI,chieeITG_SI,veneITG_SI,veceITG_SI,vereITG_SI
-  REAL(KIND=DBL), DIMENSION(:,:), ALLOCATABLE :: iefTEM_SI,ipfTEM_SI,dfiTEM_SI,vtiTEM_SI,vciTEM_SI,vriTEM_SI,chieiTEM_SI,veniTEM_SI,veciTEM_SI,veriTEM_SI,ivfTEM_SI
-  REAL(KIND=DBL), DIMENSION(:,:), ALLOCATABLE :: iefITG_SI,ipfITG_SI,dfiITG_SI,vtiITG_SI,vciITG_SI,vriITG_SI,chieiITG_SI,veniITG_SI,veciITG_SI,veriITG_SI,ivfITG_SI
+  REAL(KIND=DBL), DIMENSION(:), ALLOCATABLE :: eefETG_SI,eefETG_GB!optional outputs from separation of fluxes
+  REAL(KIND=DBL), DIMENSION(:), ALLOCATABLE :: eefTEM_SI,eefTEM_GB,epfTEM_SI,dfeTEM_SI,vteTEM_SI,vceTEM_SI,vreTEM_SI,dfeTEM_GB,vteTEM_GB,vceTEM_GB,vreTEM_GB
+  REAL(KIND=DBL), DIMENSION(:), ALLOCATABLE :: eefITG_SI,eefITG_GB,epfITG_SI,dfeITG_SI,vteITG_SI,vceITG_SI,vreITG_SI,dfeITG_GB,vteITG_GB,vceITG_GB,vreITG_GB
+  REAL(KIND=DBL), DIMENSION(:,:), ALLOCATABLE :: iefTEM_SI,iefTEM_GB,ipfTEM_SI,dfiTEM_SI,vtiTEM_SI,vciTEM_SI,vriTEM_SI,ivfTEM_SI,ivfTEM_GB,dfiTEM_GB,vtiTEM_GB,vciTEM_GB,vriTEM_GB
+  REAL(KIND=DBL), DIMENSION(:,:), ALLOCATABLE :: iefITG_SI,iefITG_GB,ipfITG_SI,dfiITG_SI,vtiITG_SI,vciITG_SI,vriITG_SI,ivfITG_SI,ivfITG_GB,dfiITG_GB,vtiITG_GB,vciITG_GB,vriITG_GB
 
   ! Poloidal asymmetry variables
   ! Ion density along field line, used was asymmetries are present. 
@@ -209,16 +210,18 @@ PROGRAM qlk_standalone
              & solflu_SIout=solflu_SI, solflu_GBout=solflu_GB, gam_SIout=gam_SI,gam_GBout=gam_GB,ome_SIout=ome_SI,ome_GBout=ome_GB, & !optional growth rate and frequency output
              & epf_GBout=epf_GB,eef_GBout=eef_GB, evf_GBout=evf_GB, epf_cmout=epf_cm,eef_cmout=eef_cm, evf_cmout=evf_cm, & !optional electron flux outputs
              & ipf_GBout=ipf_GB,ief_GBout=ief_GB, ivf_GBout=ivf_GB, ipf_cmout=ipf_cm,ief_cmout=ief_cm, ivf_cmout=ivf_cm, & !optional ion flux outputs
-             & modeflagout=modeflag, & ! flags type of modes in output per radial position
+             & modeflagout=modeflag, Nustarout=Nustar, Zeffxout=Zeffx, & 
              & phiout=phi, npolout=npol, ecoefsout=ecoefs, cftransout=cftrans, &  ! poloidal asymmetry outputs for heavy impurities
              & solfluout=solflu, modewidthout=modewidth, modeshiftout=modeshift, distanout=distan, ntorout=ntor, solout=sol, fdsolout=fdsol,&  !optional 'primitive' outputs from dispersion relation solver needed to build QL flux. Useful for standalone
              & kperp2out=kperp2, krmmuITGout=krmmuITG, krmmuETGout=krmmuETG, &
              & Lcirceout=Lcirce, Lpiegeout=Lpiege, Lecirceout=Lecirce, Lepiegeout=Lepiege, Lvcirceout=Lvcirce, Lvpiegeout=Lvpiege, &
              & Lcirciout=Lcirci, Lpiegiout=Lpiegi, Lecirciout=Lecirci, Lepiegiout=Lepiegi, Lvcirciout=Lvcirci, Lvpiegiout=Lvpiegi, &
              & oldsolin=oldsol,oldfdsolin=oldfdsol,runcounterin=runcounter,& ! optional inputs for jumping straight to newton solver
-             & eefETG_SIout=eefETG_SI,eefTEM_SIout=eefTEM_SI,epfTEM_SIout=epfTEM_SI,eefITG_SIout=eefITG_SI,epfITG_SIout=epfITG_SI,&  !optional outputs from separation of fluxes
-             & iefTEM_SIout=iefTEM_SI,ipfTEM_SIout=ipfTEM_SI,ivfTEM_SIout=ivfTEM_SI, iefITG_SIout=iefITG_SI,ipfITG_SIout=ipfITG_SI,ivfITG_SIout=ivfITG_SI)
-
+             & eefETG_SIout=eefETG_SI,eefETG_GBout=eefETG_GB,& !optional outputs from separation of fluxes
+             & eefTEM_SIout=eefTEM_SI,eefTEM_GBout=eefTEM_GB,epfTEM_SIout=epfTEM_SI,&
+             & eefITG_SIout=eefITG_SI,eefITG_GBout=eefITG_GB,epfITG_SIout=epfITG_SI,&  
+             & iefTEM_SIout=iefTEM_SI,iefTEM_GBout=iefTEM_GB,ipfTEM_SIout=ipfTEM_SI,ivfTEM_SIout=ivfTEM_SI,ivfTEM_GBout=ivfTEM_GB,&
+             & iefITG_SIout=iefITG_SI,iefITG_GBout=iefITG_GB,ipfITG_SIout=ipfITG_SI,ivfITG_SIout=ivfITG_SI,ivfITG_GBout=ivfITG_GB)
      ENDIF
 
      IF (phys_meth == 1) THEN
@@ -233,7 +236,8 @@ PROGRAM qlk_standalone
              & solflu_SIout=solflu_SI, solflu_GBout=solflu_GB, gam_SIout=gam_SI,gam_GBout=gam_GB,ome_SIout=ome_SI,ome_GBout=ome_GB, & !optional growth rate and frequency output
              & epf_GBout=epf_GB,eef_GBout=eef_GB, evf_GBout=evf_GB, dfe_SIout=dfe_SI,vte_SIout=vte_SI,vre_SIout=vre_SI, vce_SIout=vce_SI,epf_cmout=epf_cm,eef_cmout=eef_cm,evf_cmout=evf_cm, ckeout=cke, & !optional electron flux outputs
              & ipf_GBout=ipf_GB,ief_GBout=ief_GB, ivf_GBout=ivf_GB, dfi_SIout=dfi_SI,vti_SIout=vti_SI,vri_SIout=vri_SI, vci_SIout=vci_SI,ipf_cmout=ipf_cm,ief_cmout=ief_cm,ivf_cmout=ivf_cm, ckiout=cki, & !optional ion flux outputs
-             & modeflagout=modeflag, & ! flags type of modes in output per radial position
+             & dfe_GBout=dfe_GB,vte_GBout=vte_GB,vre_GBout=vre_GB,vce_GBout=vce_GB,dfi_GBout=dfi_GB,vti_GBout=vti_GB,vri_GBout=vri_GB,vci_GBout=vci_GB, &
+             & modeflagout=modeflag, Nustarout=Nustar, Zeffxout=Zeffx, & 
              & phiout=phi, npolout=npol, ecoefsout=ecoefs, cftransout=cftrans, &  ! poloidal asymmetry outputs for heavy impurities
              & solfluout=solflu, modewidthout=modewidth, modeshiftout=modeshift, distanout=distan, ntorout=ntor, solout=sol, fdsolout=fdsol,&  !optional 'primitive' outputs from dispersion relation solver needed to build QL flux. Useful for standalone
              & kperp2out=kperp2, krmmuITGout=krmmuITG, krmmuETGout=krmmuETG, &
@@ -242,13 +246,17 @@ PROGRAM qlk_standalone
              & Lcirciout=Lcirci, Lpiegiout=Lpiegi, Lecirciout=Lecirci, Lepiegiout=Lepiegi, Lvcirciout=Lvcirci, Lvpiegiout=Lvpiegi, Lcircgtiout=Lcircgti, & 
              & Lpieggtiout=Lpieggti, Lcircgniout=Lcircgni, Lpieggniout=Lpieggni, Lcircguiout=Lcircgui, Lpiegguiout=Lpieggui, Lcircciout=Lcircci, Lpiegciout=Lpiegci, &         
              & oldsolin=oldsol,oldfdsolin=oldfdsol,runcounterin=runcounter,& ! optional inputs for jumping straight to newton solver
-             & eefETG_SIout=eefETG_SI,&  !optional outputs from separation of fluxes
-             & eefTEM_SIout=eefTEM_SI,epfTEM_SIout=epfTEM_SI,dfeTEM_SIout=dfeTEM_SI,vteTEM_SIout=vteTEM_SI,vceTEM_SIout=vceTEM_SI,vreTEM_SIout=vreTEM_SI,&
-             & eefITG_SIout=eefITG_SI,epfITG_SIout=epfITG_SI,dfeITG_SIout=dfeITG_SI,vteITG_SIout=vteITG_SI,vceITG_SIout=vceITG_SI,vreITG_SIout=vreITG_SI,&
-             & iefTEM_SIout=iefTEM_SI,ipfTEM_SIout=ipfTEM_SI,dfiTEM_SIout=dfiTEM_SI,vtiTEM_SIout=vtiTEM_SI,vciTEM_SIout=vciTEM_SI,&
-             & vriTEM_SIout=vriTEM_SI,ivfTEM_SIout=ivfTEM_SI,&
-             & iefITG_SIout=iefITG_SI,ipfITG_SIout=ipfITG_SI,dfiITG_SIout=dfiITG_SI,vtiITG_SIout=vtiITG_SI,vciITG_SIout=vciITG_SI,vriITG_SIout=vriITG_SI,&
-             & ivfITG_SIout=ivfITG_SI)
+             & eefETG_SIout=eefETG_SI,eefETG_GBout=eefETG_GB,& !optional outputs from separation of fluxes
+             & eefTEM_SIout=eefTEM_SI,eefTEM_GBout=eefTEM_GB,epfTEM_SIout=epfTEM_SI,dfeTEM_SIout=dfeTEM_SI,vteTEM_SIout=vteTEM_SI,vceTEM_SIout=vceTEM_SI,vreTEM_SIout=vreTEM_SI,&
+             & dfeTEM_GBout=dfeTEM_GB,vteTEM_GBout=vteTEM_GB,vceTEM_GBout=vceTEM_GB,vreTEM_GBout=vreTEM_GB,&
+             & eefITG_SIout=eefITG_SI,eefITG_GBout=eefITG_GB,epfITG_SIout=epfITG_SI,dfeITG_SIout=dfeITG_SI,vteITG_SIout=vteITG_SI,vceITG_SIout=vceITG_SI,vreITG_SIout=vreITG_SI,&
+             & dfeITG_GBout=dfeITG_GB,vteITG_GBout=vteITG_GB,vceITG_GBout=vceITG_GB,vreITG_GBout=vreITG_GB,&
+             & iefTEM_SIout=iefTEM_SI,iefTEM_GBout=iefTEM_GB,ipfTEM_SIout=ipfTEM_SI,ivfTEM_SIout=ivfTEM_SI,ivfTEM_GBout=ivfTEM_GB,&
+             & dfiTEM_SIout=dfiTEM_SI,vtiTEM_SIout=vtiTEM_SI,vciTEM_SIout=vciTEM_SI,vriTEM_SIout=vriTEM_SI,&
+             & dfiTEM_GBout=dfiTEM_GB,vtiTEM_GBout=vtiTEM_GB,vciTEM_GBout=vciTEM_GB,vriTEM_GBout=vriTEM_GB,&
+             & iefITG_SIout=iefITG_SI,iefITG_GBout=iefITG_GB,ipfITG_SIout=ipfITG_SI,ivfITG_SIout=ivfITG_SI,ivfITG_GBout=ivfITG_GB,&
+             & dfiITG_SIout=dfiITG_SI,vtiITG_SIout=vtiITG_SI,vciITG_SIout=vciITG_SI,vriITG_SIout=vriITG_SI,&
+             & dfiITG_GBout=dfiITG_GB,vtiITG_GBout=vtiITG_GB,vciITG_GBout=vciITG_GB,vriITG_GBout=vriITG_GB)
      ENDIF
 
      IF (phys_meth == 2) THEN
@@ -264,8 +272,9 @@ PROGRAM qlk_standalone
              & epf_GBout=epf_GB,eef_GBout=eef_GB, evf_GBout=evf_GB, dfe_SIout=dfe_SI,vte_SIout=vte_SI,vre_SIout=vre_SI, vce_SIout=vce_SI,epf_cmout=epf_cm,eef_cmout=eef_cm,evf_cmout=evf_cm, ckeout=cke, & !optional electron flux outputs
              & vene_SIout=vene_SI,chiee_SIout=chiee_SI,vere_SIout=vere_SI,vece_SIout=vece_SI,cekeout=ceke, & !optional electron flux outputs
              & ipf_GBout=ipf_GB,ief_GBout=ief_GB, ivf_GBout=ivf_GB, dfi_SIout=dfi_SI,vti_SIout=vti_SI,vri_SIout=vri_SI, vci_SIout=vci_SI,ipf_cmout=ipf_cm,ief_cmout=ief_cm,ivf_cmout=ivf_cm, ckiout=cki, & !optional ion flux outputs
+             & dfe_GBout=dfe_GB,vte_GBout=vte_GB,vre_GBout=vre_GB,vce_GBout=vce_GB,dfi_GBout=dfi_GB,vti_GBout=vti_GB,vri_GBout=vri_GB,vci_GBout=vci_GB, &
              & veni_SIout=veni_SI,chiei_SIout=chiei_SI,veri_SIout=veri_SI,veci_SIout=veci_SI,cekiout=ceki, & !optional ion flux outputs
-             & modeflagout=modeflag, & ! flags type of modes in output per radial position
+             & modeflagout=modeflag, Nustarout=Nustar, Zeffxout=Zeffx, & 
              & phiout=phi, npolout=npol, ecoefsout=ecoefs, cftransout=cftrans, &  ! poloidal asymmetry outputs for heavy impurities
              & solfluout=solflu, modewidthout=modewidth, modeshiftout=modeshift, distanout=distan, ntorout=ntor, solout=sol, fdsolout=fdsol,&  !optional 'primitive' outputs from dispersion relation solver needed to build QL flux. Useful for standalone
              & kperp2out=kperp2, krmmuITGout=krmmuITG, krmmuETGout=krmmuETG, &
@@ -276,15 +285,17 @@ PROGRAM qlk_standalone
              & Lpieggtiout=Lpieggti, Lcircgniout=Lcircgni, Lpieggniout=Lpieggni, Lcircguiout=Lcircgui, Lpiegguiout=Lpieggui, Lcircciout=Lcircci, Lpiegciout=Lpiegci, &
              & Lecircgtiout=Lecircgti, Lepieggtiout=Lepieggti, Lecircgniout=Lecircgni, Lepieggniout=Lepieggni, Lecircguiout=Lecircgui, Lepiegguiout=Lepieggui, Lecircciout=Lecircci, Lepiegciout=Lepiegci, &
              & oldsolin=oldsol,oldfdsolin=oldfdsol,runcounterin=runcounter,& ! optional inputs for jumping straight to newton solver
-             & eefETG_SIout=eefETG_SI,chieeETG_SIout=chieeETG_SI,veneETG_SIout=veneETG_SI,veceETG_SIout=veceETG_SI,vereETG_SIout=vereETG_SI,&  !optional outputs from separation of fluxes
-             & eefTEM_SIout=eefTEM_SI,epfTEM_SIout=epfTEM_SI,dfeTEM_SIout=dfeTEM_SI,vteTEM_SIout=vteTEM_SI,vceTEM_SIout=vceTEM_SI,vreTEM_SIout=vreTEM_SI,&
-             & chieeTEM_SIout=chieeTEM_SI,veneTEM_SIout=veneTEM_SI,veceTEM_SIout=veceTEM_SI,vereTEM_SIout=vereTEM_SI,&
-             & eefITG_SIout=eefITG_SI,epfITG_SIout=epfITG_SI,dfeITG_SIout=dfeITG_SI,vteITG_SIout=vteITG_SI,vceITG_SIout=vceITG_SI,vreITG_SIout=vreITG_SI,&
-             & chieeITG_SIout=chieeITG_SI,veneITG_SIout=veneITG_SI,veceITG_SIout=veceITG_SI,vereITG_SIout=vereITG_SI,&
-             & iefTEM_SIout=iefTEM_SI,ipfTEM_SIout=ipfTEM_SI,dfiTEM_SIout=dfiTEM_SI,vtiTEM_SIout=vtiTEM_SI,vciTEM_SIout=vciTEM_SI,&
-             & vriTEM_SIout=vriTEM_SI,chieiTEM_SIout=chieiTEM_SI,veniTEM_SIout=veniTEM_SI,veciTEM_SIout=veciTEM_SI,veriTEM_SIout=veriTEM_SI,ivfTEM_SIout=ivfTEM_SI,&
-             & iefITG_SIout=iefITG_SI,ipfITG_SIout=ipfITG_SI,dfiITG_SIout=dfiITG_SI,vtiITG_SIout=vtiITG_SI,vciITG_SIout=vciITG_SI,vriITG_SIout=vriITG_SI,&
-             & chieiITG_SIout=chieiITG_SI,veniITG_SIout=veniITG_SI,veciITG_SIout=veciITG_SI,veriITG_SIout=veriITG_SI,ivfITG_SIout=ivfITG_SI)
+             & eefETG_SIout=eefETG_SI,eefETG_GBout=eefETG_GB,& !optional outputs from separation of fluxes
+             & eefTEM_SIout=eefTEM_SI,eefTEM_GBout=eefTEM_GB,epfTEM_SIout=epfTEM_SI,dfeTEM_SIout=dfeTEM_SI,vteTEM_SIout=vteTEM_SI,vceTEM_SIout=vceTEM_SI,vreTEM_SIout=vreTEM_SI,&
+             & dfeTEM_GBout=dfeTEM_GB,vteTEM_GBout=vteTEM_GB,vceTEM_GBout=vceTEM_GB,vreTEM_GBout=vreTEM_GB,&
+             & eefITG_SIout=eefITG_SI,eefITG_GBout=eefITG_GB,epfITG_SIout=epfITG_SI,dfeITG_SIout=dfeITG_SI,vteITG_SIout=vteITG_SI,vceITG_SIout=vceITG_SI,vreITG_SIout=vreITG_SI,&
+             & dfeITG_GBout=dfeITG_GB,vteITG_GBout=vteITG_GB,vceITG_GBout=vceITG_GB,vreITG_GBout=vreITG_GB,&
+             & iefTEM_SIout=iefTEM_SI,iefTEM_GBout=iefTEM_GB,ipfTEM_SIout=ipfTEM_SI,ivfTEM_SIout=ivfTEM_SI,ivfTEM_GBout=ivfTEM_GB,&
+             & dfiTEM_SIout=dfiTEM_SI,vtiTEM_SIout=vtiTEM_SI,vciTEM_SIout=vciTEM_SI,vriTEM_SIout=vriTEM_SI,&
+             & dfiTEM_GBout=dfiTEM_GB,vtiTEM_GBout=vtiTEM_GB,vciTEM_GBout=vciTEM_GB,vriTEM_GBout=vriTEM_GB,&
+             & iefITG_SIout=iefITG_SI,iefITG_GBout=iefITG_GB,ipfITG_SIout=ipfITG_SI,ivfITG_SIout=ivfITG_SI,ivfITG_GBout=ivfITG_GB,&
+             & dfiITG_SIout=dfiITG_SI,vtiITG_SIout=vtiITG_SI,vciITG_SIout=vciITG_SI,vriITG_SIout=vriITG_SI,&
+             & dfiITG_GBout=dfiITG_GB,vtiITG_GBout=vtiITG_GB,vciITG_GBout=vciITG_GB,vriITG_GBout=vriITG_GB)
      ENDIF
 
 
@@ -300,15 +311,17 @@ PROGRAM qlk_standalone
              & solflu_SIout=solflu_SI, solflu_GBout=solflu_GB, gam_SIout=gam_SI,gam_GBout=gam_GB,ome_SIout=ome_SI,ome_GBout=ome_GB, & !optional growth rate and frequency output
              & epf_GBout=epf_GB,eef_GBout=eef_GB, evf_GBout=evf_GB, epf_cmout=epf_cm,eef_cmout=eef_cm, evf_cmout=evf_cm, & !optional electron flux outputs
              & ipf_GBout=ipf_GB,ief_GBout=ief_GB, ivf_GBout=ivf_GB, ipf_cmout=ipf_cm,ief_cmout=ief_cm, ivf_cmout=ivf_cm, & !optional ion flux outputs
-             & modeflagout=modeflag, & ! flags type of modes in output per radial position
+             & modeflagout=modeflag, Nustarout=Nustar, Zeffxout=Zeffx, & 
              & phiout=phi, npolout=npol, ecoefsout=ecoefs, cftransout=cftrans, &  ! poloidal asymmetry outputs for heavy impurities
              & solfluout=solflu, modewidthout=modewidth, modeshiftout=modeshift, distanout=distan, ntorout=ntor, solout=sol, fdsolout=fdsol,&  !optional 'primitive' outputs from dispersion relation solver needed to build QL flux. Useful for standalone
              & kperp2out=kperp2, krmmuITGout=krmmuITG, krmmuETGout=krmmuETG, &
              & Lcirceout=Lcirce, Lpiegeout=Lpiege, Lecirceout=Lecirce, Lepiegeout=Lepiege, Lvcirceout=Lvcirce, Lvpiegeout=Lvpiege, &
              & Lcirciout=Lcirci, Lpiegiout=Lpiegi, Lecirciout=Lecirci, Lepiegiout=Lepiegi, Lvcirciout=Lvcirci, Lvpiegiout=Lvpiegi,&
-             & eefETG_SIout=eefETG_SI,eefTEM_SIout=eefTEM_SI,epfTEM_SIout=epfTEM_SI,eefITG_SIout=eefITG_SI,epfITG_SIout=epfITG_SI,&  !optional outputs from separation of fluxes
-             & iefTEM_SIout=iefTEM_SI,ipfTEM_SIout=ipfTEM_SI,ivfTEM_SIout=ivfTEM_SI, iefITG_SIout=iefITG_SI,ipfITG_SIout=ipfITG_SI,ivfITG_SIout=ivfITG_SI)
-
+             & eefETG_SIout=eefETG_SI,eefETG_GBout=eefETG_GB,& !optional outputs from separation of fluxes
+             & eefTEM_SIout=eefTEM_SI,eefTEM_GBout=eefTEM_GB,epfTEM_SIout=epfTEM_SI,&
+             & eefITG_SIout=eefITG_SI,eefITG_GBout=eefITG_GB,epfITG_SIout=epfITG_SI,&  
+             & iefTEM_SIout=iefTEM_SI,iefTEM_GBout=iefTEM_GB,ipfTEM_SIout=ipfTEM_SI,ivfTEM_SIout=ivfTEM_SI,ivfTEM_GBout=ivfTEM_GB,&
+             & iefITG_SIout=iefITG_SI,iefITG_GBout=iefITG_GB,ipfITG_SIout=ipfITG_SI,ivfITG_SIout=ivfITG_SI,ivfITG_GBout=ivfITG_GB)
      ENDIF
 
      IF (phys_meth == 1) THEN
@@ -322,7 +335,8 @@ PROGRAM qlk_standalone
              & solflu_SIout=solflu_SI, solflu_GBout=solflu_GB, gam_SIout=gam_SI,gam_GBout=gam_GB,ome_SIout=ome_SI,ome_GBout=ome_GB, & !optional growth rate and frequency output
              & epf_GBout=epf_GB,eef_GBout=eef_GB, evf_GBout=evf_GB, dfe_SIout=dfe_SI,vte_SIout=vte_SI,vre_SIout=vre_SI, vce_SIout=vce_SI,epf_cmout=epf_cm,eef_cmout=eef_cm,evf_cmout=evf_cm, ckeout=cke, & !optional electron flux outputs
              & ipf_GBout=ipf_GB,ief_GBout=ief_GB, ivf_GBout=ivf_GB, dfi_SIout=dfi_SI,vti_SIout=vti_SI,vri_SIout=vri_SI, vci_SIout=vci_SI,ipf_cmout=ipf_cm,ief_cmout=ief_cm,ivf_cmout=ivf_cm, ckiout=cki, & !optional ion flux outputs
-             & modeflagout=modeflag, & ! flags type of modes in output per radial position
+             & dfe_GBout=dfe_GB,vte_GBout=vte_GB,vre_GBout=vre_GB,vce_GBout=vce_GB,dfi_GBout=dfi_GB,vti_GBout=vti_GB,vri_GBout=vri_GB,vci_GBout=vci_GB, &
+             & modeflagout=modeflag, Nustarout=Nustar, Zeffxout=Zeffx, & 
              & phiout=phi, npolout=npol, ecoefsout=ecoefs, cftransout=cftrans, &  ! poloidal asymmetry outputs for heavy impurities
              & solfluout=solflu, modewidthout=modewidth, modeshiftout=modeshift, distanout=distan, ntorout=ntor, solout=sol, fdsolout=fdsol,&  !optional 'primitive' outputs from dispersion relation solver needed to build QL flux. Useful for standalone
              & kperp2out=kperp2, krmmuITGout=krmmuITG, krmmuETGout=krmmuETG, &
@@ -330,14 +344,17 @@ PROGRAM qlk_standalone
              & Lpieggteout=Lpieggte, Lcircgneout=Lcircgne, Lpieggneout=Lpieggne, Lcircgueout=Lcircgue, Lpieggueout=Lpieggue, Lcircceout=Lcircce, Lpiegceout=Lpiegce, & 
              & Lcirciout=Lcirci, Lpiegiout=Lpiegi, Lecirciout=Lecirci, Lepiegiout=Lepiegi, Lvcirciout=Lvcirci, Lvpiegiout=Lvpiegi, Lcircgtiout=Lcircgti, & 
              & Lpieggtiout=Lpieggti, Lcircgniout=Lcircgni, Lpieggniout=Lpieggni, Lcircguiout=Lcircgui, Lpiegguiout=Lpieggui, Lcircciout=Lcircci, Lpiegciout=Lpiegci,&
-             & eefETG_SIout=eefETG_SI,&  !optional outputs from separation of fluxes
-             & eefTEM_SIout=eefTEM_SI,epfTEM_SIout=epfTEM_SI,dfeTEM_SIout=dfeTEM_SI,vteTEM_SIout=vteTEM_SI,vceTEM_SIout=vceTEM_SI,vreTEM_SIout=vreTEM_SI,&
-             & eefITG_SIout=eefITG_SI,epfITG_SIout=epfITG_SI,dfeITG_SIout=dfeITG_SI,vteITG_SIout=vteITG_SI,vceITG_SIout=vceITG_SI,vreITG_SIout=vreITG_SI,&
-             & iefTEM_SIout=iefTEM_SI,ipfTEM_SIout=ipfTEM_SI,dfiTEM_SIout=dfiTEM_SI,vtiTEM_SIout=vtiTEM_SI,vciTEM_SIout=vciTEM_SI,&
-             & vriTEM_SIout=vriTEM_SI,ivfTEM_SIout=ivfTEM_SI,&
-             & iefITG_SIout=iefITG_SI,ipfITG_SIout=ipfITG_SI,dfiITG_SIout=dfiITG_SI,vtiITG_SIout=vtiITG_SI,vciITG_SIout=vciITG_SI,vriITG_SIout=vriITG_SI,&
-             & ivfITG_SIout=ivfITG_SI)
-
+             & eefETG_SIout=eefETG_SI,eefETG_GBout=eefETG_GB,& !optional outputs from separation of fluxes
+             & eefTEM_SIout=eefTEM_SI,eefTEM_GBout=eefTEM_GB,epfTEM_SIout=epfTEM_SI,dfeTEM_SIout=dfeTEM_SI,vteTEM_SIout=vteTEM_SI,vceTEM_SIout=vceTEM_SI,vreTEM_SIout=vreTEM_SI,&
+             & dfeTEM_GBout=dfeTEM_GB,vteTEM_GBout=vteTEM_GB,vceTEM_GBout=vceTEM_GB,vreTEM_GBout=vreTEM_GB,&
+             & eefITG_SIout=eefITG_SI,eefITG_GBout=eefITG_GB,epfITG_SIout=epfITG_SI,dfeITG_SIout=dfeITG_SI,vteITG_SIout=vteITG_SI,vceITG_SIout=vceITG_SI,vreITG_SIout=vreITG_SI,&
+             & dfeITG_GBout=dfeITG_GB,vteITG_GBout=vteITG_GB,vceITG_GBout=vceITG_GB,vreITG_GBout=vreITG_GB,&
+             & iefTEM_SIout=iefTEM_SI,iefTEM_GBout=iefTEM_GB,ipfTEM_SIout=ipfTEM_SI,ivfTEM_SIout=ivfTEM_SI,ivfTEM_GBout=ivfTEM_GB,&
+             & dfiTEM_SIout=dfiTEM_SI,vtiTEM_SIout=vtiTEM_SI,vciTEM_SIout=vciTEM_SI,vriTEM_SIout=vriTEM_SI,&
+             & dfiTEM_GBout=dfiTEM_GB,vtiTEM_GBout=vtiTEM_GB,vciTEM_GBout=vciTEM_GB,vriTEM_GBout=vriTEM_GB,&
+             & iefITG_SIout=iefITG_SI,iefITG_GBout=iefITG_GB,ipfITG_SIout=ipfITG_SI,ivfITG_SIout=ivfITG_SI,ivfITG_GBout=ivfITG_GB,&
+             & dfiITG_SIout=dfiITG_SI,vtiITG_SIout=vtiITG_SI,vciITG_SIout=vciITG_SI,vriITG_SIout=vriITG_SI,&
+             & dfiITG_GBout=dfiITG_GB,vtiITG_GBout=vtiITG_GB,vciITG_GBout=vciITG_GB,vriITG_GBout=vriITG_GB)
      ENDIF
 
      IF (phys_meth == 2) THEN
@@ -352,8 +369,9 @@ PROGRAM qlk_standalone
              & epf_GBout=epf_GB,eef_GBout=eef_GB, evf_GBout=evf_GB, dfe_SIout=dfe_SI,vte_SIout=vte_SI,vre_SIout=vre_SI, vce_SIout=vce_SI,epf_cmout=epf_cm,eef_cmout=eef_cm,evf_cmout=evf_cm, ckeout=cke, & !optional electron flux outputs
              & vene_SIout=vene_SI,chiee_SIout=chiee_SI,vere_SIout=vere_SI,vece_SIout=vece_SI,cekeout=ceke, & !optional electron flux outputs
              & ipf_GBout=ipf_GB,ief_GBout=ief_GB, ivf_GBout=ivf_GB, dfi_SIout=dfi_SI,vti_SIout=vti_SI,vri_SIout=vri_SI, vci_SIout=vci_SI,ipf_cmout=ipf_cm,ief_cmout=ief_cm,ivf_cmout=ivf_cm, ckiout=cki, & !optional ion flux outputs
+             & dfe_GBout=dfe_GB,vte_GBout=vte_GB,vre_GBout=vre_GB,vce_GBout=vce_GB,dfi_GBout=dfi_GB,vti_GBout=vti_GB,vri_GBout=vri_GB,vci_GBout=vci_GB, &
              & veni_SIout=veni_SI,chiei_SIout=chiei_SI,veri_SIout=veri_SI,veci_SIout=veci_SI,cekiout=ceki, & !optional ion flux outputs
-             & modeflagout=modeflag, & ! flags type of modes in output per radial position
+             & modeflagout=modeflag, Nustarout=Nustar, Zeffxout=Zeffx, & 
              & phiout=phi, npolout=npol, ecoefsout=ecoefs, cftransout=cftrans, &  ! poloidal asymmetry outputs for heavy impurities
              & solfluout=solflu, modewidthout=modewidth, modeshiftout=modeshift, distanout=distan, ntorout=ntor, solout=sol, fdsolout=fdsol,&  !optional 'primitive' outputs from dispersion relation solver needed to build QL flux. Useful for standalone
              & kperp2out=kperp2, krmmuITGout=krmmuITG, krmmuETGout=krmmuETG, &
@@ -363,16 +381,17 @@ PROGRAM qlk_standalone
              & Lcirciout=Lcirci, Lpiegiout=Lpiegi, Lecirciout=Lecirci, Lepiegiout=Lepiegi, Lvcirciout=Lvcirci, Lvpiegiout=Lvpiegi, Lcircgtiout=Lcircgti, & 
              & Lpieggtiout=Lpieggti, Lcircgniout=Lcircgni, Lpieggniout=Lpieggni, Lcircguiout=Lcircgui, Lpiegguiout=Lpieggui, Lcircciout=Lcircci, Lpiegciout=Lpiegci, &
              & Lecircgtiout=Lecircgti, Lepieggtiout=Lepieggti, Lecircgniout=Lecircgni, Lepieggniout=Lepieggni, Lecircguiout=Lecircgui, Lepiegguiout=Lepieggui, Lecircciout=Lecircci, Lepiegciout=Lepiegci,&
-             & eefETG_SIout=eefETG_SI,chieeETG_SIout=chieeETG_SI,veneETG_SIout=veneETG_SI,veceETG_SIout=veceETG_SI,vereETG_SIout=vereETG_SI,&  !optional outputs from separation of fluxes
-             & eefTEM_SIout=eefTEM_SI,epfTEM_SIout=epfTEM_SI,dfeTEM_SIout=dfeTEM_SI,vteTEM_SIout=vteTEM_SI,vceTEM_SIout=vceTEM_SI,vreTEM_SIout=vreTEM_SI,&
-             & chieeTEM_SIout=chieeTEM_SI,veneTEM_SIout=veneTEM_SI,veceTEM_SIout=veceTEM_SI,vereTEM_SIout=vereTEM_SI,&
-             & eefITG_SIout=eefITG_SI,epfITG_SIout=epfITG_SI,dfeITG_SIout=dfeITG_SI,vteITG_SIout=vteITG_SI,vceITG_SIout=vceITG_SI,vreITG_SIout=vreITG_SI,&
-             & chieeITG_SIout=chieeITG_SI,veneITG_SIout=veneITG_SI,veceITG_SIout=veceITG_SI,vereITG_SIout=vereITG_SI,&
-             & iefTEM_SIout=iefTEM_SI,ipfTEM_SIout=ipfTEM_SI,dfiTEM_SIout=dfiTEM_SI,vtiTEM_SIout=vtiTEM_SI,vciTEM_SIout=vciTEM_SI,&
-             & vriTEM_SIout=vriTEM_SI,chieiTEM_SIout=chieiTEM_SI,veniTEM_SIout=veniTEM_SI,veciTEM_SIout=veciTEM_SI,veriTEM_SIout=veriTEM_SI,ivfTEM_SIout=ivfTEM_SI,&
-             & iefITG_SIout=iefITG_SI,ipfITG_SIout=ipfITG_SI,dfiITG_SIout=dfiITG_SI,vtiITG_SIout=vtiITG_SI,vciITG_SIout=vciITG_SI,vriITG_SIout=vriITG_SI,&
-             & chieiITG_SIout=chieiITG_SI,veniITG_SIout=veniITG_SI,veciITG_SIout=veciITG_SI,veriITG_SIout=veriITG_SI,ivfITG_SIout=ivfITG_SI)
-
+             & eefETG_SIout=eefETG_SI,eefETG_GBout=eefETG_GB,& !optional outputs from separation of fluxes
+             & eefTEM_SIout=eefTEM_SI,eefTEM_GBout=eefTEM_GB,epfTEM_SIout=epfTEM_SI,dfeTEM_SIout=dfeTEM_SI,vteTEM_SIout=vteTEM_SI,vceTEM_SIout=vceTEM_SI,vreTEM_SIout=vreTEM_SI,&
+             & dfeTEM_GBout=dfeTEM_GB,vteTEM_GBout=vteTEM_GB,vceTEM_GBout=vceTEM_GB,vreTEM_GBout=vreTEM_GB,&
+             & eefITG_SIout=eefITG_SI,eefITG_GBout=eefITG_GB,epfITG_SIout=epfITG_SI,dfeITG_SIout=dfeITG_SI,vteITG_SIout=vteITG_SI,vceITG_SIout=vceITG_SI,vreITG_SIout=vreITG_SI,&
+             & dfeITG_GBout=dfeITG_GB,vteITG_GBout=vteITG_GB,vceITG_GBout=vceITG_GB,vreITG_GBout=vreITG_GB,&
+             & iefTEM_SIout=iefTEM_SI,iefTEM_GBout=iefTEM_GB,ipfTEM_SIout=ipfTEM_SI,ivfTEM_SIout=ivfTEM_SI,ivfTEM_GBout=ivfTEM_GB,&
+             & dfiTEM_SIout=dfiTEM_SI,vtiTEM_SIout=vtiTEM_SI,vciTEM_SIout=vciTEM_SI,vriTEM_SIout=vriTEM_SI,&
+             & dfiTEM_GBout=dfiTEM_GB,vtiTEM_GBout=vtiTEM_GB,vciTEM_GBout=vciTEM_GB,vriTEM_GBout=vriTEM_GB,&
+             & iefITG_SIout=iefITG_SI,iefITG_GBout=iefITG_GB,ipfITG_SIout=ipfITG_SI,ivfITG_SIout=ivfITG_SI,ivfITG_GBout=ivfITG_GB,&
+             & dfiITG_SIout=dfiITG_SI,vtiITG_SIout=vtiITG_SI,vciITG_SIout=vciITG_SI,vriITG_SIout=vriITG_SI,&
+             & dfiITG_GBout=dfiITG_GB,vtiITG_GBout=vtiITG_GB,vciITG_GBout=vciITG_GB,vriITG_GBout=vriITG_GB)
      ENDIF
 
   ENDIF
@@ -482,7 +501,7 @@ CONTAINS
     nions=nionstmp
     numsols=numsolstmp
     maxruns=maxrunstmp !maxruns called before since it is needed for runcounter evaluation
-   
+
     ! ALLOCATE TEMP ARRAYS FOR ALLREDUCE
     ALLOCATE(dummyn(dimn))
     ALLOCATE(dummyx(dimx))
@@ -832,7 +851,7 @@ CONTAINS
     rot_flag=rot_flagtmp
     verbose=verbosetmp
     separateflux=separatefluxtmp
-  
+
     maxpts=maxptstmp
     runcounter=runcountertmp
     el_type=el_typetmp
@@ -926,7 +945,7 @@ CONTAINS
        OPEN(unit=700, file="runcounter.dat", status="replace", action="write") !Replace old runcounter with new runcounter
        WRITE(700,*) runcounter + 1 ; CLOSE(700)
     ENDIF
-  
+
     !DEBUGGING WRITE OUT ALL INPUT TO ASCII FILE
 
     myint='I15'
@@ -938,14 +957,14 @@ CONTAINS
     doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'nions.dat', nions, myint, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
-    IF (myrank == doit) CALL writevar(debugdir // 'phys_meth.dat', phys_meth, myfmt, myunit)
-    doit=doit+1; IF (doit==nproc) doit=0 
+    !    IF (myrank == doit) CALL writevar(debugdir // 'phys_meth.dat', phys_meth, myfmt, myunit)
+    !    doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'coll_flag.dat', coll_flag, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'rot_flag.dat', rot_flag, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
-    IF (myrank == doit) CALL writevar(debugdir // 'verbose.dat', verbose, myfmt, myunit)
-    doit=doit+1; IF (doit==nproc) doit=0 
+    !    IF (myrank == doit) CALL writevar(debugdir // 'verbose.dat', verbose, myfmt, myunit)
+    !    doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'separateflux.dat', separateflux, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'numsols.dat', numsols, myfmt, myunit)
@@ -954,8 +973,8 @@ CONTAINS
     doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'x.dat', x, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
-    IF (myrank == doit) CALL writevar(debugdir // 'rho.dat', rho, myfmt, myunit)
-    doit=doit+1; IF (doit==nproc) doit=0 
+    !   IF (myrank == doit) CALL writevar(debugdir // 'rho.dat', rho, myfmt, myunit)
+    !   doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'Ro.dat', Ro, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'R0.dat', R0, myfmt, myunit)
@@ -968,8 +987,8 @@ CONTAINS
     doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'smag.dat', smag, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
-    IF (myrank == doit) CALL writevar(debugdir // 'alphax.dat', alphax, myfmt, myunit)
-    doit=doit+1; IF (doit==nproc) doit=0 
+    !   IF (myrank == doit) CALL writevar(debugdir // 'alphax.dat', alphax, myfmt, myunit)
+    !   doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'Machtor.dat', Machtor, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'Autor.dat', Autor, myfmt, myunit)
@@ -988,8 +1007,8 @@ CONTAINS
     doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'Ane.dat', Ane, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
-    IF (myrank == doit) CALL writevar(debugdir // 'el_type.dat', el_type, myfmt, myunit)
-    doit=doit+1; IF (doit==nproc) doit=0 
+    !   IF (myrank == doit) CALL writevar(debugdir // 'el_type.dat', el_type, myfmt, myunit)
+    !   doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'Ai.dat', Ai, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'Zi.dat', Zi, myfmt, myunit)
@@ -1035,6 +1054,10 @@ CONTAINS
        ALLOCATE(eefETG_SI(dimx))
        ALLOCATE(eefTEM_SI(dimx))
        ALLOCATE(eefITG_SI(dimx))
+       ALLOCATE(eefETG_GB(dimx))
+       ALLOCATE(eefTEM_GB(dimx))
+       ALLOCATE(eefITG_GB(dimx))
+
        ALLOCATE(epfITG_SI(dimx))
        ALLOCATE(epfTEM_SI(dimx))
     ENDIF
@@ -1044,6 +1067,11 @@ CONTAINS
        ALLOCATE(vte_SI(dimx))
        ALLOCATE(vce_SI(dimx))
        ALLOCATE(vre_SI(dimx))
+       ALLOCATE(dfe_GB(dimx))
+       ALLOCATE(vte_GB(dimx))
+       ALLOCATE(vce_GB(dimx))
+       ALLOCATE(vre_GB(dimx))
+
        ALLOCATE(cke(dimx))
 
        IF (separateflux == 1) THEN
@@ -1055,6 +1083,16 @@ CONTAINS
           ALLOCATE(vteTEM_SI(dimx))
           ALLOCATE(vceTEM_SI(dimx))
           ALLOCATE(vreTEM_SI(dimx))
+
+          ALLOCATE(dfeITG_GB(dimx))
+          ALLOCATE(vteITG_GB(dimx))
+          ALLOCATE(vceITG_GB(dimx))
+          ALLOCATE(vreITG_GB(dimx))
+          ALLOCATE(dfeTEM_GB(dimx))
+          ALLOCATE(vteTEM_GB(dimx))
+          ALLOCATE(vceTEM_GB(dimx))
+          ALLOCATE(vreTEM_GB(dimx))
+
        ENDIF
 
        IF (phys_meth == 2) THEN
@@ -1063,24 +1101,6 @@ CONTAINS
           ALLOCATE(vece_SI(dimx))
           ALLOCATE(vere_SI(dimx))
           ALLOCATE(ceke(dimx))
-
-          IF (separateflux == 1) THEN
-             ALLOCATE(chieeITG_SI(dimx))
-             ALLOCATE(veneITG_SI(dimx))
-             ALLOCATE(veceITG_SI(dimx))
-             ALLOCATE(vereITG_SI(dimx))
-
-             ALLOCATE(chieeTEM_SI(dimx))
-             ALLOCATE(veneTEM_SI(dimx))
-             ALLOCATE(veceTEM_SI(dimx))
-             ALLOCATE(vereTEM_SI(dimx))
-
-             ALLOCATE(chieeETG_SI(dimx))
-             ALLOCATE(veneETG_SI(dimx))
-             ALLOCATE(veceETG_SI(dimx))
-             ALLOCATE(vereETG_SI(dimx))
-          ENDIF
-
        ENDIF
     ENDIF
     ALLOCATE(epf_cm(dimx,dimn))
@@ -1100,6 +1120,11 @@ CONTAINS
        ALLOCATE(ipfTEM_SI(dimx,nions))
        ALLOCATE(ivfITG_SI(dimx,nions))
        ALLOCATE(ivfTEM_SI(dimx,nions))
+
+       ALLOCATE(iefITG_GB(dimx,nions))
+       ALLOCATE(iefTEM_GB(dimx,nions))
+       ALLOCATE(ivfITG_GB(dimx,nions))
+       ALLOCATE(ivfTEM_GB(dimx,nions))
     ENDIF
 
     IF (phys_meth /= 0) THEN
@@ -1107,6 +1132,12 @@ CONTAINS
        ALLOCATE(vti_SI(dimx,nions))
        ALLOCATE(vci_SI(dimx,nions))
        ALLOCATE(vri_SI(dimx,nions))
+
+       ALLOCATE(dfi_GB(dimx,nions))
+       ALLOCATE(vti_GB(dimx,nions))
+       ALLOCATE(vci_GB(dimx,nions))
+       ALLOCATE(vri_GB(dimx,nions))
+
        ALLOCATE(cki(dimx,nions))
 
        IF (separateflux == 1) THEN
@@ -1118,6 +1149,16 @@ CONTAINS
           ALLOCATE(vtiTEM_SI(dimx,nions))
           ALLOCATE(vciTEM_SI(dimx,nions))
           ALLOCATE(vriTEM_SI(dimx,nions))
+
+          ALLOCATE(dfiITG_GB(dimx,nions))
+          ALLOCATE(vtiITG_GB(dimx,nions))
+          ALLOCATE(vciITG_GB(dimx,nions))
+          ALLOCATE(vriITG_GB(dimx,nions))
+          ALLOCATE(dfiTEM_GB(dimx,nions))
+          ALLOCATE(vtiTEM_GB(dimx,nions))
+          ALLOCATE(vciTEM_GB(dimx,nions))
+          ALLOCATE(vriTEM_GB(dimx,nions))
+
        ENDIF
 
        IF (phys_meth == 2) THEN
@@ -1126,18 +1167,6 @@ CONTAINS
           ALLOCATE(veci_SI(dimx,nions))
           ALLOCATE(veri_SI(dimx,nions))
           ALLOCATE(ceki(dimx,nions))
-          IF (separateflux == 1) THEN
-
-             ALLOCATE(chieiITG_SI(dimx,nions))
-             ALLOCATE(veniITG_SI(dimx,nions))
-             ALLOCATE(veciITG_SI(dimx,nions))
-             ALLOCATE(veriITG_SI(dimx,nions))
-
-             ALLOCATE(chieiTEM_SI(dimx,nions))
-             ALLOCATE(veniTEM_SI(dimx,nions))
-             ALLOCATE(veciTEM_SI(dimx,nions))
-             ALLOCATE(veriTEM_SI(dimx,nions))
-          ENDIF
        ENDIF
     ENDIF
     ALLOCATE(ipf_cm(dimx,dimn,nions))
@@ -1153,6 +1182,8 @@ CONTAINS
 
     ALLOCATE( ntor (dimx, dimn) )
     ALLOCATE( modeflag (dimx) )
+    ALLOCATE( Nustar (dimx) )
+    ALLOCATE( Zeffx (dimx) )
     ALLOCATE(phi(dimx,ntheta))
     ALLOCATE(npol(dimx,ntheta,nions))
     ALLOCATE(ecoefs(dimx,0:nions,numecoefs)) !includes electrons
@@ -1283,6 +1314,14 @@ CONTAINS
        DEALLOCATE(ipfTEM_SI)
        DEALLOCATE(ivfITG_SI)
        DEALLOCATE(ivfTEM_SI)
+
+       DEALLOCATE(eefETG_GB)
+       DEALLOCATE(eefTEM_GB)
+       DEALLOCATE(eefITG_GB)
+       DEALLOCATE(iefITG_GB)
+       DEALLOCATE(iefTEM_GB)
+       DEALLOCATE(ivfITG_GB)
+       DEALLOCATE(ivfTEM_GB)
     ENDIF
 
     IF (phys_meth /= 0) THEN
@@ -1296,6 +1335,16 @@ CONTAINS
        DEALLOCATE(vci_SI)
        DEALLOCATE(vri_SI)
        DEALLOCATE(cki)
+
+       DEALLOCATE(dfe_GB)
+       DEALLOCATE(vte_GB)
+       DEALLOCATE(vce_GB)
+       DEALLOCATE(vre_GB)
+       DEALLOCATE(dfi_GB)
+       DEALLOCATE(vti_GB)
+       DEALLOCATE(vci_GB)
+       DEALLOCATE(vri_GB)
+
 
        IF (separateflux == 1) THEN
           DEALLOCATE(dfeITG_SI)
@@ -1314,6 +1363,24 @@ CONTAINS
           DEALLOCATE(vtiTEM_SI)
           DEALLOCATE(vciTEM_SI)
           DEALLOCATE(vriTEM_SI)
+
+          DEALLOCATE(dfeITG_GB)
+          DEALLOCATE(vteITG_GB)
+          DEALLOCATE(vceITG_GB)
+          DEALLOCATE(vreITG_GB)
+          DEALLOCATE(dfeTEM_GB)
+          DEALLOCATE(vteTEM_GB)
+          DEALLOCATE(vceTEM_GB)
+          DEALLOCATE(vreTEM_GB)
+          DEALLOCATE(dfiITG_GB)
+          DEALLOCATE(vtiITG_GB)
+          DEALLOCATE(vciITG_GB)
+          DEALLOCATE(vriITG_GB)
+          DEALLOCATE(dfiTEM_GB)
+          DEALLOCATE(vtiTEM_GB)
+          DEALLOCATE(vciTEM_GB)
+          DEALLOCATE(vriTEM_GB)
+
        ENDIF
 
 
@@ -1329,30 +1396,6 @@ CONTAINS
           DEALLOCATE(veri_SI)
           DEALLOCATE(ceki)
 
-          IF (separateflux == 1) THEN
-             DEALLOCATE(chieeETG_SI)
-             DEALLOCATE(veneETG_SI)
-             DEALLOCATE(veceETG_SI)
-             DEALLOCATE(vereETG_SI)
-             DEALLOCATE(chieeITG_SI)
-             DEALLOCATE(veneITG_SI)
-             DEALLOCATE(veceITG_SI)
-             DEALLOCATE(vereITG_SI)
-             DEALLOCATE(chieeTEM_SI)
-             DEALLOCATE(veneTEM_SI)
-             DEALLOCATE(veceTEM_SI)
-             DEALLOCATE(vereTEM_SI)
-             DEALLOCATE(chieiITG_SI)
-             DEALLOCATE(veniITG_SI)
-             DEALLOCATE(veciITG_SI)
-             DEALLOCATE(veriITG_SI)
-             DEALLOCATE(chieiTEM_SI)
-             DEALLOCATE(veniTEM_SI)
-             DEALLOCATE(veciTEM_SI)
-             DEALLOCATE(veriTEM_SI)
-          ENDIF
-
-
        ENDIF
     ENDIF
 
@@ -1366,6 +1409,8 @@ CONTAINS
     DEALLOCATE(modewidth)
     DEALLOCATE(modeshift)
     DEALLOCATE(modeflag)
+    DEALLOCATE(Nustar)
+    DEALLOCATE(Zeffx)
     DEALLOCATE(distan)
     DEALLOCATE(ntor)
     DEALLOCATE(solflu)
@@ -1446,14 +1491,14 @@ CONTAINS
     myfmt='G15.7'
     IF (myrank == doit) CALL writevar(primitivedir // 'solflu.dat', solflu, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
-    IF (myrank == doit) CALL writevar(primitivedir // 'kymaxITG.dat', krmmuITG, myfmt, myunit)
-    doit=doit+1; IF (doit==nproc) doit=0 
-    IF (myrank == doit) CALL writevar(primitivedir // 'kymaxETG.dat', krmmuETG, myfmt, myunit)
-    doit=doit+1; IF (doit==nproc) doit=0 
-    IF (myrank == doit) CALL writevar(primitivedir // 'distan.dat', distan, myfmt, myunit)
-    doit=doit+1; IF (doit==nproc) doit=0 
-    IF (myrank == doit) CALL writevar(primitivedir // 'kperp2.dat', kperp2, myfmt, myunit)
-    doit=doit+1; IF (doit==nproc) doit=0 
+    !    IF (myrank == doit) CALL writevar(primitivedir // 'kymaxITG.dat', krmmuITG, myfmt, myunit)
+    !    doit=doit+1; IF (doit==nproc) doit=0 
+    !    IF (myrank == doit) CALL writevar(primitivedir // 'kymaxETG.dat', krmmuETG, myfmt, myunit)
+    !    doit=doit+1; IF (doit==nproc) doit=0 
+    !    IF (myrank == doit) CALL writevar(primitivedir // 'distan.dat', distan, myfmt, myunit)
+    !    doit=doit+1; IF (doit==nproc) doit=0 
+    !    IF (myrank == doit) CALL writevar(primitivedir // 'kperp2.dat', kperp2, myfmt, myunit)
+    !    doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(primitivedir // 'modewidth.dat', modewidth, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(primitivedir // 'modeshift.dat', modeshift, myfmt, myunit)
@@ -1570,11 +1615,18 @@ CONTAINS
        ENDIF
     ENDIF
 
+    outputdir = 'debug/'
+
+    !    IF (myrank == doit) CALL writevar(outputdir // 'modeflag.dat', modeflag, myfmt, myunit)
+    !    doit=doit+1; IF (doit==nproc) doit=0
+    !    IF (myrank == doit) CALL writevar(outputdir // 'phi.dat', TRANSPOSE(phi), myfmt, myunit)          
+    !    doit=doit+1; IF (doit==nproc) doit=0
+        IF (myrank == doit) CALL writevar(outputdir // 'Nustar.dat', Nustar, myfmt, myunit)
+        doit=doit+1; IF (doit==nproc) doit=0
+        IF (myrank == doit) CALL writevar(outputdir // 'Zeffx.dat', Zeffx, myfmt, myunit)
+        doit=doit+1; IF (doit==nproc) doit=0
+     
     outputdir = 'output/'
-    IF (myrank == doit) CALL writevar(outputdir // 'modeflag.dat', modeflag, myfmt, myunit)
-    doit=doit+1; IF (doit==nproc) doit=0
-    IF (myrank == doit) CALL writevar(outputdir // 'phi.dat', TRANSPOSE(phi), myfmt, myunit)          
-    doit=doit+1; IF (doit==nproc) doit=0
 
 !!$    OPEN(unit=myunit, file="output/npol.dat", action="write", status="replace")
 !!$    WRITE(myunit,fmtxrow) (((npol(i,j,k),i=1,dimx),j=1,ntheta),k=1,nions) ; CLOSE(myunit)
@@ -1589,72 +1641,122 @@ CONTAINS
     doit=doit+1; IF (doit==nproc) doit=0
     IF (myrank == doit) CALL writevar(outputdir // 'ome_GB.dat', ome_GB, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0
-    IF (myrank == doit) CALL writevar(outputdir // 'gam_SI.dat', gam_SI, myfmt, myunit)
-    doit=doit+1; IF (doit==nproc) doit=0
-    IF (myrank == doit) CALL writevar(outputdir // 'ome_SI.dat', ome_SI, myfmt, myunit)
-    doit=doit+1; IF (doit==nproc) doit=0
+    !   IF (myrank == doit) CALL writevar(outputdir // 'gam_SI.dat', gam_SI, myfmt, myunit)
+    !   doit=doit+1; IF (doit==nproc) doit=0
+    !   IF (myrank == doit) CALL writevar(outputdir // 'ome_SI.dat', ome_SI, myfmt, myunit)
+    !   doit=doit+1; IF (doit==nproc) doit=0
 
     IF (phys_meth /= 0) THEN
        IF (myrank == doit) CALL writevar(outputdir // 'cke.dat', cke, myfmt, myunit)
        doit=doit+1; IF (doit==nproc) doit=0
 
-       IF (myrank == doit) CALL writevar(outputdir // 'dfe_SI.dat', dfe_SI, myfmt, myunit)
+!!$       IF (myrank == doit) CALL writevar(outputdir // 'dfe_SI.dat', dfe_SI, myfmt, myunit)
+!!$       doit=doit+1; IF (doit==nproc) doit=0
+!!$       IF (myrank == doit) CALL writevar(outputdir // 'vte_SI.dat', vte_SI, myfmt, myunit)
+!!$       doit=doit+1; IF (doit==nproc) doit=0
+!!$       IF (myrank == doit) CALL writevar(outputdir // 'vce_SI.dat', vce_SI, myfmt, myunit)
+!!$       doit=doit+1; IF (doit==nproc) doit=0
+!!$       IF (myrank == doit) CALL writevar(outputdir // 'vre_SI.dat', vre_SI, myfmt, myunit)
+!!$       doit=doit+1; IF (doit==nproc) doit=0
+
+       IF (myrank == doit) CALL writevar(outputdir // 'dfe_GB.dat', dfe_GB, myfmt, myunit)
        doit=doit+1; IF (doit==nproc) doit=0
-       IF (myrank == doit) CALL writevar(outputdir // 'vte_SI.dat', vte_SI, myfmt, myunit)
+       IF (myrank == doit) CALL writevar(outputdir // 'vte_GB.dat', vte_GB, myfmt, myunit)
        doit=doit+1; IF (doit==nproc) doit=0
-       IF (myrank == doit) CALL writevar(outputdir // 'vre_SI.dat', vre_SI, myfmt, myunit)
+       IF (myrank == doit) CALL writevar(outputdir // 'vce_GB.dat', vce_GB, myfmt, myunit)
        doit=doit+1; IF (doit==nproc) doit=0
-       IF (myrank == doit) CALL writevar(outputdir // 'vce_SI.dat', vce_SI, myfmt, myunit)
-       doit=doit+1; IF (doit==nproc) doit=0
+!!$       IF (myrank == doit) CALL writevar(outputdir // 'vre_GB.dat', vre_GB, myfmt, myunit)
+!!$       doit=doit+1; IF (doit==nproc) doit=0
 
        IF (separateflux == 1) THEN
-          IF (myrank == doit) CALL writevar(outputdir // 'dfeITG_SI.dat', dfeITG_SI, myfmt, myunit)
+!!$          IF (myrank == doit) CALL writevar(outputdir // 'dfeITG_SI.dat', dfeITG_SI, myfmt, myunit)
+!!$          doit=doit+1; IF (doit==nproc) doit=0
+!!$          IF (myrank == doit) CALL writevar(outputdir // 'vteITG_SI.dat', vteITG_SI, myfmt, myunit)
+!!$          doit=doit+1; IF (doit==nproc) doit=0
+!!$          IF (myrank == doit) CALL writevar(outputdir // 'vreITG_SI.dat', vreITG_SI, myfmt, myunit)
+!!$          doit=doit+1; IF (doit==nproc) doit=0
+!!$          IF (myrank == doit) CALL writevar(outputdir // 'vceITG_SI.dat', vceITG_SI, myfmt, myunit)
+!!$          doit=doit+1; IF (doit==nproc) doit=0
+!!$          IF (myrank == doit) CALL writevar(outputdir // 'dfeTEM_SI.dat', dfeTEM_SI, myfmt, myunit)
+!!$          doit=doit+1; IF (doit==nproc) doit=0
+!!$          IF (myrank == doit) CALL writevar(outputdir // 'vteTEM_SI.dat', vteTEM_SI, myfmt, myunit)
+!!$          doit=doit+1; IF (doit==nproc) doit=0
+!!$          IF (myrank == doit) CALL writevar(outputdir // 'vreTEM_SI.dat', vreTEM_SI, myfmt, myunit)
+!!$          doit=doit+1; IF (doit==nproc) doit=0
+!!$          IF (myrank == doit) CALL writevar(outputdir // 'vceTEM_SI.dat', vceTEM_SI, myfmt, myunit)
+!!$          doit=doit+1; IF (doit==nproc) doit=0
+          IF (myrank == doit) CALL writevar(outputdir // 'dfeITG_GB.dat', dfeITG_GB, myfmt, myunit)
           doit=doit+1; IF (doit==nproc) doit=0
-          IF (myrank == doit) CALL writevar(outputdir // 'vteITG_SI.dat', vteITG_SI, myfmt, myunit)
+          IF (myrank == doit) CALL writevar(outputdir // 'vteITG_GB.dat', vteITG_GB, myfmt, myunit)
           doit=doit+1; IF (doit==nproc) doit=0
-          IF (myrank == doit) CALL writevar(outputdir // 'vreITG_SI.dat', vreITG_SI, myfmt, myunit)
+!!$          IF (myrank == doit) CALL writevar(outputdir // 'vreITG_GB.dat', vreITG_GB, myfmt, myunit)
+!!$          doit=doit+1; IF (doit==nproc) doit=0
+          IF (myrank == doit) CALL writevar(outputdir // 'vceITG_GB.dat', vceITG_GB, myfmt, myunit)
           doit=doit+1; IF (doit==nproc) doit=0
-          IF (myrank == doit) CALL writevar(outputdir // 'vceITG_SI.dat', vceITG_SI, myfmt, myunit)
+          IF (myrank == doit) CALL writevar(outputdir // 'dfeTEM_GB.dat', dfeTEM_GB, myfmt, myunit)
+          doit=doit+1; IF (doit==nproc) doit=0
+          IF (myrank == doit) CALL writevar(outputdir // 'vteTEM_GB.dat', vteTEM_GB, myfmt, myunit)
+          doit=doit+1; IF (doit==nproc) doit=0
+!!$          IF (myrank == doit) CALL writevar(outputdir // 'vreTEM_GB.dat', vreTEM_GB, myfmt, myunit)
+!!$          doit=doit+1; IF (doit==nproc) doit=0
+          IF (myrank == doit) CALL writevar(outputdir // 'vceTEM_GB.dat', vceTEM_GB, myfmt, myunit)
           doit=doit+1; IF (doit==nproc) doit=0
 
-          IF (myrank == doit) CALL writevar(outputdir // 'dfeTEM_SI.dat', dfeTEM_SI, myfmt, myunit)
-          doit=doit+1; IF (doit==nproc) doit=0
-          IF (myrank == doit) CALL writevar(outputdir // 'vteTEM_SI.dat', vteTEM_SI, myfmt, myunit)
-          doit=doit+1; IF (doit==nproc) doit=0
-          IF (myrank == doit) CALL writevar(outputdir // 'vreTEM_SI.dat', vreTEM_SI, myfmt, myunit)
-          doit=doit+1; IF (doit==nproc) doit=0
-          IF (myrank == doit) CALL writevar(outputdir // 'vceTEM_SI.dat', vceTEM_SI, myfmt, myunit)
-          doit=doit+1; IF (doit==nproc) doit=0
+
        ENDIF
 
        IF (myrank == doit) CALL writevar(outputdir // 'cki.dat', cki, myfmt, myunit)
        doit=doit+1; IF (doit==nproc) doit=0
-       IF (myrank == doit) CALL writevar(outputdir // 'dfi_SI.dat', dfi_SI, myfmt, myunit)
+!!$       IF (myrank == doit) CALL writevar(outputdir // 'dfi_SI.dat', dfi_SI, myfmt, myunit)
+!!$       doit=doit+1; IF (doit==nproc) doit=0
+!!$       IF (myrank == doit) CALL writevar(outputdir // 'vti_SI.dat', vti_SI, myfmt, myunit)
+!!$       doit=doit+1; IF (doit==nproc) doit=0
+!!$       IF (myrank == doit) CALL writevar(outputdir // 'vri_SI.dat', vri_SI, myfmt, myunit)
+!!$       doit=doit+1; IF (doit==nproc) doit=0
+!!$       IF (myrank == doit) CALL writevar(outputdir // 'vci_SI.dat', vci_SI, myfmt, myunit)
+!!$       doit=doit+1; IF (doit==nproc) doit=0
+       IF (myrank == doit) CALL writevar(outputdir // 'dfi_GB.dat', dfi_GB, myfmt, myunit)
        doit=doit+1; IF (doit==nproc) doit=0
-       IF (myrank == doit) CALL writevar(outputdir // 'vti_SI.dat', vti_SI, myfmt, myunit)
+       IF (myrank == doit) CALL writevar(outputdir // 'vti_GB.dat', vti_GB, myfmt, myunit)
        doit=doit+1; IF (doit==nproc) doit=0
-       IF (myrank == doit) CALL writevar(outputdir // 'vri_SI.dat', vri_SI, myfmt, myunit)
+       IF (myrank == doit) CALL writevar(outputdir // 'vri_GB.dat', vri_GB, myfmt, myunit)
        doit=doit+1; IF (doit==nproc) doit=0
-       IF (myrank == doit) CALL writevar(outputdir // 'vci_SI.dat', vci_SI, myfmt, myunit)
+       IF (myrank == doit) CALL writevar(outputdir // 'vci_GB.dat', vci_GB, myfmt, myunit)
        doit=doit+1; IF (doit==nproc) doit=0
 
        IF (separateflux == 1) THEN
-          IF (myrank == doit) CALL writevar(outputdir // 'dfiITG_SI.dat', dfiITG_SI, myfmt, myunit)
-          doit=doit+1; IF (doit==nproc) doit=0
-          IF (myrank == doit) CALL writevar(outputdir // 'vtiITG_SI.dat', vtiITG_SI, myfmt, myunit)
-          doit=doit+1; IF (doit==nproc) doit=0
-          IF (myrank == doit) CALL writevar(outputdir // 'vriITG_SI.dat', vriITG_SI, myfmt, myunit)
-          doit=doit+1; IF (doit==nproc) doit=0
-          IF (myrank == doit) CALL writevar(outputdir // 'vciITG_SI.dat', vciITG_SI, myfmt, myunit)
-          doit=doit+1; IF (doit==nproc) doit=0
+!!$          IF (myrank == doit) CALL writevar(outputdir // 'dfiITG_SI.dat', dfiITG_SI, myfmt, myunit)
+!!$          doit=doit+1; IF (doit==nproc) doit=0
+!!$          IF (myrank == doit) CALL writevar(outputdir // 'vtiITG_SI.dat', vtiITG_SI, myfmt, myunit)
+!!$          doit=doit+1; IF (doit==nproc) doit=0
+!!$          IF (myrank == doit) CALL writevar(outputdir // 'vciITG_SI.dat', vciITG_SI, myfmt, myunit)
+!!$          doit=doit+1; IF (doit==nproc) doit=0
+!!$          IF (myrank == doit) CALL writevar(outputdir // 'vriITG_SI.dat', vriITG_SI, myfmt, myunit)
+!!$          doit=doit+1; IF (doit==nproc) doit=0
+!!$          IF (myrank == doit) CALL writevar(outputdir // 'dfiTEM_SI.dat', dfiTEM_SI, myfmt, myunit)
+!!$          doit=doit+1; IF (doit==nproc) doit=0
+!!$          IF (myrank == doit) CALL writevar(outputdir // 'vtiTEM_SI.dat', vtiTEM_SI, myfmt, myunit)
+!!$          doit=doit+1; IF (doit==nproc) doit=0
+!!$          IF (myrank == doit) CALL writevar(outputdir // 'vciTEM_SI.dat', vciTEM_SI, myfmt, myunit)
+!!$          doit=doit+1; IF (doit==nproc) doit=0
+!!$          IF (myrank == doit) CALL writevar(outputdir // 'vriTEM_SI.dat', vriTEM_SI, myfmt, myunit)
+!!$          doit=doit+1; IF (doit==nproc) doit=0
 
-          IF (myrank == doit) CALL writevar(outputdir // 'dfiTEM_SI.dat', dfiTEM_SI, myfmt, myunit)
+          IF (myrank == doit) CALL writevar(outputdir // 'dfiITG_GB.dat', dfiITG_GB, myfmt, myunit)
           doit=doit+1; IF (doit==nproc) doit=0
-          IF (myrank == doit) CALL writevar(outputdir // 'vtiTEM_SI.dat', vtiTEM_SI, myfmt, myunit)
+          IF (myrank == doit) CALL writevar(outputdir // 'vtiITG_GB.dat', vtiITG_GB, myfmt, myunit)
           doit=doit+1; IF (doit==nproc) doit=0
-          IF (myrank == doit) CALL writevar(outputdir // 'vriTEM_SI.dat', vriTEM_SI, myfmt, myunit)
+          IF (myrank == doit) CALL writevar(outputdir // 'vciITG_GB.dat', vciITG_GB, myfmt, myunit)
           doit=doit+1; IF (doit==nproc) doit=0
-          IF (myrank == doit) CALL writevar(outputdir // 'vciTEM_SI.dat', vciTEM_SI, myfmt, myunit)
+          IF (myrank == doit) CALL writevar(outputdir // 'vriITG_GB.dat', vriITG_GB, myfmt, myunit)
+          doit=doit+1; IF (doit==nproc) doit=0
+          IF (myrank == doit) CALL writevar(outputdir // 'dfiTEM_GB.dat', dfiTEM_GB, myfmt, myunit)
+          doit=doit+1; IF (doit==nproc) doit=0
+          IF (myrank == doit) CALL writevar(outputdir // 'vtiTEM_GB.dat', vtiTEM_GB, myfmt, myunit)
+          doit=doit+1; IF (doit==nproc) doit=0
+          IF (myrank == doit) CALL writevar(outputdir // 'vciTEM_GB.dat', vciTEM_GB, myfmt, myunit)
+          doit=doit+1; IF (doit==nproc) doit=0
+          IF (myrank == doit) CALL writevar(outputdir // 'vriTEM_GB.dat', vriTEM_GB, myfmt, myunit)
           doit=doit+1; IF (doit==nproc) doit=0
        ENDIF
 
@@ -1669,35 +1771,6 @@ CONTAINS
           doit=doit+1; IF (doit==nproc) doit=0
           IF (myrank == doit) CALL writevar(outputdir // 'vece_SI.dat', vene_SI, myfmt, myunit)
           doit=doit+1; IF (doit==nproc) doit=0
-
-          IF (separateflux ==1) THEN
-             IF (myrank == doit) CALL writevar(outputdir // 'veneITG_SI.dat', veneITG_SI, myfmt, myunit)
-             doit=doit+1; IF (doit==nproc) doit=0
-             IF (myrank == doit) CALL writevar(outputdir // 'vereITG_SI.dat', vereITG_SI, myfmt, myunit)
-             doit=doit+1; IF (doit==nproc) doit=0
-             IF (myrank == doit) CALL writevar(outputdir // 'chieeITG_SI.dat', chieeITG_SI, myfmt, myunit)
-             doit=doit+1; IF (doit==nproc) doit=0
-             IF (myrank == doit) CALL writevar(outputdir // 'veceITG_SI.dat', veneITG_SI, myfmt, myunit)
-             doit=doit+1; IF (doit==nproc) doit=0
-             IF (myrank == doit) CALL writevar(outputdir // 'veneTEM_SI.dat', veneTEM_SI, myfmt, myunit)
-             doit=doit+1; IF (doit==nproc) doit=0
-             IF (myrank == doit) CALL writevar(outputdir // 'vereTEM_SI.dat', vereTEM_SI, myfmt, myunit)
-             doit=doit+1; IF (doit==nproc) doit=0
-             IF (myrank == doit) CALL writevar(outputdir // 'chieeTEM_SI.dat', chieeTEM_SI, myfmt, myunit)
-             doit=doit+1; IF (doit==nproc) doit=0
-             IF (myrank == doit) CALL writevar(outputdir // 'veceTEM_SI.dat', veneTEM_SI, myfmt, myunit)
-             doit=doit+1; IF (doit==nproc) doit=0
-
-             IF (myrank == doit) CALL writevar(outputdir // 'veneETG_SI.dat', veneETG_SI, myfmt, myunit)
-             doit=doit+1; IF (doit==nproc) doit=0
-             IF (myrank == doit) CALL writevar(outputdir // 'vereETG_SI.dat', vereETG_SI, myfmt, myunit)
-             doit=doit+1; IF (doit==nproc) doit=0
-             IF (myrank == doit) CALL writevar(outputdir // 'chieeETG_SI.dat', chieeETG_SI, myfmt, myunit)
-             doit=doit+1; IF (doit==nproc) doit=0
-             IF (myrank == doit) CALL writevar(outputdir // 'veceETG_SI.dat', veneETG_SI, myfmt, myunit)
-             doit=doit+1; IF (doit==nproc) doit=0
-          ENDIF
-
           IF (myrank == doit) CALL writevar(outputdir // 'ceki.dat', ceki, myfmt, myunit)
           doit=doit+1; IF (doit==nproc) doit=0
           IF (myrank == doit) CALL writevar(outputdir // 'veni_SI.dat', veni_SI, myfmt, myunit)
@@ -1708,97 +1781,84 @@ CONTAINS
           doit=doit+1; IF (doit==nproc) doit=0
           IF (myrank == doit) CALL writevar(outputdir // 'veci_SI.dat', veni_SI, myfmt, myunit)
           doit=doit+1; IF (doit==nproc) doit=0
-
-          IF (separateflux ==1) THEN
-
-             IF (myrank == doit) CALL writevar(outputdir // 'veniITG_SI.dat', veniITG_SI, myfmt, myunit)
-             doit=doit+1; IF (doit==nproc) doit=0
-             IF (myrank == doit) CALL writevar(outputdir // 'veriITG_SI.dat', veriITG_SI, myfmt, myunit)
-             doit=doit+1; IF (doit==nproc) doit=0
-             IF (myrank == doit) CALL writevar(outputdir // 'chieiITG_SI.dat', chieiITG_SI, myfmt, myunit)
-             doit=doit+1; IF (doit==nproc) doit=0
-             IF (myrank == doit) CALL writevar(outputdir // 'veciITG_SI.dat', veniITG_SI, myfmt, myunit)
-             doit=doit+1; IF (doit==nproc) doit=0
-             IF (myrank == doit) CALL writevar(outputdir // 'veniTEM_SI.dat', veniTEM_SI, myfmt, myunit)
-             doit=doit+1; IF (doit==nproc) doit=0
-             IF (myrank == doit) CALL writevar(outputdir // 'veriTEM_SI.dat', veriTEM_SI, myfmt, myunit)
-             doit=doit+1; IF (doit==nproc) doit=0
-             IF (myrank == doit) CALL writevar(outputdir // 'chieiTEM_SI.dat', chieiTEM_SI, myfmt, myunit)
-             doit=doit+1; IF (doit==nproc) doit=0
-             IF (myrank == doit) CALL writevar(outputdir // 'veciTEM_SI.dat', veniTEM_SI, myfmt, myunit)
-             doit=doit+1; IF (doit==nproc) doit=0
-
-          ENDIF
-
        ENDIF
     ENDIF
 
-    IF (myrank == doit) CALL writevar(outputdir // 'epf_SI.dat', epf_SI, myfmt, myunit)
-    doit=doit+1; IF (doit==nproc) doit=0
+!!$    IF (myrank == doit) CALL writevar(outputdir // 'epf_SI.dat', epf_SI, myfmt, myunit)
+!!$    doit=doit+1; IF (doit==nproc) doit=0
     IF (myrank == doit) CALL writevar(outputdir // 'epf_GB.dat', epf_GB, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0
-    IF (myrank == doit) CALL writevar(outputdir // 'epf_cm.dat', epf_cm, myfmt, myunit)
-    doit=doit+1; IF (doit==nproc) doit=0
+    !    IF (myrank == doit) CALL writevar(outputdir // 'epf_cm.dat', epf_cm, myfmt, myunit)
+    !    doit=doit+1; IF (doit==nproc) doit=0
 
-    IF (myrank == doit) CALL writevar(outputdir // 'eef_SI.dat', eef_SI, myfmt, myunit)
-    doit=doit+1; IF (doit==nproc) doit=0
+!!$    IF (myrank == doit) CALL writevar(outputdir // 'eef_SI.dat', eef_SI, myfmt, myunit)
+!!$    doit=doit+1; IF (doit==nproc) doit=0
     IF (myrank == doit) CALL writevar(outputdir // 'eef_GB.dat', eef_GB, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0
     IF (myrank == doit) CALL writevar(outputdir // 'eef_cm.dat', eef_cm, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0
 
-    IF (myrank == doit) CALL writevar(outputdir // 'evf_SI.dat', evf_SI, myfmt, myunit)
-    doit=doit+1; IF (doit==nproc) doit=0
-    IF (myrank == doit) CALL writevar(outputdir // 'evf_GB.dat', evf_GB, myfmt, myunit)
-    doit=doit+1; IF (doit==nproc) doit=0
-    IF (myrank == doit) CALL writevar(outputdir // 'evf_cm.dat', evf_cm, myfmt, myunit)
-    doit=doit+1; IF (doit==nproc) doit=0
+    !    IF (myrank == doit) CALL writevar(outputdir // 'evf_SI.dat', evf_SI, myfmt, myunit)
+    !    doit=doit+1; IF (doit==nproc) doit=0
+    !    IF (myrank == doit) CALL writevar(outputdir // 'evf_GB.dat', evf_GB, myfmt, myunit)
+    !    doit=doit+1; IF (doit==nproc) doit=0
+    !    IF (myrank == doit) CALL writevar(outputdir // 'evf_cm.dat', evf_cm, myfmt, myunit)
+    !    doit=doit+1; IF (doit==nproc) doit=0
 
-    IF (myrank == doit) CALL writevar(outputdir // 'ipf_SI.dat', ipf_SI, myfmt, myunit)
-    doit=doit+1; IF (doit==nproc) doit=0
+!!$    IF (myrank == doit) CALL writevar(outputdir // 'ipf_SI.dat', ipf_SI, myfmt, myunit)
+!!$    doit=doit+1; IF (doit==nproc) doit=0
     IF (myrank == doit) CALL writevar(outputdir // 'ipf_GB.dat', ipf_GB, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0
-    IF (myrank == doit) CALL writevar(outputdir // 'ipf_cm.dat', ipf_cm, myfmt, myunit)
-    doit=doit+1; IF (doit==nproc) doit=0
+    !   IF (myrank == doit) CALL writevar(outputdir // 'ipf_cm.dat', ipf_cm, myfmt, myunit)
+    !   doit=doit+1; IF (doit==nproc) doit=0
 
-    IF (myrank == doit) CALL writevar(outputdir // 'ief_SI.dat', ief_SI, myfmt, myunit)
-    doit=doit+1; IF (doit==nproc) doit=0
+!!$    IF (myrank == doit) CALL writevar(outputdir // 'ief_SI.dat', ief_SI, myfmt, myunit)
+!!$    doit=doit+1; IF (doit==nproc) doit=0
     IF (myrank == doit) CALL writevar(outputdir // 'ief_GB.dat', ief_GB, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0
     IF (myrank == doit) CALL writevar(outputdir // 'ief_cm.dat', ief_cm, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0
 
-    IF (myrank == doit) CALL writevar(outputdir // 'ivf_SI.dat', ivf_SI, myfmt, myunit)
-    doit=doit+1; IF (doit==nproc) doit=0
+!!$    IF (myrank == doit) CALL writevar(outputdir // 'ivf_SI.dat', ivf_SI, myfmt, myunit)
+!!$    doit=doit+1; IF (doit==nproc) doit=0
     IF (myrank == doit) CALL writevar(outputdir // 'ivf_GB.dat', ivf_GB, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0
-    IF (myrank == doit) CALL writevar(outputdir // 'ivf_cm.dat', ivf_cm, myfmt, myunit)
-    doit=doit+1; IF (doit==nproc) doit=0
+    !    IF (myrank == doit) CALL writevar(outputdir // 'ivf_cm.dat', ivf_cm, myfmt, myunit)
+    !    doit=doit+1; IF (doit==nproc) doit=0
 
     IF (separateflux==1) THEN
-       IF (myrank == doit) CALL writevar(outputdir // 'iefITG_SI.dat', iefITG_SI, myfmt, myunit)
+!!$       IF (myrank == doit) CALL writevar(outputdir // 'iefITG_SI.dat', iefITG_SI, myfmt, myunit)
+!!$       doit=doit+1; IF (doit==nproc) doit=0
+!!$       IF (myrank == doit) CALL writevar(outputdir // 'iefTEM_SI.dat', iefTEM_SI, myfmt, myunit)
+!!$       doit=doit+1; IF (doit==nproc) doit=0
+!!$       IF (myrank == doit) CALL writevar(outputdir // 'ivfITG_SI.dat', ivfITG_SI, myfmt, myunit)
+!!$       doit=doit+1; IF (doit==nproc) doit=0
+!!$       IF (myrank == doit) CALL writevar(outputdir // 'ivfTEM_SI.dat', ivfTEM_SI, myfmt, myunit)
+!!$       doit=doit+1; IF (doit==nproc) doit=0
+
+       IF (myrank == doit) CALL writevar(outputdir // 'iefITG_GB.dat', iefITG_GB, myfmt, myunit)
        doit=doit+1; IF (doit==nproc) doit=0
-       IF (myrank == doit) CALL writevar(outputdir // 'iefTEM_SI.dat', iefTEM_SI, myfmt, myunit)
+       IF (myrank == doit) CALL writevar(outputdir // 'iefTEM_GB.dat', iefTEM_GB, myfmt, myunit)
        doit=doit+1; IF (doit==nproc) doit=0
-       IF (myrank == doit) CALL writevar(outputdir // 'ipfITG_SI.dat', ipfITG_SI, myfmt, myunit)
+       IF (myrank == doit) CALL writevar(outputdir // 'ivfITG_GB.dat', ivfITG_GB, myfmt, myunit)
        doit=doit+1; IF (doit==nproc) doit=0
-       IF (myrank == doit) CALL writevar(outputdir // 'ipfTEM_SI.dat', ipfTEM_SI, myfmt, myunit)
-       doit=doit+1; IF (doit==nproc) doit=0
-       IF (myrank == doit) CALL writevar(outputdir // 'ivfITG_SI.dat', ivfITG_SI, myfmt, myunit)
-       doit=doit+1; IF (doit==nproc) doit=0
-       IF (myrank == doit) CALL writevar(outputdir // 'ivfTEM_SI.dat', ivfTEM_SI, myfmt, myunit)
+       IF (myrank == doit) CALL writevar(outputdir // 'ivfTEM_GB.dat', ivfTEM_GB, myfmt, myunit)
        doit=doit+1; IF (doit==nproc) doit=0
 
-       IF (myrank == doit) CALL writevar(outputdir // 'eefITG_SI.dat', eefITG_SI, myfmt, myunit)
+!!$       IF (myrank == doit) CALL writevar(outputdir // 'eefITG_SI.dat', eefITG_SI, myfmt, myunit)
+!!$       doit=doit+1; IF (doit==nproc) doit=0
+!!$       IF (myrank == doit) CALL writevar(outputdir // 'eefTEM_SI.dat', eefTEM_SI, myfmt, myunit)
+!!$       doit=doit+1; IF (doit==nproc) doit=0
+!!$       IF (myrank == doit) CALL writevar(outputdir // 'eefETG_SI.dat', eefETG_SI, myfmt, myunit)
+!!$       doit=doit+1; IF (doit==nproc) doit=0
+
+       IF (myrank == doit) CALL writevar(outputdir // 'eefITG_GB.dat', eefITG_GB, myfmt, myunit)
        doit=doit+1; IF (doit==nproc) doit=0
-       IF (myrank == doit) CALL writevar(outputdir // 'eefTEM_SI.dat', eefTEM_SI, myfmt, myunit)
+       IF (myrank == doit) CALL writevar(outputdir // 'eefTEM_GB.dat', eefTEM_GB, myfmt, myunit)
        doit=doit+1; IF (doit==nproc) doit=0
-       IF (myrank == doit) CALL writevar(outputdir // 'eefETG_SI.dat', eefETG_SI, myfmt, myunit)
+       IF (myrank == doit) CALL writevar(outputdir // 'eefETG_GB.dat', eefETG_GB, myfmt, myunit)
        doit=doit+1; IF (doit==nproc) doit=0
-       IF (myrank == doit) CALL writevar(outputdir // 'epfITG_SI.dat', epfITG_SI, myfmt, myunit)
-       doit=doit+1; IF (doit==nproc) doit=0
-       IF (myrank == doit) CALL writevar(outputdir // 'epfTEM_SI.dat', epfTEM_SI, myfmt, myunit)
-       doit=doit+1; IF (doit==nproc) doit=0
+
 
     ENDIF
 
