@@ -1,16 +1,16 @@
 import os
 import subprocess
 import sqlite3
-import csv
+import json
 from warnings import warn
 from itertools import islice
 
 import numpy as np
-from .qualikizrun import recursive_function, EmptyJob
+from .qualikizrun import QuaLiKizRun, QuaLiKizBatch
 from .basicpoll import database_exists
 from .tabulate.tabulate import tabulate
 
-def profile_dir(path):
+def profile_job(job):
     """ Read QuaLiKiz STDOUT
     This function polls for the QuaLiKiz profiling information
     generated with CrayPat. It needs the metadata
@@ -30,17 +30,15 @@ def profile_dir(path):
               contains the sampling of functions
     """
     pat_result = None
-    for file_ in os.listdir(path):
+
+    for file_ in os.listdir(job.rundir):
         if file_.startswith('QuaLiKiz+pat+'):
             pat_result = file_
     if pat_result is None:
-        warn('No folder starting with QuaLiKiz+pat+ found in ' + path + ', skipping..')
+        warn('No folder starting with QuaLiKiz+pat+ found in ' + job.rundir + ', skipping..')
     else:
-        with open(os.path.join(path, EmptyJob.metadatafile), 'r') as file_:
-            reader = csv.reader(file_)
-            job_meta = {line[0]: line[1] for line in reader}
-
-        cmd = 'pat_report -O ca+src,profile -s show_data=csv ' + os.path.join(path, pat_result)
+        cmd = 'pat_report -O ca+src,profile -s show_data=csv '
+        cmd += os.path.join(job.rundir, pat_result)
         print (cmd)
         output = subprocess.check_output(cmd, shell=True, stderr=None).decode('UTF-8')
         # With the previous command we created two tables and some useless data.
@@ -70,10 +68,9 @@ def profile_dir(path):
         for i, table in enumerate(tables):
             for row in table:
                 formatted_tables[i].append([x.rstrip('%') for x in row.split(',')])
-        result = (job_meta['jobnumber'], formatted_tables)
-        return result
+        return formatted_tables
 
-def create_database(path, database_path, append=None, overwrite=None):
+def create_profile_database(batchlist, database_path, append=None, overwrite=None):
     """ Create a database with QuaLiKiz metadata
     Arguments:
         - path:          The path to be polled
@@ -101,22 +98,33 @@ def create_database(path, database_path, append=None, overwrite=None):
                 Samp_percent REAL,
                 Samp INTEGER,
                 Group_Function_Caller TEXT)''')
-    results = recursive_function(path, profile_dir)
-    for result in results:
-        jobnumber = result[0]
-        tables = result[1]
-        for i, table in enumerate(tables):
-            for row in table:
-                data = [jobnumber]
-                data.extend(row)
-                if i == 0:
-                    db.execute('''
-                    INSERT INTO patprofile_lines (Jobnumber, Level, Samp_percent, Samp, Group_Function_Caller)
-                            VALUES (?,?,?,?,?)''', data)
-                if i == 1:
-                    db.execute('''
-                    INSERT INTO patprofile (Jobnumber, Level, Samp_percent, Samp, Imb_Samp, Imb_Samp_percent, Group_Function)
-                            VALUES (?,?,?,?,?,?,?)''', data)
+    for batch in batchlist:
+        batchdir = os.path.join(batch.batchsdir, batch.name)
+        batchinfopath = os.path.join(batchdir, QuaLiKizBatch.batchinfofile)
+        with open(batchinfopath, 'r') as file_:
+            batchinfo = json.load(file_)
+
+        jobnumber = batchinfo['jobnumber']
+        for i, run in enumerate(batch.runlist):
+            if run.is_done():
+                try:
+                    result = profile_job(run)
+                except subprocess.CalledProcessError:
+                    warn('Could not get profile data, skipping..')
+                else:
+                    tables = result
+                    for j, table in enumerate(tables):
+                        for row in table:
+                            data = [jobnumber]
+                            data.extend(row)
+                            if j == 0:
+                                db.execute('''
+                                INSERT INTO patprofile_lines (Jobnumber, Level, Samp_percent, Samp, Group_Function_Caller)
+                                        VALUES (?,?,?,?,?)''', data)
+                            if j == 1:
+                                db.execute('''
+                                INSERT INTO patprofile (Jobnumber, Level, Samp_percent, Samp, Imb_Samp, Imb_Samp_percent, Group_Function)
+                                        VALUES (?,?,?,?,?,?,?)''', data)
     db.commit()
 
     query = db.execute('SELECT Level, Samp_percent, Group_Function FROM patprofile WHERE Level>1 ORDER BY Samp_percent DESC')
@@ -128,3 +136,16 @@ def create_database(path, database_path, append=None, overwrite=None):
     headers = [x[0] for x in query.description]
     result = query.fetchmany(10)
     print (tabulate(result, headers=headers, floatfmt='.0f'))
+
+
+def create_database(path, database_path, append=None, overwrite=None):
+    """ Create a database with basic QuaLiKiz data
+    Arguments:
+        - database_path: Path to the database to be created
+
+    Keyword Arguments:
+        - overwrite: Overwrite database if exists? Default 'ask user'
+        - append:    Append to table if exists? Default 'ask user'
+    """
+    batchlist = QuaLiKizBatch.from_dir_recursive(path)
+    create_profile_database(batchlist, database_path, append=append, overwrite=overwrite)

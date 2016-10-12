@@ -1,4 +1,4 @@
-#!/bin/python3
+#!/usr/bin/env python3
 import os
 import sys
 import re
@@ -55,7 +55,7 @@ def bin_to_np(filepath):
     else:
         warnings.warn('\'' + filepath + '\' is not binary, ignoring..')
 
-def diff(folder1, folder2, to_np):
+def diff(folder1, folder2, to_np, rtol=1e-2):
     not_in_1, not_in_2, in_both = diff_filelist(folder1, folder2)
     different = False
     if len(not_in_1) > 0:
@@ -77,7 +77,7 @@ def diff(folder1, folder2, to_np):
         arr2 = to_np(os.path.join(folder2, filename))
         if arr1 is not None and arr2 is not None:
             try:
-                isclose = np.all(np.isclose(arr1, arr2, rtol=1e-3, equal_nan=True))
+                isclose = np.all(np.isclose(arr1, arr2, rtol=rtol, equal_nan=True))
             except ValueError:
                 isclose = False
             if not isclose or not arr1.shape == arr2.shape:

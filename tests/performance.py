@@ -3,124 +3,123 @@ import math
 import sys
 import os
 import inspect
+import copy
 from warnings import warn
+from collections import OrderedDict
 
 import numpy as np
 
-from qualikiz.qualikizrun import Run, EmptyJob, run_job, generate_input, recursive_function
-from qualikiz.edisonbatch import Srun, Batch
-from qualikiz.inputfiles import Electron, Ion, IonList, QuaLiKizRun
+from qualikiz.qualikizrun import QuaLiKizBatch, QuaLiKizRun
+from qualikiz.edisonbatch import Srun, Sbatch
+from qualikiz.inputfiles import Electron, Ion, IonList, QuaLiKizPlan
 
 """ Creates a scan over number of nodes and xpoints"""
-runsdir = ''
+dirname = 'runs'
 if len(sys.argv) == 2:
     if sys.argv[1] != '':
-        runsdir = os.path.abspath(sys.argv[1])
+        dirname = sys.argv[1]
 
+# We know where this script lives, so we can find the rootdir like this
 rootdir =  os.path.abspath(
    os.path.join(os.path.abspath(inspect.getfile(inspect.currentframe())),
                 '../../'))
-run = Run(rootdir, runsdir=runsdir)
 
-# Load default file
-with open(os.path.join(run.qualikizdir,
-                       'parameters_template.py')) as file_:
-    parameters_template_script = file_.readlines()
+# Find some of the paths we need
+runsdir = os.path.join(rootdir, dirname)
+bindir = os.path.join(rootdir, 'QuaLiKiz+pat')
+templatepath = os.path.join(rootdir, 'tools/qualikiz/parameters_template.json')
 
-xpoints_scan = [9*48, 18*48, 2*18*48, 3*18*48, 4*18*48, 6*18*48, 8*18*48]
-dimensions = 4
-prev_nice_potxpt = [i for i in range(1, xpoints_scan[-1])]
-for xpoints in xpoints_scan:
-   nice_potxpt = []
-   for potxpt in range(1, dimensions*xpoints):
-      if potxpt in prev_nice_potxpt:
-         if (xpoints % potxpt) == 0:
-            if (dimensions*xpoints/potxpt % 24) == 0:
-               nice_potxpt.append( potxpt)
-   prev_nice_potxpt = nice_potxpt
-   print (nice_potxpt)
+# Load the default QuaLiKiz plan we will use as base
+qualikiz_plan_base = QuaLiKizPlan.from_json(templatepath)
+print (qualikiz_plan_base['xpoint_base']['special']['kthetarhos'])
+dimn = len(qualikiz_plan_base['xpoint_base']['special']['kthetarhos'])
 
-xpoints_per_tasks_scan = [9, 12, 18, 24, 36, 72]
-xpoints_per_task_grid, xpoints_grid = np.meshgrid(xpoints_per_tasks_scan, xpoints_scan)
-tasks_grid = (dimensions * xpoints_grid / xpoints_per_task_grid).astype(int)
-print ('xpoints_per_task = ' + str(xpoints_per_tasks_scan))
-print ('xpoints = ' + str(xpoints_scan))
+# Set the amount of points in one scan. At dimxn=552960 we run out of memory
+points_scan = [3*9*48, 2700, 15*9*48] 
+xpoints_scan = [len(qualikiz_plan_base['scan_dict']) * points for points in points_scan]
+print ('dimxn = ' + str(dimn * np.array(xpoints_scan)))
 
-nodes_grid = tasks_grid / 24
-maxtime = datetime.timedelta(seconds=25*60)
-max_cputime_grid = nodes_grid * 24 * maxtime.total_seconds() / 3600
-worst_case_cputime = []
+# Some legacy to find nicely splittable points
+#dimensions = 4
+#prev_nice_potxpt = [i for i in range(1, xpoints_scan[-1])]
+#for xpoints in xpoints_scan:
+#   nice_potxpt = []
+#   for potxpt in range(1, dimensions*xpoints):
+#      if potxpt in prev_nice_potxpt:
+#         if (xpoints % potxpt) == 0:
+#            if (dimensions*xpoints/potxpt % 24) == 0:
+#               nice_potxpt.append( potxpt)
+#   prev_nice_potxpt = nice_potxpt
+#   print (nice_potxpt)
 
+numnodes_scan = [32, 48, 60]
+numcores_scan = [24 * numnodes for numnodes in numnodes_scan]
+print (numcores_scan)
+cores_grid, xpoints_grid = np.meshgrid(numcores_scan, xpoints_scan)
 
-mask = max_cputime_grid > 100
-mask = np.ones_like(max_cputime_grid)
-mask[:3,:] = 0
-mask[1:3,0:2] = 1
+mask = np.zeros_like(cores_grid)
+#mask[1:, 0] = 1
+#mask[:1, 1] = 1
 
-xpoints_per_task_grid = np.ma.array(xpoints_per_task_grid, mask=mask)
-tasks_grid = np.ma.array(tasks_grid, mask=mask)
 xpoints_grid = np.ma.array(xpoints_grid, mask=mask)
-max_cputime_grid = np.ma.array(max_cputime_grid)
-max_cputime_grid.__setmask__(mask)
+cores_grid = np.ma.array(cores_grid, mask=mask)
 
-print ('xpoints per task')
-print (xpoints_per_task_grid)
 print ('xpoints')
 print (xpoints_grid)
-print ('tasks')
-print (tasks_grid)
-print ('max CPUh')
-print (max_cputime_grid)
+print ('cores')
+print (cores_grid)
+print ('xpoints per core')
+print (np.array(xpoints_grid) / np.array(cores_grid))
+
+batch_list = []
+est_cpu_time = []
+est_wall_time = []
+
+for cores_slice, xpoints_slice in zip(cores_grid, xpoints_grid):
+    for cores, xpoints in zip(cores_slice, xpoints_slice):
+        if not np.ma.is_masked(cores) and not np.ma.is_masked(xpoints):
+            qualikiz_plan = copy.deepcopy(qualikiz_plan_base)
+
+            name = 'dimxn' + str(xpoints*dimn) + \
+                    'cores' + str(cores)
 
 
-print ('scanning ' + str(max_cputime_grid.count()) + ' sbatch parameters')
+            points = xpoints / len(qualikiz_plan['scan_dict'])
+            new_scan_dict = OrderedDict()
+            for key, value in qualikiz_plan['scan_dict'].items():
+                new_scan_dict[key] = np.linspace(value[0], value[-1], points).tolist()
 
-print ('uses at max ' + str(max_cputime_grid.sum()) + ' CPUh')
-
-
-
-for tasks_slice, xpoints_slice in zip(tasks_grid, xpoints_grid):
-    for tasks, xpoints in zip(tasks_slice.compressed(), xpoints_slice.compressed()):
-        binary_basename = 'QuaLiKiz+pat'
-        parameters_script = []
-        for line in parameters_template_script:
-            if 'xpoints =' in line:
-                parameters_script.append('xpoints = ' + str(xpoints) + '\n')
-            elif 'npoints =' in line:
-                npoints = 8
-                parameters_script.append('npoints = ' + str(npoints) + '\n')
-            #elif 'setup' in line:
-            #    parameters_script.append('hypercube = run.setup_hypercube()\n')
-            #elif 'to_file' in line:
-            #    parameters_script.append('run.to_file(hypercube)\n')
-            else:
-                parameters_script.append(line)
-
-
-        name = 'dimxn' + str(xpoints*dimensions*npoints*2) + \
-                'mpi' + str(tasks)
-    
-        if xpoints*dimensions % tasks != 0:
-             warn('xpoints not divisable')
-        srun = Srun(binary_basename, tasks)
-        batch = Batch('regular', srun, HT=True)
-        batch.name = 'OMP_MPI_' + name
-        try:
-            batch.optimize_sbatch()
-        # pylint: disable=broad-except
-        except Exception as exception:
-            warn('Could not optimize batch settings')
-            warn(exception)
+            qualikiz_plan['scan_dict'] = new_scan_dict
+               
+            binreldir = os.path.relpath(bindir,
+                                        os.path.join(runsdir, name))
+            run = QuaLiKizRun(runsdir, name,
+                              binreldir,
+                              qualikiz_plan=qualikiz_plan)
+            est_cpu_time.append(run.estimate_cputime(cores))
+            est_wall_time.append(run.estimate_walltime(cores))
+            runlist = [run]
+            try:
+               batch = QuaLiKizBatch(runsdir, name, runlist, cores, partition='debug')
+            except:
+               warn('careful! Too long!')
+            batch.prepare(overwrite_batch=True)
+            batch_list.append(batch)
         else:
-            batch.maxtime = maxtime
-            worst_case_cputime.append(batch.cores_per_node * batch.nodes * maxtime)
-            job = EmptyJob(run.rootdir, name, binary_basename, batch, parameters_script=parameters_script)
-            run.jobs.update({job.name: job})
-run.to_file(overwrite=True)
+            est_cpu_time.append(0)
+    
+print ('CPUh')
+print (np.reshape(est_cpu_time, cores_grid.shape)/3600)
+print ('takes an estimated ' + str(np.sum(est_cpu_time)/3600) + ' CPUh')
+print ('Wallh')
+print (np.reshape(est_wall_time, cores_grid.shape)/60)
+print ('takes an estimated ' + str(np.sum(est_wall_time)/60) + ' Wallm')
 
 print ('Generating input files', end='', flush=True)
-recursive_function(run.runsdir, generate_input, dotprint=True)
+for batch in batch_list:
+    batch.generate_input(dotprint=True)
 print ('\n')
-resp = input('Submit all jobs in rundir to queue? [Y/n]')
+resp = input('Submit all jobs in runsdir to queue? [Y/n]')
 if resp == '' or resp == 'Y' or resp == 'y':
-   recursive_function(run.runsdir, run_job)
+   for batch in batch_list:
+      batch.queue_batch()

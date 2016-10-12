@@ -18,7 +18,7 @@ if isempty(runname) == 1
 	end
 end
 
-parameters; %will read parameter file previously placed by user in newly created run directory
+parameters_template; %will read parameter file previously placed by user in newly created run directory
 
 WriteQLKBatchPBS(runname,nprocs) %for Cephee
 %Calculate auxilliary quantities for plotting
@@ -143,13 +143,13 @@ p{kc} = maxpts;                     kc=kc+1;%p{13}(-) Number of integrand evalua
 p{kc} = timeout;                    kc=kc+1;%p{14}(-) Upper time limit (s) beyond which solutions are not sought after at a given wavenumber and radius
 
 %Geometry input
-p{kc} = kthetarhos;                 kc=kc+1;%p{15} (-) Wave spectrum input: Vector (dimn)
-p{kc} = x;                          kc=kc+1;%p{16} (-) radial normalised coordinate (midplane average)
-p{kc} = rho;                        kc=kc+1;%p{17} (-) normalized toroidal flux coordinate
-p{kc} = Ro;		            kc=kc+1;%p{18} (m) Major radius. Radial profile due to Shafranov shift
-p{kc} = Rmin;	                    kc=kc+1;%p{19} (m) Geometric minor radius. Assumed to be a midplane average at LCFS. Currently a profile but should probably be shifted to a scalar
-p{kc} = Bo;		            kc=kc+1;%p{20} (T) Likely not very rigorous to use this sqrt(<B²>) for calculating the Larmor radius % quite close to <Bphi> in practice however 
-p{kc} = R0;		            kc=kc+1;%p{21} (m) Geometric major radius used for normalizations
+p{kc} = R0;		            kc=kc+1;%p{15} (m) Geometric major radius used for normalizations
+p{kc} = kthetarhos;                 kc=kc+1;%p{16} (-) Wave spectrum input: Vector (dimn)
+p{kc} = x;                          kc=kc+1;%p{17} (-) radial normalised coordinate (midplane average)
+p{kc} = rho;                        kc=kc+1;%p{18} (-) normalized toroidal flux coordinate
+p{kc} = Ro;		            kc=kc+1;%p{19} (m) Major radius. Radial profile due to Shafranov shift
+p{kc} = Rmin;	                    kc=kc+1;%p{20} (m) Geometric minor radius. Assumed to be a midplane average at LCFS. Currently a profile but should probably be shifted to a scalar
+p{kc} = Bo;		            kc=kc+1;%p{21} (T) Likely not very rigorous to use this sqrt(<B²>) for calculating the Larmor radius % quite close to <Bphi> in practice however 
 p{kc} = qx;               	    kc=kc+1;%p{22} (-) Vector (radial grid x(aa))
 p{kc} = smag;            	    kc=kc+1;%p{23} (-) Vector (radial grid x(aa))  q is a flux surface quantity --> makes sense to consider s = rho/q dq/drho
 p{kc} = alphax;            	    kc=kc+1;%p{24} (-) Vector (radial grid x(aa)) 
@@ -170,15 +170,15 @@ p{kc} = anise;                      kc=kc+1;%p{35}  Tperp/Tpar at LFS
 p{kc} = danisedr;                   kc=kc+1;%p{36}  d/dr(Tperp/Tpar) at LFS
 
 %Ion inputs (can be for multiple species)
-p{kc} = Ai;	            kc=kc+1;%p{37} (-) Ion mass
-p{kc} = Zi;     	    kc=kc+1;%p{38} (-) Ion charge
-p{kc} = Tix;                kc=kc+1;%p{39} (keV) Vector (radial grid x(aa))
-p{kc} = ninorm;             kc=kc+1;%p{40} ni/ne Vector (radial grid x(aa))
-p{kc} = Ati;      	    kc=kc+1;%p{41}  (-) Vector (radial grid x(aa))
-p{kc} = Ani;                kc=kc+1;%p{42}  (-) Vector (radial grid x(aa))  check calculation w.r.t. Qualikiz electroneutrality assumption
-p{kc} = ion_type;           kc=kc+1;%p{43}  Kinetic, adiabatic, tracer
-p{kc} = anis;               kc=kc+1;%p{44}  Tperp/Tpar at LFS
-p{kc} = danisdr;            kc=kc+1;%p{45}  d/dr(Tperp/Tpar) at LFS
+p{kc} = Tix;                kc=kc+1;%p{37} (keV) Vector (radial grid x(aa))
+p{kc} = ninorm;             kc=kc+1;%p{38} ni/ne Vector (radial grid x(aa))
+p{kc} = Ati;      	    kc=kc+1;%p{39}  (-) Vector (radial grid x(aa))
+p{kc} = Ani;                kc=kc+1;%p{40}  (-) Vector (radial grid x(aa))  check calculation w.r.t. Qualikiz electroneutrality assumption
+p{kc} = ion_type;           kc=kc+1;%p{41}  Kinetic, adiabatic, tracer
+p{kc} = anis;               kc=kc+1;%p{42}  Tperp/Tpar at LFS
+p{kc} = danisdr;            kc=kc+1;%p{43}  d/dr(Tperp/Tpar) at LFS
+p{kc} = Ai;	            kc=kc+1;%p{44} (-) Ion mass
+p{kc} = Zi;     	    kc=kc+1;%p{45} (-) Ion charge
 
 nargu = kc-1;
 stringind=[]; %no string indexes. Kept if adding any future string inputs

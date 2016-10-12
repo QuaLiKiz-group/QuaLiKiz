@@ -1,30 +1,19 @@
 from warnings import warn
-class Batch:
+import numpy as np
+from .qualikizrun import vcores_per_task
+cores_per_node = 24
+class Sbatch:
     """ Defines a batch job
     This class uses the OpenMP/MPI parameters as defined by Edison,
     but could in principle be extented to support more machines.
 
     class variables:
-        - sockets_per_node: Amount of sockets in one compute node
-        - cores_per_socket: Amount of physical CPU cores in one socket
-        - cores_per_node:   Amount of physical CPU cores in one compute node
         - attr:             All possible attributes as defined by Edison
         - sbatch:           Names of attributes as they are in the sbatch file
         - shell:            The shell to use for sbatch scripts. Usually bash
-        - filesystem:       The default filesystem to use. Usually SCRATCH
         - repo:             The default repo to bill hours to. Usually empty
-        - stdout:           The file to write stdout to. Default=qualikiz.out
-        - stderr:           The file to write stderr to. Default=qualikiz.err
-
-    functions:
-        - optimize_sbatch: Calculate tasks_per_node and nodes based on HT
-        - optimize_sbatch_general: LEGACY
-        - to_file: Write edison sbatch to file
     """
     # pylint: disable=too-many-instance-attributes
-    sockets_per_node = 2
-    cores_per_socket = 12
-    cores_per_node = sockets_per_node * cores_per_socket
     attr = ['nodes',
             'maxtime',
             'partition',
@@ -52,137 +41,72 @@ class Batch:
               'mail-user',
               'qos']
     shell = '/bin/bash'
-    filesystem = 'SCRATCH'
     repo = None
-    stdout = 'qualikiz.out'
-    stderr = 'qualikiz.err'
     mailtype = None
     mailuser = None
     workdir = None
+    default_stderr = 'stderr.batch'
+    default_stdout = 'stdout.batch'
 
-    def __init__(self, partition, srun, qos='normal', HT=True):
+    def __init__(self, srun_instances, name, tasks, maxtime,
+                 stdout=default_stdout, stderr=default_stderr,
+                 filesystem='SCRATCH', partition='regular', qos='normal', HT=True):
         """ Initialize Edison batch job
         Arguments:
-            - partition: Partition to run on, for example 'debug'
-            - srun:      Instance of the Srun class; describes run parameters
+            - srun_instances: A list of Srun instances included in the Sbatch job
+            - name:           Name of the Sbatch job
+            - tasks:          Amount of MPI tasks
+            - maxtime:        Maximum walltime needed
 
-        Keyword arguments:
-            - qos:       Priority in the queue. Default='normal'
-            - HT:        Hyperthreading on/off. Default=True
+        Keyword Arguments:
+            - stdout:     The file to write stdout to. By default 'stdout.batch'
+            - stderr:     The file to write stderr to. By default 'stderr.batch'
+            - filesystem: The default filesystem to use. Usually SCRATCH
+            - partition:  Partition to run on, for example 'debug'. By default
+                          'regular'
+            - qos:        Priority in the queue. By default 'normal'
+            - HT:         Hyperthreading on/off. Default=True
 
-        Undefined at initialization time:
-            - name:             Name of the sbatch job
-            - nodes:            Amount of nodes to run on
-            - maxime:           Maximum allowed walltime
-            - tasks_per_node:   Amount of MPI tasks per node
-            - threads_per_task: Amount of OMP threads per MPI task
-            - vcores_per_task:   Amount of virtual cores per MPI task
 
         Calculated:
             - threads_per_core: amount of OMP threads per physical core
             - threads_per_node: amount of OMP threads per compute node
+            - sockets_per_node: Amount of sockets in one compute node
+            - cores_per_socket: Amount of physical CPU cores in one socket
+            - cores_per_node:   Amount of physical CPU cores in one compute node
         """
-        self.qos = qos
-        self.nodes = None #-N --nodes
-        self.maxtime = None
-        self.partition = partition
-        self.tasks_per_node = None #-n, --ntasks-per-node
-        self.threads_per_task = None #OMP_NUM_THREADS=2
-        self.name = None
-        self.srun = srun
-        self.vcores_per_task = None #-c --cpus-per-task
 
+        self.filesystem = filesystem
+        vcores_per_task
         if HT:
-            self.threads_per_core = 2
+            vcores_per_core = 2 # Per definition
         else:
-            self.threads_per_core = 1
-        self.threads_per_node = (self.sockets_per_node *
-                                 self.cores_per_socket *
-                                 self.threads_per_core)
+            vcores_per_core = 1
+        self.vcores_per_node = cores_per_node * vcores_per_core #HT 48 or no HT 24
+        self.vcores_per_task = vcores_per_task # 2, as per QuaLiKiz
+        self.tasks_per_node = int(self.vcores_per_node / self.vcores_per_task)
 
-    def optimize_sbatch(self):
-        """ Calculate optimal sbatch parameters
-        Some of the parameter validation is kept in place for legacy purposes,
-        even though they should be always constant as long as QuaLiKiz
-        does not change.
-
-        Constants:
-            - self.threads_per_task = 2, as per QuaLiKiz code
-            - self.vcores_per_task   = 2, max 1 MPI task per virtual core
-
-        Calculated:
-            - self.tasks_per_node: Amount of MPI tasks per compute node. Should be 12
-                                   without HT and 24 with HT
-            - self.nodes:          Amount of nodes used for batch job. It should be at least
-                                   one node.
-        """
-        self.threads_per_task = 2 # Stuck as per QuaLiKiz code
-        threads_per_vcore = 1 # Never give one (virtual) CPU more than one task
-        self.vcores_per_task, remainder = divmod(self.threads_per_task, threads_per_vcore)
-        if remainder != 0:
-            warn(str(self.threads_per_task) + ' threads per task not evenly divisible over ' + \
-                 str(self.threads_per_core) + ' threads per cpu. Using ' + \
-                 str(self.vcores_per_task) + ' cpus per tasks.')
-
-        # 12 without HT, 24 with HT
-        self.tasks_per_node, remainder = divmod(self.threads_per_node, self.threads_per_task)
-        if remainder != 0:
-            warn(str(self.threads_per_node) + ' threads per node not evenly divisible over ' + \
-                 str(self.threads_per_task) + ' threads per task. Using ' + \
-                 str(self.tasks_per_node) + ' tasks per node.')
-        nodes, remainder = divmod(self.srun.tasks, self.tasks_per_node)
-        if nodes == 0:
-            nodes = 1
-            warn('Cannot use 0 nodes for ' + str(self.srun.tasks) + ' tasks. Using 1 node instead.')
-        else:
-            if remainder != 0:
-                nodes += 1
-                warn(str(self.srun.tasks) + ' tasks not evenly divisible over ' + \
-                     str(self.tasks_per_node) + ' tasks per node. Using ' + \
-                     str(nodes) + ' nodes.')
-
-        self.nodes = nodes
-        if self.threads_per_task * self.tasks_per_node > self.threads_per_node:
-            raise Exception('Too many cpus per node!')
-
-    def optimize_sbatch_general(self, tasks_per_node):
-        """ LEGACY """
-        raise Exception('Function kept in for legacy purpose! Use at your own risk!')
-        # pylint: disable=unreachable
-        if tasks_per_node > 48:
-            raise Exception('Too many tasks per node!')
-        self.tasks_per_node = tasks_per_node # Usually 1-4, max 24 or 48 with HT
-        self.threads_per_task, remainder = divmod(self.threads_per_node, self.tasks_per_node)
-        if remainder != 0:
-            self.threads_per_task += 1
-            warn(str(self.tasks_per_node) + ' tasks per node not evenly divisible over ' + \
-                 str(self.threads_per_node) + ' threads per node. Using ' + \
-                 str(self.threads_per_task) + ' threads per task.')
-        threads_per_cpu = 1
-        self.vcores_per_task, remainder = divmod(self.threads_per_task, threads_per_cpu)
-        if remainder != 0:
-            warn(str(self.threads_per_task) + ' threads per task not evenly divisible over ' + \
-                 str(self.threads_per_core) + ' threads per cpu. Using ' + \
-                 str(self.vcores_per_task) + ' cpus per tasks.')
-
-        self.nodes, remainder = divmod(self.srun.tasks, tasks_per_node)
+        nodes, remainder = divmod(tasks, self.tasks_per_node)
+        self.nodes = int(nodes)
         if remainder != 0:
             self.nodes += 1
-            warn(str(self.srun.tasks) + ' tasks not evenly divisible over ' + \
+            warn(str(tasks) + ' tasks not evenly divisible over ' + \
                  str(self.tasks_per_node) + ' tasks per node. Using ' + \
                  str(self.nodes) + ' nodes.')
+        
+        self.qos = qos
+        self.maxtime = maxtime 
+        self.partition = partition
+        self.name = name
+        self.srun_instances = srun_instances
+        self.stdout = stdout
+        self.stderr = stderr
 
-        if self.threads_per_task * self.tasks_per_node > self.threads_per_node:
-            raise Exception('Too many cpus per node!')
 
-    def to_file(self, path='edison.sbatch'):
+    def to_file(self, path):
         """ Writes sbatch script to file
-        Remember to set all attributes defined in the __init__ function, or the batch
-        script will not work
-
-        Keyword arguments:
-            - path: (relative) path of the sbatch script file. This will be the name
-                    of the file. Default=edison.sbatch
+        Arguments:
+            - path: Path of the sbatch script file.
         """
         sbatch_lines = ['#!' + self.shell + ' -l\n']
         for attr, sbatch in zip(self.attr, self.sbatch):
@@ -191,21 +115,112 @@ class Batch:
                 line = '#SBATCH --' + sbatch + '=' + str(value) + '\n'
                 sbatch_lines.append(line)
 
-        sbatch_lines.append('\nexport OMP_NUM_THREADS=' + str(self.threads_per_task) + '\n')
-        sbatch_lines.append('srun -n ' + str(self.srun.tasks) + ' ' +self.srun.binary_name + '\n')
+        sbatch_lines.append('\nexport OMP_NUM_THREADS=' + str(self.vcores_per_task) + '\n')
 
+        # Write sruns to file
+        sbatch_lines.append(self.srun_instances[0].to_string())
+        for run_instance in self.srun_instances[1:]:
+            sbatch_lines.append(' &\n' + run_instance.to_string())
+        sbatch_lines.append('\n')
+        
         with open(path, 'w') as file:
             file.writelines(sbatch_lines)
 
+    @classmethod
+    def from_file(cls, path):
+        """ Reconstruct sbatch from sbatch file """
+        new = Sbatch.__new__(cls)
+        lines = []
+        srun_strings = []
+        with open(path, 'r') as file:
+            for line in file:
+                if line.startswith('#SBATCH --'):
+                    line = line.lstrip('#SBATCH --')
+                    name, value = line.split('=')
+                    value = str_to_number(value.strip())
+                    if name in cls.sbatch:
+                        setattr(new, cls.attr[cls.sbatch.index(name)], value)
+                if line.startswith('srun'):
+                    srun_strings.append(line)
 
+        new.vcores_per_node = new.tasks_per_node * new.vcores_per_task
+
+        new.srun_instances = []
+        for srun_string in srun_strings:
+            new.srun_instances.append(Srun.from_string(srun_string))
+        return new
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return self.__dict__ == other.__dict__
+        return NotImplemented
+
+    def __ne__(self, other):
+        if isinstance(other, self.__class__):
+            return not self == other
+        return NotImplemented
+
+def str_to_number(str):
+    """ Convert a string in a float or int if possible """
+    try:
+        value = float(str)
+    except ValueError:
+        value = str
+    else:
+        if value.is_integer:
+            value = int(value)
+    return value
+    
 class Srun:
-    """ Defines the srun command inside a sbatch script"""
-    # pylint: disable=too-few-public-methods
-    def __init__(self, binary_name, tasks):
+    """ Defines the srun command """
+    default_stderr = 'stderr.run'
+    default_stdout = 'stdout.run'
+    def __init__(self, binary_name, tasks,
+                 chdir='.',
+                 stdout=default_stdout, stderr=default_stderr):
         """ Initializes the Srun class
         Arguments:
             - binary_name: The name of the binary relative to where the sbatch script will be
             - tasks: Amount of MPI tasks needed for the job
+        Keyword Arguments:
+            - chdir:  Dir to change to before running the command
+            - stdout: Standard target of redirect of STDOUT
+            - stderr: Standard taget of redirect of STDERR
         """
         self.binary_name = binary_name
         self.tasks = tasks
+        self.chdir = chdir
+        self.stdout = stdout
+        self.stderr = stderr
+
+    def to_string(self):
+        """ Create the srun string """
+        string = 'srun'
+        string += ' -n ' + str(self.tasks)
+        string += ' --chdir ' + self.chdir
+        string += ' --output ' + self.stdout
+        string += ' --error ' + self.stderr
+        string += ' ' + self.binary_name
+        return string
+
+    @classmethod
+    def from_string(cls, string):
+        """ Reconstruct the Srun from a string """
+        new = Srun.__new__(cls)
+        split = string.split(' ')
+        new.tasks = int(split[2])
+        new.chdir = split[4]
+        new.stdout = split[6]
+        new.stderr = split[8]
+        new.binary_name = split[9].strip()
+        return new
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return self.__dict__ == other.__dict__
+        return NotImplemented
+
+    def __ne__(self, other):
+        if isinstance(other, self.__class__):
+            return not self == other
+        return NotImplemented

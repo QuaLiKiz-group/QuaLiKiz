@@ -1,7 +1,8 @@
+#!/usr/bin/env python3
 """ Command line interface for Python tools """
 import sys
 import os
-from qualikiz import compare, legacy, qualikizrun, basicpoll, sacct, craypat
+from qualikiz import compare, legacy, qualikizrun, basicpoll, sacct, craypat, fs_manipulation
 import subprocess
 import os, inspect
 
@@ -72,12 +73,23 @@ elif command == 'patpoll':
     path = sys.argv[2]
     craypat.create_database(path, targetdir)
 
+elif command == 'movecomplete':
+    if len(sys.argv) < 4:
+         raise Exception('please supply source and target')
+    else:
+         sourcedir =  sys.argv[2]
+         targetdir = sys.argv[3]
+    fs_manipulation.move_completed(sourcedir, targetdir)
+
 elif command == 'inputgo':
     if len(sys.argv) < 3:
         raise Exception('Please supply run path')
     path = sys.argv[2]
-    qualikizrun.recursive_function(path, qualikizrun.generate_input)
-    qualikizrun.recursive_function(path, qualikizrun.run_job)
+    batchlist = qualikizrun.QuaLiKizBatch.from_dir_recursive(path)
+    for batch in batchlist:
+        batch.prepare()
+        batch.generate_input()
+        batch.queue_batch()
 
 elif command == 'convertto':
     if len(sys.argv) < 3:
@@ -90,8 +102,16 @@ elif command == 'convertto':
         raise Exception('Please supply input path to convert')
     path = sys.argv[4]
     if current == 'current':
-        if target == '2.3.0':
-            legacy.convert_current_to_2_3_0(path)
+        if target == '2.3.1' or target == '2.3.0':
+            legacy.convert_current_to_2_3_2(path)
+            legacy.convert_2_3_2_to_2_3_1(path)
+        elif target == '2.3.2':
+            legacy.convert_current_to_2_3_2(path)
+        else:
+            raise Exception('Unkown target')
+    elif current == '2.3.2':
+        if target == '2.3.1' or target == '2.3.0':
+            legacy.convert_2_3_2_to_2_3_1(path)
         else:
             raise Exception('Unkown target')
     else:
@@ -111,11 +131,11 @@ else:
             target_dir = ''
 
         if create_target == 'mini':
-            cmd = ['python',
+            cmd = ['python3',
                    os.path.join(testsdir, 'mini.py'),
                    target_dir ]
         elif create_target == 'performance':
-            cmd = ['python',
+            cmd = ['python3',
                    os.path.join(testsdir, 'performance.py'),
                    target_dir]
         else:
@@ -126,7 +146,7 @@ else:
         if len(sys.argv) < 3:
              raise Exception('Please supply path to analyse')
         path = sys.argv[2]
-        cmd = ['python',
+        cmd = ['python3',
                os.path.join(testsdir, 'performance_analyse.py'),
                path]
         subprocess.check_call(cmd)

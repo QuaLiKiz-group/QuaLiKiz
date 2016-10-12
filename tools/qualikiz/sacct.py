@@ -2,16 +2,17 @@ import os
 import subprocess
 import sqlite3
 import pickle
-import csv
+import json
 from warnings import warn
 import datetime
 
 from .tabulate.tabulate import tabulate
-from .qualikizrun import EmptyJob, recursive_function
+
+from .qualikizrun import QuaLiKizRun, QuaLiKizBatch
 from .basicpoll import database_exists
 
 
-def poll_dir(path):
+def poll_sacct(batch):
     """ Poll a job in a specific directory using sacct
     We exploit the fact that every 'run' should be unique, e.g.
     having a unique job-id.
@@ -26,15 +27,13 @@ def poll_dir(path):
                   have one row. The aforementioned headers defines the columns
                   of the table
     """
-    with open(os.path.join(path, EmptyJob.jobdatafile), 'rb') as file_:
-        job = pickle.load(file_)
-    
-    with open(os.path.join(path, EmptyJob.metadatafile), 'r') as file_:
-        reader = csv.reader(file_)
-        job_meta = {line[0]: line[1] for line in reader}
+    batchdir = os.path.join(batch.batchsdir, batch.name)
+    batchinfopath = os.path.join(batchdir, QuaLiKizBatch.batchinfofile)
+    with open(batchinfopath, 'r') as file_:
+        batchinfo = json.load(file_)
 
     extra_fields = 'submit,CPUTime,CPUTimeRAW,NNodes'
-    cmd = 'sacct -o ' + extra_fields + ' -lXP --noconvert -j ' + job_meta['jobnumber']
+    cmd = 'sacct -o ' + extra_fields + ' -lXP --noconvert -j ' + batchinfo['jobnumber']
     output = subprocess.check_output(cmd, shell=True).decode('UTF-8')
 
     lines = output.splitlines()
@@ -45,7 +44,7 @@ def poll_dir(path):
     for entry in table:
         jobname_index = header.index('JobName')
         state_index = header.index('State')
-        if entry[jobname_index] == job.batch.name:
+        if entry[jobname_index] == batch.name:
             if entry[state_index] != 'COMPLETED':
                 warn('State of ' + entry[jobname_index] + ' is ' + entry[state_index] + ', not COMPLETED. Results might not be reliable')
 
@@ -64,7 +63,7 @@ def header_to_sql(header):
     print (table_row)
     print (table_quest)
 
-def create_database(path, database_path, append=None, overwrite=None):
+def create_sacct_database(batchlist, database_path, append=None, overwrite=None):
     """ Create a database with sacct data
     Arguments:
         -  path:          The path to be polled
@@ -127,17 +126,18 @@ def create_database(path, database_path, append=None, overwrite=None):
                    ReqTRES          TEXT,
                    AllocTRES        TEXT
                    )''')
-    result = recursive_function(path, poll_dir)
-    for __, row in result:
+    result = []
+    for batch in batchlist:
+        __, data = poll_sacct(batch) 
         db.execute('''
         INSERT INTO sacct (
         Submit, CPUTime, CPUTimeRAW, NNodes, JobID, JobIDRaw, JobName, Partition, MaxVMSize, MaxVMSizeNode, MaxVMSizeTask, AveVMSize, MaxRSS, MaxRSSNode, MaxRSSTask, AveRSS, MaxPages, MaxPagesNode, MaxPagesTask, AvePages, MinCPU, MinCPUNode, MinCPUTask, AveCPU, NTasks, AllocCPUS, Elapsed, State, ExitCode, AveCPUFreq, ReqCPUFreqMin, ReqCPUFreqMax, ReqCPUFreqGov, ReqMem, ConsumedEnergy, MaxDiskRead, MaxDiskReadNode, MaxDiskReadTask, AveDiskRead, MaxDiskWrite, MaxDiskWriteNode, MaxDiskWriteTask, AveDiskWrite, AllocGRES, ReqGRES, ReqTRES, AllocTRES)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', row[0])
-        db.commit()
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', data[0])
+    db.commit()
 
-        query = db.execute('select JobID, CPUTime, NNodes, AllocCPUS, Elapsed, State from sacct')
-        headers = [x[0] for x in query.description]
-        print (tabulate(query, headers=headers))
+    query = db.execute('select JobID, CPUTime, NNodes, AllocCPUS, Elapsed, State from sacct')
+    headers = [x[0] for x in query.description]
+    print (tabulate(query, headers=headers))
         
 def acctstr_to_timedelta(acctstr):
     """ Covert a timestring generated with acct to timedelta """
@@ -155,3 +155,6 @@ def acctstr_to_timedelta(acctstr):
             timedelta = datetime.timedelta(seconds=seconds, minutes=minutes, hours=hours, days=days)
     return timedelta
 
+def create_database(path, database_path, append=None, overwrite=None):
+    batchlist = QuaLiKizBatch.from_dir_recursive(path)
+    create_sacct_database(batchlist, database_path, append=append, overwrite=overwrite)
