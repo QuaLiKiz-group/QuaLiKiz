@@ -1,31 +1,35 @@
+"""
+Copyright Dutch Institute for Fundamental Energy Research (2016)
+Contributors: Karel van de Plassche (karelvandeplassche@gmail.com)
+License: CeCILL v2.1
+"""
 import os
 import datetime
-import pickle
 import subprocess
-import sys
-import math
 import warnings
 from warnings import warn
 from collections import OrderedDict
 import shutil
 import json
 
-import numpy as np
-
-threads_per_task = 2 # Stuck as per QuaLiKiz code
-threads_per_vcore = 1 # Never give one (virtual) CPU more than one task
-vcores_per_task = int(threads_per_task / threads_per_vcore) # == 2
+threads_per_task = 2  # Stuck as per QuaLiKiz code
+threads_per_vcore = 1  # Never give one (virtual) CPU more than one task
+vcores_per_task = int(threads_per_task / threads_per_vcore)  # == 2
 
 from .edisonbatch import Srun, Sbatch
 from . import inputfiles
-from .inputfiles import QuaLiKizPlan, Ion, IonList, Electron
+from .inputfiles import QuaLiKizPlan
+
 
 warnings.simplefilter('always', UserWarning)
+
+
 class PathException(Exception):
     """ Exception thrown when a path should be absolute, but it is not """
     def __init__(self, path):
         message = path + ' must be an absolute path or bad things will happen!'
         super().__init__(message)
+
 
 class QuaLiKizBatch:
     """ A collection of QuaLiKiz Runs
@@ -38,11 +42,11 @@ class QuaLiKizBatch:
                          batch metadata
         - scriptname:    The default name of the sbatch scipt file.
     """
-    # pylint: disable=too-few-public-methods
 
     batchinfofile = 'batchinfo.json'
     scriptname = 'edison.sbatch'
-    def __init__(self, batchsdir, name, runlist, ncpu, 
+
+    def __init__(self, batchsdir, name, runlist, ncpu,
                  safetytime=1.5, style='sequential',
                  stdout=Sbatch.default_stdout,
                  stderr=Sbatch.default_stderr,
@@ -50,7 +54,7 @@ class QuaLiKizBatch:
                  qos='normal', HT=True):
         """ Initialize a batch
         Arguments:
-            - batchsdir: Parent directory of the batch directory. Usually 'runs'
+            - batchsdir: Parent directory of the batch directory.
             - name:      Name of the batch. This will also be the folder name
             - runlist:   A list of QuaLiKizRuns contained in this batch
             - ncpu:      Amount of cpus to be used
@@ -65,7 +69,7 @@ class QuaLiKizBatch:
             - filesystem: SLURM filesystem to be used. SCRATCH by default
             - partition:  Which Edison partition to use. 'regular' by default
             - qos:        SLURM qos to be used. normal by default
-            - HT:         Use hyperthreading. True by default 
+            - HT:         Use hyperthreading. True by default
         """
         # To be always sure to find the dir, this needs to be absolute
         if os.path.isabs(batchsdir):
@@ -75,7 +79,7 @@ class QuaLiKizBatch:
         self.name = name
 
         self.runlist = runlist
-        self.batch = self.generate_batchscript(ncpu, 
+        self.batch = self.generate_batchscript(ncpu,
                                                safetytime=safetytime,
                                                style=style,
                                                stdout=stdout, stderr=stderr,
@@ -83,7 +87,6 @@ class QuaLiKizBatch:
                                                partition=partition,
                                                qos=qos,
                                                HT=HT)
-
 
     def prepare(self, overwrite_batch=None, overwrite_runs=False):
         """ Prepare the batch and runs to be submitted
@@ -93,11 +96,11 @@ class QuaLiKizBatch:
         generate_input function.
 
         Keyword arguments:
-            - overwrite_batch: Flag to overwrite the batch folder if it 
+            - overwrite_batch: Flag to overwrite the batch folder if it
                                already exists. Prompts the user by default.
             - overwrite_runs:  Flag to overwrite the runs folders if they
                                already exist. False by default.
-        """ 
+        """
         batchdir = os.path.join(self.batchsdir, self.name)
         batchpath = os.path.join(batchdir, self.scriptname)
         create_folder_prompt(batchdir, overwrite=overwrite_batch)
@@ -114,7 +117,7 @@ class QuaLiKizBatch:
         for run in self.runlist:
             run.generate_input(dotprint=dotprint)
 
-    def generate_batchscript(self, ncpu, 
+    def generate_batchscript(self, ncpu,
                              safetytime=1.5, style='sequential',
                              stdout=Sbatch.default_stdout,
                              stderr=Sbatch.default_stderr,
@@ -136,7 +139,7 @@ class QuaLiKizBatch:
             - filesystem: SLURM filesystem to be used. SCRATCH by default
             - partition:  Which Edison partition to use. 'regular' by default
             - qos:        SLURM qos to be used. normal by default
-            - HT:         Use hyperthreading. True by default 
+            - HT:         Use hyperthreading. True by default
 
         Returns:
             - batch:      The batch script
@@ -157,7 +160,7 @@ class QuaLiKizBatch:
             if partition == 'debug' and (h >= 1 or m >= 30):
                 warn('Walltime requested too high for debug partition')
             maxtime = ("%d:%02d:%02d" % (h, m, s))
-            batch = Sbatch(runclasslist, self.name, tasks, maxtime, 
+            batch = Sbatch(runclasslist, self.name, tasks, maxtime,
                            stdout=stdout, stderr=stderr,
                            filesystem=filesystem, partition=partition,
                            qos=qos, HT=HT)
@@ -196,7 +199,7 @@ class QuaLiKizBatch:
 
         Returns:
             - qualikizbatch: The reconstructed batch
-        """ 
+        """
         batchdir = batchdir.rstrip('/')
         # The name should be the same as the directory name given
         batchsdir, name = os.path.split(batchdir)
@@ -206,19 +209,21 @@ class QuaLiKizBatch:
         batchdir = os.path.join(batchsdir, name)
         batchpath = os.path.join(batchdir, cls.scriptname)
         qualikizbatch.batch = Sbatch.from_file(batchpath)
-        
+
         qualikizbatch.runlist = []
-        # Try to find the contained runs. If they can't be found at the path in the
-        # batch script, they can usually be found in one of the batchpath children
+        # Try to find the contained runs. If they can't be found at the path
+        # in the batch script, they are usually in one of the children
         for srun_instance in qualikizbatch.batch.srun_instances:
             rundir = srun_instance.chdir
             if not os.path.isdir(rundir):
                 warn('Your batch script will not work!')
-                warn('Could not find run at \'' + str(rundir) + '\' searching..')
+                warn('Could not find run at \'' +
+                     str(rundir) + '\' searching..')
                 rundir = os.path.join(batchdir, os.path.basename(rundir))
                 rundir = os.path.abspath(rundir)
                 if not os.path.isdir(rundir):
-                    warn('Could not find run at \'' + str(rundir) + '\' searching..')
+                    warn('Could not find run at \'' +
+                         str(rundir) + '\' searching..')
                     rundir = os.path.join(batchsdir, os.path.basename(rundir))
                     rundir = os.path.abspath(rundir)
                     if not os.path.isdir(rundir):
@@ -228,7 +233,10 @@ class QuaLiKizBatch:
                 else:
                     warn('Found run at \'' + rundir + '\'')
 
-            qualikizbatch.runlist.append(QuaLiKizRun.from_dir(rundir, srun_instance.binary_name, stdout=srun_instance.stdout, stderr=srun_instance.stderr))
+            run = QuaLiKizRun.from_dir(rundir, srun_instance.binary_name,
+                                       stdout=srun_instance.stdout,
+                                       stderr=srun_instance.stderr)
+            qualikizbatch.runlist.append(run)
 
         return qualikizbatch
 
@@ -253,20 +261,26 @@ class QuaLiKizBatch:
         describe = subprocess.check_output(cmd, shell=True)
         batchinfo = OrderedDict()
         batchinfo['qualikiz_version'] = describe.strip().decode('utf-8')
-    
+
         # Currently only works for Edsion
         cmd = 'sbatch --workdir=' + os.getcwd() + ' ' + batchpath
         output = subprocess.check_output(cmd, shell=True)
         batchinfo['jobnumber'] = output.split()[-1].decode('utf-8')
         batchinfo['submittime'] = datetime.datetime.now()
-        
-        print ('Queued batch with jobnumber ' + str(batchinfo['jobnumber']))
-        
+
+        print('Queued batch with jobnumber ' + str(batchinfo['jobnumber']))
+
         # Dump some important profiling stuff to file
-        with open(os.path.join(batchdir, QuaLiKizBatch.batchinfofile), 'w') as file_:
+        batchinfopath = os.path.join(batchdir, QuaLiKizBatch.batchinfofile)
+        with open(batchinfopath, 'w') as file_:
             # Some magic to correctly handle date/time info
-            dthandler = lambda obj: obj.isoformat() if isinstance(obj, datetime.datetime) else json.JSONEncoder().default(obj)
-            json.dump(batchinfo, file_, default=dthandler)
+            json.dump(batchinfo, file_, default=self.dthandler)
+
+    def dthandler(self, obj):
+        if isinstance(obj, datetime.datetime):
+            obj.isoformat()
+        else:
+            json.JSONEncoder().default(obj)
 
     def clean(self):
         """ Remove all output """
@@ -312,13 +326,12 @@ class QuaLiKizRun:
         - inputdir:       Relative path to the input folder
     """
     parameterspath = 'parameters.json'
-    pythonreldir = os.path.basename(os.path.realpath(os.path.dirname(__file__)))
     pythondir = os.path.realpath(os.path.dirname(__file__))
+    pythonreldir = os.path.basename(pythondir)
     outputdir = 'output'
     primitivedir = 'output/primitive'
     debugdir = 'debug'
     inputdir = 'input'
-
 
     def __init__(self, runsdir, name, binaryrelpath, qualikiz_plan=None,
                  stdout=Srun.default_stdout,
@@ -355,11 +368,10 @@ class QuaLiKizRun:
         self.binaryrelpath = binaryrelpath
         # Load the default parameters if no plan is defined
         if qualikiz_plan is None:
-            templatepath = os.path.abspath(os.path.join(self.rundir, self.pythondir,
-                                                        'parameters_template.json'))
+            templatepath = os.path.join(self.pythondir,
+                                        'parameters_template.json')
             qualikiz_plan = QuaLiKizPlan.from_json(templatepath)
         self.qualikiz_plan = qualikiz_plan
-
 
     def prepare(self, overwrite=None):
         """ Write all Run folders to file
@@ -396,7 +408,6 @@ class QuaLiKizRun:
         # Create a parameters file
         self.qualikiz_plan.to_json(os.path.join(rundir, self.parameterspath))
 
-
     def _create_output_folders(self, path):
         """ Create the output folders """
         os.makedirs(os.path.join(path, self.outputdir), exist_ok=True)
@@ -405,17 +416,18 @@ class QuaLiKizRun:
 
     def generate_input(self, dotprint=False):
         """ Generate the input binaries for a QuaLiKiz run
-     
+
         Keyword arguments:
             - dotprint: Print a dot after each generation. Used for debugging.
         """
-        plan = inputfiles.QuaLiKizPlan.from_json(os.path.join(self.rundir,
-                                                             'parameters.json'))
+        parameterspath = os.path.join(self.rundir, 'parameters.json')
+
+        plan = inputfiles.QuaLiKizPlan.from_json(parameterspath)
         input_binaries = plan.setup()
         inputdir = os.path.join(self.rundir, self.inputdir)
-    
+
         if dotprint:
-            print ('.', end='', flush=True)
+            print('.', end='', flush=True)
         os.makedirs(inputdir, exist_ok=True)
         for name, value in input_binaries.items():
             with open(os.path.join(inputdir, name + '.bin'), 'wb') as file_:
@@ -455,17 +467,17 @@ class QuaLiKizRun:
             - HT: Flag to use HyperThreading. By default True.
         """
         if HT:
-            vcores_per_core = 2 # Per definition
+            vcores_per_core = 2  # Per definition
         else:
             vcores_per_core = 1
-        
-        cores_per_task = int(vcores_per_task / vcores_per_core) # HT 1, no HT 2
+
+        cores_per_task = int(vcores_per_task / vcores_per_core)  # HT 1, !HT 2
         tasks, remainder = divmod(cores, cores_per_task)
         tasks = int(tasks)
         if remainder != 0:
-              warn(str(cores) + ' cores not evenly divisible over ' + \
-                   str(cores_per_task) + ' cores per task. Using ' + \
-                   str(tasks) + ' tasks.')
+            warn(str(cores) + ' cores not evenly divisible over ' +
+                 str(cores_per_task) + ' cores per task. Using ' +
+                 str(tasks) + ' tasks.')
         return tasks
 
     def generate_runclass(self, tasks):
@@ -494,10 +506,13 @@ class QuaLiKizRun:
         runsdir, name = os.path.split(rundir)
         binarybasepath = os.path.basename(binaryrelpath)
         binaryrelpath = os.readlink(os.path.join(rundir, binarybasepath))
-        qualikiz_plan = QuaLiKizPlan.from_json(os.path.join(rundir, cls.parameterspath))
+        planpath = os.path.join(rundir, cls.parameterspath)
+        qualikiz_plan = QuaLiKizPlan.from_json(planpath)
         stdout = cls._find_file(stdout, rundir)
         stderr = cls._find_file(stderr, rundir)
-        return QuaLiKizRun(runsdir, name, binaryrelpath, qualikiz_plan=qualikiz_plan, stdout=stdout, stderr=stderr)
+        return QuaLiKizRun(runsdir, name, binaryrelpath,
+                           qualikiz_plan=qualikiz_plan,
+                           stdout=stdout, stderr=stderr)
 
     @classmethod
     def _find_file(cls, path, rundir):
@@ -506,7 +521,8 @@ class QuaLiKizRun:
             warn('Could not find file at \'' + str(path) + '\' searching..')
             path = os.path.join(rundir, os.path.basename(path))
             if not os.path.isfile(path):
-                warn('Could not find file at \'' + str(path) + '\', file was probably not saved')
+                warn('Could not find file at \'' + str(path) +
+                     '\', file was probably not saved')
             else:
                 warn('Found file at \'' + path + '\'')
         return path
@@ -514,9 +530,13 @@ class QuaLiKizRun:
     def clean(self):
         """ Cleans run folder to state before it was run """
         try:
-            self._clean_suffix(os.path.join(self.rundir, self.outputdir), '.dat')
-            self._clean_suffix(os.path.join(self.rundir, self.primitivedir), '.dat')
-            self._clean_suffix(os.path.join(self.rundir, self.debugdir), '.dat')
+            suffix = '.dat'
+            self._clean_suffix(os.path.join(self.rundir, self.outputdir),
+                               suffix)
+            self._clean_suffix(os.path.join(self.rundir, self.primitivedir),
+                               suffix)
+            self._clean_suffix(os.path.join(self.rundir, self.debugdir),
+                               suffix)
             os.remove(os.path.join(self.rundir, self.stdout))
             os.remove(os.path.join(self.rundir, self.stderr))
         except FileNotFoundError:
@@ -543,6 +563,7 @@ class QuaLiKizRun:
         last_output = os.path.join(self.rundir, 'output/ivf_GB.dat')
         return os.path.isfile(last_output)
 
+
 def create_folder_prompt(path, overwrite=None):
     """ Overwrite folder promt """
     if os.path.isfile(path) or os.path.isdir(path):
@@ -551,7 +572,7 @@ def create_folder_prompt(path, overwrite=None):
             if resp == '' or resp == 'Y' or resp == 'y':
                 overwrite = True
         if overwrite:
-            print ('overwriting')
+            print('overwriting')
             shutil.rmtree(path)
         else:
             return 1

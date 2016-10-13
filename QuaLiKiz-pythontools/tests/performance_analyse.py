@@ -1,4 +1,8 @@
-""" Make a plot of the performance using a polldump """
+"""
+Copyright Dutch Institute for Fundamental Energy Research (2016)
+Contributors: Karel van de Plassche (karelvandeplassche@gmail.com)
+License: CeCILL v2.1
+"""
 import sys
 import os
 from warnings import warn

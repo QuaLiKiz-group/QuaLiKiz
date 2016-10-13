@@ -1,11 +1,14 @@
+"""
+Copyright Dutch Institute for Fundamental Energy Research (2016)
+Contributors: Karel van de Plassche (karelvandeplassche@gmail.com)
+License: CeCILL v2.1
+"""
 import os
 import sqlite3
-import pickle
 import json
 import re
-import warnings
 
-from .qualikizrun import QuaLiKizRun, QuaLiKizBatch
+from .qualikizrun import QuaLiKizBatch
 from .tabulate.tabulate import tabulate
 
 
@@ -30,7 +33,7 @@ def database_exists(database_path, table_name, append=None, overwrite=None):
             elif resp == 'Y' or resp == 'y':
                 overwrite = True
         if overwrite:
-            print ('overwriting')
+            print('overwriting')
             os.remove(database_path)
 
     db = sqlite3.connect(database_path)
@@ -54,6 +57,7 @@ def database_exists(database_path, table_name, append=None, overwrite=None):
         create_table = True
 
     return create_table
+
 
 def poll_stdout(stdoutpath):
     """ Read QuaLiKiz STDOUT
@@ -99,6 +103,7 @@ def poll_stdout(stdoutpath):
 
     return header, list_
 
+
 def poll_batchdata(batch):
     """ Read QuaLiKiz jobdata
     This is always generated if QuaLiKiz was run with one of the
@@ -119,6 +124,7 @@ def poll_batchdata(batch):
              job.batch.srun.tasks]
     table = [int(x) for x in table]
     return header, table
+
 
 def create_jobdata_database(batchlist, database_path, append=None, overwrite=None):
     """ Create a database with QuaLiKiz metadata

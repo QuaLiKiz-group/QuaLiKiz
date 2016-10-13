@@ -1,6 +1,12 @@
+"""
+Copyright Dutch Institute for Fundamental Energy Research (2016)
+Contributors: Karel van de Plassche (karelvandeplassche@gmail.com)
+License: CeCILL v2.1
+"""
 import os
 
-from .qualikizrun import QuaLiKizRun, QuaLiKizBatch
+from .qualikizrun import QuaLiKizBatch
+
 
 def move_completed(searchdir, targetdir):
     batchlist = QuaLiKizBatch.from_dir_recursive(searchdir)

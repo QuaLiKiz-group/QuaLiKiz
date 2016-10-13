@@ -1,7 +1,13 @@
+"""
+Copyright Dutch Institute for Fundamental Energy Research (2016)
+Contributors: Karel van de Plassche (karelvandeplassche@gmail.com)
+License: CeCILL v2.1
+"""
 from warnings import warn
-import numpy as np
-from .qualikizrun import vcores_per_task
+from qualikiz.qualikizrun import vcores_per_task
 cores_per_node = 24
+
+
 class Sbatch:
     """ Defines a batch job
     This class uses the OpenMP/MPI parameters as defined by Edison,
@@ -50,17 +56,18 @@ class Sbatch:
 
     def __init__(self, srun_instances, name, tasks, maxtime,
                  stdout=default_stdout, stderr=default_stderr,
-                 filesystem='SCRATCH', partition='regular', qos='normal', HT=True):
+                 filesystem='SCRATCH', partition='regular',
+                 qos='normal', HT=True):
         """ Initialize Edison batch job
         Arguments:
-            - srun_instances: A list of Srun instances included in the Sbatch job
+            - srun_instances: List of Srun instances included in the Sbatch job
             - name:           Name of the Sbatch job
             - tasks:          Amount of MPI tasks
             - maxtime:        Maximum walltime needed
 
         Keyword Arguments:
-            - stdout:     The file to write stdout to. By default 'stdout.batch'
-            - stderr:     The file to write stderr to. By default 'stderr.batch'
+            - stdout:     File to write stdout to. By default 'stdout.batch'
+            - stderr:     File to write stderr to. By default 'stderr.batch'
             - filesystem: The default filesystem to use. Usually SCRATCH
             - partition:  Partition to run on, for example 'debug'. By default
                           'regular'
@@ -73,35 +80,34 @@ class Sbatch:
             - threads_per_node: amount of OMP threads per compute node
             - sockets_per_node: Amount of sockets in one compute node
             - cores_per_socket: Amount of physical CPU cores in one socket
-            - cores_per_node:   Amount of physical CPU cores in one compute node
+            - cores_per_node:   Amount of physical CPU cores in one node
         """
 
         self.filesystem = filesystem
-        vcores_per_task
         if HT:
-            vcores_per_core = 2 # Per definition
+            vcores_per_core = 2  # Per definition
         else:
             vcores_per_core = 1
-        self.vcores_per_node = cores_per_node * vcores_per_core #HT 48 or no HT 24
-        self.vcores_per_task = vcores_per_task # 2, as per QuaLiKiz
+        # HT 48 or no HT 24
+        self.vcores_per_node = cores_per_node * vcores_per_core
+        self.vcores_per_task = vcores_per_task  # 2, as per QuaLiKiz
         self.tasks_per_node = int(self.vcores_per_node / self.vcores_per_task)
 
         nodes, remainder = divmod(tasks, self.tasks_per_node)
         self.nodes = int(nodes)
         if remainder != 0:
             self.nodes += 1
-            warn(str(tasks) + ' tasks not evenly divisible over ' + \
-                 str(self.tasks_per_node) + ' tasks per node. Using ' + \
+            warn(str(tasks) + ' tasks not evenly divisible over ' +
+                 str(self.tasks_per_node) + ' tasks per node. Using ' +
                  str(self.nodes) + ' nodes.')
-        
+
         self.qos = qos
-        self.maxtime = maxtime 
+        self.maxtime = maxtime
         self.partition = partition
         self.name = name
         self.srun_instances = srun_instances
         self.stdout = stdout
         self.stderr = stderr
-
 
     def to_file(self, path):
         """ Writes sbatch script to file
@@ -111,18 +117,19 @@ class Sbatch:
         sbatch_lines = ['#!' + self.shell + ' -l\n']
         for attr, sbatch in zip(self.attr, self.sbatch):
             value = getattr(self, attr)
-            if  value != None:
+            if value is not None:
                 line = '#SBATCH --' + sbatch + '=' + str(value) + '\n'
                 sbatch_lines.append(line)
 
-        sbatch_lines.append('\nexport OMP_NUM_THREADS=' + str(self.vcores_per_task) + '\n')
+        sbatch_lines.append('\nexport OMP_NUM_THREADS=' +
+                            str(self.vcores_per_task) + '\n')
 
         # Write sruns to file
         sbatch_lines.append(self.srun_instances[0].to_string())
         for run_instance in self.srun_instances[1:]:
             sbatch_lines.append(' &\n' + run_instance.to_string())
         sbatch_lines.append('\n')
-        
+
         with open(path, 'w') as file:
             file.writelines(sbatch_lines)
 
@@ -130,7 +137,6 @@ class Sbatch:
     def from_file(cls, path):
         """ Reconstruct sbatch from sbatch file """
         new = Sbatch.__new__(cls)
-        lines = []
         srun_strings = []
         with open(path, 'r') as file:
             for line in file:
@@ -160,27 +166,31 @@ class Sbatch:
             return not self == other
         return NotImplemented
 
-def str_to_number(str):
+
+def str_to_number(string):
     """ Convert a string in a float or int if possible """
     try:
-        value = float(str)
+        value = float(string)
     except ValueError:
-        value = str
+        value = string
     else:
         if value.is_integer:
             value = int(value)
     return value
-    
+
+
 class Srun:
     """ Defines the srun command """
     default_stderr = 'stderr.run'
     default_stdout = 'stdout.run'
+
     def __init__(self, binary_name, tasks,
                  chdir='.',
                  stdout=default_stdout, stderr=default_stderr):
         """ Initializes the Srun class
         Arguments:
-            - binary_name: The name of the binary relative to where the sbatch script will be
+            - binary_name: The name of the binary relative to where
+                           the sbatch script will be
             - tasks: Amount of MPI tasks needed for the job
         Keyword Arguments:
             - chdir:  Dir to change to before running the command

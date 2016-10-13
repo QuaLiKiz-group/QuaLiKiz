@@ -1,10 +1,16 @@
 #!/usr/bin/env python3
-""" Command line interface for Python tools """
+""" Command line interface for Python tools
+Copyright Dutch Institute for Fundamental Energy Research (2016)
+Contributors: Karel van de Plassche (karelvandeplassche@gmail.com)
+License: CeCILL v2.1
+"""
 import sys
 import os
-from qualikiz import compare, legacy, qualikizrun, basicpoll, sacct, craypat, fs_manipulation
 import subprocess
-import os, inspect
+import inspect
+
+from qualikiz import (compare, legacy, qualikizrun, basicpoll,
+                      sacct, craypat, fs_manipulation)
 
 
 if len(sys.argv) < 2:
@@ -29,7 +35,7 @@ elif command == 'dump':
         array = compare.ascii_to_np(path)
     else:
         raise Exception('Unknown file style \'' + style + '\'')
-    print (array)
+    print(array)
 
 elif command == 'poll':
     if len(sys.argv) < 3:
@@ -75,10 +81,10 @@ elif command == 'patpoll':
 
 elif command == 'movecomplete':
     if len(sys.argv) < 4:
-         raise Exception('please supply source and target')
+        raise Exception('please supply source and target')
     else:
-         sourcedir =  sys.argv[2]
-         targetdir = sys.argv[3]
+        sourcedir = sys.argv[2]
+        targetdir = sys.argv[3]
     fs_manipulation.move_completed(sourcedir, targetdir)
 
 elif command == 'inputgo':
@@ -118,9 +124,9 @@ elif command == 'convertto':
         raise Exception('Unkown current style')
 
 else:
-    testsdir =  os.path.abspath(
+    testsdir = os.path.abspath(
         os.path.join(os.path.abspath(inspect.getfile(inspect.currentframe())),
-                     '../../tests'))
+                     '../tests'))
     if command == 'create':
         if len(sys.argv) < 3:
             raise Exception('Please supply create target')
@@ -133,7 +139,7 @@ else:
         if create_target == 'mini':
             cmd = ['python3',
                    os.path.join(testsdir, 'mini.py'),
-                   target_dir ]
+                   target_dir]
         elif create_target == 'performance':
             cmd = ['python3',
                    os.path.join(testsdir, 'performance.py'),
@@ -144,7 +150,7 @@ else:
 
     elif command == 'analyse':
         if len(sys.argv) < 3:
-             raise Exception('Please supply path to analyse')
+            raise Exception('Please supply path to analyse')
         path = sys.argv[2]
         cmd = ['python3',
                os.path.join(testsdir, 'performance_analyse.py'),
