@@ -697,6 +697,7 @@ CONTAINS
     IF (myrank == doit) THEN 
        Ane = readvar(inputdir // 'Ane.bin', dummyx, ktype, myunit)
        WHERE(ABS(Ane) < epsD) Ane = epsD
+       WHERE(Ane+Ate < epsD) Ane = Ane+epsD
     ENDIF
     doit=doit+1; IF (doit==nproc) doit=0 
 
@@ -741,6 +742,7 @@ CONTAINS
     IF (myrank == doit) THEN 
        Ani = readvar(inputdir // 'Ani.bin', dummyxnions, ktype, myunit)
        WHERE(ABS(Ani) < epsD) Ani = epsD
+       WHERE(Ani+Ati < epsD) Ani = Ani+epsD
     ENDIF
     doit=doit+1; IF (doit==nproc) doit=0 
 
