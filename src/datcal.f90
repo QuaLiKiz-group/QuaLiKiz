@@ -67,7 +67,7 @@ MODULE datcal
   REAL(KIND=DBL), PARAMETER :: barelyavoid = epsD ! Cutoff value below 1 to remove barely trapped singularity
 !  REAL(KIND=DBL), PARAMETER :: barelyavoid = 0.04 ! Cutoff value below 1 to remove barely trapped singularity
   REAL(KIND=DBL), PARAMETER :: minfki = 1d-3 ! Minimum allowed absolute vertical drift frequency
-  REAL(KIND=DBL), PARAMETER :: min_ninorm = 1d-2 ! ni/ne below which the energy QL integral isn't carried out
+  REAL(KIND=DBL), PARAMETER :: min_ninorm = 0.15 ! ni/ne below which the energy QL integral isn't carried out
 
   LOGICAL, PARAMETER :: traporder1 = .FALSE.
 
