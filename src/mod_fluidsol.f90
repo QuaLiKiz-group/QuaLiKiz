@@ -234,6 +234,10 @@ CONTAINS
        banhat(:) = 1. - (di(p,:)**2)/(4.*width**2)
        dw2 = (distan(p,nu)/width)**2
 
+       DO j=1,nions
+          IF (REAL(rhohat(j)) < 0.25) rhohat(j) = CMPLX(((ktheta**4)*(Rhoi(p,j))**4)/64,0.)
+       ENDDO
+
        !WITH X0^2
        IF (x02poly .EQV. .TRUE.) THEN
           banhat2(:) = 1 + (di(p,:)**2)*(shift**2-width**2)/(4.*width**4) !includes shift
@@ -779,7 +783,7 @@ CONTAINS
     COMPLEX(KIND=DBL) :: oldsol,oldwidth
     COMPLEX(KIND=DBL), DIMENSION(2) :: width1vec,width2vec
     REAL(KIND=DBL) :: ft2,fc2,norm,ktheta,fk,VT,WvT2,a,b,c,relerr,Wv3,Wv4,Wv5,Wv6,Wv7,Wv8,lam
-    INTEGER :: i,npts,maxiter
+    INTEGER :: i,j,npts,maxiter
     COMPLEX(KIND=DBL), DIMENSION(ndegpoly+1) :: poly
     COMPLEX(KIND=DBL), DIMENSION(ndegpoly) :: polysol
     REAL(KIND=DBL), DIMENSION(2*ndegpoly*(ndegpoly+1)) :: warray
@@ -962,6 +966,10 @@ CONTAINS
        rhohat(:) = 1. - ((ktheta**2)*(Rhoi(p,:))**2)/4.
        banhat(:) = 1. - (di(p,:)**2)/(4.*width2)
        dhat(:) = distan(p,nu)**2/width2
+
+       DO j=1,nions
+          IF (REAL(rhohat(j)) < 0.25) rhohat(j) = CMPLX(((ktheta**4)*(Rhoi(p,j))**4)/64,0.)
+       ENDDO
 
        !calculate polynomial coefficients
        poly(1) = -1. + ft2 + SUM( icoef*(-1.+ft2*banhat+fc2*rhohat)) !C3 in notes
