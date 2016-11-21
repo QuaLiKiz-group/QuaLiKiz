@@ -179,12 +179,12 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
   IF (PRESENT(rhominin)) THEN
      rhomin=rhominin
   ELSE
-     rhomin=0.15 
+     rhomin=0.00 
   ENDIF
   IF (PRESENT(rhomaxin)) THEN
      rhomax=rhomaxin
   ELSE
-     rhomax=0.85
+     rhomax=1.0
   ENDIF
 
   !Check sanity of input (these can be much expanded)
