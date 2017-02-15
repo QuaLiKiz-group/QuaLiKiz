@@ -625,7 +625,7 @@ CONTAINS
 
     ! p{22} q(rho) profile
     ALLOCATE(qx(dimx)); qx=0
-    IF (myrank == doit) qx = readvar(inputdir // 'qx.bin', dummyx, ktype, myunit)
+    IF (myrank == doit) qx = readvar(inputdir // 'q.bin', dummyx, ktype, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{23} s(rho) profile
@@ -635,7 +635,7 @@ CONTAINS
 
     ! p{24} alpha(rho) profile
     ALLOCATE(alphax(dimx)); alphax=0
-    IF (myrank == doit) alphax = readvar(inputdir // 'alphax.bin', dummyx, ktype, myunit)
+    IF (myrank == doit) alphax = readvar(inputdir // 'alpha.bin', dummyx, ktype, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
 
     ! p{25} Machtor(rho) profile
@@ -953,7 +953,7 @@ CONTAINS
     !DEBUGGING WRITE OUT ALL INPUT TO ASCII FILE
 
     myint='I15'
-    myfmt='G15.7'
+    myfmt='G16.7E3'
     debugdir='debug/'
     IF (myrank == doit) CALL writevar(debugdir // 'dimx.dat', dimx, myint, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
@@ -987,7 +987,7 @@ CONTAINS
     doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'Bo.dat', Bo, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
-    IF (myrank == doit) CALL writevar(debugdir // 'qx.dat', qx, myfmt, myunit)
+    IF (myrank == doit) CALL writevar(debugdir // 'q.dat', qx, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'smag.dat', smag, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
@@ -1003,9 +1003,9 @@ CONTAINS
     doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'gammaE.dat', gammaE, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
-    IF (myrank == doit) CALL writevar(debugdir // 'Tex.dat', Tex, myfmt, myunit)
+    IF (myrank == doit) CALL writevar(debugdir // 'Te.dat', Tex, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
-    IF (myrank == doit) CALL writevar(debugdir // 'Nex.dat', Nex, myfmt, myunit)
+    IF (myrank == doit) CALL writevar(debugdir // 'ne.dat', Nex, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'Ate.dat', Ate, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
@@ -1017,15 +1017,15 @@ CONTAINS
     doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'Zi.dat', Zi, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
-    IF (myrank == doit) CALL writevar(debugdir // 'Tix.dat', Tix, myfmt, myunit)
+    IF (myrank == doit) CALL writevar(debugdir // 'Ti.dat', Tix, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
-    IF (myrank == doit) CALL writevar(debugdir // 'ninorm.dat', ninorm, myfmt, myunit)
+    IF (myrank == doit) CALL writevar(debugdir // 'normni.dat', ninorm, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'Ati.dat', Ati, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'Ani.dat', Ani, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
-    IF (myrank == doit) CALL writevar(debugdir // 'ion_type.dat', ion_type, myint, myunit)
+    IF (myrank == doit) CALL writevar(debugdir // 'typei.dat', ion_type, myint, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'maxpts.dat', maxpts, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
@@ -1483,16 +1483,12 @@ CONTAINS
   END SUBROUTINE deallocate_all
 
   SUBROUTINE outputascii()
-    CHARACTER(len=20) :: fmtxrow,fmtecoef,fmtcftrans
     INTEGER :: i,j,k,l, doit
-    WRITE(fmtxrow,'(A,I0,A)') '(',dimx,'G15.7)'
-    WRITE(fmtecoef,'(A,I0, A)') '(',numecoefs,'G15.7)'
-    WRITE(fmtcftrans,'(A)') '(6G15.7)'
 
     doit = 0
 
     primitivedir='output/primitive/'
-    myfmt='G15.7'
+    myfmt='G16.7E3'
     IF (myrank == doit) CALL writevar(primitivedir // 'solflu.dat', solflu, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
     !    IF (myrank == doit) CALL writevar(primitivedir // 'kymaxITG.dat', krmmuITG, myfmt, myunit)
@@ -1627,7 +1623,7 @@ CONTAINS
     !    doit=doit+1; IF (doit==nproc) doit=0
         IF (myrank == doit) CALL writevar(outputdir // 'Nustar.dat', Nustar, myfmt, myunit)
         doit=doit+1; IF (doit==nproc) doit=0
-        IF (myrank == doit) CALL writevar(outputdir // 'Zeffx.dat', Zeffx, myfmt, myunit)
+        IF (myrank == doit) CALL writevar(outputdir // 'Zeff.dat', Zeffx, myfmt, myunit)
         doit=doit+1; IF (doit==nproc) doit=0
      
     outputdir = 'output/'

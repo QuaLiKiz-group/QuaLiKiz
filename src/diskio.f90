@@ -91,7 +91,7 @@ CONTAINS
 
     numcols = 1 !Write out 1D array as a single column
     CALL open_file_out_txt(filename,myunit)
-    WRITE(rowfmt,'(A,I0,A)') '(',numcols,'G15.7)'
+    WRITE(rowfmt,'(A,I0,A)') '(',numcols,varformat // ')'
     WRITE(unit=myunit,fmt=rowfmt) mold
     CLOSE(unit=myunit)
   END SUBROUTINE writevar_1d
@@ -106,7 +106,7 @@ CONTAINS
     numcols = SIZE(mold,2)
     numrows = SIZE(mold,1)
     CALL open_file_out_txt(filename,myunit)
-    WRITE(rowfmt,'(A,I0,A)') '(',numcols,'G15.7)'
+    WRITE(rowfmt,'(A,I0,A)') '(',numcols,varformat // ')'
     WRITE(myunit,rowfmt) ((mold(i,j),j=1,numcols),i=1,numrows)
     CLOSE(unit=myunit)
   END SUBROUTINE writevar_2d
@@ -153,7 +153,7 @@ CONTAINS
     numcols = SIZE(mold,2)
     numrows = SIZE(mold,1)
     CALL open_file_out_txt(filename,myunit)
-    WRITE(rowfmt,'(A,I0,A)') '(',numcols,'G15.7)'
+    WRITE(rowfmt,'(A,I0,A)') '(',numcols,varformat // ')'
     WRITE(myunit,rowfmt) (((mold(i,j,k),j=1,numcols),i=1,numrows),k=1,numpages)
     CLOSE(unit=myunit)
   END SUBROUTINE writevar_3d
@@ -186,7 +186,7 @@ CONTAINS
     numcols = SIZE(mold,2)
     numrows = SIZE(mold,1)
     CALL open_file_out_txt(filename,myunit)
-    WRITE(rowfmt,'(A,I0,A)') '(',numcols,'G15.7)'
+    WRITE(rowfmt,'(A,I0,A)') '(',numcols,varformat // ')'
     WRITE(myunit,rowfmt) ((((mold(i,j,k,l),j=1,numcols),i=1,numrows), &
          k=1,numpages),l=1,numhpages)
     CLOSE(unit=myunit)
