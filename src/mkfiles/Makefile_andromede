@@ -32,7 +32,7 @@ all: $(CUB)/libcubpack.a $(ROUT)/librout.a QuaLiKiz.exe
 #	$(FC) -o qlk_makeflux.exe qlk_makeflux.f90 $(OBJS_QUALIKIZ) ${QFLAGS} ${OPENMP} $(MPI) -L$(ROUT) -lrout -L$(CUB) -lcubpack 
 
 QuaLiKiz.exe: qlk_standalone.f90 qualikiz.f90 $(OBJS_QUALIKIZ) $(ROUT)/librout.a $(CUB)/libcubpack.a
-	$(FC) -o QuaLiKiz.exe qlk_standalone.f90 $(OBJS_QUALIKIZ) ${QFLAGS} ${OPENMP} $(MPI) -L$(ROUT) -lrout -L$(CUB) -lcubpack 
+	$(FC) -o QuaLiKiz.exe qlk_standalone.f90 $(OBJS_QUALIKIZ) ${QFLAGS} ${OPENMP} $(MPI) -L$(ROUT) -lrout -lnagred -L$(CUB) -lcubpack 
 
 %.o:%.f90
 	$(FC) -c ${QFLAGS} $(MPI) $(OPENMP) $<

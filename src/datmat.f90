@@ -7,9 +7,11 @@ MODULE datmat
   INTEGER, SAVE, DIMENSION(:,:), ALLOCATABLE :: ion_type
   REAL(KIND=DBL), SAVE  :: R0
   REAL(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: x, rho, Ro, Rmin, Bo, kthetarhos, qx, smag, alphax, rotflagarray
-  REAL(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: Tex, Nex, Ate, Ane, anise, danisedr
+  REAL(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: Tex, Nex, Ate, Ane, anise, danisedr, filterprof
   REAL(KIND=DBL), SAVE, DIMENSION(:,:), ALLOCATABLE :: Tix, Ati, Ani, ninorm, anis, danisdr, Ai, Zi
   REAL(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: Machtor, Autor, Machpar, Aupar, gammaE
+  REAL(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: Machparmod, Auparmod, gammaEmod !backup arrays used in rotationless dispersion relation solver with rot_flag=2
+  REAL(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: Machparorig, Auparorig, gammaEorig !backup arrays used in rotationless dispersion relation solver with rot_flag=2
 
   !Parameters for deciding how often to jump to full solution searching in integrated modelling applications
   INTEGER, SAVE :: maxruns !default is 50
@@ -21,17 +23,19 @@ MODULE datmat
   REAL(KIND=DBL), SAVE :: relaccQL1 !  !1D integral relative error demanded. Default = 1.0d-3
   REAL(KIND=DBL), SAVE :: relaccQL2 !2D integral relative error demanded. Default = 2.0d-2
 
+  REAL(KIND=DBL), SAVE :: ETGmult, collmult !multpliers for ETG saturation level and collisionality (default 1)
+
   ! List of derived 'radial' variables (see mod_make_input.f90 for details)
   REAL(KIND=DBL), SAVE :: widthtuneITG, widthtuneETG
   REAL(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: csou, cref,cthe, de, epsilon, qprim, ft, fc
   REAL(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: Ac, Rhoe, Anue, Zeffx, omegator, domegatordr
   REAL(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: wg, rhostar, Rhoeff, ktetasn, Mache, Aue, krmmuITG,krmmuETG
-  REAL(KIND=DBL), SAVE, DIMENSION(:,:), ALLOCATABLE :: coefi, Machi, Aui, Nix, Rhoi, di, cthi, tau, mi
+  REAL(KIND=DBL), SAVE, DIMENSION(:,:), ALLOCATABLE :: coefi, Machi, Machitemp, Aui, Nix, Rhoi, di, cthi, tau, mi, Auiorig, Auimod, Machiorig, Machimod
 
   ! Output arrays. The 3 dimensions are 'radial grid', 'kthetarhos grid', 'number of modes'
   REAL(KIND=DBL), SAVE , DIMENSION(:,:), ALLOCATABLE :: distan,FLRec,FLRep,ntor,kperp2
   REAL(KIND=DBL), SAVE, DIMENSION(:,:,:), ALLOCATABLE :: gamma, Ladia, FLRip, FLRic
-  COMPLEX(KIND=DBL), SAVE, DIMENSION(:,:), ALLOCATABLE :: modewidth, modeshift
+  COMPLEX(KIND=DBL), SAVE, DIMENSION(:,:), ALLOCATABLE :: modewidth, modeshift, modeshift2
   COMPLEX(KIND=DBL), SAVE, DIMENSION(:,:), ALLOCATABLE :: ommax, solflu
   COMPLEX(KIND=DBL), SAVE, DIMENSION(:,:,:), ALLOCATABLE :: sol, fdsol, oldsol, oldfdsol
   COMPLEX(KIND=DBL), SAVE, DIMENSION(:,:,:), ALLOCATABLE :: Lcirce, Lpiege, Lecirce, Lepiege, Lvcirce, Lvpiege, Lcircgte, Lpieggte,  Lcircgne, Lpieggne,  Lcircgue, Lpieggue, Lcircce, Lpiegce
@@ -76,7 +80,7 @@ MODULE datmat
   REAL(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: Athi, ktetaRhoi
   REAL(KIND=DBL), SAVE :: nwg, qRd, omega2bar
   REAL(KIND=DBL), SAVE :: fonxad
-  COMPLEX(KIND=DBL), SAVE :: mwidth, mshift, omeflu ! the width and the shift of eigenfunctions can be complex. omeflu is the solution used for the contour limit from Pierre solution
+  COMPLEX(KIND=DBL), SAVE :: mwidth, mshift, mshift2, omeflu ! the width and the shift of eigenfunctions can be complex. omeflu is the solution used for the contour limit from Pierre solution
   COMPLEX(KIND=DBL), SAVE :: mwidth_rot, mshift_rot ! width and the shift of eigenfunctions for momentum transport cases
   REAL(KIND=DBL), SAVE :: widthhat ! the width corresponding to |phi(x)| . Used instead of mwidth when phi(x) is complex
   COMPLEX(KIND=DBL), SAVE :: fonxcirce, fonxpiege, fonxcircgte, fonxpieggte, fonxcircgne, fonxcircgue
@@ -107,7 +111,7 @@ MODULE datmat
 
   INTEGER, SAVE :: weidcount !count the dispersion function calls
   INTEGER, SAVE :: ccount !count the integrand calls
-  INTEGER, SAVE :: Nsolrat, ifail, last
+  INTEGER, SAVE :: Nsolrat, last
   REAL(kind=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: alist, blist, rlist, elist
   INTEGER, SAVE, DIMENSION(:), ALLOCATABLE :: iord
 
@@ -129,8 +133,8 @@ MODULE datmat
   !EXTERNAL FUNCTION AND SUBROUTINE DECLARATIONS
 
   !Elliptic integrals (from SLATEC)
-  REAL(KIND=DBL) :: rf, rd, DGAMMA
-  EXTERNAL  rf, rd, DGAMMA
+  REAL(KIND=DBL) :: ceik, ceie, DGAMMA2
+  EXTERNAL  ceik, ceie, DGAMMA2
 
   !Scaled modified Bessel functions routines (from SPECFUN)
   REAL(KIND=DBL) :: BESEI0, BESEI1

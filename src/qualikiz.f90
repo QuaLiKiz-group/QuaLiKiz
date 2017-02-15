@@ -13,7 +13,7 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
      & el_typein, Texin, Nexin, Atein, Anein, anisein, danisedrin, & !electron input
      & ion_typein, Aiin, Ziin, Tixin, ninormin, Atiin, Aniin, anisin, danisdrin, & !ion input
      & Machtorin, Autorin, Machparin, Auparin, gammaEin, & !rotation input
-     & maxrunsin, maxptsin, relacc1in, relacc2in, timeoutin, & !code specific input
+     & maxrunsin, maxptsin, relacc1in, relacc2in, timeoutin, ETGmultin, collmultin, & !code specific input
      & epf_SIout,epfETG_SIout,eef_SIout,eefETG_SIout,evf_SIout,ipf_SIout,ief_SIout,ivf_SIout, & ! Non optional outputs
      & solflu_SIout, solflu_GBout, gam_SIout,gam_GBout,ome_SIout,ome_GBout, & !growth rate and frequency output
      & epf_GBout,eef_GBout, evf_GBout, dfe_SIout,vte_SIout,vre_SIout,vce_SIout,epf_cmout,eef_cmout,evf_cmout,ckeout, & !electron flux outputs
@@ -76,7 +76,7 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
   REAL(kind=DBL), DIMENSION(dimxin,nionsin), INTENT(IN) :: Tixin, ninormin, Atiin, Aniin, anisin, danisdrin, Aiin, Ziin
   REAL(kind=DBL), DIMENSION(dimxin), INTENT(IN) :: Auparin, gammaEin, Machtorin, Machparin, Autorin
   INTEGER, INTENT(IN) :: maxrunsin, maxptsin
-  REAL(kind=DBL), INTENT(IN) :: relacc1in, relacc2in, timeoutin
+  REAL(kind=DBL), INTENT(IN) :: relacc1in, relacc2in, timeoutin, ETGmultin, collmultin
   REAL(kind=DBL), OPTIONAL, INTENT(IN) :: rhominin,rhomaxin
 
   ! List of output variables: 
@@ -97,7 +97,7 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
   REAL(KIND=DBL), DIMENSION(dimxin,ntheta), OPTIONAL, INTENT(OUT)  ::  phiout
   REAL(KIND=DBL), DIMENSION(dimxin,ntheta,nionsin), OPTIONAL, INTENT(OUT)  ::  npolout
   REAL(KIND=DBL), DIMENSION(dimxin,0:nionsin,numecoefs), OPTIONAL, INTENT(OUT)  ::  ecoefsout
-  REAL(KIND=DBL), DIMENSION(dimxin,nionsin,6), OPTIONAL, INTENT(OUT)  ::  cftransout
+  REAL(KIND=DBL), DIMENSION(dimxin,nionsin,7), OPTIONAL, INTENT(OUT)  ::  cftransout
 
   ! optional output arrays from which the saturation rule can be calculated without rerunning dispersion relation solver
   REAL(KIND=DBL) , DIMENSION(dimxin), OPTIONAL, INTENT(OUT)  :: krmmuITGout,krmmuETGout
@@ -133,7 +133,7 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
        & el_typein, Texin, Nexin, Atein, Anein, anisein, danisedrin, & 
        & ion_typein, Aiin, Ziin, Tixin, ninormin, Atiin, Aniin, anisin, danisdrin, & 
        & Machtorin, Autorin, Machparin, Auparin, gammaEin, &
-       & maxrunsin, maxptsin, relacc1in, relacc2in, timeoutin)  !code specific inputs
+       & maxrunsin, maxptsin, relacc1in, relacc2in, timeoutin,ETGmultin,collmultin)  !code specific inputs
 
   ! set optional input
   IF (PRESENT(oldsolin)) THEN
@@ -152,12 +152,12 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
   IF (PRESENT(rhominin)) THEN
      rhomin=rhominin
   ELSE
-     rhomin=0.15 
+     rhomin=0. 
   ENDIF
   IF (PRESENT(rhomaxin)) THEN
      rhomax=rhomaxin
   ELSE
-     rhomax=0.85
+     rhomax=1.
   ENDIF
 
   !Check sanity of input (these can be much expanded)
@@ -232,38 +232,16 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
      WRITE(900,"(A,F7.3,A)") 'Last completed run time = ',timetot,' s'  !final write
      CLOSE(900)
 
-!!!DEBUGGING FOR DIFFERENT FLUID SOLUTIONS
-     WRITE(fmtn,'(A,I0, A)') '(',dimn,'G15.7)'
-     OPEN(unit=myunit, file="output/primitive/rjonsolflu.dat", action="write", status="replace")
-     WRITE(myunit,fmtn) ((REAL(jon_solflu(i,j)),j=1,dimn),i=1,dimx) ; CLOSE(myunit)
-     OPEN(unit=myunit, file="output/primitive/ijonsolflu.dat", action="write", status="replace")
-     WRITE(myunit,fmtn) ((AIMAG(jon_solflu(i,j)),j=1,dimn),i=1,dimx) ; CLOSE(myunit)
-
      !DEBUG
-!!$    OPEN(unit=900, file="FLRec.dat", action="write", status="replace")
-!!$    WRITE(900,'(16G15.7)') ((FLRec(i,j),j=1,dimn),i=1,dimx) ;  CLOSE(900)
-!!$
-!!$    OPEN(unit=900, file="FLRic.dat", action="write", status="replace")
-!!$    WRITE(900,'(16G15.7)') (((FLRic(i,j,k),j=1,dimn),i=1,dimx),k=1,nions) ;  CLOSE(900)
-!!$
-!!$    OPEN(unit=900, file="FLRep.dat", action="write", status="replace")
-!!$    WRITE(900,'(16G15.7)') ((FLRep(i,j),j=1,dimn),i=1,dimx) ;  CLOSE(900)
-!!$
-!!$    OPEN(unit=900, file="FLRip.dat", action="write", status="replace")
-!!$    WRITE(900,'(16G15.7)') (((FLRip(i,j,k),j=1,dimn),i=1,dimx),k=1,nions) ;  CLOSE(900)
-!!$
-!!$    OPEN(unit=900, file="rmodewidth.dat", action="write", status="replace")
-!!$    WRITE(900,'(16G15.7)') ((REAL(modewidth(i,j)),j=1,dimn),i=1,dimx) ;  CLOSE(900)
-!!$
-!!$    OPEN(unit=900, file="rmodeshift.dat", action="write", status="replace")
-!!$    WRITE(900,'(16G15.7)') ((REAL(modeshift(i,j)),j=1,dimn),i=1,dimx) ;  CLOSE(900)
-!!$
-!!$    OPEN(unit=900, file="imodewidth.dat", action="write", status="replace")
-!!$    WRITE(900,'(16G15.7)') ((AIMAG(modewidth(i,j)),j=1,dimn),i=1,dimx) ;  CLOSE(900)
-!!$
-!!$    OPEN(unit=900, file="imodeshift.dat", action="write", status="replace")
-!!$    WRITE(900,'(16G15.7)') ((AIMAG(modeshift(i,j)),j=1,dimn),i=1,dimx) ;  CLOSE(900)
-
+!!$     WRITE(fmtn,'(A,I0, A)') '(',dimn,'G15.7)'
+!!$     OPEN(unit=myunit, file="rjonsolflu.dat", action="write", status="replace")
+!!$     WRITE(myunit,fmtn) ((REAL(jon_solflu(i,j)),j=1,dimn),i=1,dimx) ; CLOSE(myunit)
+!!$     OPEN(unit=myunit, file="ijonsolflu.dat", action="write", status="replace")
+!!$     WRITE(myunit,fmtn) ((AIMAG(jon_solflu(i,j)),j=1,dimn),i=1,dimx) ; CLOSE(myunit)
+!!$     OPEN(unit=900, file="FLRep.dat", action="write", status="replace")
+!!$     WRITE(900,'(16G15.7)') ((FLRep(i,j),j=1,dimn),i=1,dimx) ;  CLOSE(900)
+!!$     OPEN(unit=900, file="FLRip.dat", action="write", status="replace")
+!!$     WRITE(900,'(16G15.7)') (((FLRip(i,j,k),j=1,dimn),i=1,dimx),k=1,nions) ;  CLOSE(900)
 
   ENDIF
   !Deallocate all allocated arrays

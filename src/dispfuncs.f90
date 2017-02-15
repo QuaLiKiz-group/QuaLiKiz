@@ -73,13 +73,13 @@ CONTAINS
     COMPLEX(KIND=DBL), INTENT(in)  :: zz
     COMPLEX(KIND=DBL) :: Z, som1, zz2 ,zpuiss
     REAL(KIND=DBL)    :: abz
-    INTEGER :: i, ifail
+    INTEGER :: i, ifailloc
 
     abz = ABS(zz)
     zz2 = zz*zz
 
     IF (abz<abslim) THEN
-       ifail=0
+       ifailloc=0
        Z = ci * sqrtpi * wofzweid(zz)     
        Z1 = zz + zz2 * Z
     ELSE IF (abz>1.e4) THEN
@@ -115,13 +115,13 @@ CONTAINS
     COMPLEX(KIND=DBL) , INTENT(IN) :: zz
     COMPLEX(KIND=DBL) :: Z, som2, zz2, zpuiss
     REAL(KIND=DBL)    :: abz
-    INTEGER :: i, ifail
+    INTEGER :: i, ifailloc
 
     abz = ABS(zz)
     zz2 = zz*zz
 
     IF (abz<abslim) THEN
-       ifail = 0
+       ifailloc = 0
        Z = ci * sqrtpi * wofzweid(zz)     
        Z2 = zz*(0.5 + zz2 * (1.0 + zz*Z))
     ELSE IF (abz>1.e4) THEN 
@@ -156,13 +156,13 @@ CONTAINS
     COMPLEX(KIND=DBL) , INTENT(IN) :: zz
     COMPLEX(KIND=DBL) :: Z, som3, zz2
     REAL(KIND=DBL)    :: abz, pduit3
-    INTEGER :: i,j, ifail
+    INTEGER :: i,j, ifailloc
 
     abz = ABS(zz)
     zz2 = zz*zz
 
     IF (abz<abslim) THEN
-       ifail = 0
+       ifailloc = 0
        Z = ci * sqrtpi * wofzweid(zz)     
        Z3 = 0.75*zz + zz2 * (0.5*zz + zz2 * (zz + zz2 * Z))
     ELSE IF (abz>1.e4) THEN 
@@ -199,13 +199,13 @@ CONTAINS
     COMPLEX(KIND=DBL) , INTENT(IN) :: zz
     COMPLEX(KIND=DBL) :: Z, som4, zz2
     REAL(KIND=DBL)    :: abz, pduit4
-    INTEGER :: i,j, ifail
+    INTEGER :: i,j, ifailloc
 
     abz = ABS(zz)
     zz2 = zz*zz
 
     IF (abz<abslim) THEN
-       ifail = 0
+       ifailloc = 0
        Z = ci * sqrtpi * wofzweid(zz)     
        !Z4 = 3.75*zz+ zz2*(0.75*zz + zz2 * (0.5*zz + zz2 * (zz + zz2 * Z)))
        Z4 = 1.875*zz+ zz2*(0.75*zz + zz2 * (0.5*zz + zz2 * (zz + zz2 * Z)))

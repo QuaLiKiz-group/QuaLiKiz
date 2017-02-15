@@ -13,7 +13,7 @@ PROGRAM qlk_standalone
           & el_typein, Texin, Nexin, Atein, Anein, anisein, danisedrin, & !electron input
           & ion_typein, Aiin, Ziin, Tixin, ninormin, Atiin, Aniin, anisin, danisdrin, & !ion input
           & Machtorin, Autorin, Machparin, Auparin, gammaEin, & !rotation input
-          & maxrunsin, maxptsin, relacc1in, relacc2in, timeoutin, & !code specific input
+          & maxrunsin, maxptsin, relacc1in, relacc2in, timeoutin, ETGmultin, collmultin, & !code specific input
           & epf_SIout,epfETG_SIout,eef_SIout,eefETG_SIout,evf_SIout,ipf_SIout,ief_SIout,ivf_SIout, & ! Non optional outputs
           & solflu_SIout, solflu_GBout, gam_SIout,gam_GBout,ome_SIout,ome_GBout, & !growth rate and frequency output
           & epf_GBout,eef_GBout, evf_GBout, dfe_SIout,vte_SIout,vre_SIout,vce_SIout,epf_cmout,eef_cmout,evf_cmout,ckeout, & !electron flux outputs
@@ -38,7 +38,7 @@ PROGRAM qlk_standalone
        REAL, DIMENSION(dimxin,nionsin), INTENT(IN) :: Tixin, ninormin, Atiin, Aniin, anisin, danisdrin
        REAL, DIMENSION(dimxin), INTENT(IN) :: Machtorin, Autorin, Machparin, Auparin, gammaEin
        INTEGER, INTENT(IN) :: maxrunsin, maxptsin
-       REAL, INTENT(IN) :: relacc1in, relacc2in, timeoutin, R0in
+       REAL, INTENT(IN) :: relacc1in, relacc2in, timeoutin, ETGmultin, collmultin, R0in
        REAL, OPTIONAL, INTENT(IN) :: rhominin,rhomaxin
 
        ! List of output variables: 
@@ -97,7 +97,7 @@ PROGRAM qlk_standalone
   REAL(KIND=DBL), DIMENSION(:), ALLOCATABLE :: Tex, Nex, Ate, Ane, anise, danisedr
   REAL(KIND=DBL), DIMENSION(:,:), ALLOCATABLE :: Tix, ninorm, Ati, Ani, anis, danisdr, Ai, Zi
   REAL(KIND=DBL), DIMENSION(:), ALLOCATABLE :: Machtor, Autor, Machpar, Aupar, gammaE
-  REAL(KIND=DBL) :: relacc1, relacc2, timeout, R0
+  REAL(KIND=DBL) :: relacc1, relacc2, ETGmult, collmult, timeout, R0
   INTEGER :: maxpts,maxruns
 
   ! Output arrays. The 3 dimensions are 'radial grid', 'kthetarhos grid', 'number of modes'
@@ -171,7 +171,7 @@ PROGRAM qlk_standalone
              & el_type, Tex, Nex, Ate, Ane, anise, danisedr, & !electrons
              & ion_type, Ai, Zi, Tix, ninorm, Ati, Ani, anis, danisdr, & !ions
              & Machtor, Autor, Machpar, Aupar, gammaE, & !rotation input
-             & maxruns, maxpts, relacc1, relacc2, timeout, & !code specific inputs
+             & maxruns, maxpts, relacc1, relacc2, timeout, ETGmult, collmult,  & !code specific inputs
              & epf_SI,epfETG_SI,eef_SI,eefETG_SI,evf_SI,ipf_SI,ief_SI, ivf_SI, & ! Non optional outputs
              & solflu_SIout=solflu_SI, solflu_GBout=solflu_GB, gam_SIout=gam_SI,gam_GBout=gam_GB,ome_SIout=ome_SI,ome_GBout=ome_GB, & !optional growth rate and frequency output
              & epf_GBout=epf_GB,eef_GBout=eef_GB, evf_GBout=evf_GB, epf_cmout=epf_cm,eef_cmout=eef_cm, evf_cmout=evf_cm, & !optional electron flux outputs
@@ -193,7 +193,7 @@ PROGRAM qlk_standalone
              & el_type, Tex, Nex, Ate, Ane, anise, danisedr, & !electrons
              & ion_type, Ai, Zi, Tix, ninorm, Ati, Ani, anis, danisdr, & !ions
              & Machtor, Autor, Machpar, Aupar, gammaE, & !rotation input
-             & maxruns, maxpts, relacc1, relacc2, timeout, & !code specific inputs
+             & maxruns, maxpts, relacc1, relacc2, timeout, ETGmult, collmult,  & !code specific inputs
              & epf_SI,epfETG_SI,eef_SI,eefETG_SI,evf_SI,ipf_SI,ief_SI, ivf_SI, & ! Non optional outputs
              & solflu_SIout=solflu_SI, solflu_GBout=solflu_GB, gam_SIout=gam_SI,gam_GBout=gam_GB,ome_SIout=ome_SI,ome_GBout=ome_GB, & !optional growth rate and frequency output
              & epf_GBout=epf_GB,eef_GBout=eef_GB, evf_GBout=evf_GB, dfe_SIout=dfe_SI,vte_SIout=vte_SI,vre_SIout=vre_SI, vce_SIout=vce_SI,epf_cmout=epf_cm,eef_cmout=eef_cm,evf_cmout=evf_cm, ckeout=cke, & !optional electron flux outputs
@@ -216,7 +216,7 @@ PROGRAM qlk_standalone
              & el_type, Tex, Nex, Ate, Ane, anise, danisedr, & !electrons
              & ion_type, Ai, Zi, Tix, ninorm, Ati, Ani, anis, danisdr, & !ions
              & Machtor, Autor, Machpar, Aupar, gammaE, & !rotation input
-             & maxruns, maxpts, relacc1, relacc2, timeout, & !code specific inputs
+             & maxruns, maxpts, relacc1, relacc2, timeout, ETGmult, collmult,  & !code specific inputs
              & epf_SI,epfETG_SI,eef_SI,eefETG_SI,evf_SI,ipf_SI,ief_SI, ivf_SI, & ! Non optional outputs
              & solflu_SIout=solflu_SI, solflu_GBout=solflu_GB, gam_SIout=gam_SI,gam_GBout=gam_GB,ome_SIout=ome_SI,ome_GBout=ome_GB, & !optional growth rate and frequency output
              & epf_GBout=epf_GB,eef_GBout=eef_GB, evf_GBout=evf_GB, dfe_SIout=dfe_SI,vte_SIout=vte_SI,vre_SIout=vre_SI, vce_SIout=vce_SI,epf_cmout=epf_cm,eef_cmout=eef_cm,evf_cmout=evf_cm, ckeout=cke, & !optional electron flux outputs
@@ -245,7 +245,7 @@ PROGRAM qlk_standalone
              & el_type, Tex, Nex, Ate, Ane, anise, danisedr, & !electrons
              & ion_type, Ai, Zi, Tix, ninorm, Ati, Ani, anis, danisdr, & !ions
              & Machtor, Autor, Machpar, Aupar, gammaE, & !rotation input
-             & maxruns, maxpts, relacc1, relacc2, timeout, & !code specific inputs
+             & maxruns, maxpts, relacc1, relacc2, timeout, ETGmult, collmult,  & !code specific inputs
              & epf_SI,epfETG_SI,eef_SI,eefETG_SI,evf_SI,ipf_SI,ief_SI, ivf_SI, & ! Non optional outputs
              & solflu_SIout=solflu_SI, solflu_GBout=solflu_GB, gam_SIout=gam_SI,gam_GBout=gam_GB,ome_SIout=ome_SI,ome_GBout=ome_GB, & !optional growth rate and frequency output
              & epf_GBout=epf_GB,eef_GBout=eef_GB, evf_GBout=evf_GB, epf_cmout=epf_cm,eef_cmout=eef_cm, evf_cmout=evf_cm, & !optional electron flux outputs
@@ -265,7 +265,7 @@ PROGRAM qlk_standalone
              & el_type, Tex, Nex, Ate, Ane, anise, danisedr, & !electrons
              & ion_type, Ai, Zi, Tix, ninorm, Ati, Ani, anis, danisdr, & !ions
              & Machtor, Autor, Machpar, Aupar, gammaE, & !rotation input
-             & maxruns, maxpts, relacc1, relacc2, timeout, & !code specific inputs
+             & maxruns, maxpts, relacc1, relacc2, timeout, ETGmult, collmult,  & !code specific inputs
              & epf_SI,epfETG_SI,eef_SI,eefETG_SI,evf_SI,ipf_SI,ief_SI, ivf_SI, & ! Non optional outputs
              & solflu_SIout=solflu_SI, solflu_GBout=solflu_GB, gam_SIout=gam_SI,gam_GBout=gam_GB,ome_SIout=ome_SI,ome_GBout=ome_GB, & !optional growth rate and frequency output
              & epf_GBout=epf_GB,eef_GBout=eef_GB, evf_GBout=evf_GB, dfe_SIout=dfe_SI,vte_SIout=vte_SI,vre_SIout=vre_SI, vce_SIout=vce_SI,epf_cmout=epf_cm,eef_cmout=eef_cm,evf_cmout=evf_cm, ckeout=cke, & !optional electron flux outputs
@@ -287,7 +287,7 @@ PROGRAM qlk_standalone
              & el_type, Tex, Nex, Ate, Ane, anise, danisedr, & !electrons
              & ion_type, Ai, Zi, Tix, ninorm, Ati, Ani, anis, danisdr, & !ions
              & Machtor, Autor, Machpar, Aupar, gammaE, & !rotation input
-             & maxruns, maxpts, relacc1, relacc2, timeout, & !code specific inputs
+             & maxruns, maxpts, relacc1, relacc2, timeout, ETGmult, collmult,  & !code specific inputs
              & epf_SI,epfETG_SI,eef_SI,eefETG_SI,evf_SI,ipf_SI,ief_SI, ivf_SI, & ! Non optional outputs
              & solflu_SIout=solflu_SI, solflu_GBout=solflu_GB, gam_SIout=gam_SI,gam_GBout=gam_GB,ome_SIout=ome_SI,ome_GBout=ome_GB, & !optional growth rate and frequency output
              & epf_GBout=epf_GB,eef_GBout=eef_GB, evf_GBout=evf_GB, dfe_SIout=dfe_SI,vte_SIout=vte_SI,vre_SIout=vre_SI, vce_SIout=vce_SI,epf_cmout=epf_cm,eef_cmout=eef_cm,evf_cmout=evf_cm, ckeout=cke, & !optional electron flux outputs
@@ -393,136 +393,144 @@ CONTAINS
     ! p{13} Timeout seconds for a given solution search 
     timeout = readvar(kc,dummy,ktype) ; kc = kc+1
 
-    ! p{14} Toroidal wave-number grid
+    ! p{14} Multiplier for ETG saturation rule (default 1. Mostly for testing)
+    ETGmult = readvar(kc,dummy,ktype) ; kc = kc+1
+
+    ! p{15} Multiplier for collisionality (default 1. Mostly for testing)
+    collmult = readvar(kc,dummy,ktype) ; kc = kc+1
+
+    ! p{16} Toroidal wave-number grid
     ALLOCATE(kthetarhos(dimn))
     kthetarhos = readvar(kc,kthetarhos,ktype) ; kc = kc+1
 
-    ! p{15} Normalised radial coordinate (midplane radius)
+    ! p{17} Normalised radial coordinate (midplane radius)
     ALLOCATE(x(dimx))
     x = readvar(kc,x,ktype) ; kc = kc+1
 
-    ! p{16} Normalised radial coordinate (midplane radius)
+    ! p{18} Normalised radial coordinate (midplane radius)
     ALLOCATE(rho(dimx))
     rho = readvar(kc,rho,ktype) ; kc = kc+1
 
-    ! p{17} <Ro> major radius
+    ! p{19} <Ro> major radius
     ALLOCATE(Ro(dimx))
     Ro = readvar(kc,Ro,ktype) ; kc = kc+1
 
-    ! p{18} <a> minor radius
+    ! p{20} <a> minor radius
     ALLOCATE(Rmin(dimx))
     Rmin = readvar(kc,Rmin,ktype) ; kc = kc+1
 
-    ! p{19} B(rho) magnetic field
+    ! p{21} B(rho) magnetic field
     ALLOCATE(Bo(dimx))
     Bo = readvar(kc,Bo,ktype) ; kc = kc+1
 
-    ! p{20} R0 geometric major radius (for normalizations)
+    ! p{22} R0 geometric major radius (for normalizations)
     R0 = readvar(kc,R0,ktype) ; kc = kc+1
 
-    ! p{21} q(rho) profile
+    ! p{23} q(rho) profile
     ALLOCATE(qx(dimx))
     qx = readvar(kc,qx,ktype) ; kc = kc+1
 
-    ! p{22} s(rho) profile
+    ! p{24} s(rho) profile
     ALLOCATE(smag(dimx))
     smag = readvar(kc,smag,ktype) ; kc = kc+1
 
-    ! p{23} alpha(rho) profile
+    ! p{25} alpha(rho) profile
     ALLOCATE(alphax(dimx))
     alphax = readvar(kc,alphax,ktype) ; kc = kc+1
 
-    ! p{24} Machtor(rho) profile
+    ! p{26} Machtor(rho) profile
     ALLOCATE(Machtor(dimx))
     Machtor = readvar(kc,Machtor,ktype) ; kc = kc+1
 !!$    WHERE(ABS(Machtor) < epsD) Machtor = epsD
 
-    ! p{25} Autor(rho) profile
+    ! p{27} Autor(rho) profile
     ALLOCATE(Autor(dimx))
     Autor = readvar(kc,Autor,ktype) ; kc = kc+1
     WHERE(ABS(Autor) < epsD) Autor = epsD
 
-    ! p{26} Machpar(rho) profile
+    ! p{28} Machpar(rho) profile
     ALLOCATE(Machpar(dimx))
     Machpar = readvar(kc,Machpar,ktype) ; kc = kc+1
 !!$    WHERE(ABS(Machpar) < epsD) Machpar = epsD
 
-    ! p{27} Aupar(rho) profile
+    ! p{29} Aupar(rho) profile
     ALLOCATE(Aupar(dimx))
     Aupar = readvar(kc,Aupar,ktype) ; kc = kc+1
     WHERE(ABS(Aupar) < epsD) Aupar = epsD
 
-    ! p{28} gammaE(rho) profile
+    ! p{30} gammaE(rho) profile
     ALLOCATE(gammaE(dimx))
     gammaE = readvar(kc,gammaE,ktype) ; kc = kc+1
     WHERE(ABS(gammaE) < epsD) gammaE = epsD
 
-    ! p{29} Te(rho) profile
+    ! p{31} Te(rho) profile
     ALLOCATE(Tex(dimx))
     Tex = readvar(kc,Tex,ktype) ; kc = kc+1
 
-    ! p{30} ne(rho) profile
+    ! p{32} ne(rho) profile
     ALLOCATE(Nex(dimx))
     Nex = readvar(kc,Nex,ktype) ; kc = kc+1
 
-    ! p{31} R/LTe(rho) profile
+    ! p{33} R/LTe(rho) profile
     ALLOCATE(Ate(dimx))
     Ate = readvar(kc,Ate,ktype) ; kc = kc+1
     WHERE(ABS(Ate) < epsD) Ate = epsD
 
-    ! p{32} R/Lne(rho) profile
+    ! p{34} R/Lne(rho) profile
     ALLOCATE(Ane(dimx))
     Ane = readvar(kc,Ane,ktype) ; kc = kc+1
     WHERE(ABS(Ane) < epsD) Ane = epsD
+    WHERE(Ane+Ate < epsD) Ane = Ane+epsD
 
-    ! p{33} Flag for adiabatic electrons
+    ! p{35} Flag for adiabatic electrons
     el_type = INT(readvar(kc,dummy,ktype)) ; kc = kc+1
 
-    ! p{34} Species temp anisotropy at LFS. Zero is electrons
+    ! p{36} Species temp anisotropy at LFS. Zero is electrons
     ALLOCATE(anise(dimx))
     anise = readvar(kc,anise,ktype) ; kc = kc+1
 
-    ! p{35} Species temp anisotropy at LFS. Zero is electrons
+    ! p{37} Species temp anisotropy at LFS. Zero is electrons
     ALLOCATE(danisedr(dimx))
     danisedr = readvar(kc,danisedr,ktype) ; kc = kc+1
     WHERE(ABS(danisedr) < epsD) danisedr = epsD
 
-    ! p{36} Main ion mass
+    ! p{38} Main ion mass
     ALLOCATE(Ai(dimx,nions))
     Ai = readvar(kc,Ai,ktype) ; kc = kc+1
 
-    ! p{37} Main ion charge
+    ! p{39} Main ion charge
     ALLOCATE(Zi(dimx,nions))
     Zi = readvar(kc,Zi,ktype) ; kc = kc+1
 
-    ! p{38} Ti(rho) profiles
+    ! p{40} Ti(rho) profiles
     ALLOCATE(Tix(dimx,nions))
     Tix = readvar(kc,Tix,ktype) ; kc = kc+1
 
-    ! p{39} ni/ne (rho) profiles
+    ! p{41} ni/ne (rho) profiles
     ALLOCATE(ninorm(dimx,nions))
     ninorm = readvar(kc,ninorm,ktype) ; kc = kc+1
 
-    ! p{40} R/LTi(rho) profiles
+    ! p{42} R/LTi(rho) profiles
     ALLOCATE(Ati(dimx,nions))
     Ati = readvar(kc,Ati,ktype) ; kc = kc+1
     WHERE(ABS(Ati) < epsD) Ati = epsD
 
-    ! p{41} R/Lni(rho) profiles
+    ! p{43} R/Lni(rho) profiles
     ALLOCATE(Ani(dimx,nions))
     Ani = readvar(kc,Ani,ktype) ; kc = kc+1
     WHERE(ABS(Ani) < epsD) Ani = epsD
+    WHERE(Ani+Ati < epsD) Ani = Ani + epsD
 
-    ! p{42} Ion types
+    ! p{44} Ion types
     ALLOCATE(ion_type(dimx,nions))
     ion_type = INT(readvar(kc,ion_typer,ktype)) ; kc = kc+1
     DEALLOCATE(ion_typer)
 
-    ! p{43} Species temp anisotropy at LFS. Zero is electrons
+    ! p{45} Species temp anisotropy at LFS. Zero is electrons
     ALLOCATE(anis(dimx,1:nions))
     anis = readvar(kc,anis,ktype) ; kc = kc+1
 
-    ! p{44} Species temp anisotropy at LFS. Zero is electrons
+    ! p{46} Species temp anisotropy at LFS. Zero is electrons
     ALLOCATE(danisdr(dimx,1:nions))
     danisdr = readvar(kc,danisdr,ktype) ; kc = kc+1
     WHERE(ABS(danisdr) < epsD) danisdr = epsD
@@ -712,6 +720,12 @@ CONTAINS
     OPEN(unit=700, file="timeout.dat", action="write", status="replace")
     WRITE(700,fmtx) timeout ; CLOSE(700)
 
+    OPEN(unit=700, file="ETGmult.dat", action="write", status="replace")
+    WRITE(700,fmtx) ETGmult ; CLOSE(700)
+
+    OPEN(unit=700, file="collmult.dat", action="write", status="replace")
+    WRITE(700,fmtx) collmult ; CLOSE(700)
+
 
     !STOP
 
@@ -786,7 +800,7 @@ CONTAINS
     ALLOCATE(phi(dimx,ntheta))
     ALLOCATE(npol(dimx,ntheta,nions))
     ALLOCATE(ecoefs(dimx,0:nions,numecoefs)) !includes electrons
-    ALLOCATE(cftrans(dimx,nions,6)) ! only for ions
+    ALLOCATE(cftrans(dimx,nions,7)) ! only for ions
 
     ALLOCATE( sol (dimx, dimn, numsols) )
     ALLOCATE( fdsol (dimx, dimn, numsols) )
@@ -1010,7 +1024,7 @@ CONTAINS
     WRITE(fmtn,'(A,I0, A)') '(',dimn,'G15.7)'
     WRITE(fmtion,'(A,I0, A)') '(',nions,'G15.7)'
     WRITE(fmtecoef,'(A,I0, A)') '(',numecoefs,'G15.7)'
-    WRITE(fmtcftrans,'(A)') '(6G15.7)'
+    WRITE(fmtcftrans,'(A)') '(7G15.7)'
 
     OPEN(unit=myunit, file="output/primitive/rsolflu.dat", action="write", status="replace")
     WRITE(myunit,fmtn) ((REAL(solflu(i,j)),j=1,dimn),i=1,dimx) ; CLOSE(myunit)
@@ -1342,7 +1356,7 @@ CONTAINS
     WRITE(myunit,fmtecoef) (((ecoefs(j,i,k),k=1,numecoefs),j=1,dimx),i=0,nions) ; CLOSE(myunit)
 
     OPEN(unit=myunit, file="output/cftrans.dat", action="write", status="replace")
-    WRITE(myunit,fmtcftrans) (((cftrans(j,i,k),k=1,6),j=1,dimx),i=1,nions) ; CLOSE(myunit)
+    WRITE(myunit,fmtcftrans) (((cftrans(j,i,k),k=1,7),j=1,dimx),i=1,nions) ; CLOSE(myunit)
 
     OPEN(unit=myunit, file="output/gam_GB.dat", action="write", status="replace")
     WRITE(myunit,fmtn) (((gam_GB(i,j,k),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)

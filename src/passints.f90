@@ -184,7 +184,10 @@ CONTAINS
     var3 = (ktetaRhoi(nion))**2.               !!2nd argument of Bessel fun
     bessm2 = BESEI0(var2+var3)
 
-    xFkr = rstar/SQRT(2.) + REAL(mshift)/SQRT(REAL(mwidth**2))
+    !   xFkr = rstar/SQRT(2.) + REAL(mshift)/SQRT(REAL(mwidth**2)) 
+
+    xFkr = rstar/SQRT(2.) + REAL(mshift)/SQRT(REAL(mwidth**2)) 
+    !         & AIMAG(mwidth)/REAL(mwidth)*(kstar/SQRT(2.)+AIMAG(mshift)/SQRT(REAL(mwidth**2)))
 
     !Transit frequency        
     Athir = Athi(nion)*xFkr

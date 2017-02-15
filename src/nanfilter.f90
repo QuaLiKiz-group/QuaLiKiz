@@ -80,7 +80,7 @@ contains
   elemental function bittest_is_nan(real_to_test) result(res)
 
     integer, parameter :: Double = selected_int_kind(precision(1.d0))
-    integer(Double), parameter :: iNaN  = Z"7FF8000000000000"
+    integer(Double), parameter :: iNaN  = Z"7FF8000000000000" 
     !data iNaN/Z"7FF8000000000000"/
     ! Position of the sign bit (Intel) bit numbering starts at zero
     integer, parameter :: PSB = bit_size(iNaN) - 1

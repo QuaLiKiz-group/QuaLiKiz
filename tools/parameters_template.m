@@ -13,6 +13,8 @@ ntheta=64; %resolution of parallel direction
 set_ninorm1=1;      %flag for automating main ion concentration for maintaining QN
 set_Ani1=1; %flag for automating main ion gradient for maintaining QN
 set_QN_grad=1; %flag for maintaining quasineutrality of gradients.
+ETGmult=1.0; %ETG saturation rule multiplier (for testing)
+collmult=1.0; %Collisionality multiplier (for testing)
 
 %Set the number and range of wave number points
 kthetarhos = linspace(0.1,0.8,8);

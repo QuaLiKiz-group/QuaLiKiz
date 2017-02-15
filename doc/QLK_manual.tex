@@ -8,7 +8,7 @@
 \maketitle
 
 \begin{abstract}
-This manual explains how to build QuaLiKiz and set up standalone scans. The inputs and outputs are also detailed. The standalone version is run from within a MATLAB environment. There is also the possibility of launching a run directly from CRONOS data. This feature is explained. Scripts for building QuaLiKiz on either the CEA Zone Partenaires Andromede cluster, the Gateway and JET JAC cluster are all available. Any questions can be sent to Jonathan Citrin at J.Citrin@differ.nl, or Clarisse Bourdelle at Clarisse.Bourdelle@cea.fr
+This manual explains how to build QuaLiKiz and set up standalone scans. The inputs and outputs are also detailed. The standalone version is run from within a MATLAB environment. There is also the possibility of launching a run directly from CRONOS data. This feature is explained. Scripts for building QuaLiKiz on either the CEA Zone Partenaires Andromede cluster, the Gateway and JET JAC cluster are all available. Any questions can be sent to Jonathan Citrin at J.Citrin@differ.nl
 \end{abstract}
 
 \section{Code capabilities}
@@ -18,10 +18,10 @@ QuaLiKiz can calculate particle, heat, and momentum transport for electrons and 
 
 The impact of rotation and rotation shear is included. This includes rotodiffusion (important for heavy impurities), $E{\times}B$ stabilization, and Coriolis pinch. In addition, the impact of poloidal asymmetries due to centrifugal forces and/or temperature anisotropies are included. This is important for heavy impurity transport.
 
-Approximate calculation times to be expected are 1 CPU s for a single wavenumber. This increases to $\approx$ 5 CPU s when rotation is included in the dispersion relation (due to losing symmetry in the integrals). The code is, thankfully, parallelized. 
+Approximate calculation times to be expected are 1 CPU s for a single wavenumber. This increases to $\approx$ 5 CPU s when rotation is included in the dispersion relation (due to losing symmetry in the integrals). The code is parallelized with a hybrid MPI and OpenMP scheme. 
 
 \section{Compiling the code}
-From the src directory, simply run the relevant script for your environemnt, i.e. either type './makeandromede.sh', './makegateway.sh' or './makejac.sh'. The QuaLiKiz.exe executable will be created in the src directory. 
+From the src directory, run the relevant script for your environemnt, i.e. either type './makeandromede.sh', './makegateway.sh' or './makejac.sh'. The QuaLiKiz.exe executable will be created in the src directory. A NAG installation is necessary. Apart from NAG, no other libraries need to be loaded and the code is self-contained. This facilitates porting to other systems.
 
 \section{Setting up a new run}
 Enter a MATLAB environment. From the main QuaLiKiz directory first run the script newrun.m. When prompted, type in the name of your new run, e.g. 'run10\_ILOVEFUSION'. This directory will be created in the 'runs' directory. If this directory does not already exist it will be created. 
@@ -31,11 +31,11 @@ You will now find yourself in this directory, together with a bunch of m-files c
 \subsection{Setting up a new scan}
 A template input file - parameters.m - has been copied to the working directory. All the external parameters needed for a QLK scan can be found and modified here. In general, 2D scans are carried out. One dimension is $k_\theta$, while all other variables (e.g. magnetic shear, $R/L_{Ti}$) are of size scann (size of the second dimension) and can be either constant in that dimension, or varying if that parameter is the subject of the scan. ktheta\_min, ktheta\_max, size of the ktheta grid, and the value of scann are all variables in the parameter file. In the default parameters.m example, the magnetic shear is the subject of the parameter scan. Details of all the input parameters are discussed in the relevant section below.
 
-Note that a 1D run is also possible! Just set scann=1 and then a $k_\theta$ spectrum for only one set of parameters will be calculated.
+Note that a 1D run is also possible! Just set scann=1 and then a $k_\theta$ spectrum for only one set of parameters will be calculated. A single wavenumber can also be run. 
 
-Now, once satisfied with the input file parameters, type in the command input\_QLK\_scan (from inside the MATLAB environment). This will create - in the run directory - a link to the QuaLiKiz executable, create a batch\_\$.pbs file for launching the run on the cluster, and create QuaLikiz input files inside the /input directory, based on the settings in the parameter.m file. You will also be prompted to type in the name of your job which will run on the cluster. For example, one can type 'run10' for the batch job name. Plots of the various input variables are displayed to visually examine some of the parameters for error checking.
+Once satisfied with the input file parameters, type in the command input\_QLK\_scan (from inside the MATLAB environment). This will create - in the run directory - a link to the QuaLiKiz executable, create a batch\_\$.pbs file for launching the run on the cluster, and create QuaLikiz input files inside the /input directory, based on the settings in the parameter.m file. You will also be prompted to type in the name of your job which will run on the cluster. For example, one can type 'run10' for the batch job name. Plots of the various input variables are displayed to visually examine some of the parameters for error checking.
 
-At the moment, batch files are created for the following clusters: Andromede (\$=a), Cephee (\$=c), Gateway (\$=g) and JAC (\$=j)
+At the moment, batch files are created for the following clusters: Andromede (\$=a), Cephee (\$=c), Gateway (\$=g) and JAC (\$=j). 
 
 To launch the run just type just type '!qsub batch\_\$.pbs' from within the MATLAB environment, or 'qsub batch\_\$.pbs' from the UNIX command line in your run directory. Note that \$ denotes here the letter corresponding to the cluster you are on. It is often useful to launch the run interactively (i.e. to run on the front-end node). For an interactive run with one processor, type './QuaLiKiz.exe'. For an interactive run with parallel execution, type, e.g., 'mpiexec -np 8 QuaLikiz.exe', for 8 processors. Include an exclamation mark (!) before the above commands, if you are in a MATLAB environment. Note that the directory where the 'mpiexec' command is located, must be in the path in your UNIX environment.
 
@@ -69,11 +69,13 @@ For now, the input parameters are written into binary files by a MATLAB script. 
 \item[maxpts]. Maximum number of integrand evaluations done in the 2D integrals.
 \item[relacc1]. Relative accuracy in 1D integrals
 \item[relacc2]. Relative accuracy in 2D integrals. Major factor in setting runtime!
-\item[timeout]. Time in seconds after which the code 'gives up' on a given solution. Important for reducing occasional difficult cases from being bottlenecks in integrated modelling. 30 is a recommended value.
+\item[timeout]. Time in seconds after which the code 'gives up' on a given solution. Important for reducing occasional difficult cases from being bottlenecks in integrated modelling. 30 is a recommended value, or at least a number that corresponds to around $\sim20ms$ of physical time.
 \item[ntheta]. Resolution of parallel grid in poloidal asymmetry calculation. Does not slow down the code, so a relatively high value of 64 is set as default.
 \item[set\_ninorm1]. If 1, then the main (first) ion species density will be modified to maintain quasineutrality, based on the values of the other active ion species densities.
 \item[set\_QN\_grad]. If 1, then quasineutrality of gradients will be checked in pre-processing.
 \item[set\_Ani]. If 1, then the main (first) ion species density gradient will be modified to maintain quasineutrality of gradients based on the values of the other active ion species density gradients.
+\item[ETGmult].  Default = 1. A multiplier for the ETG saturation rule constant pre-factor. Mostly for testing purposes. No multi-scale model is available in QuaLiKiz
+\item[collmult]. Default = 1. A multiplier for the collisionality. Mostly for testing purposes. QuaLiKiz has a crude Krook collisional operator, which demands detailed comparisons of TEM emergence at high collisionality with GK codes involving less approximations
 \end{description}
 
 \subsection{Physical parameters}
@@ -85,13 +87,15 @@ For now, the input parameters are written into binary files by a MATLAB script. 
 \subsubsection{Geometry}
 Magnetic geometry parameters.
 \begin{description}
-\item[Bo]. Magnetic field at magnetic axis, in [T]. Used for gyrobohm normalization.
-\item[Ro]. Major radius [m]. Also used in normalizations.
-\item[Rmin]. Minor radius a [m].
+\item[Bo]. Magnetic field at magnetic axis, in [T]. Used for GyroBohm normalization.
+\item[R0]. Major radius [m]. A scalar used in normalizations.
+\item[Ro]. Major radius [m]. An array, which can include the Shafranov shift impact, for example
+\item[Rmin]. Minor radius a [m]. Scalar.
 \item[x]. Local radius in normalized minor radius, e.g. r/a. Used to set trapped electron fraction.
-\item[qx]. Local q-profile value.
-\item[smag]. Local magnetic shear value. $s{\equiv}rq'/q$ 
-\item[alphax]. Local MHD alpha. Used in magnetic drift frequency. $\alpha_{MHD}{\equiv}q^2\sum_s\beta_s(R/L_{Ts}+R/L_{ns})$.
+\item[$\rho$]. Normalized toroidal flux coordinate. More for convenience (debug outputs and comparisons with profiles). Not used in calculations.
+\item[qx]. q-profile array
+\item[smag]. Magnetic shear array. $s{\equiv}rq'/q$ 
+\item[alphax]. MHD alpha array. Used in magnetic drift frequency. $\alpha_{MHD}{\equiv}q^2\sum_s\beta_s(R/L_{Ts}+R/L_{ns})$.
 \end{description}
 \subsubsection{Electrons}
 Electron parameters.
@@ -286,18 +290,19 @@ Where $D$ is the ion particle diffusivity as calculated without poloidal asymmme
 \end{description} 
 
 \section{General notes}
-When running the code, please do not be alarmed if there are some errors reported in the output stream with regard to the integration. QuaLiKiz carries out thousands and thousands of such integrations during the
-computation, and some do not converge. However, generally, this does not perturb too much the final result. 
+When running the code, do not be alarmed if there are some errors reported in the output stream regarding integration convergence. QuaLiKiz carries out thousands of such integrations during the
+computation of each eigenvalue and quasilinear flux. Some do not converge. However, generally, this does not significantly the final result. However, this behaviour can cause some fluctuations in the
+fluxes and profiles in integrated modelling calculations. This makes it difficult for fully implicit solvers to converge. Also, some convergence failures can appear occaionally in the fluid eigenfunction
+solver. The code then reverts to a less self-consistent fluid solution. Again, this typically does not lead to a significant perturbation of the final results.
 
 When running on a restricted number of points in a stand-alone fashion, it may be advantageous to carry out convergence tests on the results by increasing the integration accuracy inputs. This is relacc1 and relacc2 in
-the input parameter file. Results are slower but more accurate with higher relacc1 and relacc2. Generally, there is no point raising them by more than 2 orders of magnitude from their default values. It is recommended to
-raise them by the same factor each time, and also to increase maxpts (maximum number of integrand evaluations carried out) by the same factor each time.
+the input parameter file. Results are significantly slower with higher relacc1 and relacc2 than the default values. For integrated modelling, it is highly recommend to maintain the default values, which were chosen after extensive testing to optimize the balance between speed and accuracy. 
 
-It is recommended to run the code in parallel. For example, one Andromede node has 12 processors, so this is a recommended number to use on Andromede. Reminder: an interactive run can be carried out with 'mpirun -np 12 QuaLiKiz.exe'. This is a very convenient way to run the code for standalone applications.
+It is recommended to run the code in parallel. For example, one Andromede node has 12 processors, so this is a recommended number to use on Andromede. An interactive run can be carried out with 'mpirun -np 12 QuaLiKiz.exe'. This is a very convenient way to run the code for standalone applications, especially if queue waits are involved in batch mode.
 
 Hopefully, this manual is sufficient to get started. Clearly the manual can be much further improved. For more detailed questions and suggestions please write us.
 
-Finally, note that we are planning to port the standalone interface from MATLAB to Python. We're not making any promises when this will occur... Volunteers would be appreciated :) 
+Finally, note that we are now porting the standalone interface from MATLAB to Python. Therefore, no further development is planned on the MATLAB I/O scripts. Unfortunately we have no generic output plotting script available. We recommend writing your own scripts for your own specific use cases.
 
 Happy computing!
 
