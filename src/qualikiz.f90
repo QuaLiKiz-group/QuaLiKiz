@@ -13,14 +13,13 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
      & el_typein, Texin, Nexin, Atein, Anein, anisein, danisedrin, & !electron input
      & ion_typein, Aiin, Ziin, Tixin, ninormin, Atiin, Aniin, anisin, danisdrin, & !ion input
      & Machtorin, Autorin, Machparin, Auparin, gammaEin, & !rotation input
-     & maxrunsin, maxptsin, relacc1in, relacc2in, timeoutin, & !code specific input
-     & epf_SIout,eef_SIout,evf_SIout,ipf_SIout,ief_SIout,ivf_SIout, & ! Non optional outputs
+     & maxrunsin, maxptsin, relacc1in, relacc2in, timeoutin, ETGmultin, collmultin, & !code specific input
+     & epf_SIout,epfETG_SIout,eef_SIout,eefETG_SIout,evf_SIout,ipf_SIout,ief_SIout,ivf_SIout, & ! Non optional outputs
      & solflu_SIout, solflu_GBout, gam_SIout,gam_GBout,ome_SIout,ome_GBout, & !growth rate and frequency output
      & epf_GBout,eef_GBout, evf_GBout, dfe_SIout,vte_SIout,vre_SIout,vce_SIout,epf_cmout,eef_cmout,evf_cmout,ckeout, & !electron flux outputs
      & ipf_GBout,ief_GBout, ivf_GBout, dfi_SIout,vti_SIout,vri_SIout,vci_SIout,ipf_cmout,ief_cmout,ivf_cmout,ckiout, & !ion flux outputs
-     & dfe_GBout,vte_GBout,vre_GBout,vce_GBout,dfi_GBout,vti_GBout,vri_GBout,vci_GBout, &
      & vene_SIout,chiee_SIout,vere_SIout,vece_SIout, cekeout, veni_SIout,chiei_SIout,veci_SIout,veri_SIout,cekiout, & !heat pinch outputs
-     & modeflagout, Nustarout, Zeffxout, & 
+     & modeflagout, Nustarout, Zeffxout, & ! flags type of modes in output per radial position
      & phiout, npolout, ecoefsout, cftransout, &  ! poloidal asymmetry outputs for heavy impurities
      & solfluout, modewidthout, modeshiftout, distanout, ntorout, solout, fdsolout,&  !optional 'primitive' outputs from dispersion relation solver needed to build QL flux. Useful for standalone
      & kperp2out,krmmuITGout,krmmuETGout,&
@@ -30,7 +29,9 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
      &Lepiegceout, Lecircgtiout, Lepieggtiout, Lecircgniout, Lepieggniout, Lecircguiout, Lepiegguiout, Lecircciout, Lepiegciout,&
      oldsolin, oldfdsolin, runcounterin,&
      rhominin,rhomaxin,&
-     & eefETG_SIout,eefETG_GBout,&  !optional outputs from separation of fluxes
+     & eefETG_GBout,&  !optional outputs from separation of fluxes
+     & dfe_GBout, vte_GBout, vre_GBout, vce_GBout,&  !optional outputs from separation of fluxes
+     & dfi_GBout, vti_GBout, vri_GBout, vci_GBout,&  !optional outputs from separation of fluxes
      & eefTEM_SIout,eefTEM_GBout,epfTEM_SIout,dfeTEM_SIout,vteTEM_SIout,vceTEM_SIout,vreTEM_SIout,dfeTEM_GBout,vteTEM_GBout,vceTEM_GBout,vreTEM_GBout,&
      & eefITG_SIout,eefITG_GBout,epfITG_SIout,dfeITG_SIout,vteITG_SIout,vceITG_SIout,vreITG_SIout,dfeITG_GBout,vteITG_GBout,vceITG_GBout,vreITG_GBout,&
      & iefTEM_SIout,iefTEM_GBout,ipfTEM_SIout,ivfTEM_SIout,ivfTEM_GBout,dfiTEM_SIout,vtiTEM_SIout,vciTEM_SIout,vriTEM_SIout,dfiTEM_GBout,vtiTEM_GBout,vciTEM_GBout,vriTEM_GBout,&
@@ -83,7 +84,7 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
   REAL(kind=DBL), DIMENSION(dimxin,nionsin), INTENT(IN) :: Tixin, ninormin, Atiin, Aniin, anisin, danisdrin, Aiin, Ziin
   REAL(kind=DBL), DIMENSION(dimxin), INTENT(IN) :: Auparin, gammaEin, Machtorin, Machparin, Autorin
   INTEGER, INTENT(IN) :: maxrunsin, maxptsin
-  REAL(kind=DBL), INTENT(IN) :: relacc1in, relacc2in, timeoutin
+  REAL(kind=DBL), INTENT(IN) :: relacc1in, relacc2in, timeoutin, ETGmultin, collmultin
   REAL(kind=DBL), OPTIONAL, INTENT(IN) :: rhominin,rhomaxin
 
   ! List of output variables: 
@@ -93,11 +94,11 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
   REAL(KIND=DBL), DIMENSION(dimxin,dimnin,numsolsin), OPTIONAL, INTENT(OUT)  :: gam_SIout,gam_GBout,ome_SIout,ome_GBout  
 
   ! final output arrays following saturation rule
-  REAL(KIND=DBL), DIMENSION(dimxin), INTENT(OUT)  :: epf_SIout,eef_SIout,evf_SIout
+  REAL(KIND=DBL), DIMENSION(dimxin), INTENT(OUT)  :: epf_SIout,epfETG_SIout,eef_SIout,eefETG_SIout,evf_SIout
   REAL(KIND=DBL), DIMENSION(dimxin,nionsin), INTENT(OUT)  :: ipf_SIout,ief_SIout,ivf_SIout
 
 
-  REAL(KIND=DBL), DIMENSION(dimxin), OPTIONAL, INTENT(OUT) :: eefETG_SIout,eefETG_GBout
+  REAL(KIND=DBL), DIMENSION(dimxin), OPTIONAL, INTENT(OUT) :: eefETG_GBout
   REAL(KIND=DBL), DIMENSION(dimxin), OPTIONAL, INTENT(OUT) :: eefTEM_SIout,eefTEM_GBout,epfTEM_SIout,dfeTEM_SIout,vteTEM_SIout,vceTEM_SIout,vreTEM_SIout,dfeTEM_GBout,vteTEM_GBout,vceTEM_GBout,vreTEM_GBout
   REAL(KIND=DBL), DIMENSION(dimxin), OPTIONAL, INTENT(OUT) :: eefITG_SIout,eefITG_GBout,epfITG_SIout,dfeITG_SIout,vteITG_SIout,vceITG_SIout,vreITG_SIout,dfeITG_GBout,vteITG_GBout,vceITG_GBout,vreITG_GBout
   REAL(KIND=DBL), DIMENSION(dimxin,nionsin), OPTIONAL, INTENT(OUT) :: iefTEM_SIout,ipfTEM_SIout,dfiTEM_SIout,vtiTEM_SIout,vciTEM_SIout,dfiTEM_GBout,vtiTEM_GBout,vciTEM_GBout
@@ -115,27 +116,30 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
   REAL(KIND=DBL), DIMENSION(dimxin,nionsin) :: ivfITG_SIouttmp,ivfITG_GBouttmp
 
 
-  REAL(KIND=DBL), DIMENSION(dimxin), OPTIONAL, INTENT(OUT)  :: epf_GBout,eef_GBout, evf_GBout, dfe_SIout, vte_SIout, vre_SIout, vce_SIout, dfe_GBout, vte_GBout, vre_GBout, vce_GBout, ckeout, modeflagout, Nustarout, Zeffxout
+  REAL(KIND=DBL), DIMENSION(dimxin), OPTIONAL, INTENT(OUT)  :: epf_GBout,eef_GBout, evf_GBout, dfe_SIout, vte_SIout, vre_SIout, vce_SIout, ckeout, modeflagout, Nustarout, Zeffxout
+  REAL(KIND=DBL), DIMENSION(dimxin), OPTIONAL, INTENT(OUT)  :: dfe_GBout, vte_GBout, vre_GBout, vce_GBout
   REAL(KIND=DBL), DIMENSION(dimxin), OPTIONAL, INTENT(OUT)  :: vene_SIout, chiee_SIout, vere_SIout, vece_SIout, cekeout
-  REAL(KIND=DBL), DIMENSION(dimxin,nionsin), OPTIONAL, INTENT(OUT)  :: ipf_GBout,ief_GBout, ivf_GBout, dfi_SIout, vti_SIout, vri_SIout, vci_SIout,dfi_GBout, vti_GBout, vri_GBout, vci_GBout, ckiout
+  REAL(KIND=DBL), DIMENSION(dimxin,nionsin), OPTIONAL, INTENT(OUT)  :: dfi_SIout, vti_SIout, vri_SIout, vci_SIout, ckiout
+  REAL(KIND=DBL), DIMENSION(dimxin,nionsin), OPTIONAL, INTENT(OUT)  :: ipf_GBout,ief_GBout, ivf_GBout, dfi_GBout, vti_GBout, vri_GBout, vci_GBout
   REAL(KIND=DBL), DIMENSION(dimxin,nionsin), OPTIONAL, INTENT(OUT)  :: veni_SIout, veri_SIout, chiei_SIout, veci_SIout, cekiout
   REAL(KIND=DBL), DIMENSION(dimxin,dimnin), OPTIONAL, INTENT(OUT)  ::  epf_cmout, eef_cmout, evf_cmout
   REAL(KIND=DBL), DIMENSION(dimxin,dimnin,nionsin), OPTIONAL, INTENT(OUT) :: ipf_cmout,ief_cmout, ivf_cmout
   REAL(KIND=DBL), DIMENSION(dimxin,ntheta), OPTIONAL, INTENT(OUT)  ::  phiout
   REAL(KIND=DBL), DIMENSION(dimxin,ntheta,nionsin), OPTIONAL, INTENT(OUT)  ::  npolout
   REAL(KIND=DBL), DIMENSION(dimxin,0:nionsin,numecoefs), OPTIONAL, INTENT(OUT)  ::  ecoefsout
-  REAL(KIND=DBL), DIMENSION(dimxin,nionsin,numicoefs), OPTIONAL, INTENT(OUT)  ::  cftransout
-
+  REAL(KIND=DBL), DIMENSION(dimxin,nionsin,7), OPTIONAL, INTENT(OUT)  ::  cftransout
+  !REAL(KIND=DBL), DIMENSION(dimxin,nionsin,numicoefs), OPTIONAL, INTENT(OUT)  ::  cftransout
+  
   ! optional output arrays from which the saturation rule can be calculated without rerunning dispersion relation solver
   REAL(KIND=DBL) , DIMENSION(dimxin), OPTIONAL, INTENT(OUT)  :: krmmuITGout,krmmuETGout
   REAL(KIND=DBL) , DIMENSION(dimxin,dimnin), OPTIONAL, INTENT(OUT)  :: distanout,ntorout,kperp2out
   COMPLEX(KIND=DBL), DIMENSION(dimxin,dimnin), OPTIONAL, INTENT(OUT)  :: modewidthout, modeshiftout
   COMPLEX(KIND=DBL), DIMENSION(dimxin,dimnin,numsolsin), OPTIONAL, INTENT(OUT)  :: solout, fdsolout
-  REAL(KIND=DBL), DIMENSION(dimxin,dimnin,numsolsin), OPTIONAL, INTENT(OUT)  :: Lcirceout, Lpiegeout, Lecirceout, Lepiegeout, Lvcirceout, Lvpiegeout, Lcircgteout, Lpieggteout,  Lcircgneout, Lpieggneout,  Lcircgueout, Lpieggueout, Lcircceout, Lpiegceout
-  REAL(KIND=DBL), DIMENSION(dimxin,dimnin,numsolsin), OPTIONAL, INTENT(OUT)  :: Lecircgteout, Lepieggteout,  Lecircgneout, Lepieggneout,  Lecircgueout, Lepieggueout, Lecircceout, Lepiegceout
-  REAL(KIND=DBL), DIMENSION(dimxin,dimnin,nionsin,numsolsin), OPTIONAL, INTENT(OUT)  :: &
+  COMPLEX(KIND=DBL), DIMENSION(dimxin,dimnin,numsolsin), OPTIONAL, INTENT(OUT)  :: Lcirceout, Lpiegeout, Lecirceout, Lepiegeout, Lvcirceout, Lvpiegeout, Lcircgteout, Lpieggteout,  Lcircgneout, Lpieggneout,  Lcircgueout, Lpieggueout, Lcircceout, Lpiegceout
+  COMPLEX(KIND=DBL), DIMENSION(dimxin,dimnin,numsolsin), OPTIONAL, INTENT(OUT)  :: Lecircgteout, Lepieggteout,  Lecircgneout, Lepieggneout,  Lecircgueout, Lepieggueout, Lecircceout, Lepiegceout
+  COMPLEX(KIND=DBL), DIMENSION(dimxin,dimnin,nionsin,numsolsin), OPTIONAL, INTENT(OUT)  :: &
        Lcirciout, Lpiegiout, Lecirciout, Lepiegiout, Lvcirciout, Lvpiegiout, Lcircgtiout, Lpieggtiout, Lcircgniout, Lpieggniout, Lcircguiout, Lpiegguiout, Lcircciout, Lpiegciout
-  REAL(KIND=DBL), DIMENSION(dimxin,dimnin,nionsin,numsolsin), OPTIONAL, INTENT(OUT)  :: Lecircgtiout, Lepieggtiout, Lecircgniout, Lepieggniout, Lecircguiout, Lepiegguiout, Lecircciout, Lepiegciout
+  COMPLEX(KIND=DBL), DIMENSION(dimxin,dimnin,nionsin,numsolsin), OPTIONAL, INTENT(OUT)  :: Lecircgtiout, Lepieggtiout, Lecircgniout, Lepieggniout, Lecircguiout, Lepiegguiout, Lecircciout, Lepiegciout
 
   ! optional input arrays for going directly to newton solver
   INTEGER, OPTIONAL, INTENT(IN)  :: runcounterin
@@ -160,7 +164,7 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
        & el_typein, Texin, Nexin, Atein, Anein, anisein, danisedrin, & 
        & ion_typein, Aiin, Ziin, Tixin, ninormin, Atiin, Aniin, anisin, danisdrin, & 
        & Machtorin, Autorin, Machparin, Auparin, gammaEin, &
-       & maxrunsin, maxptsin, relacc1in, relacc2in, timeoutin)  !code specific inputs
+       & maxrunsin, maxptsin, relacc1in, relacc2in, timeoutin,ETGmultin,collmultin)  !code specific inputs
 
   ! set optional input
   IF (PRESENT(oldsolin)) THEN
@@ -179,12 +183,12 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
   IF (PRESENT(rhominin)) THEN
      rhomin=rhominin
   ELSE
-     rhomin=0.00 
+     rhomin=0. 
   ENDIF
   IF (PRESENT(rhomaxin)) THEN
      rhomax=rhomaxin
   ELSE
-     rhomax=1.0
+     rhomax=1.
   ENDIF
 
   !Check sanity of input (these can be much expanded)
@@ -238,8 +242,6 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
      CALL collectarrays()
   ENDIF
   CALL MPI_Barrier(mpi_comm_world,ierror)
-
-  CALL allocate_endoutput()
 
   !If rank0, then carry out the saturation rules and output final results. This will soon be parallelized too. Trivial over dimx
   IF (myrank==0) THEN 
@@ -330,7 +332,6 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
      IF (PRESENT(vriTEM_GBout))  vriTEM_GBout=vri_GB; 
 
      CALL saturation(3) !set 0 for including all modes, 1 for only ITG, 2 for only TEM, 3 for only ETG
-     IF (PRESENT(eefETG_SIout))   eefETG_SIout=eef_SI; 
      IF (PRESENT(eefETG_GBout))   eefETG_GBout=eef_GB; 
 
   ENDIF
@@ -341,188 +342,31 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
      CALL SYSTEM_CLOCK(time2)
      CALL SYSTEM_CLOCK(count_rate=freq)
      timetot = REAL(time2-time1) / REAL(freq)
-     WRITE(stdout,"(A,F11.3,A)") 'Profiling: saturation rule calculation time = ',timetot,' s'  
+     WRITE(stdout,"(A,F7.3,A)") 'Hurrah! QuaLiKiz Job completed! Total time = ',timetot,' s'  !final write
 
-!!!DEBUGGING FOR DIFFERENT FLUID SOLUTIONS
-     WRITE(fmtn,'(A,I0, A)') '(',dimn,'G15.7)'
-     OPEN(unit=900, file="output/primitive/rjonsolflu.dat", action="write", status="replace")
-     WRITE(900,fmtn) ((REAL(jon_solflu(i,j)),j=1,dimn),i=1,dimx) ; CLOSE(900)
-     OPEN(unit=900, file="output/primitive/ijonsolflu.dat", action="write", status="replace")
-     WRITE(900,fmtn) ((AIMAG(jon_solflu(i,j)),j=1,dimn),i=1,dimx) ; CLOSE(900)
-  ENDIF
-  !DEBUG
-!!$    OPEN(unit=900, file="FLRec.dat", action="write", status="replace")
-!!$    WRITE(900,'(16G15.7)') ((FLRec(i,j),j=1,dimn),i=1,dimx) ;  CLOSE(900)
-!!$
-!!$    OPEN(unit=900, file="FLRic.dat", action="write", status="replace")
-!!$    WRITE(900,'(16G15.7)') (((FLRic(i,j,k),j=1,dimn),i=1,dimx),k=1,nions) ;  CLOSE(900)
-!!$
-!!$    OPEN(unit=900, file="FLRep.dat", action="write", status="replace")
-!!$    WRITE(900,'(16G15.7)') ((FLRep(i,j),j=1,dimn),i=1,dimx) ;  CLOSE(900)
-!!$
-!!$    OPEN(unit=900, file="FLRip.dat", action="write", status="replace")
-!!$    WRITE(900,'(16G15.7)') (((FLRip(i,j,k),j=1,dimn),i=1,dimx),k=1,nions) ;  CLOSE(900)
-!!$
-!!$    OPEN(unit=900, file="rmodewidth.dat", action="write", status="replace")
-!!$    WRITE(900,'(16G15.7)') ((REAL(modewidth(i,j)),j=1,dimn),i=1,dimx) ;  CLOSE(900)
-!!$
-!!$    OPEN(unit=900, file="rmodeshift.dat", action="write", status="replace")
-!!$    WRITE(900,'(16G15.7)') ((REAL(modeshift(i,j)),j=1,dimn),i=1,dimx) ;  CLOSE(900)
-!!$
-!!$    OPEN(unit=900, file="imodewidth.dat", action="write", status="replace")
-!!$    WRITE(900,'(16G15.7)') ((AIMAG(modewidth(i,j)),j=1,dimn),i=1,dimx) ;  CLOSE(900)
-!!$
-!!$    OPEN(unit=900, file="imodeshift.dat", action="write", status="replace")
-!!$    WRITE(900,'(16G15.7)') ((AIMAG(modeshift(i,j)),j=1,dimn),i=1,dimx) ;  CLOSE(900)
+     OPEN(unit=900, file="lastruntime.qlk", action="write", status="replace")
+     WRITE(900,"(A,F7.3,A)") 'Last completed run time = ',timetot,' s'  !final write
+     CLOSE(900)
 
-  IF (myrank==0) CALL SYSTEM_CLOCK(time3)
+     !DEBUG
+!!$     WRITE(fmtn,'(A,I0, A)') '(',dimn,'G15.7)'
+!!$     OPEN(unit=myunit, file="rjonsolflu.dat", action="write", status="replace")
+!!$     WRITE(myunit,fmtn) ((REAL(jon_solflu(i,j)),j=1,dimn),i=1,dimx) ; CLOSE(myunit)
+!!$     OPEN(unit=myunit, file="ijonsolflu.dat", action="write", status="replace")
+!!$     WRITE(myunit,fmtn) ((AIMAG(jon_solflu(i,j)),j=1,dimn),i=1,dimx) ; CLOSE(myunit)
+!!$     OPEN(unit=900, file="FLRep.dat", action="write", status="replace")
+!!$     WRITE(900,'(16G15.7)') ((FLRep(i,j),j=1,dimn),i=1,dimx) ;  CLOSE(900)
+!!$     OPEN(unit=900, file="FLRip.dat", action="write", status="replace")
+!!$     WRITE(900,'(16G15.7)') (((FLRip(i,j,k),j=1,dimn),i=1,dimx),k=1,nions) ;  CLOSE(900)
 
-  CALL reduceoutput() ! spread all output to all cores
-  CALL setoutput() !set all standard output
-
-  !messy setting separated flux output if they exist
-  IF (PRESENT(eefITG_SIout))   CALL MPI_AllReduce(eefITG_SIout,eefITG_SIouttmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
-  IF (PRESENT(epfITG_SIout))   CALL MPI_AllReduce(epfITG_SIout,epfITG_SIouttmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
-  IF (PRESENT(dfeITG_SIout))   CALL MPI_AllReduce(dfeITG_SIout,dfeITG_SIouttmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
-  IF (PRESENT(vteITG_SIout))  CALL MPI_AllReduce(vteITG_SIout,vteITG_SIouttmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
-  IF (PRESENT(vceITG_SIout))  CALL MPI_AllReduce(vceITG_SIout,vceITG_SIouttmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
-  IF (PRESENT(vreITG_SIout))  CALL MPI_AllReduce(vreITG_SIout,vreITG_SIouttmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
-
-  IF (PRESENT(iefITG_SIout))  CALL MPI_AllReduce(iefITG_SIout,iefITG_SIouttmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
-  IF (PRESENT(ivfITG_SIout))  CALL MPI_AllReduce(ivfITG_SIout,ivfITG_SIouttmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
-  IF (PRESENT(ipfITG_SIout))  CALL MPI_AllReduce(ipfITG_SIout,ipfITG_SIouttmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
-  IF (PRESENT(dfiITG_SIout))  CALL MPI_AllReduce(dfiITG_SIout,dfiITG_SIouttmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
-  IF (PRESENT(vtiITG_SIout))  CALL MPI_AllReduce(vtiITG_SIout,vtiITG_SIouttmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
-  IF (PRESENT(vciITG_SIout))  CALL MPI_AllReduce(vciITG_SIout,vciITG_SIouttmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
-  IF (PRESENT(vriITG_SIout))  CALL MPI_AllReduce(vriITG_SIout,vriITG_SIouttmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
-
-  IF (PRESENT(eefTEM_SIout))  CALL MPI_AllReduce(eefTEM_SIout,eefTEM_SIouttmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
-  IF (PRESENT(epfTEM_SIout))  CALL MPI_AllReduce(epfTEM_SIout,epfTEM_SIouttmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
-  IF (PRESENT(dfeTEM_SIout))  CALL MPI_AllReduce(dfeTEM_SIout,dfeTEM_SIouttmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
-  IF (PRESENT(vteTEM_SIout))  CALL MPI_AllReduce(vteTEM_SIout,vteTEM_SIouttmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
-  IF (PRESENT(vceTEM_SIout))  CALL MPI_AllReduce(vceTEM_SIout,vceTEM_SIouttmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
-  IF (PRESENT(vreTEM_SIout))  CALL MPI_AllReduce(vreTEM_SIout,vreTEM_SIouttmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
-
-  IF (PRESENT(iefTEM_SIout))  CALL MPI_AllReduce(iefTEM_SIout,iefTEM_SIouttmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
-  IF (PRESENT(ivfTEM_SIout))  CALL MPI_AllReduce(ivfTEM_SIout,ivfTEM_SIouttmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
-  IF (PRESENT(ipfTEM_SIout))  CALL MPI_AllReduce(ipfTEM_SIout,ipfTEM_SIouttmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
-  IF (PRESENT(dfiTEM_SIout))  CALL MPI_AllReduce(dfiTEM_SIout,dfiTEM_SIouttmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
-  IF (PRESENT(vtiTEM_SIout))  CALL MPI_AllReduce(vtiTEM_SIout,vtiTEM_SIouttmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
-  IF (PRESENT(vciTEM_SIout))  CALL MPI_AllReduce(vciTEM_SIout,vciTEM_SIouttmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
-  IF (PRESENT(vriTEM_SIout))  CALL MPI_AllReduce(vriTEM_SIout,vriTEM_SIouttmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
-
-  IF (PRESENT(eefETG_SIout))  CALL MPI_AllReduce(eefETG_SIout,eefETG_SIouttmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
-
-  IF (PRESENT(eefITG_SIout))   eefITG_SIout=eefITG_SIouttmp
-  IF (PRESENT(epfITG_SIout))   epfITG_SIout=epfITG_SIouttmp
-  IF (PRESENT(dfeITG_SIout))   dfeITG_SIout=dfeITG_SIouttmp
-  IF (PRESENT(vteITG_SIout))  vteITG_SIout=vteITG_SIouttmp
-  IF (PRESENT(vceITG_SIout))  vceITG_SIout=vceITG_SIouttmp
-  IF (PRESENT(vreITG_SIout))  vreITG_SIout=vreITG_SIouttmp
-
-  IF (PRESENT(iefITG_SIout))  iefITG_SIout=iefITG_SIouttmp
-  IF (PRESENT(ivfITG_SIout))  ivfITG_SIout=ivfITG_SIouttmp
-  IF (PRESENT(ipfITG_SIout))  ipfITG_SIout=ipfITG_SIouttmp
-  IF (PRESENT(dfiITG_SIout))  dfiITG_SIout=dfiITG_SIouttmp
-  IF (PRESENT(vtiITG_SIout))  vtiITG_SIout=vtiITG_SIouttmp
-  IF (PRESENT(vciITG_SIout))  vciITG_SIout=vciITG_SIouttmp
-  IF (PRESENT(vriITG_SIout))  vriITG_SIout=vriITG_SIouttmp
-
-  IF (PRESENT(eefTEM_SIout))  eefTEM_SIout=eefTEM_SIouttmp
-  IF (PRESENT(epfTEM_SIout))  epfTEM_SIout=epfTEM_SIouttmp
-  IF (PRESENT(dfeTEM_SIout))  dfeTEM_SIout=dfeTEM_SIouttmp
-  IF (PRESENT(vteTEM_SIout))  vteTEM_SIout=vteTEM_SIouttmp
-  IF (PRESENT(vceTEM_SIout))  vceTEM_SIout=vceTEM_SIouttmp
-  IF (PRESENT(vreTEM_SIout))  vreTEM_SIout=vreTEM_SIouttmp
-
-  IF (PRESENT(iefTEM_SIout))  iefTEM_SIout=iefTEM_SIouttmp
-  IF (PRESENT(ivfTEM_SIout))  ivfTEM_SIout=ivfTEM_SIouttmp
-  IF (PRESENT(ipfTEM_SIout))  ipfTEM_SIout=ipfTEM_SIouttmp
-  IF (PRESENT(dfiTEM_SIout))  dfiTEM_SIout=dfiTEM_SIouttmp
-  IF (PRESENT(vtiTEM_SIout))  vtiTEM_SIout=vtiTEM_SIouttmp
-  IF (PRESENT(vciTEM_SIout))  vciTEM_SIout=vciTEM_SIouttmp
-  IF (PRESENT(vriTEM_SIout))  vriTEM_SIout=vriTEM_SIouttmp
-
-  IF (PRESENT(eefETG_SIout))  eefETG_SIout=eefETG_SIouttmp
-  !!
-  IF (PRESENT(eefITG_GBout))   CALL MPI_AllReduce(eefITG_GBout,eefITG_GBouttmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
-  IF (PRESENT(dfeITG_GBout))   CALL MPI_AllReduce(dfeITG_GBout,dfeITG_GBouttmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
-  IF (PRESENT(vteITG_GBout))  CALL MPI_AllReduce(vteITG_GBout,vteITG_GBouttmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
-  IF (PRESENT(vceITG_GBout))  CALL MPI_AllReduce(vceITG_GBout,vceITG_GBouttmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
-  IF (PRESENT(vreITG_GBout))  CALL MPI_AllReduce(vreITG_GBout,vreITG_GBouttmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
-
-  IF (PRESENT(iefITG_GBout))  CALL MPI_AllReduce(iefITG_GBout,iefITG_GBouttmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
-  IF (PRESENT(ivfITG_GBout))  CALL MPI_AllReduce(ivfITG_GBout,ivfITG_GBouttmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
-
-  IF (PRESENT(dfiITG_GBout))  CALL MPI_AllReduce(dfiITG_GBout,dfiITG_GBouttmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
-  IF (PRESENT(vtiITG_GBout))  CALL MPI_AllReduce(vtiITG_GBout,vtiITG_GBouttmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
-  IF (PRESENT(vciITG_GBout))  CALL MPI_AllReduce(vciITG_GBout,vciITG_GBouttmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
-  IF (PRESENT(vriITG_GBout))  CALL MPI_AllReduce(vriITG_GBout,vriITG_GBouttmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
-
-  IF (PRESENT(eefTEM_GBout))  CALL MPI_AllReduce(eefTEM_GBout,eefTEM_GBouttmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
-  IF (PRESENT(dfeTEM_GBout))  CALL MPI_AllReduce(dfeTEM_GBout,dfeTEM_GBouttmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
-  IF (PRESENT(vteTEM_GBout))  CALL MPI_AllReduce(vteTEM_GBout,vteTEM_GBouttmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
-  IF (PRESENT(vceTEM_GBout))  CALL MPI_AllReduce(vceTEM_GBout,vceTEM_GBouttmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
-  IF (PRESENT(vreTEM_GBout))  CALL MPI_AllReduce(vreTEM_GBout,vreTEM_GBouttmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
-
-  IF (PRESENT(iefTEM_GBout))  CALL MPI_AllReduce(iefTEM_GBout,iefTEM_GBouttmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
-  IF (PRESENT(ivfTEM_GBout))  CALL MPI_AllReduce(ivfTEM_GBout,ivfTEM_GBouttmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
-
-  IF (PRESENT(dfiTEM_GBout))  CALL MPI_AllReduce(dfiTEM_GBout,dfiTEM_GBouttmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
-  IF (PRESENT(vtiTEM_GBout))  CALL MPI_AllReduce(vtiTEM_GBout,vtiTEM_GBouttmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
-  IF (PRESENT(vciTEM_GBout))  CALL MPI_AllReduce(vciTEM_GBout,vciTEM_GBouttmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
-  IF (PRESENT(vriTEM_GBout))  CALL MPI_AllReduce(vriTEM_GBout,vriTEM_GBouttmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
-
-  IF (PRESENT(eefETG_GBout))  CALL MPI_AllReduce(eefETG_GBout,eefETG_GBouttmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
-
-  IF (PRESENT(eefITG_GBout))   eefITG_GBout=eefITG_GBouttmp
-  IF (PRESENT(dfeITG_GBout))   dfeITG_GBout=dfeITG_GBouttmp
-  IF (PRESENT(vteITG_GBout))  vteITG_GBout=vteITG_GBouttmp
-  IF (PRESENT(vceITG_GBout))  vceITG_GBout=vceITG_GBouttmp
-  IF (PRESENT(vreITG_GBout))  vreITG_GBout=vreITG_GBouttmp
-
-  IF (PRESENT(iefITG_GBout))  iefITG_GBout=iefITG_GBouttmp
-  IF (PRESENT(ivfITG_GBout))  ivfITG_GBout=ivfITG_GBouttmp
-
-  IF (PRESENT(dfiITG_GBout))  dfiITG_GBout=dfiITG_GBouttmp
-  IF (PRESENT(vtiITG_GBout))  vtiITG_GBout=vtiITG_GBouttmp
-  IF (PRESENT(vciITG_GBout))  vciITG_GBout=vciITG_GBouttmp
-  IF (PRESENT(vriITG_GBout))  vriITG_GBout=vriITG_GBouttmp
-
-  IF (PRESENT(eefTEM_GBout))  eefTEM_GBout=eefTEM_GBouttmp
-  IF (PRESENT(dfeTEM_GBout))  dfeTEM_GBout=dfeTEM_GBouttmp
-  IF (PRESENT(vteTEM_GBout))  vteTEM_GBout=vteTEM_GBouttmp
-  IF (PRESENT(vceTEM_GBout))  vceTEM_GBout=vceTEM_GBouttmp
-  IF (PRESENT(vreTEM_GBout))  vreTEM_GBout=vreTEM_GBouttmp
-
-  IF (PRESENT(iefTEM_GBout))  iefTEM_GBout=iefTEM_GBouttmp
-  IF (PRESENT(ivfTEM_GBout))  ivfTEM_GBout=ivfTEM_GBouttmp
-
-  IF (PRESENT(dfiTEM_GBout))  dfiTEM_GBout=dfiTEM_GBouttmp
-  IF (PRESENT(vtiTEM_GBout))  vtiTEM_GBout=vtiTEM_GBouttmp
-  IF (PRESENT(vciTEM_GBout))  vciTEM_GBout=vciTEM_GBouttmp
-  IF (PRESENT(vriTEM_GBout))  vriTEM_GBout=vriTEM_GBouttmp
-
-  IF (PRESENT(eefETG_GBout))  eefETG_GBout=eefETG_GBouttmp
-
-
-  IF (myrank==0) THEN 
-     CALL SYSTEM_CLOCK(time4)
-     CALL SYSTEM_CLOCK(count_rate=freq)
-     timetot = REAL(time4-time3) / REAL(freq)
-     WRITE(stdout,*)
-     WRITE(stdout,"(A,F11.3,A)") 'Profiling: Second MPI_AllReduce time = ',timetot,' s'  
   ENDIF
 
 
   CALL deallocate_endoutput()     
-
   CALL deallocate_all()
-
   !Deallocate optional oldsol
   IF (PRESENT(oldsolin)) DEALLOCATE(oldsol)
   IF (PRESENT(oldfdsolin)) DEALLOCATE(oldfdsol)
-
 
 CONTAINS 
 
@@ -690,8 +534,9 @@ CONTAINS
   SUBROUTINE setoutput()
 
     epf_SIout = epf_SI
+    epfETG_SIout = epfETG_SI
     eef_SIout = eef_SI
-
+    eefETG_SIout = eefETG_SI
     evf_SIout = evf_SI
     ipf_SIout = ipf_SI
     ief_SIout = ief_SI

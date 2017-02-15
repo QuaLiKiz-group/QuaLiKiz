@@ -102,38 +102,3 @@ end
 unix('chmod 744 jacrunscript.sh');
 fclose(fid);
 
-
-
-
-if nprocs < 8
-   nnode=nprocs;
- else
-   nnode=8;
-end
-
-dire = pwd;
-k=1;
-clear l
-
-l{k} = ['#!/bin/bash -l\n']; k=k+1;
-l{k} = ['#SBATCH -p regular\n']; k=k+1;
-l{k} = ['#SBATCH --qos=premium\n']; k=k+1;
-l{k} = ['#SBATCH -n 24\n']; k=k+1;
-l{k} = ['#SBATCH --ntasks-per-node 24\n']; k=k+1;
-l{k} = ['#SBATCH -t 00:01:00\n']; k=k+1;
-l{k} = ['#SBATCH -J QLK\n']; k=k+1;
-l{k} = ['#SBATCH --error=qualikiz.err \n']; k=k+1;
-l{k} = ['#SBATCH --output=qualikiz.out\n']; k=k+1;
-l{k} = '\n'; k=k+1;
-l{k} = ['## set openmp threads\n']; k=k+1;
-l{k} = ['export OMP_NUM_THREADS=2\n']; k=k+1;
-l{k} = '\n'; k=k+1;
-l{k} = ['# run QLK\n']; k=k+1;
-l{k} = ['srun -n $SLURM_NTASKS ./QuaLiKiz.exe\n']; 
-
-fid = fopen('edisonbatch.cmd','w+');
-for i=1:k
-	fprintf(fid,l{i});
-end
-unix('chmod 744 edisonbatch.cmd');
-fclose(fid);

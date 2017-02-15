@@ -272,11 +272,8 @@ CONTAINS
     ! The term weighting the vertical drift of the trapped (fk) is calculated 
     ! The formulation with elliptic integrals is used
     ya = 1.-k2
-
     Kg = ceik(ya)
-
     Eg = ceie(ya)
-
     fki = -1. + (smag(pFFk)*4. + 4./3. * alphax(pFFk)) * &
          &     (k2-1.+Eg/Kg) + 2.*Eg/Kg *(1-4./3. * k2 * alphax(pFFk))
 
@@ -490,9 +487,7 @@ CONTAINS
     ! The term weighting the vertical drift of the trapped (fk) is calculated 
     ! The formulation with elliptic integrals is used
     ya = 1.-k2
-
     Kg = ceik(ya)
-
     Eg = ceie(ya)
     E2g = 1./kk * (Eg - Kg*(1.-k2)) !Specialized form of incomplete 2nd elliptic integral. Used for bounce average of Vpar^2
 
@@ -596,9 +591,7 @@ CONTAINS
     ! The term weighting the vertical drift of the trapped (fk) is calculated 
     ! The formulation with elliptic integrals is used
     ya = 1.-k2
-
     Kg = ceik(ya)
-
     Eg = ceie(ya)
     E2g = 1./kk * (Eg - Kg*(1.-k2)) !Specialized form of incomplete 2nd elliptic integral. Used for bounce average of Vpar^2
 

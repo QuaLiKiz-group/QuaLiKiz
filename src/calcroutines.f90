@@ -30,14 +30,14 @@ CONTAINS
     COMPLEX(kind=DBL), DIMENSION(numsols) :: soll, fdsoll, solltmp, fdsolltmp
     COMPLEX(kind=DBL) :: fdsollj, omin, fonout,newsol,newfdsol,soltest
     REAL(kind=DBL),    DIMENSION(numsols) :: isol,rsol,ifdsol,rfdsol,tmpsol
-    INTEGER :: NN, NNN, i,j,npts
+    INTEGER :: NN, NNN, i,j,npts, ifailloc
     LOGICAL :: issol
     REAL(kind=DBL) :: kteta,maxdia
     REAL(KIND=DBL) :: maxklam,minklam,relerr
 
     CHARACTER(len=20) :: fmtn
     INTEGER :: myunit=700
-    INTEGER :: ifailloc
+
 
     !INITIALIZATION OF VARIABLES************************
 
@@ -79,8 +79,9 @@ CONTAINS
     !Calculate the fluid frequency and growth rates. Still testing phase where various approaches tried
 
     ! Set the ktheta dependent width tuning factors. The 0.075 prefactor was chosen on the base of optimizing a scan
-    widthtuneITG = (0.075/kthetarhos(nu));
-    widthtuneETG = (0.075/( kthetarhos(nu)*SQRT(me/mi(p,1)) ) );
+
+    widthtuneITG = (0.1/kthetarhos(nu));
+    widthtuneETG = (0.1/( kthetarhos(nu)*SQRT(me/mi(p,1)) ) );
 
     ! Calculates growth rate based on analytical fluid interchange / slab formulation. in units of nwg
     CALL ana_fluidsol(p,nu,ana_gamma)! with or without rotation ana_gamma used only for contour limit
@@ -111,20 +112,27 @@ CONTAINS
     cot_modeshift(p,nu) = mshift !The modeshift variable is output, while shift is used in code
 
     !Calculate mode width and shift according to Citrin model. omeflu, mwidth, and mshift are written inside the subroutines
-    IF ( (rotflagarray(p) == 1) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) THEN
-       CALL jon_fluidsol(p,nu)
-       mwidth_rot=mwidth
-       mshift_rot=mshift
-    ELSEIF ( (rotflagarray(p) == 0) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) THEN
-       IF (rotflagarray(dimx) == 1) THEN 
-          CALL jon_fluidsol(p,nu) ! run in any case for momentum transport if rot_flag=2
+    IF (ETG_flag(nu) .EQV. .TRUE.) THEN
+       CALL jon_fluidsol_ele(p,nu)
+    ELSEIF (rotflagarray(p) == 0) THEN 
+       IF (rot_flag == 2) THEN
+          CALL jon_fluidsol(p,nu) ! run in any case for QL momentum transport if rot_flag=2
           mwidth_rot=mwidth
           mshift_rot=mshift
        ENDIF
        CALL jon_fluidsol_norot(p,nu)
-    ELSE
-       CALL jon_fluidsol_ele(p,nu)
+    ELSEIF (rotflagarray(p) ==1)  THEN
+       IF (rot_flag == 2) THEN
+          CALL jon_fluidsol(p,nu) ! run in any case for QL momentum transport if rot_flag=2
+          mwidth_rot=mwidth
+          mshift_rot=mshift
+          Machi=Machimod; Aui=Auimod; gammaE=gammaEmod;
+          CALL jon_fluidsol(p,nu) ! run with modified profiles
+       ELSE
+          CALL jon_fluidsol(p,nu)
+       ENDIF
     ENDIF
+
     jon_solflu(p,nu) = omeflu / (ntor(p,nu)*wg(p))
     jon_modewidth(p,nu) = mwidth 
     jon_modeshift(p,nu) = mshift 
@@ -145,6 +153,7 @@ CONTAINS
     modewidth(p,nu) = jon_modewidth(p,nu)
     mwidth = modewidth(p,nu)
     modeshift(p,nu) = jon_modeshift(p,nu)
+    modeshift2(p,nu) = mshift2
     mshift = modeshift(p,nu); 
 
     !Calculate the width corresponding to |phi(x)| (in case eigenfunction is complex)
@@ -390,7 +399,7 @@ CONTAINS
 
                 IF (i==0) THEN !Set narrow center contour (numerically more difficult near real axis, so would rather avoid this region for a solution contour)
                    Centre = C 
-                   rint= centerwidth
+                   rint= centerwidth*1.5
                 ELSE
                    rint=ABS(REAL(solflu(p,nu)))/5.
                    Centre = (-1.)**i * (L * rint + centerwidth*(1-centeroverlapfac))+ C !Set contour center, with slight overlap with center contour if L=1
@@ -473,16 +482,16 @@ CONTAINS
        IF ( soll(j) /= (0.,0.) ) THEN
           !calculate integrals for quasilinear flux. Small percentage of total calculation
 
-          !          Machi(p,:)=0.
-
           IF ( (AIMAG(sol(p,nu,j)) < 0. ) .OR. (ABS(AIMAG(sol(p,nu,j))) > ABS(AIMAG(ommax(p,nu)))) .OR. (ABS(REAL(sol(p,nu,j))) > ABS(REAL(ommax(p,nu))))  ) THEN
              IF (verbose .EQV. .TRUE.) THEN 
                 WRITE(stderr,'(A,I7,A,I2,A)') 'Before makeQLflux: solution outside of allowed contour range (how did that happen?) Skipping QL integrals. (p,nu)=(',p,',',nu,')'
              ENDIF
              CYCLE
           ENDIF
+          IF (timeoutflag .EQV. .FALSE.) THEN
+             CALL make_QLflux(p,nu,sol(p,nu,j))
+          ENDIF
 
-          CALL make_QLflux(p,nu,sol(p,nu,j))
           issol = .TRUE.
        ELSE
           issol = .FALSE.
@@ -582,6 +591,7 @@ CONTAINS
 !!$       WRITE(700,'(17G15.7)') (REAL(om(i)),i=1,M) ; CLOSE(700)
 !!$       WRITE(701,'(17G15.7)') (AIMAG(om(i)),i=1,M) ; CLOSE(701)
 !!$    ENDIF
+    fonct(:)=0.
     DO i=1,M
        ! We follow the contour defined by the variable "om"
        theta(i)    = 2.*pi*REAL(i-1)/REAL(M-1)
@@ -602,6 +612,12 @@ CONTAINS
        ELSE
           anomflag = .FALSE.
           CALL calcfonct(p, nu, omega, fonx)
+          !test timeout
+          IF ((MPI_Wtime()-calltimeinit) > timeout) THEN
+             timeoutflag = .TRUE.
+             EXIT
+          ENDIF
+
           fonct(i) = fonx
        ENDIF
 
@@ -654,15 +670,15 @@ CONTAINS
           !New values for refined contour calculated
 
 
-       IF ( (AIMAG(omtemp) < 0. ) .OR. (ABS(AIMAG(omtemp)) > ABS(2.*AIMAG(ommax(p,nu)))) .OR. (ABS(REAL(omtemp)) > ABS(REAL(2.*ommax(p,nu))))  ) THEN
-          IF (verbose .EQV. .TRUE.) THEN 
-             WRITE(stderr,'(A,2G15.7,A,I7,A,I2,A)') 'In refined contours: omega outside of allowed contour range (how did that happen?) Skipping solution. Omega=,',omega,'. (p,nu)=(',p,',',nu,')'
+          IF ( (AIMAG(omtemp) < 0. ) .OR. (ABS(AIMAG(omtemp)) > ABS(2.*AIMAG(ommax(p,nu)))) .OR. (ABS(REAL(omtemp)) > ABS(REAL(2.*ommax(p,nu))))  ) THEN
+             IF (verbose .EQV. .TRUE.) THEN 
+                WRITE(stderr,'(A,2G15.7,A,I2,A,I2,A)') 'In refined contours: omega outside of allowed contour range (how did that happen?) Skipping solution. Omega=,',omega,'. (p,nu)=(',p,',',nu,')'
+             ENDIF
+             anomflag = .TRUE.
+             foncttemp = 0. 
+          ELSE
+             CALL calcfonct (p, nu, omtemp, foncttemp)
           ENDIF
-          anomflag = .TRUE.
-          foncttemp = 0. 
-       ELSE
-          CALL calcfonct (p, nu, omtemp, foncttemp)
-       ENDIF
 
           ind = 2*i
           !Refined arrays corresponding to the refined contour are populated
@@ -718,6 +734,11 @@ CONTAINS
        maxgradanglespi = maxdifalphan / pi
 
        Nenv = ABS( (alphan(M) - alphan(1) ) / 2. / pi )
+      !test timeout
+       IF ((MPI_Wtime()-calltimeinit) > timeout) THEN
+          anomflag = .TRUE.
+       ENDIF
+
        !DEBUG CODE
        !WRITE(stdout,*) 'M=',M,'and Nenv=',Nenv
 
@@ -856,15 +877,23 @@ CONTAINS
              CYCLE
           ENDIF
 
-          IF ( (AIMAG(solli) < 0. ) .OR. (ABS(AIMAG(solli)) > ABS(AIMAG(ommax(p,nu)))) .OR. (ABS(REAL(solli)) > ABS(REAL(ommax(p,nu))))  ) THEN
+          IF ( (AIMAG(solli) < 0. )) THEN
              IF (verbose .EQV. .TRUE.) THEN 
-                WRITE(stderr,'(A,I7,A,I2,A)') 'Main contour phase: solution outside of allowed contour range (how did that happen?) Skipping solution. (p,nu)=(',p,',',nu,')'
+                WRITE(stderr,'(A,I7,A,I2,A)') 'Main contour phase: solution is negative growth rate (stable eigenmode). Skipping solution. (p,nu)=(',p,',',nu,')'
              ENDIF
              soll(j)   = (0.,0.)
              fdsoll(j)   = (0.,0.)
              CYCLE
           ENDIF
 
+          IF ( (ABS(AIMAG(solli)) > ABS(AIMAG(ommax(p,nu)))) .OR. (ABS(REAL(solli)) > ABS(REAL(ommax(p,nu))))  ) THEN
+             IF (verbose .EQV. .TRUE.) THEN 
+                WRITE(stderr,'(A,I2,A,I2,A)') 'Main contour phase: solution out of allowed contour range (how did that happen?) Skipping solution. (p,nu)=(',p,',',nu,')'
+             ENDIF
+             soll(j)   = (0.,0.)
+             fdsoll(j)   = (0.,0.)
+             CYCLE
+          ENDIF
 
           CALL calcfonct(p, nu, solli, fdsolli)
 

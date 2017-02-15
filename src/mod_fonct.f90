@@ -23,9 +23,9 @@ CONTAINS
 
     REAL(KIND=DBL)     :: acc, relerr, cc, dd
     REAL(KIND=DBL), DIMENSION(2) :: a,b
-    INTEGER            :: minpts, neval, npts  !output number of integrand evaluations
+    INTEGER            :: minpts, neval, npts !output number of integrand evaluations
     REAL(KIND=DBL), DIMENSION(lenwrk) :: wrkstr
-    INTEGER :: ifailloc
+
     REAL(KIND=DBL)    :: rfonctpe, ifonctpe, rfonctpiz, ifonctpiz
 
     REAL(KIND=DBL), DIMENSION(nf) :: intout
@@ -34,6 +34,7 @@ CONTAINS
 
     REAL(kind=DBL) , DIMENSION(nf) :: reerrarr !NOT USED. Estimated absolute error after CUBATR restart
     INTEGER, DIMENSION(numrgn) :: rgtype
+    INTEGER :: ifailloc
 
     !set the omega and p to be seen by all integration subroutines
     omFFk = omega
@@ -59,17 +60,17 @@ CONTAINS
 
     IF (inttype == 1) THEN
 
-       CALL DQAGSE(rFFkiz,cc,dd,absacc1,relacc1,limit,rfonctpiz,relerr,npts,ifailloc,&
+       CALL DQAGSE_QLK(rFFkiz,cc,dd,absacc1,relacc1,limit,rfonctpiz,relerr,npts,ifailloc,&
             alist, blist, rlist, elist, iord, last)
        IF (ifailloc /= 0) THEN
           IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
                & '. Abnormal termination of rFFkiz integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
        ENDIF
 
-       CALL DQAGSE(iFFkiz,cc,dd,absacc1,relacc1,limit,ifonctpiz,relerr,npts,ifailloc,&
+       CALL DQAGSE_QLK(iFFkiz,cc,dd,absacc1,relacc1,limit,ifonctpiz,relerr,npts,ifailloc,&
             alist, blist, rlist, elist, iord, last)
        IF (ifailloc /= 0) THEN
-          IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0,A,I0,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
                &'. Abnormal termination of iFFkiz integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
        ENDIF
 
@@ -125,13 +126,13 @@ CONTAINS
                   alist, blist, rlist, elist, iord, last)
              IF (ifailloc /= 0) THEN
                 IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
-                     &'. Abnormal termination of DQAGSE rFFke_nocoll integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+                     &'. Abnormal termination of DQAGSE_QLK rFFke_nocoll integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
              ENDIF
              CALL DQAGSE(iFFke_nocoll,cc,dd,absacc1,relacc1,limit,intout(2),relerr,npts,ifailloc,&
                   alist, blist, rlist, elist, iord, last)
              IF (ifailloc /= 0) THEN
                 IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
-                     &'. Abnormal termination of DQAGSE iFFke_nocoll integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+                     &'. Abnormal termination of DQAGSE_QLK iFFke_nocoll integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
              ENDIF
 
           ELSEIF (inttype == 2) THEN
@@ -178,7 +179,7 @@ CONTAINS
 
     REAL(KIND=DBL)     :: acc
     INTEGER            :: npts, minpts, neval, iii,jjj,rc !, lims=100
-    INTEGER :: ifailloc
+
     !    REAL(KIND=DBL), DIMENSION(lims) :: rarray,iarray
 
     REAL(KIND=DBL)     :: rfonctc, ifonctc !outputs of integrals
@@ -190,6 +191,7 @@ CONTAINS
 
     REAL(KIND=DBL) , DIMENSION(nf) :: reerrarr !NOT USED. Estimated absolute error after CUBATR restart
     INTEGER, DIMENSION(numrgn) :: rgtype
+    INTEGER :: ifailloc
 
     omFkr = omega
     pFkr = p
@@ -240,8 +242,8 @@ CONTAINS
     minpts = 0; ifailloc=-1; reerrarr(:)=1.d-1
 
     IF (inttype == 1) THEN
-!       CALL CUBATR(ndim,nf,Fkstarrstar_cub,1,vertices1,rgtype,intout,reerrarr,&
-!            ifailloc,neval,abacc,relacc2,restar,minpts,maxpts,key,job,tune)
+       !       CALL CUBATR(ndim,nf,Fkstarrstar_cub,1,vertices1,rgtype,intout,reerrarr,&
+       !            ifailloc,neval,abacc,relacc2,restar,minpts,maxpts,key,job,tune)
 
        IF (ifailloc /= 0) THEN
           IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
@@ -253,6 +255,10 @@ CONTAINS
        IF (ifailloc /= 0) THEN
           IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
                &'. Abnormal termination of 2DNAG rFkstarrstar integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+          IF (ifailloc == -399) THEN
+             WRITE(stderr,"(A)") 'NAG license error! Exiting'
+             STOP
+          ENDIF
        ENDIF
 
        minpts=0; ifailloc = 1
@@ -285,7 +291,7 @@ CONTAINS
     REAL(KIND=DBL), DIMENSION(2) :: a,b
     INTEGER            :: minpts, neval, npts !output number of integrand evaluations
     REAL(KIND=DBL), DIMENSION(lenwrk) :: wrkstr
-    INTEGER :: ifailloc
+
     REAL(KIND=DBL)    :: rfonctpe, ifonctpe, rfonctpiz, ifonctpiz
 
     REAL(KIND=DBL), DIMENSION(nf) :: intout
@@ -294,6 +300,7 @@ CONTAINS
 
     REAL(kind=DBL) , DIMENSION(nf) :: reerrarr !NOT USED. Estimated absolute error after CUBATR restart
     INTEGER, DIMENSION(numrgn) :: rgtype
+    INTEGER :: ifailloc
 
     !set the omega and p to be seen by all integration subroutines
     omFFk = omega
@@ -319,14 +326,14 @@ CONTAINS
 
     IF (inttype == 1) THEN
 
-       CALL DQAGSE(rFFkizrot,cc,dd,absacc1,relacc1,limit,rfonctpiz,relerr,npts,ifailloc,&
+       CALL DQAGSE_QLK(rFFkizrot,cc,dd,absacc1,relacc1,limit,rfonctpiz,relerr,npts,ifailloc,&
             alist, blist, rlist, elist, iord, last)
        IF (ifailloc /= 0) THEN
           IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
                & '. Abnormal termination of rFFkizrot integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
        ENDIF
 
-       CALL DQAGSE(iFFkizrot,cc,dd,absacc1,relacc1,limit,ifonctpiz,relerr,npts,ifailloc,&
+       CALL DQAGSE_QLK(iFFkizrot,cc,dd,absacc1,relacc1,limit,ifonctpiz,relerr,npts,ifailloc,&
             alist, blist, rlist, elist, iord, last)
        IF (ifailloc /= 0) THEN
           IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
@@ -337,7 +344,7 @@ CONTAINS
        ifailloc = 1
        rfonctpiz = d01ahf(cc,dd,relacc1,npts,relerr,rFFkizrot,lw,ifailloc)
        IF (ifailloc /= 0) THEN
-          IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0,A,I0,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
                &'. Abnormal termination of 1DNAG rFFkizrot integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
        ENDIF
        ifailloc = 1
@@ -380,17 +387,17 @@ CONTAINS
           ENDIF
        ELSE !collisionless integral, do single integral
           IF (inttype == 1) THEN
-             CALL DQAGSE(rFFke_nocollrot,cc,dd,absacc1,relacc1,limit,intout(1),relerr,npts,ifailloc,&
+             CALL DQAGSE_QLK(rFFke_nocollrot,cc,dd,absacc1,relacc1,limit,intout(1),relerr,npts,ifailloc,&
                   alist, blist, rlist, elist, iord, last)
              IF (ifailloc /= 0) THEN
                 IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
-                     &'. Abnormal termination of DQAGSE rFFke_nocollrot integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+                     &'. Abnormal termination of DQAGSE_QLK rFFke_nocollrot integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
              ENDIF
-             CALL DQAGSE(iFFke_nocollrot,cc,dd,absacc1,relacc1,limit,intout(2),relerr,npts,ifailloc,&
+             CALL DQAGSE_QLK(iFFke_nocollrot,cc,dd,absacc1,relacc1,limit,intout(2),relerr,npts,ifailloc,&
                   alist, blist, rlist, elist, iord, last)
              IF (ifailloc /= 0) THEN
                 IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
-                     &'. Abnormal termination of DQAGSE iFFke_nocollrot integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+                     &'. Abnormal termination of DQAGSE_QLK iFFke_nocollrot integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
              ENDIF
 
           ELSEIF (inttype == 2) THEN
@@ -442,7 +449,7 @@ CONTAINS
 
     REAL(KIND=DBL)     :: acc
     INTEGER            :: maxpts2, npts, minpts, neval, iii,jjj,rc,lenwrk2 !, lims=100
-    INTEGER :: ifailloc
+
     !    REAL(KIND=DBL), DIMENSION(lims) :: rarray,iarray
 
     REAL(KIND=DBL)     :: rfonctc, ifonctc !outputs of integrals
@@ -454,6 +461,7 @@ CONTAINS
 
     REAL(KIND=DBL) , DIMENSION(nf) :: reerrarr !NOT USED. Estimated absolute error after CUBATR restart
     INTEGER, DIMENSION(numrgn) :: rgtype
+    INTEGER :: ifailloc
 
     omFkr = omega
     pFkr = p
@@ -516,6 +524,10 @@ CONTAINS
        IF (ifailloc /= 0) THEN
           IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
                &'. Abnormal termination of 2DNAG rFkstarrstarrot integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+          IF (ifailloc == -399) THEN
+             WRITE(stderr,"(A)") 'NAG license error! Exiting'
+             STOP
+          ENDIF
        ENDIF
 
        minpts=0; ifailloc = 1  

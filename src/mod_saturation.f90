@@ -19,10 +19,12 @@ CONTAINS
     ALLOCATE(ome_SI(dimx,dimn,numsols)); ome_SI=0
     ALLOCATE(ome_GB(dimx,dimn,numsols)); ome_GB=0
 
-    ALLOCATE(modeflag(dimx)); modeflag=0
+    ALLOCATE(modeflag(dimx))
     ALLOCATE(epf_SI(dimx)); epf_SI=0
+    ALLOCATE(epfETG_SI(dimx)); epfETG_SI=0
     ALLOCATE(epf_GB(dimx)); epf_GB=0
     ALLOCATE(eef_SI(dimx)); eef_SI=0
+    ALLOCATE(eefETG_SI(dimx)); eefETG_SI=0
     ALLOCATE(eef_GB(dimx)); eef_GB=0
     ALLOCATE(evf_SI(dimx)); evf_SI=0 
     ALLOCATE(evf_GB(dimx)); evf_GB=0
@@ -31,7 +33,6 @@ CONTAINS
     ALLOCATE(ief_SI(dimx,nions)); ief_SI=0
     ALLOCATE(ief_GB(dimx,nions)); ief_GB=0
     ALLOCATE(ivf_SI(dimx,nions)); ivf_SI=0
-
     ALLOCATE(ivf_GB(dimx,nions)); ivf_GB=0
 
     IF (phys_meth /= 0) THEN
@@ -92,8 +93,10 @@ CONTAINS
 
     DEALLOCATE(modeflag)
     DEALLOCATE(epf_SI)
+    DEALLOCATE(epfETG_SI)
     DEALLOCATE(epf_GB)
     DEALLOCATE(eef_SI)
+    DEALLOCATE(eefETG_SI)
     DEALLOCATE(eef_GB)
     DEALLOCATE(evf_SI)
     DEALLOCATE(evf_GB)
@@ -150,7 +153,7 @@ CONTAINS
   END SUBROUTINE deallocate_endoutput
 
   SUBROUTINE saturation(outputcase)
-    INTEGER, INTENT(IN) :: outputcase!0 for all modes, 1 for ITG only, 2 for TEM only, 3 for ETG only
+    INTEGER, INTENT(IN) :: outputcase !0 for both ion and electron modes, 1 for only ion modes, 2 for only electron modes
     INTEGER :: ir,j,k,gg,ifailloc
     REAL(KIND=DBL), DIMENSION(dimx,dimn) :: kteta,kthr,kxshift,nwgmat,smagn,qxn,dw
     REAL(KIND=DBL), DIMENSION(dimx,dimn) :: kx2shear,kxadd,kxnl
@@ -167,8 +170,7 @@ CONTAINS
     COMPLEX(KIND=DBL), DIMENSION(dimx,dimn,numsols) :: solbck,solbcktmp
     REAL(KIND=DBL), DIMENSION(dimx,dimn) :: cmpfe, cmefe, cmvfe, cmpfgne, cmpfgte, cmpfgue, cmpfce, cmefgne, cmefgte, cmefgue, cmefce
     REAL(KIND=DBL), DIMENSION(dimx,dimn,nions) :: cmpfi, cmefi, cmvfi, cmpfgni, cmpfgti, cmpfgui, cmpfci, cmefgni, cmefgti, cmefgui, cmefci
-    REAL(KIND=DBL), DIMENSION(dimx) :: pfe, dpfe,efe, defe,vfe, dvfe, dffte, vthte, vcpte, vrdte, deffte, vethte, vecpte, verdte, ion_epf_GB, ion_eef_GB, ion_evf_GB, ele_epf_GB, ele_eef_GB, ele_evf_GB
-!!$    REAL(KIND=DBL), DIMENSION(dimx) :: pfeETG, efeETG
+    REAL(KIND=DBL), DIMENSION(dimx) :: pfe, pfeETG,dpfe,efe, efeETG, defe,vfe, dvfe, dffte, vthte, vcpte, vrdte, deffte, vethte, vecpte, verdte, ion_epf_GB, ion_eef_GB, ion_evf_GB, ele_epf_GB, ele_eef_GB, ele_evf_GB
     REAL(KIND=DBL), DIMENSION(dimx,nions) :: pfi, dpfi,efi, defi,vfi, dvfi, dffti, vthti, vcpti, vrdti, deffti, vethti, vecpti, verdti, ion_ipf_GB, ion_ief_GB, ion_ivf_GB, ele_ipf_GB, ele_ief_GB, ele_ivf_GB
     REAL(KIND=DBL) :: alphp,alphm,lowlim
     CHARACTER(len=7) :: fmtx,fmtn,fmtion !for debugging
@@ -176,15 +178,14 @@ CONTAINS
     !MPI variables:
     INTEGER :: doit,ierror,myrank,nproc
 
-    CALL mpi_comm_size(mpi_comm_world,nproc,ierror)
-    CALL mpi_comm_rank(mpi_comm_world,myrank,ierror)
+    Machi=Machitemp ! Reinstate impurity Mach numbers. Ordering is valid here (for cftrans asymmetry terms)
 
     !The all important normalization factor tuned from GASTD ion heat transport nonlinear simulation
-    normNL=211.
+    normNL=243.64
 
     !additional normalization factor for ETG transport
     normETG(:)=1.0
-    WHERE(kthetarhos > ETGk)  normETG = 0.6
+    WHERE(kthetarhos > ETGk)  normETG = 0.59*ETGmult
 
     WRITE(fmtn,"(I0, A)") dimn,'E16.7' !for debugging printouts (yes yes, we don't use a real debugging tool, don't get sanctimonious)
 
@@ -197,6 +198,24 @@ CONTAINS
 
     !Define auxilliary variables
     gamGB(:)=csou(:)/Rmin(:) !gyrobohm 1/s unit
+
+    DO ir = 1,dimx 
+       DO j = 1,dimn
+          kteta(ir,j)  = ntor(ir,j)*qx(ir)/(Rmin(ir)*x(ir))  
+          kthr(ir,j)   = ntor(ir,j)*qx(ir)*rhostar(ir)/x(ir)
+          nwgmat(ir,j) = ntor(ir,j)*wg(ir)
+          solflu_SI(ir,j) = solflu(ir,j)*nwgmat(ir,j)
+          solflu_GB(ir,j) = solflu_SI(ir,j)/gamGB(ir)
+
+          DO k=1,numsols
+             gam_SI(ir,j,k)=AIMAG(sol(ir,j,k))*nwgmat(ir,j)
+             gam_GB(ir,j,k)=AIMAG(sol(ir,j,k))*nwgmat(ir,j)/gamGB(ir)
+             ome_SI(ir,j,k)=REAL(sol(ir,j,k))*nwgmat(ir,j)
+             ome_GB(ir,j,k)=REAL(sol(ir,j,k))*nwgmat(ir,j)/gamGB(ir)
+          END DO
+
+       END DO
+    END DO
 
     !Find index of first ETG-scale mode (if it exists)
     ETGind=0
@@ -211,41 +230,26 @@ CONTAINS
     DO gg=1,3
        solbck=sol
 
-       ! If outputcase=0 (all modes included) We go through 3 iterations of calculation in order to 
+       ! We go through 3 iterations of calculation in order to 
        ! test whether ion or electron modes are negligible. 
        ! An output array for each radius signifying 'all ion modes', 'all electron modes', or 'stable' is returned
-       IF (outputcase == 0) THEN
-          IF (gg == 1) THEN
-             WHERE (REAL(solbck) > 0.) solbck=0.  !kill all electron modes
-          ENDIF
-          IF (gg == 2) THEN
-             WHERE (REAL(solbck) < 0.) solbck=0.  !kill all ion modes
-          END IF
-       ELSE ! If outputcase=1, then only keep ITG modes, if =2, then only TEM, if =3, then only ETG. In all cases, no need for gg for loop
-          IF (outputcase == 1) THEN
-             WHERE (REAL(solbck) > 0.) solbck=0.  !kill all electron modes
-             IF (gg<3) CYCLE
-          ELSEIF (outputcase == 2) THEN !kill all ion modes and electron-scale modes
-             WHERE (REAL(solbck) < 0.) solbck=0.  
-             DO ir=1,dimx
-                DO k=1,numsols
-                   WHERE (kthetarhos > ETGk) solbck(ir,:,k) = 0
-                ENDDO
-             ENDDO
-             IF (gg<3) CYCLE
-          ELSEIF (outputcase == 3) THEN !kill all ion scale modes
-             DO ir=1,dimx
-                DO k=1,numsols
-                   WHERE (kthetarhos < ETGk) solbck(ir,:,k) = 0
-                ENDDO
-             ENDDO
-             IF (gg<3) CYCLE
-          ENDIF
+       IF (gg == 1) THEN
+          WHERE (REAL(solbck) > 0.) solbck=0.  !kill all electron modes
        ENDIF
+       IF (gg == 2) THEN
+          WHERE (REAL(solbck) < 0.) solbck=0.  !kill all ion modes
+       END IF
 
-       ! dw=distan**2/(ABS(modewidth)**2 / SQRT(REAL(modewidth**2)))**2*DGAMMA(0.75)/DGAMMA(0.25) 
+       DO ir=1,dimx 
+          DO j=1,dimn
+             smagn(ir,j)=smag(ir) !2D versions of smag and qx useful for calculations
+             qxn(ir,j)=qx(ir)
+          END DO
+       END DO
 
-       kxshift = (distan*AIMAG(modeshift)/REAL(modewidth**2))**2 !kx contribution from modeshift
+       ! dw=distan**2/(ABS(modewidth)**2 / SQRT(REAL(modewidth**2)))**2*DGAMMA2(0.75)/DGAMMA2(0.25) 
+
+       kxshift = (distan*AIMAG(modeshift2)/REAL(modewidth**2))**2 !kx contribution from modeshift
        dw=0.5*distan**2/(REAL(modewidth**2)) + kxshift
 
        alphp   = -3.0 !used for spectrum shape above kymax
@@ -254,7 +258,6 @@ CONTAINS
        doit = 0 !initialize counter for distributing tasks
 
        DO ir = 1,dimx !big cycle on scan (or radial) parameter
-
           chi_GB(ir)=SQRT(Ai(ir,1)*mp)/(qe**2*Bo(ir)**2)*((Tex(ir)*1e3*qe)**1.5)/Rmin(ir)  !GyroBohm normalisation in m^2/s based on main ion
 
           IF (myrank == doit) THEN ! distribute independent loop indices to tasks
@@ -389,6 +392,7 @@ CONTAINS
                    krmmuETG(ir) = kthetarhos(inddmlmu(ir))
                 ENDIF
 
+                !Saturation rules for each unstable root
                 DO k=1,numsols
                    !Some of the above is actually repeated here. Have to look deeper to see if code can be slightly reduced
                    mdml(ir) = MAXVAL(AIMAG(solbcktmp(ir,:,k))*nwgmat(ir,:)/kperp2(ir,:))
@@ -436,18 +440,18 @@ CONTAINS
 
                 !PARTICLE TRANSPORT
                 cmpfe_k(ir,j,k) = -1._DBL/Ze*1d19*kteta(ir,j)/1._DBL *  ( &
-                     & constp(ir,j,k) * fi(ir,j,k) * ( (Lcirce(ir,j,k)) + (Lpiege(ir,j,k)) ))
+                     & constp(ir,j,k) * fi(ir,j,k) * ( AIMAG(Lcirce(ir,j,k)) + AIMAG(Lpiege(ir,j,k)) ))
 
                 cmpfi_k(ir,j,:,k) = -1._DBL/Zi(ir,:)*1d19*kteta(ir,j) /1._DBL  * ( &
-                     & constp(ir,j,k)* fi(ir,j,k) * ( (Lcirci(ir,j,:,k)) + (Lpiegi(ir,j,:,k)) ))
+                     & constp(ir,j,k)* fi(ir,j,k) * ( AIMAG(Lcirci(ir,j,:,k)) + AIMAG(Lpiegi(ir,j,:,k)) ))
 
 
                 !ENERGY TRANSPORT
                 cmefe_k(ir,j,k) = -1._DBL/Ze*1.6d3* kteta(ir,j) * 1._DBL/1._DBL  * ( &
-                     & conste(ir,j,k) * fi(ir,j,k) * ( (Lecirce(ir,j,k)) + (Lepiege(ir,j,k)) ))
+                     & conste(ir,j,k) * fi(ir,j,k) * ( AIMAG(Lecirce(ir,j,k)) + AIMAG(Lepiege(ir,j,k)) ))
 
                 cmefi_k(ir,j,:,k) = -1._DBL/Zi(ir,:)*1.6d3* kteta(ir,j) * 1._DBL/(tau(ir,:)*1._DBL )  * ( &
-                     & conste(ir,j,k) * fi(ir,j,k) * ( (Lecirci(ir,j,:,k)) + (Lepiegi(ir,j,:,k)) ))
+                     & conste(ir,j,k) * fi(ir,j,k) * ( AIMAG(Lecirci(ir,j,:,k)) + AIMAG(Lepiegi(ir,j,:,k)) ))
 
                 !ANG MOM TRANSPORT (particle transport * m_s * R) !warning here R=Ro but... is it correct? in principle should integrate R(theta)*L(theta)?
                 !answer: probably it only matters in the sense that it should be consistent with the transport code definition
@@ -455,10 +459,10 @@ CONTAINS
 
                 IF (rotflagarray(dimx) == 1) THEN
                    cmvfe_k(ir,j,k) = -1._DBL/Ze*1d19*kteta(ir,j)/1._DBL *  ( &
-                        & constv(ir,j,k) * fi(ir,j,k) * me * cthe(ir) * R0 *( (Lvcirce(ir,j,k)) + (Lvpiege(ir,j,k)) ))
+                        & constv(ir,j,k) * fi(ir,j,k) * me * cthe(ir) * R0 *( AIMAG(Lvcirce(ir,j,k)) + AIMAG(Lvpiege(ir,j,k)) ))
 
                    cmvfi_k(ir,j,:,k) = -1._DBL/Zi(ir,:)*1d19*kteta(ir,j) /1._DBL  * ( &
-                        & constv(ir,j,k)* fi(ir,j,k) * Ai(ir,:) * cthi(ir,:) * mp * R0 * ( (Lvcirci(ir,j,:,k)) + (Lvpiegi(ir,j,:,k)) ))
+                        & constv(ir,j,k)* fi(ir,j,k) * Ai(ir,:) * cthi(ir,:) * mp * R0 * ( AIMAG(Lvcirci(ir,j,:,k)) + AIMAG(Lvpiegi(ir,j,:,k)) ))
                 ELSE
                    cmvfe_k(ir,j,k) = 0
                    cmvfi_k(ir,j,:,k) = 0
@@ -470,23 +474,23 @@ CONTAINS
                    !DIFFUSION TERM
 
                    cmpfgne_k(ir,j,k) = -1._DBL/Ze* kteta(ir,j) * R0 / Nex(ir) * normNL * ( &
-                        &	constp(ir,j,k) * fi(ir,j,k) * ( (Lcircgne(ir,j,k)) + (Lpieggne(ir,j,k)) ))
+                        &	constp(ir,j,k) * fi(ir,j,k) * ( AIMAG(Lcircgne(ir,j,k)) + AIMAG(Lpieggne(ir,j,k)) ))
                    cmpfgni_k(ir,j,:,k) = -1._DBL/Zi(ir,:)* kteta(ir,j) * R0 / Nix(ir,:) * normNL * ( &
-                        &	constp(ir,j,k) * fi(ir,j,k) * ( (Lcircgni(ir,j,:,k)) + (Lpieggni(ir,j,:,k)) ))
+                        &	constp(ir,j,k) * fi(ir,j,k) * ( AIMAG(Lcircgni(ir,j,:,k)) + AIMAG(Lpieggni(ir,j,:,k)) ))
 
                    ! THERMO-DIFFUSION TERM
 
                    cmpfgte_k(ir,j,k) = -1._DBL/Ze* kteta(ir,j) * Ate(ir) / Nex(ir) * normNL * ( &
-                        &	constp(ir,j,k) * fi(ir,j,k) * ( (Lcircgte(ir,j,k)) + (Lpieggte(ir,j,k)) ))
+                        &	constp(ir,j,k) * fi(ir,j,k) * ( AIMAG(Lcircgte(ir,j,k)) + AIMAG(Lpieggte(ir,j,k)) ))
                    cmpfgti_k(ir,j,:,k) = -1._DBL/Zi(ir,:)* kteta(ir,j) * Ati(ir,:)/ Nix(ir,:) * normNL * ( &
-                        &	constp(ir,j,k) * fi(ir,j,k) * ( (Lcircgti(ir,j,:,k)) + (Lpieggti(ir,j,:,k)) ))
+                        &	constp(ir,j,k) * fi(ir,j,k) * ( AIMAG(Lcircgti(ir,j,:,k)) + AIMAG(Lpieggti(ir,j,:,k)) ))
                    ! ROTO-DIFFUSION TERM
 
                    IF (rotflagarray(ir) == 1) THEN
                       cmpfgue_k(ir,j,k) = -1._DBL/Ze* kteta(ir,j) * Aue(ir) / Nex(ir) * normNL * ( &
-                           &	constp(ir,j,k) * fi(ir,j,k) * ( (Lcircgue(ir,j,k)) + (Lpieggue(ir,j,k)) ))
+                           &	constp(ir,j,k) * fi(ir,j,k) * ( AIMAG(Lcircgue(ir,j,k)) + AIMAG(Lpieggue(ir,j,k)) ))
                       cmpfgui_k(ir,j,:,k) = -1._DBL/Zi(ir,:)* kteta(ir,j) * Aui(ir,:)/ Nix(ir,:) * normNL * ( &
-                           &	constp(ir,j,k) * fi(ir,j,k) * ( (Lcircgui(ir,j,:,k)) + (Lpieggui(ir,j,:,k)) ))
+                           &	constp(ir,j,k) * fi(ir,j,k) * ( AIMAG(Lcircgui(ir,j,:,k)) + AIMAG(Lpieggui(ir,j,:,k)) ))
                    ELSE 
                       cmpfgue_k(ir,j,k) = 0
                       cmpfgui_k(ir,j,:,k) = 0
@@ -494,27 +498,27 @@ CONTAINS
                    ! COMPRESSIBILITY TERM
 
                    cmpfce_k(ir,j,k) = -1._DBL/Ze* kteta(ir,j) * 1._DBL / Nex(ir) * normNL * ( &
-                        &	constp(ir,j,k) * fi(ir,j,k) * ( (Lcircce(ir,j,k)) + (Lpiegce(ir,j,k)) ))
+                        &	constp(ir,j,k) * fi(ir,j,k) * ( AIMAG(Lcircce(ir,j,k)) + AIMAG(Lpiegce(ir,j,k)) ))
                    cmpfci_k(ir,j,:,k) = -1._DBL/Zi(ir,:)* kteta(ir,j) * 1._DBL / Nix(ir,:) * normNL * ( &
-                        &	constp(ir,j,k) * fi(ir,j,k) * ( (Lcircci(ir,j,:,k)) + (Lpiegci(ir,j,:,k)) ))
+                        &	constp(ir,j,k) * fi(ir,j,k) * ( AIMAG(Lcircci(ir,j,:,k)) + AIMAG(Lpiegci(ir,j,:,k)) ))
 !!!                
                    IF (phys_meth == 2) THEN
                       !HEAT PINCH THERMO-DIFFUSION TERM   Assume decomposition Q = -chi * n * dT/dr + T*n*V   Then chi = m^2/s and V=m/s
 
                       cmefgne_k(ir,j,k) = -1._DBL/Ze*1.6d3* kteta(ir,j) * 1._DBL/1._DBL  * ( &
-                           & conste(ir,j,k) * fi(ir,j,k) * ( (Lecircgne(ir,j,k)) + (Lepieggne(ir,j,k)) )) * Ane(ir) / (Nex(ir)*1d19 * Tex(ir)*1d3*qe)* normNL
+                           & conste(ir,j,k) * fi(ir,j,k) * ( AIMAG(Lecircgne(ir,j,k)) + AIMAG(Lepieggne(ir,j,k)) )) * Ane(ir) / (Nex(ir)*1d19 * Tex(ir)*1d3*qe)* normNL
 
                       cmefgni_k(ir,j,:,k) = -1._DBL/Zi(ir,:)*1.6d3* kteta(ir,j) * 1._DBL/(tau(ir,:)*1._DBL )  * ( &
-                           & conste(ir,j,k) * fi(ir,j,k) * ( (Lecircgni(ir,j,:,k)) + (Lepieggni(ir,j,:,k)) )) * Ani(ir,:) / (Nix(ir,:)*1d19 * Tix(ir,:)*1d3*qe)* normNL
+                           & conste(ir,j,k) * fi(ir,j,k) * ( AIMAG(Lecircgni(ir,j,:,k)) + AIMAG(Lepieggni(ir,j,:,k)) )) * Ani(ir,:) / (Nix(ir,:)*1d19 * Tix(ir,:)*1d3*qe)* normNL
 
                       !HEAT PINCH ROTO-DIFFUSION TERM   Assume decomposition Q = -chi * n * dT/dr + T*n*V   Then chi = m^2/s and V=m/s
                       !                      normNL=603._DBL/3.1633;
                       IF (rotflagarray(ir) == 1) THEN
                          cmefgue_k(ir,j,k) = -1._DBL/Ze*1.6d3* kteta(ir,j) * 1._DBL/1._DBL  * ( &
-                              & conste(ir,j,k) * fi(ir,j,k) * ( (Lecircgue(ir,j,k)) + (Lepieggue(ir,j,k)) )) * Aue(ir) / (Nex(ir)*1d19 * Tex(ir)*1d3*qe)* normNL
+                              & conste(ir,j,k) * fi(ir,j,k) * ( AIMAG(Lecircgue(ir,j,k)) + AIMAG(Lepieggue(ir,j,k)) )) * Aue(ir) / (Nex(ir)*1d19 * Tex(ir)*1d3*qe)* normNL
 
                          cmefgui_k(ir,j,:,k) = -1._DBL/Zi(ir,:)*1.6d3* kteta(ir,j) * 1._DBL/(tau(ir,:)*1._DBL )  * ( &
-                              & conste(ir,j,k) * fi(ir,j,k) * ( (Lecircgui(ir,j,:,k)) + (Lepieggui(ir,j,:,k)) )) * Aui(ir,:) / (Nix(ir,:)*1d19 * Tix(ir,:)*1d3*qe)* normNL
+                              & conste(ir,j,k) * fi(ir,j,k) * ( AIMAG(Lecircgui(ir,j,:,k)) + AIMAG(Lepieggui(ir,j,:,k)) )) * Aui(ir,:) / (Nix(ir,:)*1d19 * Tix(ir,:)*1d3*qe)* normNL
                       ELSE
                          cmefgue_k(ir,j,k)=0
                          cmefgui_k(ir,j,:,k)=0
@@ -522,18 +526,18 @@ CONTAINS
                       ! HEAT DIFFUSION TERM. Defined such that we multiple by -n*dT/dr for flux
 
                       cmefgte_k(ir,j,k) = -1._DBL/Ze*1.6d3* kteta(ir,j) * 1._DBL/1._DBL  * ( &
-                           & conste(ir,j,k) * fi(ir,j,k) * ( (Lecircgte(ir,j,k)) + (Lepieggte(ir,j,k)) )) / (Nex(ir)*1d19) * R0 / (Tex(ir)*1e3*qe)* normNL
+                           & conste(ir,j,k) * fi(ir,j,k) * ( AIMAG(Lecircgte(ir,j,k)) + AIMAG(Lepieggte(ir,j,k)) )) / (Nex(ir)*1d19) * R0 / (Tex(ir)*1e3*qe)* normNL
 
                       cmefgti_k(ir,j,:,k) = -1._DBL/Zi(ir,:)*1.6d3* kteta(ir,j) * 1._DBL/(tau(ir,:)*1._DBL )  * ( &
-                           & conste(ir,j,k) * fi(ir,j,k) * ( (Lecircgti(ir,j,:,k)) + (Lepieggti(ir,j,:,k)) )) / (Nix(ir,:)*1d19) * R0 / (Tix(ir,:)*1d3*qe)* normNL
+                           & conste(ir,j,k) * fi(ir,j,k) * ( AIMAG(Lecircgti(ir,j,:,k)) + AIMAG(Lepieggti(ir,j,:,k)) )) / (Nix(ir,:)*1d19) * R0 / (Tix(ir,:)*1d3*qe)* normNL
 
                       ! HEAT PINCH COMPRESSIBILITY TERM
 
                       cmefce_k(ir,j,k) = -1._DBL/Ze*1.6d3* kteta(ir,j) * 1._DBL/1._DBL  * ( &
-                           & conste(ir,j,k) * fi(ir,j,k) * ( (Lecircce(ir,j,k)) + (Lepiegce(ir,j,k)) )) / (Nex(ir)*1d19 * Tex(ir)*1d3*qe)* normNL
+                           & conste(ir,j,k) * fi(ir,j,k) * ( AIMAG(Lecircce(ir,j,k)) + AIMAG(Lepiegce(ir,j,k)) )) / (Nex(ir)*1d19 * Tex(ir)*1d3*qe)* normNL
 
                       cmefci_k(ir,j,:,k) = -1._DBL/Zi(ir,:)*1.6d3* kteta(ir,j) * 1._DBL/(tau(ir,:)*1._DBL )  * ( &
-                           & conste(ir,j,k) * fi(ir,j,k) * ( (Lecircci(ir,j,:,k)) + (Lepiegci(ir,j,:,k)) )) / (Nix(ir,:)*1d19 * Tix(ir,:)*1d3*qe)* normNL
+                           & conste(ir,j,k) * fi(ir,j,k) * ( AIMAG(Lecircci(ir,j,:,k)) + AIMAG(Lepiegci(ir,j,:,k)) )) / (Nix(ir,:)*1d19 * Tix(ir,:)*1d3*qe)* normNL
                    ENDIF
                 ENDIF
              ENDDO  !END SUM OVER SOLUTIONS
@@ -591,36 +595,54 @@ CONTAINS
 
           ! Particle flux using all roots 
           xint= (/0._DBL,kthr(ir,:)/) ; yint=(/0._DBL,cmpfe(ir,:)/)
-          CALL davint (xint, yint ,dimn+1,lowlim, kthr(ir,dimn), pfe(ir), ifailloc)
+          IF (dimn == 1) THEN 
+             pfe(ir)=cmpfe(ir,1)
+          ELSE
+             CALL davint (xint, yint ,dimn+1,lowlim, kthr(ir,dimn), pfe(ir), ifailloc)
+          ENDIF
 
           ! Total particle diffusivity Gyro-Bohm using all roots. Assumes that all particle transport is diagonal (typically not the case)
-          dpfe(ir) = (pfe(ir)/(Nex(ir)*1e19/R0))/chi_GB(ir)
+          dpfe(ir) = (pfe(ir)/(Nex(ir)*1e19*Ane(ir)/R0))/chi_GB(ir)
 
           ! Energy flux using all roots
           xint= (/0._DBL,kthr(ir,:)/) ; yint=(/0._DBL,cmefe(ir,:)/)
-          CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),efe(ir),ifailloc)
-
+          IF (dimn == 1) THEN 
+             efe(ir)=cmefe(ir,1)
+          ELSE
+             CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),efe(ir),ifailloc)
+          ENDIF
           ! Energy diffusivity using all unstable roots
-          defe(ir) = (efe(ir)/(Nex(ir)*1e19*Tex(ir)*1e3*qe/R0))/chi_GB(ir)
+          defe(ir) = (efe(ir)/(Nex(ir)*1e19*Tex(ir)*1e3*qe*Ate(ir)/R0))/chi_GB(ir)
 
-!!$          !Only ETG scales particle and heat transport (if they exist)
-!!$          IF (ETGind > 0) THEN
-!!$             xint= (/0._DBL,kthr(ir,ETGind:dimn)/) ; yint=(/0._DBL,cmpfe(ir,ETGind:dimn)/)
-!!$             CALL davint (xint, yint ,dimn-ETGind+2,kthr(ir,ETGind), kthr(ir,dimn), pfeETG(ir), ifailloc)
-!!$
-!!$             xint= (/0._DBL,kthr(ir,ETGind:dimn)/) ; yint=(/0._DBL,cmefe(ir,ETGind:dimn)/)
-!!$             CALL davint (xint, yint ,dimn-ETGind+2,kthr(ir,ETGind), kthr(ir,dimn), efeETG(ir), ifailloc)
-!!$          ELSE
-!!$             pfeETG(ir) = 0.
-!!$             efeETG(ir) = 0.
-!!$          ENDIF
+          !Only ETG scales particle and heat transport (if they exist)
+          IF (ETGind > 0) THEN
+             xint= (/0._DBL,kthr(ir,ETGind:dimn)/) ; yint=(/0._DBL,cmpfe(ir,ETGind:dimn)/)
+             IF (dimn == 1) THEN 
+                pfeETG(ir)=cmpfe(ir,1)
+             ELSE
+
+                CALL davint (xint, yint ,dimn-ETGind+2,kthr(ir,ETGind), kthr(ir,dimn), pfeETG(ir), ifailloc)
+             ENDIF
+             xint= (/0._DBL,kthr(ir,ETGind:dimn)/) ; yint=(/0._DBL,cmefe(ir,ETGind:dimn)/)
+             IF (dimn == 1) THEN 
+                efe(ir)=cmefe(ir,1)
+             ELSE
+                CALL davint (xint, yint ,dimn-ETGind+2,kthr(ir,ETGind), kthr(ir,dimn), efeETG(ir), ifailloc)
+             ENDIF
+          ELSE
+             pfeETG(ir) = 0.
+             efeETG(ir) = 0.
+          ENDIF
 
           ! Ang mom flux using all roots
           xint= (/0._DBL,kthr(ir,:)/) ; yint=(/0._DBL,cmvfe(ir,:)/)
-          CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),vfe(ir),ifailloc)
-
+          IF (dimn == 1) THEN 
+             vfe(ir)=cmvfe(ir,1)
+          ELSE
+             CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),vfe(ir),ifailloc)
+          ENDIF
           ! Mom diffusivity using all unstable roots
-          dvfe(ir) = (vfe(ir)/(Nex(ir)*1e19*cthe(ir)*R0*me/R0))/chi_GB(ir)
+          dvfe(ir) = (vfe(ir)/(Nex(ir)*1e19*cthe(ir)*Aue(ir)/R0))/chi_GB(ir)
 
           DO ion=1,nions
              !Remove any residual ETG particle transport to maintain quasineutrality
@@ -633,14 +655,26 @@ CONTAINS
              ENDWHERE
 
              xint= (/0._DBL,kthr(ir,:)/) ; yint=(/0._DBL,cmpfi(ir,:,ion)/)
-             CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),pfi(ir,ion),ifailloc)
+             IF (dimn == 1) THEN 
+                pfi(ir,ion)=cmpfi(ir,1,ion)
+             ELSE
+                CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),pfi(ir,ion),ifailloc)
+             ENDIF
              xint= (/0._DBL,kthr(ir,:)/) ; yint=(/0._DBL,cmefi(ir,:,ion)/)
-             CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),efi(ir,ion),ifailloc)        
+             IF (dimn == 1) THEN 
+                efi(ir,ion)=cmefi(ir,1,ion)
+             ELSE
+                CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),efi(ir,ion),ifailloc)        
+             ENDIF
              xint= (/0._DBL,kthr(ir,:)/) ; yint=(/0._DBL,cmvfi(ir,:,ion)/)
-             CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),vfi(ir,ion),ifailloc)        
-             dpfi(ir,ion) = (pfi(ir,ion)/(Nix(ir,ion)*1e19/R0))/chi_GB(ir)
-             defi(ir,ion) = (efi(ir,ion)/(Nix(ir,ion)*1e19*Tix(ir,ion)*1e3*qe/R0))/chi_GB(ir)
-             dvfi(ir,ion) = (vfi(ir,ion)/(Nix(ir,ion)*1e19*Ai(ir,ion)*mp*cthi(ir,ion)*R0/R0))/chi_GB(ir)
+             IF (dimn == 1) THEN 
+                vfi(ir,ion)=cmvfi(ir,1,ion)
+             ELSE
+                CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),vfi(ir,ion),ifailloc)        
+             ENDIF
+             dpfi(ir,ion) = (pfi(ir,ion)/(Nix(ir,ion)*1e19*Ani(ir,ion)/R0))/chi_GB(ir)
+             defi(ir,ion) = (efi(ir,ion)/(Nix(ir,ion)*1e19*Tix(ir,ion)*1e3*qe*Ati(ir,ion)/R0))/chi_GB(ir)
+             dvfi(ir,ion) = (vfi(ir,ion)/(Nix(ir,ion)*1e19*cthi(ir,ion)*Aui(ir,ion)/R0))/chi_GB(ir)
           ENDDO
 
 
@@ -648,74 +682,163 @@ CONTAINS
 
              ! Total diffusion coefficient
              xint= (/0._DBL,kthr(ir,:)/) ; yint=(/0._DBL,cmpfgne(ir,:)/)
-             CALL davint (xint, yint ,dimn+1,lowlim,kthr(ir,dimn),dffte(ir),ifailloc)
+             IF (dimn == 1) THEN 
+                dffte(ir)=cmpfgne(ir,1)
+             ELSE
+                CALL davint (xint, yint ,dimn+1,lowlim,kthr(ir,dimn),dffte(ir),ifailloc)
+             ENDIF
              ! Total thermo-diffusion coefficient
              xint= (/0._DBL,kthr(ir,:)/) ; yint=(/0._DBL,cmpfgte(ir,:)/)
-             CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),vthte(ir),ifailloc)
+             IF (dimn == 1) THEN 
+                vthte(ir)=cmpfgte(ir,1)
+             ELSE
+                CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),vthte(ir),ifailloc)
+             ENDIF
              ! Total roto-diffusion coefficient
              xint= (/0._DBL,kthr(ir,:)/) ; yint=(/0._DBL,cmpfgue(ir,:)/)
-             CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),vrdte(ir),ifailloc)
+             IF (dimn == 1) THEN 
+                vrdte(ir)=cmpfgue(ir,1)
+             ELSE
+                CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),vrdte(ir),ifailloc)
+             ENDIF
              ! Total compressibility coefficient
              xint= (/0._DBL,kthr(ir,:)/) ; yint=(/0._DBL,cmpfce(ir,:)/)
-             CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),vcpte(ir),ifailloc)
-
+             IF (dimn == 1) THEN 
+                vcpte(ir)=cmpfce(ir,1)
+             ELSE
+                CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),vcpte(ir),ifailloc)
+             ENDIF
 !!! HEAT PINCH TERMS
              IF (phys_meth == 2) THEN
                 ! Thermo-diffusion coefficient
                 xint= (/0._DBL,kthr(ir,:)/) ; yint=(/0._DBL,cmefgne(ir,:)/)
-                CALL davint (xint, yint ,dimn+1,lowlim,kthr(ir,dimn),deffte(ir),ifailloc)
+                IF (dimn == 1) THEN 
+                   deffte(ir)=cmefgne(ir,1)
+                ELSE
+                   CALL davint (xint, yint ,dimn+1,lowlim,kthr(ir,dimn),deffte(ir),ifailloc)
+                ENDIF
                 ! Thermal conductivity coefficient
                 xint= (/0._DBL,kthr(ir,:)/) ; yint=(/0._DBL,cmefgte(ir,:)/)
-                CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),vethte(ir),ifailloc)
+                IF (dimn == 1) THEN 
+                   vethte(ir)=cmefgte(ir,1)
+                ELSE
+                   CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),vethte(ir),ifailloc)
+                ENDIF
                 ! Thermal roto-diffusion coefficient
                 xint= (/0._DBL,kthr(ir,:)/) ; yint=(/0._DBL,cmefgue(ir,:)/)
-                CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),verdte(ir),ifailloc)
+                IF (dimn == 1) THEN 
+                   verdte(ir)=cmefgue(ir,1)
+                ELSE
+                   CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),verdte(ir),ifailloc)
+                ENDIF
                 ! Total compressibility coefficient
                 xint= (/0._DBL,kthr(ir,:)/) ; yint=(/0._DBL,cmefce(ir,:)/)
-                CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),vecpte(ir),ifailloc)
+                IF (dimn == 1) THEN 
+                   vecpte(ir)=cmefce(ir,1)
+                ELSE
+                   CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),vecpte(ir),ifailloc)
+                ENDIF
              ENDIF
 
              DO ion=1,nions
                 xint= (/0._DBL,kthr(ir,:)/) ; yint=(/0._DBL,cmpfgni(ir,:,ion)/)
-                CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),dffti(ir,ion),ifailloc)
+                IF (dimn == 1) THEN 
+                   dffti(ir,ion)=cmpfgni(ir,1,ion)
+                ELSE
+                   CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),dffti(ir,ion),ifailloc)
+                ENDIF
                 xint= (/0._DBL,kthr(ir,:)/) ; yint=(/0._DBL,cmpfgti(ir,:,ion)/)
-                CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),vthti(ir,ion),ifailloc)
+                IF (dimn == 1) THEN 
+                   vthti(ir,ion)=cmpfgti(ir,1,ion)
+                ELSE
+                   CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),vthti(ir,ion),ifailloc)
+                ENDIF
                 xint= (/0._DBL,kthr(ir,:)/) ; yint=(/0._DBL,cmpfgui(ir,:,ion)/)
-                CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),vrdti(ir,ion),ifailloc)
+                IF (dimn == 1) THEN 
+                   vrdti(ir,ion)=cmpfgui(ir,1,ion)
+                ELSE
+                   CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),vrdti(ir,ion),ifailloc)
+                ENDIF
                 xint= (/0._DBL,kthr(ir,:)/) ; yint=(/0._DBL,cmpfci(ir,:,ion)/)
-                CALL davint (xint, yint ,dimn+1,lowlim,kthr(ir,dimn),vcpti(ir,ion),ifailloc)
-
+                IF (dimn == 1) THEN 
+                   vcpti(ir,ion)=cmpfci(ir,1,ion)
+                ELSE
+                   CALL davint (xint, yint ,dimn+1,lowlim,kthr(ir,dimn),vcpti(ir,ion),ifailloc)
+                ENDIF
                 ! Transport coefficients including 2D centrifugal and temp anisotropy effects. All depends on precalculated ecoefsgau. 
                 ! Fluxes in transport codes should be built from cftrans when 2D effects are desired
 
                 xint= (/0._DBL,kthr(ir,:)/) ; yint=(/0._DBL,cmpfgni(ir,:,ion)*ecoefsgau(ir,:,ion,0)/)
-                CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),cftrans(ir,ion,1),ifailloc) !Generalized diffusivity
-
+                IF (dimn == 1) THEN 
+                   cftrans(ir,ion,1)=cmpfgni(ir,1,ion)*ecoefsgau(ir,1,ion,0)
+                ELSE
+                   CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),cftrans(ir,ion,1),ifailloc) !Generalized diffusivity
+                ENDIF
                 xint= (/0._DBL,kthr(ir,:)/) ; yint=(/0._DBL,cmpfgti(ir,:,ion)*ecoefsgau(ir,:,ion,0)/)
-                CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),cftrans(ir,ion,2),ifailloc) !Generalized thermo-pinch
-
+                IF (dimn == 1) THEN 
+                   cftrans(ir,ion,2)=cmpfgti(ir,1,ion)*ecoefsgau(ir,1,ion,0)
+                ELSE
+                   CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),cftrans(ir,ion,2),ifailloc) !Generalized thermo-pinch
+                ENDIF
                 xint= (/0._DBL,kthr(ir,:)/) ; yint=(/0._DBL,cmpfci(ir,:,ion)*ecoefsgau(ir,:,ion,0)/)
-                CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),cftrans(ir,ion,3),ifailloc) !Generalized compression pinch
+                IF (dimn == 1) THEN 
+                   cftrans(ir,ion,3)=cmpfci(ir,1,ion)*ecoefsgau(ir,1,ion,0)
+                ELSE
+                   CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),cftrans(ir,ion,3),ifailloc) !Generalized compression pinch
+                ENDIF
+
+                xint= (/0._DBL,kthr(ir,:)/) ; yint=(/0._DBL,cmpfgui(ir,:,ion)*ecoefsgau(ir,:,ion,0)/)
+                IF (dimn == 1) THEN 
+                   cftrans(ir,ion,4)=cmpfgui(ir,1,ion)*ecoefsgau(ir,1,ion,0)
+                ELSE
+                   CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),cftrans(ir,ion,4),ifailloc) !Generalized roto-diffusion pinch
+                ENDIF
 
                 xint= (/0._DBL,kthr(ir,:)/) ; yint=(/0._DBL,1./R0*Ati(ir,ion)*cmpfgni(ir,:,ion)*( ecoefsgau(ir,:,ion,1) - (mi(ir,ion)*(omegator(ir)*Ro(ir))**2)/(2.*qe*1d3*Tix(ir,ion))*ecoefsgau(ir,:,ion,3) )  /)
-
-                CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),cftrans(ir,ion,4),ifailloc) !"2D thermopinch" 
+                IF (dimn == 1) THEN 
+                   cftrans(ir,ion,5)=1./R0*Ati(ir,ion)*cmpfgni(ir,1,ion)*( ecoefsgau(ir,1,ion,1) - (mi(ir,ion)*(omegator(ir)*Ro(ir))**2)/(2.*qe*1d3*Tix(ir,ion))*ecoefsgau(ir,1,ion,3) )
+                ELSE
+                   CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),cftrans(ir,ion,5),ifailloc) !"2D thermopinch" 
+                ENDIF
 
                 xint= (/0._DBL,kthr(ir,:)/) ; yint=(/0._DBL,1./R0*cmpfgni(ir,:,ion)*2. * Machi(ir,ion)*Aupar(ir)*cref(ir)/cthi(ir,ion)*SQRT(1+(epsilon(ir)/qx(ir))**2) *ecoefsgau(ir,:,ion,3)/)
-                CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),cftrans(ir,ion,5),ifailloc) !"2D rotodiffusion" 
+                IF (dimn == 1) THEN
+                   cftrans(ir,ion,6)=1./R0*cmpfgni(ir,1,ion)*2. * Machi(ir,ion)*Aupar(ir)*cref(ir)/cthi(ir,ion)*SQRT(1+(epsilon(ir)/qx(ir))**2) *ecoefsgau(ir,1,ion,3)
+                ELSE
+                   CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),cftrans(ir,ion,6),ifailloc) !"2D rotodiffusion" 
+                ENDIF
 
                 xint= (/0._DBL,kthr(ir,:)/) ; yint=(/0._DBL,1./R0*cmpfgni(ir,:,ion)*( ecoefsgau(ir,:,ion,2) - ecoefsgau(ir,:,ion,7) - 2.*Machi(ir,ion)**2 * ( ecoefsgau(ir,:,ion,8) + ecoefsgau(ir,:,ion,9)/2.) )/)
-                CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),cftrans(ir,ion,6),ifailloc) !"2D pure pinch"
-
+                IF (dimn == 1) THEN
+                   cftrans(ir,ion,7)=1./R0*cmpfgni(ir,1,ion)*( ecoefsgau(ir,1,ion,2) - ecoefsgau(ir,1,ion,7) - 2.*Machi(ir,ion)**2 * ( ecoefsgau(ir,1,ion,8) + ecoefsgau(ir,1,ion,9)/2.) )
+                ELSE
+                   CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),cftrans(ir,ion,7),ifailloc) !"2D pure pinch"
+                ENDIF
                 IF (phys_meth == 2) THEN
                    xint= (/0._DBL,kthr(ir,:)/) ; yint=(/0._DBL,cmefgni(ir,:,ion)/)
-                   CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),deffti(ir,ion),ifailloc)
+                   IF (dimn == 1) THEN 
+                      deffti(ir,ion)=cmefgni(ir,1,ion)
+                   ELSE
+                      CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),deffti(ir,ion),ifailloc)
+                   ENDIF
                    xint= (/0._DBL,kthr(ir,:)/) ; yint=(/0._DBL,cmefgti(ir,:,ion)/)
-                   CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),vethti(ir,ion),ifailloc)
+                   IF (dimn == 1) THEN 
+                      vethti(ir,ion)=cmefgti(ir,1,ion)
+                   ELSE
+                      CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),vethti(ir,ion),ifailloc)
+                   ENDIF
                    xint= (/0._DBL,kthr(ir,:)/) ; yint=(/0._DBL,cmefgui(ir,:,ion)/)
-                   CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),verdti(ir,ion),ifailloc)
+                   IF (dimn == 1) THEN 
+                      verdti(ir,ion)=cmefgui(ir,1,ion)
+                   ELSE
+                      CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),verdti(ir,ion),ifailloc)
+                   ENDIF
                    xint= (/0._DBL,kthr(ir,:)/) ; yint=(/0._DBL,cmefci(ir,:,ion)/)
-                   CALL davint (xint, yint ,dimn+1,lowlim,kthr(ir,dimn),vecpti(ir,ion),ifailloc)
+                   IF (dimn == 1) THEN 
+                      vecpti(ir,ion)=cmefci(ir,1,ion)
+                   ELSE
+                      CALL davint (xint, yint ,dimn+1,lowlim,kthr(ir,dimn),vecpti(ir,ion),ifailloc)
+                   ENDIF
                 ENDIF
              ENDDO
           ENDIF ! end of statement on additional calculation
@@ -754,6 +877,7 @@ CONTAINS
           ipf_SI(ir,:) = pfi(ir,:)*normNL
           !          epf_SI(ir) = dpfe(ir)*Nex(ir)*1e19*Ane(ir)/R0*chi_GB(ir)
           epf_SI(ir) = pfe(ir)*normNL
+          epfETG_SI(ir) = pfeETG(ir)*normNL
 
           ipf_GB(ir,:) = dpfi(ir,:)
           epf_GB(ir) = dpfe(ir)
@@ -859,42 +983,51 @@ CONTAINS
                      &	Nix(ir,:)*1d19*Tix(ir,:)*qe*1d3*(veni_SI(ir,:)+veci_SI(ir,:)+veri_SI(ir,:)) ) )/ (ief_SI(ir,:)+epsD)
              ENDIF
 
-          ENDIF!! end of statement on additional calculation
+          END IF!! end of statement on additional calculation
+       END DO !end of radial cycle
 
-          IF (gg==1) THEN !save ion mode only output
+       !END IF !end gg=3 if statement
+
+       IF (gg==1) THEN !save ion mode only output
+          DO ir=1,dimx
              ion_epf_GB(ir) = dpfe(ir)
              ion_ipf_GB(ir,:) = dpfi(ir,:)
              ion_eef_GB(ir) = defe(ir)
              ion_ief_GB(ir,:) = defi(ir,:)
              ion_evf_GB(ir) = dvfe(ir)
              ion_ivf_GB(ir,:) = dvfi(ir,:)
-          END IF
-          IF (gg==2) THEN !save electron mode only output
+          END DO
+       END IF
+       IF (gg==2) THEN !save electron mode only output
+          DO ir=1,dimx 
              ele_epf_GB(ir) = dpfe(ir)
              ele_ipf_GB(ir,:) = dpfi(ir,:)
              ele_eef_GB(ir) = defe(ir)
              ele_ief_GB(ir,:) = defi(ir,:)
              ele_evf_GB(ir) = dvfe(ir)
              ele_ivf_GB(ir,:) = dvfi(ir,:)
-          END IF
+          END DO
+       END IF
 
-          !Testing for existence of ion or electron modes
-          IF (gg==3) THEN
-             IF ( (ABS(epf_GB(ir)) > epsD) .OR. (ABS(eef_GB(ir)) > epsD) .OR. (ABS(ipf_GB(ir,1)) > epsD) & 
-                  & .OR. (ABS(ief_GB(ir,1)) > epsD)) THEN !If an instability is active on ele or main ion then check following
-                IF ( (ele_epf_GB(ir)/(epf_GB(ir)+epsD) < impfac) .AND. (ele_eef_GB(ir)/(eef_GB(ir)+epsD) < impfac) & 
-                     & .AND. (ele_ipf_GB(ir,1)/(ipf_GB(ir,1)+epsD) < impfac) .AND. (ele_ief_GB(ir,1)/(ief_GB(ir,1)+epsD) < impfac)) THEN
-                   modeflag(ir)=1 !At this radial location, only ion modes are important
-                ENDIF
-                IF ( (ion_epf_GB(ir)/(epf_GB(ir)+epsD) < impfac) .AND. (ion_eef_GB(ir)/(eef_GB(ir)+epsD) < impfac) & 
-                     & .AND. (ion_ipf_GB(ir,1)/(ipf_GB(ir,1)+epsD) < impfac) .AND. (ion_ief_GB(ir,1)/(ief_GB(ir,1)+epsD) < impfac)) THEN
-                   modeflag(ir)=2 !At this radial location, only electron modes are important
-                ENDIF
+       !Testing for existence of ion or electron modes
+       modeflag(:)=0 !set default that both modes are important (also true if stable, since we don't know where they could pop up)
+
+       DO ir=1,dimx
+          IF ( (ABS(epf_GB(ir)) > epsD) .OR. (ABS(eef_GB(ir)) > epsD) .OR. (ABS(ipf_GB(ir,1)) > epsD) & 
+               & .OR. (ABS(ief_GB(ir,1)) > epsD)) THEN !If an instability is active on ele or main ion then check following
+             IF ( (ele_epf_GB(ir)/(epf_GB(ir)+epsD) < impfac) .AND. (ele_eef_GB(ir)/(eef_GB(ir)+epsD) < impfac) & 
+                  & .AND. (ele_ipf_GB(ir,1)/(ipf_GB(ir,1)+epsD) < impfac) .AND. (ele_ief_GB(ir,1)/(ief_GB(ir,1)+epsD) < impfac)) THEN
+                modeflag(ir)=1 !At this radial location, only ion modes are important
+             ENDIF
+             IF ( (ion_epf_GB(ir)/(epf_GB(ir)+epsD) < impfac) .AND. (ion_eef_GB(ir)/(eef_GB(ir)+epsD) < impfac) & 
+                  & .AND. (ion_ipf_GB(ir,1)/(ipf_GB(ir,1)+epsD) < impfac) .AND. (ion_ief_GB(ir,1)/(ief_GB(ir,1)+epsD) < impfac)) THEN
+                modeflag(ir)=2 !At this radial location, only electron modes are important
              ENDIF
           ENDIF
-       END DO !end of radial cycle
+       ENDDO
 
-       !END IF !end gg=3 if statement
+       IF ( ( gg == 1) .AND. (outputcase == 1) ) EXIT
+       IF ( ( gg == 2) .AND. (outputcase == 2) ) EXIT
 
     ENDDO !end do on gg
 

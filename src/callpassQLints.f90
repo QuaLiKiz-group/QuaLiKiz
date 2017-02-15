@@ -47,6 +47,7 @@ CONTAINS
     REAL(KIND=DBL), DIMENSION(nions) :: rfonctecgti, rfonctecgni, rfonctecci
     REAL(KIND=DBL), DIMENSION(nions) :: ifonctci, ifonctcgti, ifonctcgni, ifonctcci, ifoncteci
     REAL(KIND=DBL), DIMENSION(nions) :: ifonctecgti, ifonctecgni, ifonctecci
+
     INTEGER :: ifailloc
 
     omFkr = omega
@@ -513,7 +514,7 @@ CONTAINS
              minpts=0; ifailloc=1
              CALL d01fcf(ndim,a,b,minpts,maxpts,iFkstarrstargti,relaccQL2,acc,lenwrk,wrkstr,intout(2),ifailloc)
              IF (ifailloc /= 0) THEN
-                IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFkstarrstargti integration at p=',p,' nu=',nu,' ion=',ion
+                IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFkstarrstargti integration at p=',p,' nu=',nu,' ion=',ion
              ENDIF
              rfonctcgti(ion) = intmult*intout(1); ifonctcgti(ion)=intmult*intout(2)
 
@@ -1540,6 +1541,7 @@ CONTAINS
     REAL(KIND=DBL)    :: intmult=1. ! with rotation need to integrate from -inf to +inf
     REAL(KIND=DBL), DIMENSION(nions) :: rfonctvci
     REAL(KIND=DBL), DIMENSION(nions) :: ifonctvci
+
     INTEGER :: ifailloc
 
     omFkr = omega

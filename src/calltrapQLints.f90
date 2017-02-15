@@ -78,13 +78,13 @@ CONTAINS
        DO ion=1,nions
 
           !! ION PARTICLE FLUX 
-          !CALL DQAGSE(rFFki,cc,dd,absacc1,relaccQL1,limit,rfonctpi(ion),relerr,npts,ifailloc,&
+          !CALL DQAGSE_QLK(rFFki,cc,dd,absacc1,relaccQL1,limit,rfonctpi(ion),relerr,npts,ifailloc,&
           !     alist, blist, rlist, elist, iord, last)
           !IF (ifailloc /= 0) THEN
           !   IF (verbose .EQV. .TRUE.) WRITE(stderr,*) 'Abnormal termination of rFFki integration at p= ',p,', ion=',ion
           !ENDIF
 
-          CALL DQAGSE(iFFki,cc,dd,abaccQL1,relaccQL1,limit,ifonctpi(ion),relerr,npts,ifailloc,&
+          CALL DQAGSE_QLK(iFFki,cc,dd,abaccQL1,relaccQL1,limit,ifonctpi(ion),relerr,npts,ifailloc,&
                alist, blist, rlist, elist, iord, last)
           IF (ifailloc /= 0) THEN
              IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL iFFki integration at p=',p,', nu=',nu,', ion=',ion
@@ -94,39 +94,39 @@ CONTAINS
           ! ADDITIONAL ION INTEGRALS TO SEPARATE TRANSPORT COMPONENTS
           IF (phys_meth .NE. 0.0) THEN
 
-             !CALL DQAGSE(rFFkgti,cc,dd,abaccQL1,relaccQL1,limit,rfonctpgti(ion),relerr,npts,ifailloc,&
+             !CALL DQAGSE_QLK(rFFkgti,cc,dd,abaccQL1,relaccQL1,limit,rfonctpgti(ion),relerr,npts,ifailloc,&
              !     alist, blist, rlist, elist, iord, last)
              !IF (ifailloc /= 0) THEN
              !   IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL rFFkgti integration at p=',p,', nu=',nu,', ion=',ion
              !ENDIF
 
-             CALL DQAGSE(iFFkgti,cc,dd,abaccQL1,relaccQL1,limit,ifonctpgti(ion),relerr,npts,ifailloc,&
+             CALL DQAGSE_QLK(iFFkgti,cc,dd,abaccQL1,relaccQL1,limit,ifonctpgti(ion),relerr,npts,ifailloc,&
                   alist, blist, rlist, elist, iord, last)
              IF (ifailloc /= 0) THEN
                 IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL iFFkgti integration at p=',p,', nu=',nu,', ion=',ion
              ENDIF
              rfonctpgti(ion)=0.
 
-             !CALL DQAGSE(rFFkgni,cc,dd,abaccQL1,relaccQL1,limit,rfonctpgni(ion),relerr,npts,ifailloc,&
+             !CALL DQAGSE_QLK(rFFkgni,cc,dd,abaccQL1,relaccQL1,limit,rfonctpgni(ion),relerr,npts,ifailloc,&
              !     alist, blist, rlist, elist, iord, last)
              !IF (ifailloc /= 0) THEN
              !   IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL rFFkgni integration at p=',p,', nu=',nu,', ion=',ion
              !ENDIF
 
-             CALL DQAGSE(iFFkgni,cc,dd,abaccQL1,relaccQL1,limit,ifonctpgni(ion),relerr,npts,ifailloc,&
+             CALL DQAGSE_QLK(iFFkgni,cc,dd,abaccQL1,relaccQL1,limit,ifonctpgni(ion),relerr,npts,ifailloc,&
                   alist, blist, rlist, elist, iord, last)
              IF (ifailloc /= 0) THEN
                 IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL iFFkgni integration at p=',p,', nu=',nu,', ion=',ion
              ENDIF
              rfonctpgni(ion)=0.
 
-             !CALL DQAGSE(rFFkci,cc,dd,abaccQL1,relaccQL1,limit,rfonctpci(ion),relerr,npts,ifailloc,&
+             !CALL DQAGSE_QLK(rFFkci,cc,dd,abaccQL1,relaccQL1,limit,rfonctpci(ion),relerr,npts,ifailloc,&
              !     alist, blist, rlist, elist, iord, last)
              !IF (ifailloc /= 0) THEN
              !   IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL rFFkci integration at p=',p,', nu=',nu,', ion=',ion
              !ENDIF
 
-             CALL DQAGSE(iFFkci,cc,dd,abaccQL1,relaccQL1,limit,ifonctpci(ion),relerr,npts,ifailloc,&
+             CALL DQAGSE_QLK(iFFkci,cc,dd,abaccQL1,relaccQL1,limit,ifonctpci(ion),relerr,npts,ifailloc,&
                   alist, blist, rlist, elist, iord, last)
              IF (ifailloc /= 0) THEN
                 IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL iFFkci integration at p=',p,', nu=',nu,', ion=',ion
@@ -134,39 +134,39 @@ CONTAINS
              rfonctpci(ion)=0.
 !!!
              IF (phys_meth == 2) THEN
-                !CALL DQAGSE(rFFekgti,cc,dd,abaccQL1,relaccQL1,limit,rfonctepgti(ion),relerr,npts,ifailloc,&
+                !CALL DQAGSE_QLK(rFFekgti,cc,dd,abaccQL1,relaccQL1,limit,rfonctepgti(ion),relerr,npts,ifailloc,&
                 !     alist, blist, rlist, elist, iord, last)
                 !IF (ifailloc /= 0) THEN
                 !   IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL rFFekgti integration at p=',p,', nu=',nu,', ion=',ion
                 !ENDIF
 
-                CALL DQAGSE(iFFekgti,cc,dd,abaccQL1,relaccQL1,limit,ifonctepgti(ion),relerr,npts,ifailloc,&
+                CALL DQAGSE_QLK(iFFekgti,cc,dd,abaccQL1,relaccQL1,limit,ifonctepgti(ion),relerr,npts,ifailloc,&
                      alist, blist, rlist, elist, iord, last)
                 IF (ifailloc /= 0) THEN
                    IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL iFFekgti integration at p=',p,', nu=',nu,', ion=',ion
                 ENDIF
                 rfonctepgti(ion)=0.
 
-                !CALL DQAGSE(rFFekgni,cc,dd,abaccQL1,relaccQL1,limit,rfonctepgni(ion),relerr,npts,ifailloc,&
+                !CALL DQAGSE_QLK(rFFekgni,cc,dd,abaccQL1,relaccQL1,limit,rfonctepgni(ion),relerr,npts,ifailloc,&
                 !     alist, blist, rlist, elist, iord, last)
                 !IF (ifailloc /= 0) THEN
                 !   IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL rFFekgni integration at p=',p,', nu=',nu,', ion=',ion
                 !ENDIF
 
-                CALL DQAGSE(iFFekgni,cc,dd,abaccQL1,relaccQL1,limit,ifonctepgni(ion),relerr,npts,ifailloc,&
+                CALL DQAGSE_QLK(iFFekgni,cc,dd,abaccQL1,relaccQL1,limit,ifonctepgni(ion),relerr,npts,ifailloc,&
                      alist, blist, rlist, elist, iord, last)
                 IF (ifailloc /= 0) THEN
                    IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL iFFekgni integration at p=',p,', nu=',nu,', ion=',ion
                 ENDIF
                 rfonctepgni(ion)=0.
 
-                !CALL DQAGSE(rFFekci,cc,dd,abaccQL1,relaccQL1,limit,rfonctepci(ion),relerr,npts,ifailloc,&
+                !CALL DQAGSE_QLK(rFFekci,cc,dd,abaccQL1,relaccQL1,limit,rfonctepci(ion),relerr,npts,ifailloc,&
                 !     alist, blist, rlist, elist, iord, last)
                 !IF (ifailloc /= 0) THEN
                 !   IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL rFFekci integration at p=',p,', nu=',nu,', ion=',ion
                 !ENDIF
 
-                CALL DQAGSE(iFFekci,cc,dd,abaccQL1,relaccQL1,limit,ifonctepci(ion),relerr,npts,ifailloc,&
+                CALL DQAGSE_QLK(iFFekci,cc,dd,abaccQL1,relaccQL1,limit,ifonctepci(ion),relerr,npts,ifailloc,&
                      alist, blist, rlist, elist, iord, last)
                 IF (ifailloc /= 0) THEN
                    IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL iFFekci integration at p=',p,', nu=',nu,', ion=',ion
@@ -191,16 +191,16 @@ CONTAINS
 
           ! ION ENERGY FLUX
 
-          !CALL DQAGSE(rFFeki,cc,dd,abaccQL1,relaccQL1,limit,rfonctepi(ion),relerr,npts,ifailloc,&
+          !CALL DQAGSE_QLK(rFFeki,cc,dd,abaccQL1,relaccQL1,limit,rfonctepi(ion),relerr,npts,ifailloc,&
           !     alist, blist, rlist, elist, iord, last)
           !IF (ifailloc /= 0) THEN
           !   IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL rFFeki integration at p=',p,', nu=',nu,', ion=',ion
           !ENDIF
 
-          CALL DQAGSE(iFFeki,cc,dd,abaccQL1,relaccQL1,limit,ifonctepi(ion),relerr,npts,ifailloc,&
+          CALL DQAGSE_QLK(iFFeki,cc,dd,abaccQL1,relaccQL1,limit,ifonctepi(ion),relerr,npts,ifailloc,&
                alist, blist, rlist, elist, iord, last)
           IF (ifailloc /= 0) THEN
-             IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL iFFeki integration at p=',p,', nu=',nu,', ion=',ion
+             IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE_QLK QL iFFeki integration at p=',p,', nu=',nu,', ion=',ion
           ENDIF
           rfonctepi(ion)=0.
        ENDDO
@@ -219,13 +219,13 @@ CONTAINS
                 IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of CUBATR QL FFke integration at p=',p,' nu=',nu
              ENDIF
           ELSE ! Collisionless simulation, revert to faster single integral
-             CALL DQAGSE(rFFke_nocoll,cc,dd,abaccQL1,relaccQL1,limit,intout(1),relerr,npts,ifailloc,&
+             CALL DQAGSE_QLK(rFFke_nocoll,cc,dd,abaccQL1,relaccQL1,limit,intout(1),relerr,npts,ifailloc,&
                   alist, blist, rlist, elist, iord, last)
              IF (ifailloc /= 0) THEN
                 IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL rFFke_nocoll integration at p=',p,' nu=',nu
              ENDIF
 
-             CALL DQAGSE(iFFke_nocoll,cc,dd,abaccQL1,relaccQL1,limit,intout(2),relerr,npts,ifailloc,&
+             CALL DQAGSE_QLK(iFFke_nocoll,cc,dd,abaccQL1,relaccQL1,limit,intout(2),relerr,npts,ifailloc,&
                   alist, blist, rlist, elist, iord, last)
              IF (ifailloc /= 0) THEN
                 IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL iFFke_nocoll integration at p=',p,' nu=',nu
@@ -251,12 +251,12 @@ CONTAINS
                    IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of CUBATR QL FFkgte integration at p=',p,' nu=',nu
                 ENDIF
              ELSE ! Collisionless simulation, revert to faster single integral
-                CALL DQAGSE(rFFkgte_nocoll,cc,dd,abaccQL1,relaccQL1,limit,intout(1),relerr,npts,ifailloc,&
+                CALL DQAGSE_QLK(rFFkgte_nocoll,cc,dd,abaccQL1,relaccQL1,limit,intout(1),relerr,npts,ifailloc,&
                      alist, blist, rlist, elist, iord, last)
                 IF (ifailloc /= 0) THEN
                    IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL rFFkgte_nocoll integration at p=',p,' nu=',nu
                 ENDIF
-                CALL DQAGSE(iFFkgte_nocoll,cc,dd,abaccQL1,relaccQL1,limit,intout(2),relerr,npts,ifailloc,&
+                CALL DQAGSE_QLK(iFFkgte_nocoll,cc,dd,abaccQL1,relaccQL1,limit,intout(2),relerr,npts,ifailloc,&
                      alist, blist, rlist, elist, iord, last)
                 IF (ifailloc /= 0) THEN
                    IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL iFFkgte_nocoll integration at p=',p,' nu=',nu
@@ -279,12 +279,12 @@ CONTAINS
                    IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of CUBATR QL FFkgne integration at p=',p,' nu=',nu
                 ENDIF
              ELSE ! Collisionless simulation, revert to faster single integral
-                CALL DQAGSE(rFFkgne_nocoll,cc,dd,abaccQL1,relaccQL1,limit,intout(1),relerr,npts,ifailloc,&
+                CALL DQAGSE_QLK(rFFkgne_nocoll,cc,dd,abaccQL1,relaccQL1,limit,intout(1),relerr,npts,ifailloc,&
                      alist, blist, rlist, elist, iord, last)
                 IF (ifailloc /= 0) THEN
                    IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL rFFkgne_nocoll integration at p=',p,' nu=',nu
                 ENDIF
-                CALL DQAGSE(iFFkgne_nocoll,cc,dd,abaccQL1,relaccQL1,limit,intout(2),relerr,npts,ifailloc,&
+                CALL DQAGSE_QLK(iFFkgne_nocoll,cc,dd,abaccQL1,relaccQL1,limit,intout(2),relerr,npts,ifailloc,&
                      alist, blist, rlist, elist, iord, last)
                 IF (ifailloc /= 0) THEN
                    IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL iFFkgne_nocoll integration at p=',p,' nu=',nu
@@ -308,12 +308,12 @@ CONTAINS
                    IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of CUBATR QL FFkce integration at p=',p,' nu=',nu
                 ENDIF
              ELSE ! Collisionless simulation, revert to faster single integral
-                CALL DQAGSE(rFFkce_nocoll,cc,dd,abaccQL1,relaccQL1,limit,intout(1),relerr,npts,ifailloc,&
+                CALL DQAGSE_QLK(rFFkce_nocoll,cc,dd,abaccQL1,relaccQL1,limit,intout(1),relerr,npts,ifailloc,&
                      alist, blist, rlist, elist, iord, last)
                 IF (ifailloc /= 0) THEN
                    IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL rFFkce_nocoll integration at p=',p,' nu=',nu
                 ENDIF
-                CALL DQAGSE(iFFkce_nocoll,cc,dd,abaccQL1,relaccQL1,limit,intout(2),relerr,npts,ifailloc,&
+                CALL DQAGSE_QLK(iFFkce_nocoll,cc,dd,abaccQL1,relaccQL1,limit,intout(2),relerr,npts,ifailloc,&
                      alist, blist, rlist, elist, iord, last)
                 IF (ifailloc /= 0) THEN
                    IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL iFFkce_nocoll integration at p=',p,' nu=',nu
@@ -338,12 +338,12 @@ CONTAINS
                       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of CUBATR QL FFekgte integration at p=',p,' nu=',nu
                    ENDIF
                 ELSE ! Collisionless simulation, revert to faster single integral
-                   CALL DQAGSE(rFFekgte_nocoll,cc,dd,abaccQL1,relaccQL1,limit,intout(1),relerr,npts,ifailloc,&
+                   CALL DQAGSE_QLK(rFFekgte_nocoll,cc,dd,abaccQL1,relaccQL1,limit,intout(1),relerr,npts,ifailloc,&
                         alist, blist, rlist, elist, iord, last)
                    IF (ifailloc /= 0) THEN
                       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL rFFekgte_nocoll integration at p=',p,' nu=',nu
                    ENDIF
-                   CALL DQAGSE(iFFekgte_nocoll,cc,dd,abaccQL1,relaccQL1,limit,intout(2),relerr,npts,ifailloc,&
+                   CALL DQAGSE_QLK(iFFekgte_nocoll,cc,dd,abaccQL1,relaccQL1,limit,intout(2),relerr,npts,ifailloc,&
                         alist, blist, rlist, elist, iord, last)
                    IF (ifailloc /= 0) THEN
                       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL iFFekgte_nocoll integration at p=',p,' nu=',nu
@@ -366,12 +366,12 @@ CONTAINS
                       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of CUBATR QL FFekgne integration at p=',p,' nu=',nu
                    ENDIF
                 ELSE ! Collisionless simulation, revert to faster single integral
-                   CALL DQAGSE(rFFekgne_nocoll,cc,dd,abaccQL1,relaccQL1,limit,intout(1),relerr,npts,ifailloc,&
+                   CALL DQAGSE_QLK(rFFekgne_nocoll,cc,dd,abaccQL1,relaccQL1,limit,intout(1),relerr,npts,ifailloc,&
                         alist, blist, rlist, elist, iord, last)
                    IF (ifailloc /= 0) THEN
                       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL rFFekgne_nocoll integration at p=',p,' nu=',nu
                    ENDIF
-                   CALL DQAGSE(iFFekgne_nocoll,cc,dd,abaccQL1,relaccQL1,limit,intout(2),relerr,npts,ifailloc,&
+                   CALL DQAGSE_QLK(iFFekgne_nocoll,cc,dd,abaccQL1,relaccQL1,limit,intout(2),relerr,npts,ifailloc,&
                         alist, blist, rlist, elist, iord, last)
                    IF (ifailloc /= 0) THEN
                       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL iFFekgne_nocoll integration at p=',p,' nu=',nu
@@ -395,12 +395,12 @@ CONTAINS
                       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of CUBATR QL FFekce integration at p=',p,' nu=',nu
                    ENDIF
                 ELSE ! Collisionless simulation, revert to faster single integral
-                   CALL DQAGSE(rFFekce_nocoll,cc,dd,abaccQL1,relaccQL1,limit,intout(1),relerr,npts,ifailloc,&
+                   CALL DQAGSE_QLK(rFFekce_nocoll,cc,dd,abaccQL1,relaccQL1,limit,intout(1),relerr,npts,ifailloc,&
                         alist, blist, rlist, elist, iord, last)
                    IF (ifailloc /= 0) THEN
                       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL rFFekce_nocoll integration at p=',p,' nu=',nu
                    ENDIF
-                   CALL DQAGSE(iFFekce_nocoll,cc,dd,abaccQL1,relaccQL1,limit,intout(2),relerr,npts,ifailloc,&
+                   CALL DQAGSE_QLK(iFFekce_nocoll,cc,dd,abaccQL1,relaccQL1,limit,intout(2),relerr,npts,ifailloc,&
                         alist, blist, rlist, elist, iord, last)
                    IF (ifailloc /= 0) THEN
                       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL iFFekce_nocoll integration at p=',p,' nu=',nu
@@ -444,13 +444,13 @@ CONTAINS
                 IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of CUBATR QL FFeke integration at p=',p,' nu=',nu
              ENDIF
           ELSE ! Collisionless simulation, revert to faster single integral
-             CALL DQAGSE(rFFeke_nocoll,cc,dd,abaccQL1,relaccQL1,limit,intout(1),relerr,npts,ifailloc,&
+             CALL DQAGSE_QLK(rFFeke_nocoll,cc,dd,abaccQL1,relaccQL1,limit,intout(1),relerr,npts,ifailloc,&
                   alist, blist, rlist, elist, iord, last)
              IF (ifailloc /= 0) THEN
                 IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL rFFeke_nocoll integration at p=',p,' nu=',nu
              ENDIF
 
-             CALL DQAGSE(iFFeke_nocoll,cc,dd,abaccQL1,relaccQL1,limit,intout(2),relerr,npts,ifailloc,&
+             CALL DQAGSE_QLK(iFFeke_nocoll,cc,dd,abaccQL1,relaccQL1,limit,intout(2),relerr,npts,ifailloc,&
                   alist, blist, rlist, elist, iord, last)
              IF (ifailloc /= 0) THEN
                 IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL iFFeke_nocoll integration at p=',p,' nu=',nu
@@ -996,6 +996,7 @@ CONTAINS
     REAL(kind=DBL) , DIMENSION(nf) :: reerrarr !NOT USED. Estimated absolute error after CUBATR restart
     INTEGER, DIMENSION(numrgn) :: rgtype
     INTEGER :: ifailloc
+
     omFFk = omega
     pFFk = p
 
@@ -1024,13 +1025,13 @@ CONTAINS
        DO ion=1,nions
 
           !! ION PARTICLE FLUX 
-          !CALL DQAGSE(rFFkirot,cc,dd,absacc1,relaccQL1,limit,rfonctpi(ion),relerr,npts,ifailloc,&
+          !CALL DQAGSE_QLK(rFFkirot,cc,dd,absacc1,relaccQL1,limit,rfonctpi(ion),relerr,npts,ifailloc,&
           !     alist, blist, rlist, elist, iord, last)
           !IF (ifailloc /= 0) THEN
           !   IF (verbose .EQV. .TRUE.) WRITE(stderr,*) 'Abnormal termination of rFFkirot integration at p= ',p,', ion=',ion
           !ENDIF
 
-          CALL DQAGSE(iFFkirot,cc,dd,abaccQL1,relaccQL1,limit,ifonctpi(ion),relerr,npts,ifailloc,&
+          CALL DQAGSE_QLK(iFFkirot,cc,dd,abaccQL1,relaccQL1,limit,ifonctpi(ion),relerr,npts,ifailloc,&
                alist, blist, rlist, elist, iord, last)
           IF (ifailloc /= 0) THEN
              IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL iFFkirot integration at p=',p,', nu=',nu,', ion=',ion
@@ -1040,52 +1041,52 @@ CONTAINS
           ! ADDITIONAL ION INTEGRALS TO SEPARATE TRANSPORT COMPONENTS
           IF (phys_meth .NE. 0.0) THEN
 
-             !CALL DQAGSE(rFFkgtirot,cc,dd,abaccQL1,relaccQL1,limit,rfonctpgti(ion),relerr,npts,ifailloc,&
+             !CALL DQAGSE_QLK(rFFkgtirot,cc,dd,abaccQL1,relaccQL1,limit,rfonctpgti(ion),relerr,npts,ifailloc,&
              !     alist, blist, rlist, elist, iord, last)
              !IF (ifailloc /= 0) THEN
              !   IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL rFFkgtirot integration at p=',p,', nu=',nu,', ion=',ion
              !ENDIF
 
-             CALL DQAGSE(iFFkgtirot,cc,dd,abaccQL1,relaccQL1,limit,ifonctpgti(ion),relerr,npts,ifailloc,&
+             CALL DQAGSE_QLK(iFFkgtirot,cc,dd,abaccQL1,relaccQL1,limit,ifonctpgti(ion),relerr,npts,ifailloc,&
                   alist, blist, rlist, elist, iord, last)
              IF (ifailloc /= 0) THEN
                 IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL iFFkgtirot integration at p=',p,', nu=',nu,', ion=',ion
              ENDIF
              rfonctpgti(ion)=0.
 
-             !CALL DQAGSE(rFFkgnirot,cc,dd,abaccQL1,relaccQL1,limit,rfonctpgni(ion),relerr,npts,ifailloc,&
+             !CALL DQAGSE_QLK(rFFkgnirot,cc,dd,abaccQL1,relaccQL1,limit,rfonctpgni(ion),relerr,npts,ifailloc,&
              !     alist, blist, rlist, elist, iord, last)
              !IF (ifailloc /= 0) THEN
              !   IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL rFFkgnirot integration at p=',p,', nu=',nu,', ion=',ion
              !ENDIF
 
-             CALL DQAGSE(iFFkgnirot,cc,dd,abaccQL1,relaccQL1,limit,ifonctpgni(ion),relerr,npts,ifailloc,&
+             CALL DQAGSE_QLK(iFFkgnirot,cc,dd,abaccQL1,relaccQL1,limit,ifonctpgni(ion),relerr,npts,ifailloc,&
                   alist, blist, rlist, elist, iord, last)
              IF (ifailloc /= 0) THEN
                 IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL iFFkgnirot integration at p=',p,', nu=',nu,', ion=',ion
              ENDIF
              rfonctpgni(ion)=0.
 
-             !CALL DQAGSE(rFFkguirot,cc,dd,abaccQL1,relaccQL1,limit,rfonctpgui(ion),relerr,npts,ifailloc,&
+             !CALL DQAGSE_QLK(rFFkguirot,cc,dd,abaccQL1,relaccQL1,limit,rfonctpgui(ion),relerr,npts,ifailloc,&
              !     alist, blist, rlist, elist, iord, last)
              !IF (ifailloc /= 0) THEN
              !   IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL rFFkguirot integration at p=',p,', nu=',nu,', ion=',ion
              !ENDIF
 
-             CALL DQAGSE(iFFkguirot,cc,dd,abaccQL1,relaccQL1,limit,ifonctpgui(ion),relerr,npts,ifailloc,&
+             CALL DQAGSE_QLK(iFFkguirot,cc,dd,abaccQL1,relaccQL1,limit,ifonctpgui(ion),relerr,npts,ifailloc,&
                   alist, blist, rlist, elist, iord, last)
              IF (ifailloc /= 0) THEN
                 IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL iFFkguirot integration at p=',p,', nu=',nu,', ion=',ion
              ENDIF
              rfonctpgui(ion)=0.
 
-             !CALL DQAGSE(rFFkcirot,cc,dd,abaccQL1,relaccQL1,limit,rfonctpci(ion),relerr,npts,ifailloc,&
+             !CALL DQAGSE_QLK(rFFkcirot,cc,dd,abaccQL1,relaccQL1,limit,rfonctpci(ion),relerr,npts,ifailloc,&
              !     alist, blist, rlist, elist, iord, last)
              !IF (ifailloc /= 0) THEN
              !   IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL rFFkcirot integration at p=',p,', nu=',nu,', ion=',ion
              !ENDIF
 
-             CALL DQAGSE(iFFkcirot,cc,dd,abaccQL1,relaccQL1,limit,ifonctpci(ion),relerr,npts,ifailloc,&
+             CALL DQAGSE_QLK(iFFkcirot,cc,dd,abaccQL1,relaccQL1,limit,ifonctpci(ion),relerr,npts,ifailloc,&
                   alist, blist, rlist, elist, iord, last)
              IF (ifailloc /= 0) THEN
                 IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL iFFkcirot integration at p=',p,', nu=',nu,', ion=',ion
@@ -1093,59 +1094,59 @@ CONTAINS
              rfonctpci(ion)=0.
 !!!
              IF (phys_meth == 2) THEN
-                !CALL DQAGSE(rFFekgtirot,cc,dd,abaccQL1,relaccQL1,limit,rfonctepgti(ion),relerr,npts,ifailloc,&
+                !CALL DQAGSE_QLK(rFFekgtirot,cc,dd,abaccQL1,relaccQL1,limit,rfonctepgti(ion),relerr,npts,ifailloc,&
                 !     alist, blist, rlist, elist, iord, last)
                 !IF (ifailloc /= 0) THEN
                 !   IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL rFFekgtirot integration at p=',p,', nu=',nu,', ion=',ion
                 !ENDIF
 
-                CALL DQAGSE(iFFekgtirot,cc,dd,abaccQL1,relaccQL1,limit,ifonctepgti(ion),relerr,npts,ifailloc,&
+                CALL DQAGSE_QLK(iFFekgtirot,cc,dd,abaccQL1,relaccQL1,limit,ifonctepgti(ion),relerr,npts,ifailloc,&
                      alist, blist, rlist, elist, iord, last)
                 IF (ifailloc /= 0) THEN
                    IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL iFFekgtirot integration at p=',p,', nu=',nu,', ion=',ion
                 ENDIF
                 rfonctepgti(ion)=0.
 
-                !CALL DQAGSE(rFFekgnirot,cc,dd,abaccQL1,relaccQL1,limit,rfonctepgni(ion),relerr,npts,ifailloc,&
+                !CALL DQAGSE_QLK(rFFekgnirot,cc,dd,abaccQL1,relaccQL1,limit,rfonctepgni(ion),relerr,npts,ifailloc,&
                 !     alist, blist, rlist, elist, iord, last)
                 !IF (ifailloc /= 0) THEN
                 !   IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL rFFekgnirot integration at p=',p,', nu=',nu,', ion=',ion
                 !ENDIF
 
-                CALL DQAGSE(iFFekgnirot,cc,dd,abaccQL1,relaccQL1,limit,ifonctepgni(ion),relerr,npts,ifailloc,&
+                CALL DQAGSE_QLK(iFFekgnirot,cc,dd,abaccQL1,relaccQL1,limit,ifonctepgni(ion),relerr,npts,ifailloc,&
                      alist, blist, rlist, elist, iord, last)
                 IF (ifailloc /= 0) THEN
                    IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL iFFekgnirot integration at p=',p,', nu=',nu,', ion=',ion
                 ENDIF
                 rfonctepgni(ion)=0.
 
-                !CALL DQAGSE(rFFekguirot,cc,dd,abaccQL1,relaccQL1,limit,rfonctepgui(ion),relerr,npts,ifailloc,&
+                !CALL DQAGSE_QLK(rFFekguirot,cc,dd,abaccQL1,relaccQL1,limit,rfonctepgui(ion),relerr,npts,ifailloc,&
                 !     alist, blist, rlist, elist, iord, last)
                 !IF (ifailloc /= 0) THEN
                 !   IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL rFFekguirot integration at p=',p,', nu=',nu,', ion=',ion
                 !ENDIF
 
-                CALL DQAGSE(iFFekguirot,cc,dd,abaccQL1,relaccQL1,limit,ifonctepgui(ion),relerr,npts,ifailloc,&
+                CALL DQAGSE_QLK(iFFekguirot,cc,dd,abaccQL1,relaccQL1,limit,ifonctepgui(ion),relerr,npts,ifailloc,&
                      alist, blist, rlist, elist, iord, last)
                 IF (ifailloc /= 0) THEN
                    IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL iFFekguirot integration at p=',p,', nu=',nu,', ion=',ion
                 ENDIF
                 rfonctepgui(ion)=0.
 
-                CALL DQAGSE(iFFekguirot,cc,dd,abaccQL1,relaccQL1,limit,ifonctepgui(ion),relerr,npts,ifailloc,&
+                CALL DQAGSE_QLK(iFFekguirot,cc,dd,abaccQL1,relaccQL1,limit,ifonctepgui(ion),relerr,npts,ifailloc,&
                      alist, blist, rlist, elist, iord, last)
                 IF (ifailloc /= 0) THEN
                    IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL iFFekguirot integration at p=',p,', nu=',nu,', ion=',ion
                 ENDIF
                 rfonctepgui(ion)=0.
 
-                !CALL DQAGSE(rFFekcirot,cc,dd,abaccQL1,relaccQL1,limit,rfonctepci(ion),relerr,npts,ifailloc,&
+                !CALL DQAGSE_QLK(rFFekcirot,cc,dd,abaccQL1,relaccQL1,limit,rfonctepci(ion),relerr,npts,ifailloc,&
                 !     alist, blist, rlist, elist, iord, last)
                 !IF (ifailloc /= 0) THEN
                 !   IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL rFFekcirot integration at p=',p,', nu=',nu,', ion=',ion
                 !ENDIF
 
-                CALL DQAGSE(iFFekcirot,cc,dd,abaccQL1,relaccQL1,limit,ifonctepci(ion),relerr,npts,ifailloc,&
+                CALL DQAGSE_QLK(iFFekcirot,cc,dd,abaccQL1,relaccQL1,limit,ifonctepci(ion),relerr,npts,ifailloc,&
                      alist, blist, rlist, elist, iord, last)
                 IF (ifailloc /= 0) THEN
                    IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL iFFekcirot integration at p=',p,', nu=',nu,', ion=',ion
@@ -1175,13 +1176,13 @@ CONTAINS
 
           ! ION ENERGY FLUX
 
-          !CALL DQAGSE(rFFekirot,cc,dd,abaccQL1,relaccQL1,limit,rfonctepi(ion),relerr,npts,ifailloc,&
+          !CALL DQAGSE_QLK(rFFekirot,cc,dd,abaccQL1,relaccQL1,limit,rfonctepi(ion),relerr,npts,ifailloc,&
           !     alist, blist, rlist, elist, iord, last)
           !IF (ifailloc /= 0) THEN
           !   IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL rFFekirot integration at p=',p,', nu=',nu,', ion=',ion
           !ENDIF
 
-          CALL DQAGSE(iFFekirot,cc,dd,abaccQL1,relaccQL1,limit,ifonctepi(ion),relerr,npts,ifailloc,&
+          CALL DQAGSE_QLK(iFFekirot,cc,dd,abaccQL1,relaccQL1,limit,ifonctepi(ion),relerr,npts,ifailloc,&
                alist, blist, rlist, elist, iord, last)
           IF (ifailloc /= 0) THEN
              IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL iFFekirot integration at p=',p,', nu=',nu,', ion=',ion
@@ -1190,13 +1191,13 @@ CONTAINS
 
           ! ION ang mom FLUX
 
-          !CALL DQAGSE(rFFvkirot,cc,dd,abaccQL1,relaccQL1,limit,rfonctvpi(ion),relerr,npts,ifailloc,&
+          !CALL DQAGSE_QLK(rFFvkirot,cc,dd,abaccQL1,relaccQL1,limit,rfonctvpi(ion),relerr,npts,ifailloc,&
           !     alist, blist, rlist, elist, iord, last)
           !IF (ifailloc /= 0) THEN
           !   IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL rFFvkirot integration at p=',p,', nu=',nu,', ion=',ion
           !ENDIF
 
-          CALL DQAGSE(iFFvkirot,cc,dd,abaccQL1,relaccQL1,limit,ifonctvpi(ion),relerr,npts,ifailloc,&
+          CALL DQAGSE_QLK(iFFvkirot,cc,dd,abaccQL1,relaccQL1,limit,ifonctvpi(ion),relerr,npts,ifailloc,&
                alist, blist, rlist, elist, iord, last)
           IF (ifailloc /= 0) THEN
              IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL iFFvkirot integration at p=',p,', nu=',nu,', ion=',ion
@@ -1218,13 +1219,13 @@ CONTAINS
                 IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of CUBATR QL FFkerot integration at p=',p,' nu=',nu
              ENDIF
           ELSE ! Collisionless simulation, revert to faster single integral
-             CALL DQAGSE(rFFke_nocollrot,cc,dd,abaccQL1,relaccQL1,limit,intout(1),relerr,npts,ifailloc,&
+             CALL DQAGSE_QLK(rFFke_nocollrot,cc,dd,abaccQL1,relaccQL1,limit,intout(1),relerr,npts,ifailloc,&
                   alist, blist, rlist, elist, iord, last)
              IF (ifailloc /= 0) THEN
                 IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL rFFke_nocollrot integration at p=',p,' nu=',nu
              ENDIF
 
-             CALL DQAGSE(iFFke_nocollrot,cc,dd,abaccQL1,relaccQL1,limit,intout(2),relerr,npts,ifailloc,&
+             CALL DQAGSE_QLK(iFFke_nocollrot,cc,dd,abaccQL1,relaccQL1,limit,intout(2),relerr,npts,ifailloc,&
                   alist, blist, rlist, elist, iord, last)
              IF (ifailloc /= 0) THEN
                 IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL iFFke_nocollrot integration at p=',p,' nu=',nu
@@ -1250,12 +1251,12 @@ CONTAINS
                    IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of CUBATR QL FFkgterot integration at p=',p,' nu=',nu
                 ENDIF
              ELSE ! Collisionless simulation, revert to faster single integral
-                CALL DQAGSE(rFFkgte_nocollrot,cc,dd,abaccQL1,relaccQL1,limit,intout(1),relerr,npts,ifailloc,&
+                CALL DQAGSE_QLK(rFFkgte_nocollrot,cc,dd,abaccQL1,relaccQL1,limit,intout(1),relerr,npts,ifailloc,&
                      alist, blist, rlist, elist, iord, last)
                 IF (ifailloc /= 0) THEN
                    IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL rFFkgte_nocollrot integration at p=',p,' nu=',nu
                 ENDIF
-                CALL DQAGSE(iFFkgte_nocollrot,cc,dd,abaccQL1,relaccQL1,limit,intout(2),relerr,npts,ifailloc,&
+                CALL DQAGSE_QLK(iFFkgte_nocollrot,cc,dd,abaccQL1,relaccQL1,limit,intout(2),relerr,npts,ifailloc,&
                      alist, blist, rlist, elist, iord, last)
                 IF (ifailloc /= 0) THEN
                    IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL iFFkgte_nocollrot integration at p=',p,' nu=',nu
@@ -1279,12 +1280,12 @@ CONTAINS
                    IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of CUBATR QL FFkgnerot integration at p=',p,' nu=',nu
                 ENDIF
              ELSE ! Collisionless simulation, revert to faster single integral
-                CALL DQAGSE(rFFkgne_nocollrot,cc,dd,abaccQL1,relaccQL1,limit,intout(1),relerr,npts,ifailloc,&
+                CALL DQAGSE_QLK(rFFkgne_nocollrot,cc,dd,abaccQL1,relaccQL1,limit,intout(1),relerr,npts,ifailloc,&
                      alist, blist, rlist, elist, iord, last)
                 IF (ifailloc /= 0) THEN
                    IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL rFFkgne_nocollrot integration at p=',p,' nu=',nu
                 ENDIF
-                CALL DQAGSE(iFFkgne_nocollrot,cc,dd,abaccQL1,relaccQL1,limit,intout(2),relerr,npts,ifailloc,&
+                CALL DQAGSE_QLK(iFFkgne_nocollrot,cc,dd,abaccQL1,relaccQL1,limit,intout(2),relerr,npts,ifailloc,&
                      alist, blist, rlist, elist, iord, last)
                 IF (ifailloc /= 0) THEN
                    IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL iFFkgne_nocollrot integration at p=',p,' nu=',nu
@@ -1308,12 +1309,12 @@ CONTAINS
                    IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of CUBATR QL FFkguerot integration at p=',p,' nu=',nu
                 ENDIF
              ELSE ! Collisionless simulation, revert to faster single integral
-                CALL DQAGSE(rFFkgue_nocollrot,cc,dd,abaccQL1,relaccQL1,limit,intout(1),relerr,npts,ifailloc,&
+                CALL DQAGSE_QLK(rFFkgue_nocollrot,cc,dd,abaccQL1,relaccQL1,limit,intout(1),relerr,npts,ifailloc,&
                      alist, blist, rlist, elist, iord, last)
                 IF (ifailloc /= 0) THEN
                    IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL rFFkgue_nocollrot integration at p=',p,' nu=',nu
                 ENDIF
-                CALL DQAGSE(iFFkgue_nocollrot,cc,dd,abaccQL1,relaccQL1,limit,intout(2),relerr,npts,ifailloc,&
+                CALL DQAGSE_QLK(iFFkgue_nocollrot,cc,dd,abaccQL1,relaccQL1,limit,intout(2),relerr,npts,ifailloc,&
                      alist, blist, rlist, elist, iord, last)
                 IF (ifailloc /= 0) THEN
                    IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL iFFkgue_nocollrot integration at p=',p,' nu=',nu
@@ -1337,12 +1338,12 @@ CONTAINS
                    IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of CUBATR QL FFkcerot integration at p=',p,' nu=',nu
                 ENDIF
              ELSE ! Collisionless simulation, revert to faster single integral
-                CALL DQAGSE(rFFkce_nocollrot,cc,dd,abaccQL1,relaccQL1,limit,intout(1),relerr,npts,ifailloc,&
+                CALL DQAGSE_QLK(rFFkce_nocollrot,cc,dd,abaccQL1,relaccQL1,limit,intout(1),relerr,npts,ifailloc,&
                      alist, blist, rlist, elist, iord, last)
                 IF (ifailloc /= 0) THEN
                    IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL rFFkce_nocollrot integration at p=',p,' nu=',nu
                 ENDIF
-                CALL DQAGSE(iFFkce_nocollrot,cc,dd,abaccQL1,relaccQL1,limit,intout(2),relerr,npts,ifailloc,&
+                CALL DQAGSE_QLK(iFFkce_nocollrot,cc,dd,abaccQL1,relaccQL1,limit,intout(2),relerr,npts,ifailloc,&
                      alist, blist, rlist, elist, iord, last)
                 IF (ifailloc /= 0) THEN
                    IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL iFFkce_nocollrot integration at p=',p,' nu=',nu
@@ -1367,12 +1368,12 @@ CONTAINS
                       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of CUBATR QL FFekgterot integration at p=',p,' nu=',nu
                    ENDIF
                 ELSE ! Collisionless simulation, revert to faster single integral
-                   CALL DQAGSE(rFFekgte_nocollrot,cc,dd,abaccQL1,relaccQL1,limit,intout(1),relerr,npts,ifailloc,&
+                   CALL DQAGSE_QLK(rFFekgte_nocollrot,cc,dd,abaccQL1,relaccQL1,limit,intout(1),relerr,npts,ifailloc,&
                         alist, blist, rlist, elist, iord, last)
                    IF (ifailloc /= 0) THEN
                       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL rFFekgte_nocollrot integration at p=',p,' nu=',nu
                    ENDIF
-                   CALL DQAGSE(iFFekgte_nocollrot,cc,dd,abaccQL1,relaccQL1,limit,intout(2),relerr,npts,ifailloc,&
+                   CALL DQAGSE_QLK(iFFekgte_nocollrot,cc,dd,abaccQL1,relaccQL1,limit,intout(2),relerr,npts,ifailloc,&
                         alist, blist, rlist, elist, iord, last)
                    IF (ifailloc /= 0) THEN
                       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL iFFekgte_nocollrot integration at p=',p,' nu=',nu
@@ -1395,12 +1396,12 @@ CONTAINS
                       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of CUBATR QL FFekgnerot integration at p=',p,' nu=',nu
                    ENDIF
                 ELSE ! Collisionless simulation, revert to faster single integral
-                   CALL DQAGSE(rFFekgne_nocollrot,cc,dd,abaccQL1,relaccQL1,limit,intout(1),relerr,npts,ifailloc,&
+                   CALL DQAGSE_QLK(rFFekgne_nocollrot,cc,dd,abaccQL1,relaccQL1,limit,intout(1),relerr,npts,ifailloc,&
                         alist, blist, rlist, elist, iord, last)
                    IF (ifailloc /= 0) THEN
                       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL rFFekgne_nocollrot integration at p=',p,' nu=',nu
                    ENDIF
-                   CALL DQAGSE(iFFekgne_nocollrot,cc,dd,abaccQL1,relaccQL1,limit,intout(2),relerr,npts,ifailloc,&
+                   CALL DQAGSE_QLK(iFFekgne_nocollrot,cc,dd,abaccQL1,relaccQL1,limit,intout(2),relerr,npts,ifailloc,&
                         alist, blist, rlist, elist, iord, last)
                    IF (ifailloc /= 0) THEN
                       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL iFFekgne_nocollrot integration at p=',p,' nu=',nu
@@ -1423,12 +1424,12 @@ CONTAINS
                       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of CUBATR QL FFekguerot integration at p=',p,' nu=',nu
                    ENDIF
                 ELSE ! Collisionless simulation, revert to faster single integral
-                   CALL DQAGSE(rFFekgue_nocollrot,cc,dd,abaccQL1,relaccQL1,limit,intout(1),relerr,npts,ifailloc,&
+                   CALL DQAGSE_QLK(rFFekgue_nocollrot,cc,dd,abaccQL1,relaccQL1,limit,intout(1),relerr,npts,ifailloc,&
                         alist, blist, rlist, elist, iord, last)
                    IF (ifailloc /= 0) THEN
                       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL rFFekgue_nocollrot integration at p=',p,' nu=',nu
                    ENDIF
-                   CALL DQAGSE(iFFekgue_nocollrot,cc,dd,abaccQL1,relaccQL1,limit,intout(2),relerr,npts,ifailloc,&
+                   CALL DQAGSE_QLK(iFFekgue_nocollrot,cc,dd,abaccQL1,relaccQL1,limit,intout(2),relerr,npts,ifailloc,&
                         alist, blist, rlist, elist, iord, last)
                    IF (ifailloc /= 0) THEN
                       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL iFFekgue_nocollrot integration at p=',p,' nu=',nu
@@ -1451,12 +1452,12 @@ CONTAINS
                       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of CUBATR QL FFekcerot integration at p=',p,' nu=',nu
                    ENDIF
                 ELSE ! Collisionless simulation, revert to faster single integral
-                   CALL DQAGSE(rFFekce_nocollrot,cc,dd,abaccQL1,relaccQL1,limit,intout(1),relerr,npts,ifailloc,&
+                   CALL DQAGSE_QLK(rFFekce_nocollrot,cc,dd,abaccQL1,relaccQL1,limit,intout(1),relerr,npts,ifailloc,&
                         alist, blist, rlist, elist, iord, last)
                    IF (ifailloc /= 0) THEN
                       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL rFFekce_nocollrot integration at p=',p,' nu=',nu
                    ENDIF
-                   CALL DQAGSE(iFFekce_nocollrot,cc,dd,abaccQL1,relaccQL1,limit,intout(2),relerr,npts,ifailloc,&
+                   CALL DQAGSE_QLK(iFFekce_nocollrot,cc,dd,abaccQL1,relaccQL1,limit,intout(2),relerr,npts,ifailloc,&
                         alist, blist, rlist, elist, iord, last)
                    IF (ifailloc /= 0) THEN
                       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL iFFekce_nocollrot integration at p=',p,' nu=',nu
@@ -1503,13 +1504,13 @@ CONTAINS
                 IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of CUBATR QL FFekerot integration at p=',p,' nu=',nu
              ENDIF
           ELSE ! Collisionless simulation, revert to faster single integral
-             CALL DQAGSE(rFFeke_nocollrot,cc,dd,abaccQL1,relaccQL1,limit,intout(1),relerr,npts,ifailloc,&
+             CALL DQAGSE_QLK(rFFeke_nocollrot,cc,dd,abaccQL1,relaccQL1,limit,intout(1),relerr,npts,ifailloc,&
                   alist, blist, rlist, elist, iord, last)
              IF (ifailloc /= 0) THEN
                 IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL rFFeke_nocollrot integration at p=',p,' nu=',nu
              ENDIF
 
-             CALL DQAGSE(iFFeke_nocollrot,cc,dd,abaccQL1,relaccQL1,limit,intout(2),relerr,npts,ifailloc,&
+             CALL DQAGSE_QLK(iFFeke_nocollrot,cc,dd,abaccQL1,relaccQL1,limit,intout(2),relerr,npts,ifailloc,&
                   alist, blist, rlist, elist, iord, last)
              IF (ifailloc /= 0) THEN
                 IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL iFFeke_nocollrot integration at p=',p,' nu=',nu
@@ -1536,14 +1537,14 @@ CONTAINS
                 IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of CUBATR QL FFvkerot integration at p=',p,' nu=',nu
              ENDIF
           ELSE ! Collisionless simulation, revert to faster single integral
-!!$             CALL DQAGSE(rFFvke_nocollrot,cc,dd,abaccQL1,relaccQL1,limit,intout(1),relerr,npts,ifailloc,&
+!!$             CALL DQAGSE_QLK(rFFvke_nocollrot,cc,dd,abaccQL1,relaccQL1,limit,intout(1),relerr,npts,ifailloc,&
 !!$                  alist, blist, rlist, elist, iord, last)
              intout(1)=0
              IF (ifailloc /= 0) THEN
                 IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL rFFvke_nocollrot integration at p=',p,' nu=',nu
              ENDIF
 
-!!$             CALL DQAGSE(iFFvke_nocollrot,cc,dd,abaccQL1,relaccQL1,limit,intout(2),relerr,npts,ifailloc,&
+!!$             CALL DQAGSE_QLK(iFFvke_nocollrot,cc,dd,abaccQL1,relaccQL1,limit,intout(2),relerr,npts,ifailloc,&
 !!$                  alist, blist, rlist, elist, iord, last)
              intout(2)=0
              IF (ifailloc /= 0) THEN
@@ -2284,13 +2285,13 @@ CONTAINS
 
           ! ION ang mom FLUX
 
-          !CALL DQAGSE(rFFvkirot,cc,dd,abaccQL1,relaccQL1,limit,rfonctvpi(ion),relerr,npts,ifailloc,&
+          !CALL DQAGSE_QLK(rFFvkirot,cc,dd,abaccQL1,relaccQL1,limit,rfonctvpi(ion),relerr,npts,ifailloc,&
           !     alist, blist, rlist, elist, iord, last)
           !IF (ifailloc /= 0) THEN
           !   IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL rFFvkirot integration at p=',p,', nu=',nu,', ion=',ion
           !ENDIF
 
-          CALL DQAGSE(iFFvkirot,cc,dd,abaccQL1,relaccQL1,limit,ifonctvpi(ion),relerr,npts,ifailloc,&
+          CALL DQAGSE_QLK(iFFvkirot,cc,dd,abaccQL1,relaccQL1,limit,ifonctvpi(ion),relerr,npts,ifailloc,&
                alist, blist, rlist, elist, iord, last)
           IF (ifailloc /= 0) THEN
              IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of DQAGSE QL iFFvkirot integration at p=',p,', nu=',nu,', ion=',ion
