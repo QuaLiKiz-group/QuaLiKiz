@@ -289,7 +289,7 @@ CONTAINS
 
              IF ( (gkw_is_nan(AIMAG(oldsol(p,nu,j)))) .OR. (gkw_is_nan(REAL(oldsol(p,nu,j))))) THEN
                 IF (verbose .EQV. .TRUE.) THEN 
-                   WRITE(stderr,'(A,I2,A,I2,A)') 'Jump to Newton phase: old solution had a NaN (how did that happen)! Skipping solution. (p,nu)=(',p,',',nu,')'
+                   WRITE(stderr,'(A,I7,A,I2,A)') 'Jump to Newton phase: old solution had a NaN (how did that happen)! Skipping solution. (p,nu)=(',p,',',nu,')'
                 ENDIF
                 soll(j)   = (0.,0.)
                 fdsoll(j)   = (0.,0.)
@@ -298,7 +298,7 @@ CONTAINS
 
              IF ( (AIMAG(oldsol(p,nu,j)) < 0. ) .OR. (ABS(AIMAG(oldsol(p,nu,j))) > ABS(AIMAG(ommax(p,nu)))) .OR. (ABS(REAL(oldsol(p,nu,j))) > ABS(REAL(ommax(p,nu))))  ) THEN
                 IF (verbose .EQV. .TRUE.) THEN
-                   WRITE(stderr,'(A,I2,A,I2,A)') 'Jump to Newton phase: old solution outside of allowed contour range (how did that happen?) Skipping solution. (p,nu)=(',p,',',nu,')'
+                   WRITE(stderr,'(A,I7,A,I2,A)') 'Jump to Newton phase: old solution outside of allowed contour range (how did that happen?) Skipping solution. (p,nu)=(',p,',',nu,')'
                 ENDIF
                 soll(j)   = (0.,0.)
                 fdsoll(j)   = (0.,0.)
@@ -433,7 +433,7 @@ CONTAINS
                 DO j=1,numsols 
                    IF ( (AIMAG(solltmp(j)) < 0. ) .OR. (ABS(AIMAG(solltmp(j))) > ABS(AIMAG(ommax(p,nu)))) .OR. (ABS(REAL(solltmp(j))) > ABS(REAL(ommax(p,nu))))  ) THEN
                       IF (verbose .EQV. .TRUE.) THEN 
-                         WRITE(stderr,'(A,I2,A,I2,A)') 'Solution found but outside of allowed contour range. Skipping solution. (p,nu)=(',p,',',nu,')'
+                         WRITE(stderr,'(A,I7,A,I2,A)') 'Solution found but outside of allowed contour range. Skipping solution. (p,nu)=(',p,',',nu,')'
                       ENDIF
                       solltmp(j) = (0.,0.)
                       fdsolltmp(j) = (0.,0.)
@@ -484,7 +484,7 @@ CONTAINS
 
           IF ( (AIMAG(sol(p,nu,j)) < 0. ) .OR. (ABS(AIMAG(sol(p,nu,j))) > ABS(AIMAG(ommax(p,nu)))) .OR. (ABS(REAL(sol(p,nu,j))) > ABS(REAL(ommax(p,nu))))  ) THEN
              IF (verbose .EQV. .TRUE.) THEN 
-                WRITE(stderr,'(A,I2,A,I2,A)') 'Before makeQLflux: solution outside of allowed contour range (how did that happen?) Skipping QL integrals. (p,nu)=(',p,',',nu,')'
+                WRITE(stderr,'(A,I7,A,I2,A)') 'Before makeQLflux: solution outside of allowed contour range (how did that happen?) Skipping QL integrals. (p,nu)=(',p,',',nu,')'
              ENDIF
              CYCLE
           ENDIF
@@ -605,7 +605,7 @@ CONTAINS
 
        IF ( (AIMAG(omega) < 0. ) .OR. (ABS(AIMAG(omega)) > ABS(2.*AIMAG(ommax(p,nu)))) .OR. (ABS(REAL(omega)) > ABS(REAL(2.*ommax(p,nu))))  ) THEN
           IF (verbose .EQV. .TRUE.) THEN 
-             WRITE(stderr,'(A,2G15.7,A,I2,A,I2,A)') 'In contours: omega outside of allowed contour range (how did that happen?) Skipping solution. Omega=,',omega,'. (p,nu)=(',p,',',nu,')'
+             WRITE(stderr,'(A,2G15.7,A,I7,A,I2,A)') 'In contours: omega outside of allowed contour range (how did that happen?) Skipping solution. Omega=,',omega,'. (p,nu)=(',p,',',nu,')'
           ENDIF
           anomflag = .TRUE.
           fonct(i) = 0. 
@@ -698,7 +698,7 @@ CONTAINS
 
        !DEBUGGING
        IF (M==maxM) THEN
-          IF (verbose .EQV. .TRUE.) WRITE(stdout,"(A,I3,A,I2,A,I2)") 'Warning, maxM reached! M=',M,' for p=',p,' and nu=',nu
+          IF (verbose .EQV. .TRUE.) WRITE(stdout,"(A,I3,A,I7,A,I2)") 'Warning, maxM reached! M=',M,' for p=',p,' and nu=',nu
           !WRITE(stdout,*) alphan
        ENDIF
 
@@ -870,16 +870,16 @@ CONTAINS
 
           IF ( (gkw_is_nan(AIMAG(solli))) .OR. (gkw_is_nan(REAL(solli)))) THEN
              IF (verbose .EQV. .TRUE.) THEN 
-                WRITE(stderr,'(A,I2,A,I2,A)') 'Main contour phase: solution had a NaN! Skipping solution. (p,nu)=(',p,',',nu,')'
+                WRITE(stderr,'(A,I7,A,I2,A)') 'Main contour phase: solution had a NaN! Skipping solution. (p,nu)=(',p,',',nu,')'
              ENDIF
              soll(j)   = (0.,0.)
              fdsoll(j)   = (0.,0.)
              CYCLE
           ENDIF
 
-          IF ( (AIMAG(solli) < 0. )) THEN 
+          IF ( (AIMAG(solli) < 0. )) THEN
              IF (verbose .EQV. .TRUE.) THEN 
-                WRITE(stderr,'(A,I2,A,I2,A)') 'Main contour phase: solution is negative growth rate (stable eigenmode). Skipping solution. (p,nu)=(',p,',',nu,')'
+                WRITE(stderr,'(A,I7,A,I2,A)') 'Main contour phase: solution is negative growth rate (stable eigenmode). Skipping solution. (p,nu)=(',p,',',nu,')'
              ENDIF
              soll(j)   = (0.,0.)
              fdsoll(j)   = (0.,0.)
@@ -1087,14 +1087,14 @@ CONTAINS
        zo = zo+CMPLX(deltau(1,1),deltau(2,1))
 
        IF ( (gkw_is_nan(AIMAG(zo))) .OR. (gkw_is_nan(REAL(zo)))) THEN
-          IF (verbose .EQV. .TRUE.) WRITE(stderr,'(A,I2,A,I2,A)') 'Newton: solution had a NaN! Skipping solution. (p,nu)=(',p,',',nu,')'
+          IF (verbose .EQV. .TRUE.) WRITE(stderr,'(A,I7,A,I2,A)') 'Newton: solution had a NaN! Skipping solution. (p,nu)=(',p,',',nu,')'
           zo   = (0.,0.)
           fzo  = (0.,0.)
           EXIT
        ENDIF
 
        IF ( (AIMAG(zo) < 0. ) .OR. (ABS(AIMAG(zo)) > ABS(AIMAG(ommax(p,nu)))) .OR. (ABS(REAL(zo)) > ABS(REAL(ommax(p,nu))))  ) THEN 
-          IF (verbose .EQV. .TRUE.) WRITE(stderr,'(A,I2,A,I2,A)') 'Newton: solution outside of allowed contour range! Skipping solution. (p,nu)=(',p,',',nu,')'
+          IF (verbose .EQV. .TRUE.) WRITE(stderr,'(A,I7,A,I2,A)') 'Newton: solution outside of allowed contour range! Skipping solution. (p,nu)=(',p,',',nu,')'
           zo   = (0.,0.)
           fzo  = (0.,0.)
           EXIT
@@ -1118,17 +1118,17 @@ CONTAINS
     !integrand for pinch angle iaverage of Vpar for passing particles
     REAL(KIND=DBL), INTENT(IN) :: lamin
     REAL(KIND=DBL) :: Tlam,relerr
-    INTEGER :: ifailloc,i
+    INTEGER :: ifailloc2,i
     REAL(KIND=DBL), DIMENSION(ntheta) :: theta,Tint
 
     theta=(/((i * pi/(ntheta-1)),i=0,ntheta-1)/) !set theta = [0,pi]
     Tint = 2./SQRT(1-lamin*(1+2.*epsilon(plam)*SIN(theta/2.)**2))
 
-    ifailloc=0
-    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc) !calculate transit time
+    ifailloc2=0
+    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc2) !calculate transit time
 
-    IF (ifailloc /= 1) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifailloc = ',ifailloc,&
+    IF (ifailloc2 /= 1) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I7)") 'ifailloc2 = ',ifailloc2,&
             &'. Abnormal termination of alam1 solution T integration at p=',plam
     ENDIF
 
@@ -1141,31 +1141,31 @@ CONTAINS
     !integrand for pinch angle iaverage of Vpar for passing particles
     REAL(KIND=DBL), INTENT(IN) :: lamin
     REAL(KIND=DBL) :: Tlam,relerr,Rlam1,Rlam2
-    INTEGER :: ifailloc,i
+    INTEGER :: ifailloc2,i
     REAL(KIND=DBL), DIMENSION(ntheta) :: theta,Tint,Rint1, Rint2
 
     theta=(/((i * pi/(ntheta-1)),i=0,ntheta-1)/) !set theta = [0,pi]
     Tint = 2./SQRT(1-lamin*(1+2.*epsilon(plam)*SIN(theta/2.)**2))
 
-    ifailloc=0
-    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc) 
+    ifailloc2=0
+    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc2) 
 
-    IF (ifailloc /= 1) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifailloc = ',ifailloc,&
+    IF (ifailloc2 /= 1) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I7)") 'ifailloc2 = ',ifailloc2,&
             &'. Abnormal termination of alam1 solution Tlam integration at p=',plam
     ENDIF
 
     !Carry out transit average of Vpar
     Rint1=1./SQRT(1.-lamin*(1.+2.*epsilon(plam)*SIN(theta/2.)**2))
     Rint2=Rint1 * SQRT(1.-lamin*(1.+2.*epsilon(plam)*SIN(theta/2.)**2))**1. 
-    CALL davint(theta,Rint1,ntheta,0.,pi,Rlam1,ifailloc) 
-    IF (ifailloc /= 1) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifailloc = ',ifailloc,&
+    CALL davint(theta,Rint1,ntheta,0.,pi,Rlam1,ifailloc2) 
+    IF (ifailloc2 /= 1) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I7)") 'ifailloc2 = ',ifailloc2,&
             &'. Abnormal termination of alam1 solution Rlam1 integration at p=',plam
     ENDIF
-    CALL davint(theta,Rint2,ntheta,0.,pi,Rlam2,ifailloc) 
-    IF (ifailloc /= 1) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifailloc = ',ifailloc,&
+    CALL davint(theta,Rint2,ntheta,0.,pi,Rlam2,ifailloc2) 
+    IF (ifailloc2 /= 1) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I7)") 'ifailloc2 = ',ifailloc2,&
             &'. Abnormal termination of alam1 solution Rlam2 integration at p=',plam
     ENDIF
     alam1int = Rlam2/Rlam1*1./(4.*pi)*Tlam
@@ -1176,31 +1176,31 @@ CONTAINS
     !integrand for pinch angle iaverage of Vpar^2 for passing particles
     REAL(KIND=DBL), INTENT(IN) :: lamin
     REAL(KIND=DBL) :: Tlam,relerr,Rlam1,Rlam2
-    INTEGER :: ifailloc,i
+    INTEGER :: ifailloc2,i
     REAL(KIND=DBL), DIMENSION(ntheta) :: theta,Tint,Rint1, Rint2
 
     theta=(/((i * pi/(ntheta-1)),i=0,ntheta-1)/) !set theta = [0,pi]
     Tint = 2./SQRT(1-lamin*(1+2.*epsilon(plam)*SIN(theta/2.)**2))
 
-    ifailloc=0
-    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc) 
+    ifailloc2=0
+    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc2) 
 
-    IF (ifailloc /= 1) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifailloc = ',ifailloc,&
+    IF (ifailloc2 /= 1) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I7)") 'ifailloc2 = ',ifailloc2,&
             &'. Abnormal termination of alam2 solution Tlam integration at p=',plam
     ENDIF
 
     !Carry out transit average of Vpar^2
     Rint1=1./SQRT(1.-lamin*(1.+2.*epsilon(plam)*SIN(theta/2.)**2))
     Rint2=Rint1 * SQRT(1.-lamin*(1.+2.*epsilon(plam)*SIN(theta/2.)**2))**2. 
-    CALL davint(theta,Rint1,ntheta,0.,pi,Rlam1,ifailloc) 
-    IF (ifailloc /= 1) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifailloc = ',ifailloc,&
+    CALL davint(theta,Rint1,ntheta,0.,pi,Rlam1,ifailloc2) 
+    IF (ifailloc2 /= 1) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I7)") 'ifailloc2 = ',ifailloc2,&
             &'. Abnormal termination of alam2 solution Rlam1 integration at p=',plam
     ENDIF
-    CALL davint(theta,Rint2,ntheta,0.,pi,Rlam2,ifailloc) 
-    IF (ifailloc /= 1) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifailloc = ',ifailloc,&
+    CALL davint(theta,Rint2,ntheta,0.,pi,Rlam2,ifailloc2) 
+    IF (ifailloc2 /= 1) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I7)") 'ifailloc2 = ',ifailloc2,&
             &'. Abnormal termination of alam2 solution Rlam2 integration at p=',plam
     ENDIF
     alam2int = Rlam2/Rlam1*1./(4.*pi)*Tlam
@@ -1211,31 +1211,31 @@ CONTAINS
     !integrand for pinch angle iaverage of Vpar^3 for passing particles
     REAL(KIND=DBL), INTENT(IN) :: lamin
     REAL(KIND=DBL) :: Tlam,relerr,Rlam1,Rlam2
-    INTEGER :: ifailloc,i
+    INTEGER :: ifailloc2,i
     REAL(KIND=DBL), DIMENSION(ntheta) :: theta,Tint,Rint1, Rint2
 
     theta=(/((i * pi/(ntheta-1)),i=0,ntheta-1)/) !set theta = [0,pi]
     Tint = 2./SQRT(1-lamin*(1+2.*epsilon(plam)*SIN(theta/2.)**2))
 
-    ifailloc=0
-    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc) 
+    ifailloc2=0
+    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc2) 
 
-    IF (ifailloc /= 1) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifailloc = ',ifailloc,&
+    IF (ifailloc2 /= 1) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifailloc2 = ',ifailloc2,&
             &'. Abnormal termination of alam3 solution Tlam integration at p=',plam
     ENDIF
 
     !Carry out transit average of Vpar^3
     Rint1=1./SQRT(1.-lamin*(1.+2.*epsilon(plam)*SIN(theta/2.)**2))
     Rint2=Rint1 * SQRT(1.-lamin*(1.+2.*epsilon(plam)*SIN(theta/2.)**2))**3. 
-    CALL davint(theta,Rint1,ntheta,0.,pi,Rlam1,ifailloc) 
-    IF (ifailloc /= 1) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifailloc = ',ifailloc,&
+    CALL davint(theta,Rint1,ntheta,0.,pi,Rlam1,ifailloc2) 
+    IF (ifailloc2 /= 1) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I7)") 'ifailloc2 = ',ifailloc2,&
             &'. Abnormal termination of alam3 solution Rlam1 integration at p=',plam
     ENDIF
-    CALL davint(theta,Rint2,ntheta,0.,pi,Rlam2,ifailloc) 
-    IF (ifailloc /= 1) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifailloc = ',ifailloc,&
+    CALL davint(theta,Rint2,ntheta,0.,pi,Rlam2,ifailloc2) 
+    IF (ifailloc2 /= 1) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I7)") 'ifailloc2 = ',ifailloc2,&
             &'. Abnormal termination of alam3 solution Rlam2 integration at p=',plam
     ENDIF
     alam3int = Rlam2/Rlam1*1./(4.*pi)*Tlam
@@ -1246,31 +1246,31 @@ CONTAINS
     !integrand for pinch angle iaverage of Vpar^4 for passing particles
     REAL(KIND=DBL), INTENT(IN) :: lamin
     REAL(KIND=DBL) :: Tlam,relerr,Rlam1,Rlam2
-    INTEGER :: ifailloc,i
+    INTEGER :: ifailloc2,i
     REAL(KIND=DBL), DIMENSION(ntheta) :: theta,Tint,Rint1, Rint2
 
     theta=(/((i * pi/(ntheta-1)),i=0,ntheta-1)/) !set theta = [0,pi]
     Tint = 2./SQRT(1-lamin*(1+2.*epsilon(plam)*SIN(theta/2.)**2))
 
-    ifailloc=0
-    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc) 
+    ifailloc2=0
+    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc2) 
 
-    IF (ifailloc /= 1) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifailloc = ',ifailloc,&
+    IF (ifailloc2 /= 1) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I7)") 'ifailloc2 = ',ifailloc2,&
             &'. Abnormal termination of alam4 solution Tlam integration at p=',plam
     ENDIF
 
     !Carry out transit average of Vpar^4
     Rint1=1./SQRT(1.-lamin*(1.+2.*epsilon(plam)*SIN(theta/2.)**2))
     Rint2=Rint1 * SQRT(1.-lamin*(1.+2.*epsilon(plam)*SIN(theta/2.)**2))**4. 
-    CALL davint(theta,Rint1,ntheta,0.,pi,Rlam1,ifailloc) 
-    IF (ifailloc /= 1) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifailloc = ',ifailloc,&
+    CALL davint(theta,Rint1,ntheta,0.,pi,Rlam1,ifailloc2) 
+    IF (ifailloc2 /= 1) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I7)") 'ifailloc2 = ',ifailloc2,&
             &'. Abnormal termination of alam4 solution Rlam1 integration at p=',plam
     ENDIF
-    CALL davint(theta,Rint2,ntheta,0.,pi,Rlam2,ifailloc) 
-    IF (ifailloc /= 1) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifailloc = ',ifailloc,&
+    CALL davint(theta,Rint2,ntheta,0.,pi,Rlam2,ifailloc2) 
+    IF (ifailloc2 /= 1) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I7)") 'ifailloc2 = ',ifailloc2,&
             &'. Abnormal termination of alam4 solution Rlam2 integration at p=',plam
     ENDIF
     alam4int = Rlam2/Rlam1*1./(4.*pi)*Tlam
@@ -1281,31 +1281,31 @@ CONTAINS
     !integrand for pinch angle iaverage of Vpar^5 for passing particles
     REAL(KIND=DBL), INTENT(IN) :: lamin
     REAL(KIND=DBL) :: Tlam,relerr,Rlam1,Rlam2
-    INTEGER :: ifailloc,i
+    INTEGER :: ifailloc2,i
     REAL(KIND=DBL), DIMENSION(ntheta) :: theta,Tint,Rint1, Rint2
 
     theta=(/((i * pi/(ntheta-1)),i=0,ntheta-1)/) !set theta = [0,pi]
     Tint = 2./SQRT(1-lamin*(1+2.*epsilon(plam)*SIN(theta/2.)**2))
 
-    ifailloc=0
-    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc) 
+    ifailloc2=0
+    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc2) 
 
-    IF (ifailloc /= 1) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifailloc = ',ifailloc,&
+    IF (ifailloc2 /= 1) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I7)") 'ifailloc2 = ',ifailloc2,&
             &'. Abnormal termination of alam5 solution Tlam integration at p=',plam
     ENDIF
 
     !Carry out transit average of Vpar^5
     Rint1=1./SQRT(1.-lamin*(1.+2.*epsilon(plam)*SIN(theta/2.)**2))
     Rint2=Rint1 * SQRT(1.-lamin*(1.+2.*epsilon(plam)*SIN(theta/2.)**2))**5. 
-    CALL davint(theta,Rint1,ntheta,0.,pi,Rlam1,ifailloc) 
-    IF (ifailloc /= 1) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifailloc = ',ifailloc,&
+    CALL davint(theta,Rint1,ntheta,0.,pi,Rlam1,ifailloc2) 
+    IF (ifailloc2 /= 1) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I7)") 'ifailloc2 = ',ifailloc2,&
             &'. Abnormal termination of alam5 solution Rlam1 integration at p=',plam
     ENDIF
-    CALL davint(theta,Rint2,ntheta,0.,pi,Rlam2,ifailloc) 
-    IF (ifailloc /= 1) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifailloc = ',ifailloc,&
+    CALL davint(theta,Rint2,ntheta,0.,pi,Rlam2,ifailloc2) 
+    IF (ifailloc2 /= 1) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I7)") 'ifailloc2 = ',ifailloc2,&
             &'. Abnormal termination of alam5 solution Rlam2 integration at p=',plam
     ENDIF
     alam5int = Rlam2/Rlam1*1./(4.*pi)*Tlam

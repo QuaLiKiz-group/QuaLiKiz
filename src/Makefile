@@ -44,6 +44,8 @@ SRCS_CORE=asymmetry.f90 callpassints.f90 calltrapints.f90 datcal.f90 datmat.f90 
 OBJS_CORE=$(SRCS_CORE:%f90=%o)
 MODS_CORE=$(SRCS_CORE:%f90=%mod)
 
+all: QuaLiKiz
+
 # Qualikiz objects
 qlflux.mod: QLflux.mod
 callpassqlints.mod: callpassQLints.mod

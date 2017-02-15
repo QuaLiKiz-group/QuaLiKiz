@@ -6,13 +6,13 @@ MODULE mod_make_io
   USE kind
   USE datcal
   USE datmat
-  USE mod_io_management
 
   IMPLICIT NONE
+  INCLUDE 'mpif.h'
 
 CONTAINS
 
-  SUBROUTINE make_input(dimxin, dimnin, nionsin, numsolsin, phys_methin, coll_flagin, rot_flagin, verbosein, kthetarhosin, & !general param
+  SUBROUTINE make_input(dimxin, dimnin, nionsin, numsolsin, phys_methin, coll_flagin, rot_flagin, verbosein, separatefluxin, kthetarhosin, & !general param
        & xin, rhoin, Roin, Rminin, R0in, Boin, qxin, smagin, alphaxin, & !geometry
        & el_typein, Texin, Nexin, Atein, Anein, anisein, danisedrin, & !electrons
        & ion_typein, Aiin, Ziin, Tixin, ninormin, Atiin, Aniin, anisin, danisdrin, & !ions
@@ -20,7 +20,7 @@ CONTAINS
        & maxrunsin, maxptsin, relacc1in, relacc2in, timeoutin, ETGmultin, collmultin)  !code specific inputs
 
     ! List of input variables
-    INTEGER, INTENT(IN) :: dimxin, dimnin, nionsin, numsolsin, phys_methin, coll_flagin, rot_flagin, el_typein,verbosein
+    INTEGER, INTENT(IN) :: dimxin, dimnin, nionsin, numsolsin, phys_methin, coll_flagin, rot_flagin, el_typein,verbosein, separatefluxin
     INTEGER, DIMENSION(:,:), INTENT(IN) :: ion_typein
     REAL(kind=DBL), INTENT(IN) :: R0in
     REAL(kind=DBL), DIMENSION(:), INTENT(IN) :: xin, rhoin, Roin, Rminin, Boin, kthetarhosin, qxin, smagin, alphaxin
@@ -45,6 +45,9 @@ CONTAINS
     rot_flag = rot_flagin
     IF (verbosein == 1) verbose = .TRUE.
     IF (verbosein == 0) verbose = .FALSE.
+    IF (separatefluxin == 1) separateflux = .TRUE.
+    IF (separatefluxin == 0) separateflux = .FALSE.
+
     el_type = el_typein
 
     maxruns=maxrunsin
@@ -151,6 +154,7 @@ CONTAINS
     ALLOCATE(tau(dimx,nions))
     ALLOCATE(Nix(dimx,nions))
     ALLOCATE(Zeffx(dimx))
+    ALLOCATE(Nustar(dimx))
     ALLOCATE(qprim(dimx))
     ALLOCATE(Anue(dimx))
     ALLOCATE(wg(dimx))
@@ -182,7 +186,7 @@ CONTAINS
     ALLOCATE(npol(dimx,ntheta,nions))
     ALLOCATE(ecoefs(dimx,0:nions,numecoefs)); ecoefs(:,:,:)=0. !includes electrons
     ALLOCATE(ecoefsgau(dimx,dimn,0:nions,0:9)); ecoefsgau(:,:,:,:)=0. !includes electrons
-    ALLOCATE(cftrans(dimx,nions,7)); cftrans(:,:,:)=0. !includes 7 transport coefficients, only for ions
+    ALLOCATE(cftrans(dimx,nions,numicoefs)); cftrans(:,:,:)=0. !includes 6 transport coefficients, only for ions
     ALLOCATE(nepol(dimx,ntheta))
     ALLOCATE(Anipol(dimx,ntheta,nions))
     ALLOCATE(Anepol(dimx,ntheta))
@@ -270,7 +274,7 @@ CONTAINS
 
     Lambe(:) = 15.2_DBL - 0.5_DBL*LOG(0.1_DBL*Nex(:)) + LOG(Tex(:))  !Coulomb constant and collisionality. Wesson 2nd edition p661-663
     Nue(:) = 1._DBL/(1.09d-3) *Zeffx(:)*Nex(:)*Lambe(:)/(Tex(:))**1.5_DBL*collmult 
-
+    Nustar(:) = Nue(:)*qx(:)*Ro(:)/epsilon(:)**1.5/(SQRT(Tex(:)*1.d3*qe/me))
     ! Collisionality array
     IF (coll_flag .NE. 0.0) THEN
        Anue(:) = Nue(:)/epsilon(:) 
@@ -476,6 +480,7 @@ CONTAINS
     DEALLOCATE(Tex)
     DEALLOCATE(Tix)
     DEALLOCATE(Nex)
+    DEALLOCATE(Nustar)
     DEALLOCATE(anise)
     DEALLOCATE(danisedr)
     DEALLOCATE(anis)

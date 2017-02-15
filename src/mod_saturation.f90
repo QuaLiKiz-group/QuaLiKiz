@@ -5,6 +5,8 @@ MODULE mod_saturation
   USE kind
   USE datmat
   USE datcal
+  USE mod_make_io ! for MPI include
+
   IMPLICIT NONE
 
 CONTAINS
@@ -38,11 +40,23 @@ CONTAINS
        ALLOCATE(vte_SI(dimx)); vte_SI=0
        ALLOCATE(vce_SI(dimx)); vce_SI=0
        ALLOCATE(vre_SI(dimx)); vre_SI=0
+
+       ALLOCATE(dfe_GB(dimx)); dfe_GB=0
+       ALLOCATE(vte_GB(dimx)); vte_GB=0
+       ALLOCATE(vce_GB(dimx)); vce_GB=0
+       ALLOCATE(vre_GB(dimx)); vre_GB=0
+
        ALLOCATE(cke(dimx))
        ALLOCATE(dfi_SI(dimx,nions)); dfi_SI=0
        ALLOCATE(vti_SI(dimx,nions)); vti_SI=0
        ALLOCATE(vci_SI(dimx,nions)); vci_SI=0
        ALLOCATE(vri_SI(dimx,nions)); vri_SI=0
+
+       ALLOCATE(dfi_GB(dimx,nions)); dfi_GB=0
+       ALLOCATE(vti_GB(dimx,nions)); vti_GB=0
+       ALLOCATE(vci_GB(dimx,nions)); vci_GB=0
+       ALLOCATE(vri_GB(dimx,nions)); vri_GB=0
+
        ALLOCATE(cki(dimx,nions))
 !!!
        IF (phys_meth == 2) THEN
@@ -104,6 +118,16 @@ CONTAINS
        DEALLOCATE(vci_SI)
        DEALLOCATE(vri_SI)
        DEALLOCATE(cki)
+
+       DEALLOCATE(dfe_GB)
+       DEALLOCATE(vte_GB)
+       DEALLOCATE(vce_GB)
+       DEALLOCATE(vre_GB)
+       DEALLOCATE(dfi_GB)
+       DEALLOCATE(vti_GB)
+       DEALLOCATE(vci_GB)
+       DEALLOCATE(vri_GB)
+
        IF (phys_meth == 2) THEN
           DEALLOCATE(vene_SI)
           DEALLOCATE(chiee_SI)
@@ -151,6 +175,8 @@ CONTAINS
     REAL(KIND=DBL) :: alphp,alphm,lowlim
     CHARACTER(len=7) :: fmtx,fmtn,fmtion !for debugging
     INTEGER :: kk,i,myunit=700,ETGind
+    !MPI variables:
+    INTEGER :: doit,ierror,myrank,nproc
 
     Machi=Machitemp ! Reinstate impurity Mach numbers. Ordering is valid here (for cftrans asymmetry terms)
 
@@ -165,6 +191,8 @@ CONTAINS
 
     !Intialize fi
     fi(:,:,:) = 0.
+
+    modeflag(:)=0 !set default that both modes are important (also true if stable, since we don't know where they could pop up)
 
     !Carry out the nonlinear saturation rules!
 
@@ -227,8 +255,37 @@ CONTAINS
        alphp   = -3.0 !used for spectrum shape above kymax
        alphm   = 1.0 !used for spectrum shape below kymax
 
+       doit = 0 !initialize counter for distributing tasks
+
        DO ir = 1,dimx !big cycle on scan (or radial) parameter
           chi_GB(ir)=SQRT(Ai(ir,1)*mp)/(qe**2*Bo(ir)**2)*((Tex(ir)*1e3*qe)**1.5)/Rmin(ir)  !GyroBohm normalisation in m^2/s based on main ion
+
+          IF (myrank == doit) THEN ! distribute independent loop indices to tasks
+             doit=doit+1; 
+             IF (doit==nproc) doit=0 
+          ELSE
+             doit=doit+1; 
+             IF (doit==nproc) doit=0 
+             CYCLE
+          ENDIF
+
+          DO j = 1,dimn
+             smagn(ir,j)=smag(ir) !2D versions of smag and qx useful for calculations
+             qxn(ir,j)=qx(ir)
+             kteta(ir,j)  = ntor(ir,j)*qx(ir)/(Rmin(ir)*x(ir))  
+             kthr(ir,j)   = ntor(ir,j)*qx(ir)*rhostar(ir)/x(ir)
+             nwgmat(ir,j) = ntor(ir,j)*wg(ir)
+             solflu_SI(ir,j) = solflu(ir,j)*nwgmat(ir,j)
+             solflu_GB(ir,j) = solflu_SI(ir,j)/gamGB(ir)
+
+             DO k=1,numsols
+                gam_SI(ir,j,k)=AIMAG(sol(ir,j,k))*nwgmat(ir,j)
+                gam_GB(ir,j,k)=AIMAG(sol(ir,j,k))*nwgmat(ir,j)/gamGB(ir)
+                ome_SI(ir,j,k)=REAL(sol(ir,j,k))*nwgmat(ir,j)
+                ome_GB(ir,j,k)=REAL(sol(ir,j,k))*nwgmat(ir,j)/gamGB(ir)
+             END DO
+
+          END DO
 
           !CALCULATE NEW NON-LINEAR CONTRIBUTION TO Kx (JC 12.2011)
           rhos=SQRT(Tex(ir)*1d3*qe*mi(ir,1))/(qe*Bo(ir)) !Larmor radius with respect to sound speed (no sqrt(2))
@@ -282,6 +339,7 @@ CONTAINS
              ENDIF
 
              !Saturation rules for each unstable root
+
              DO k=1,numsols
                 !Some of the above is actually repeated here. Have to look deeper to see if code can be slightly reduced
                 mdml(ir) = MAXVAL(AIMAG(solbck(ir,:,k))*nwgmat(ir,:)/kperp2(ir,:))
@@ -619,6 +677,7 @@ CONTAINS
              dvfi(ir,ion) = (vfi(ir,ion)/(Nix(ir,ion)*1e19*cthi(ir,ion)*Aui(ir,ion)/R0))/chi_GB(ir)
           ENDDO
 
+
           IF ( phys_meth /= 0 ) THEN
 
              ! Total diffusion coefficient
@@ -802,7 +861,18 @@ CONTAINS
 
        ! CREATE ADDITIONAL FINAL OUTPUT ARRAYS
        !      IF (gg == 3) THEN
+       doit=0
        DO ir=1,dimx
+
+          IF (myrank == doit) THEN ! distribute independent loop indices to tasks
+             doit=doit+1; 
+             IF (doit==nproc) doit=0 
+          ELSE
+             doit=doit+1; 
+             IF (doit==nproc) doit=0 
+             CYCLE
+          ENDIF
+
           !          ipf_SI(ir,:) = dpfi(ir,:)*Nix(ir,:)*1e19*Ani(ir,:)/R0*chi_GB(ir)
           ipf_SI(ir,:) = pfi(ir,:)*normNL
           !          epf_SI(ir) = dpfe(ir)*Nex(ir)*1e19*Ane(ir)/R0*chi_GB(ir)
@@ -816,7 +886,7 @@ CONTAINS
           ief_SI(ir,:) = efi(ir,:)*normNL
           !          eef_SI(ir) = defe(ir)*Nex(ir)*1e19*Tex(ir)*1e3*qe*Ate(ir)/R0*chi_GB(ir)
           eef_SI(ir) = efe(ir)*normNL
-          eefETG_SI(ir) = efeETG(ir)*normNL
+!!$          eefETG_SI(ir) = efeETG(ir)*normNL
 
           ief_GB(ir,:) = defi(ir,:)
           eef_GB(ir) = defe(ir)
@@ -866,6 +936,21 @@ CONTAINS
              !! roto diffusion terms
              vre_SI(ir) = vrdte(ir)
              vri_SI(ir,:) = vrdti(ir,:)
+
+             dfe_GB(ir) = dfe_SI(ir)/chi_GB(ir)
+             dfi_GB(ir,:) = dfi_SI(ir,:)/chi_GB(ir)
+
+             vte_GB(ir) = vte_SI(ir)*Ro(ir)/chi_GB(ir)
+             vti_GB(ir,:) = vti_SI(ir,:)*Ro(ir)/chi_GB(ir)
+
+             vce_GB(ir) = vce_SI(ir)*Ro(ir)/chi_GB(ir)
+             vci_GB(ir,:) = vci_SI(ir,:)*Ro(ir)/chi_GB(ir)
+
+             vre_GB(ir) = vre_SI(ir)*Ro(ir)/chi_GB(ir)
+             vri_GB(ir,:) = vri_SI(ir,:)*Ro(ir)/chi_GB(ir)
+
+
+
 
              !! check on particle fluxes
              cke(ir) = 1d2* ( epf_SI(ir) - ( dffte(ir)*Ane(ir)*Nex(ir)*1d19/R0 + & 
