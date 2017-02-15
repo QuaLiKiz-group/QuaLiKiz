@@ -67,7 +67,7 @@ MODULE datcal
   REAL(KIND=DBL), PARAMETER :: barelyavoid = epsD ! Cutoff value below 1 to remove barely trapped singularity
 !  REAL(KIND=DBL), PARAMETER :: barelyavoid = 0.04 ! Cutoff value below 1 to remove barely trapped singularity
   REAL(KIND=DBL), PARAMETER :: minfki = 1d-3 ! Minimum allowed absolute vertical drift frequency
-  REAL(KIND=DBL), PARAMETER :: min_ninorm = 1d-2 ! ni/ne below which the energy QL integral isn't carried out
+  REAL(KIND=DBL), PARAMETER :: min_ninorm = 0.15 ! ni/ne below which the energy QL integral isn't carried out
 
   LOGICAL, PARAMETER :: traporder1 = .FALSE.
 
@@ -99,6 +99,7 @@ MODULE datcal
   REAL(KIND=DBL), PARAMETER :: AE= 1d-6 !Absolute error of root solver
   INTEGER, PARAMETER :: ntheta = 64 !resolution of field line coordinate
   INTEGER, PARAMETER :: numecoefs = 13 !number of coefficients in coef (e0-9, <R/Ln>, <n>, in-out asym)
+  INTEGER, PARAMETER :: numicoefs = 6 !number of coefficients in coef
   REAL(KIND=DBL), PARAMETER :: epsasym = 1.0d-8 !Relative and absolute accuracy for e# integrations
   REAL(KIND=DBL), PARAMETER :: dtheta = 1.0d-5  !dtheta for numerical differentiation
 
