@@ -150,7 +150,7 @@ CONTAINS
     ALLOCATE(npol(dimx,ntheta,nions))
     ALLOCATE(ecoefs(dimx,0:nions,numecoefs)); ecoefs(:,:,:)=0. !includes electrons
     ALLOCATE(ecoefsgau(dimx,dimn,0:nions,0:9)); ecoefsgau(:,:,:,:)=0. !includes electrons
-    ALLOCATE(cftrans(dimx,nions,6)); cftrans(:,:,:)=0. !includes 6 transport coefficients, only for ions
+    ALLOCATE(cftrans(dimx,nions,numicoefs)); cftrans(:,:,:)=0. !includes 6 transport coefficients, only for ions
     ALLOCATE(nepol(dimx,ntheta))
     ALLOCATE(Anipol(dimx,ntheta,nions))
     ALLOCATE(Anepol(dimx,ntheta))
@@ -900,7 +900,7 @@ CONTAINS
     REAL(KIND=DBL), DIMENSION(dimx,ntheta) :: phitmp
     REAL(KIND=DBL), DIMENSION(dimx,ntheta,nions) :: npoltmp
     REAL(KIND=DBL), DIMENSION(dimx,0:nions,numecoefs) :: ecoefstmp
-    REAL(KIND=DBL), DIMENSION(dimx,nions,6) :: cftranstmp
+    REAL(KIND=DBL), DIMENSION(dimx,nions,numicoefs) :: cftranstmp
 
     CALL mpi_comm_rank(mpi_comm_world,myrank,ierr)
     CALL mpi_comm_size(mpi_comm_world,nproc,ierr)
@@ -942,7 +942,7 @@ CONTAINS
     CALL MPI_AllReduce(phi,phitmp,dimx*ntheta,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
     CALL MPI_AllReduce(npol,npoltmp,dimx*ntheta*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
     CALL MPI_AllReduce(ecoefs,ecoefstmp,dimx*(1+nions)*numecoefs,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
-    CALL MPI_AllReduce(cftrans,cftranstmp,dimx*nions*6,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(cftrans,cftranstmp,dimx*nions*numicoefs,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
 
     IF (phys_meth /= 0.0) THEN
        CALL MPI_AllReduce(dfe_SI,dfe_SItmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)

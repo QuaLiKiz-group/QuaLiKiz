@@ -124,7 +124,7 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
   REAL(KIND=DBL), DIMENSION(dimxin,ntheta), OPTIONAL, INTENT(OUT)  ::  phiout
   REAL(KIND=DBL), DIMENSION(dimxin,ntheta,nionsin), OPTIONAL, INTENT(OUT)  ::  npolout
   REAL(KIND=DBL), DIMENSION(dimxin,0:nionsin,numecoefs), OPTIONAL, INTENT(OUT)  ::  ecoefsout
-  REAL(KIND=DBL), DIMENSION(dimxin,nionsin,6), OPTIONAL, INTENT(OUT)  ::  cftransout
+  REAL(KIND=DBL), DIMENSION(dimxin,nionsin,numicoefs), OPTIONAL, INTENT(OUT)  ::  cftransout
 
   ! optional output arrays from which the saturation rule can be calculated without rerunning dispersion relation solver
   REAL(KIND=DBL) , DIMENSION(dimxin), OPTIONAL, INTENT(OUT)  :: krmmuITGout,krmmuETGout

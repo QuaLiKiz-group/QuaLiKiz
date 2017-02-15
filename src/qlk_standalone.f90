@@ -53,6 +53,7 @@ PROGRAM qlk_standalone
        ! List of output variables: 
        INTEGER, PARAMETER :: ntheta = 64
        INTEGER, PARAMETER :: numecoefs = 13
+       INTEGER, PARAMETER :: numicoefs = 6
 
        ! growth rate and frequency outputs
        COMPLEX, DIMENSION(dimxin,dimnin), OPTIONAL, INTENT(OUT) :: solflu_SIout, solflu_GBout, solfluout
@@ -79,7 +80,7 @@ PROGRAM qlk_standalone
        REAL, DIMENSION(dimxin,ntheta), OPTIONAL, INTENT(OUT)  ::  phiout
        REAL, DIMENSION(dimxin,ntheta,nionsin), OPTIONAL, INTENT(OUT)  ::  npolout
        REAL, DIMENSION(dimxin,0:nionsin,numecoefs), OPTIONAL, INTENT(OUT)  ::  ecoefsout
-       REAL, DIMENSION(dimxin,nionsin,6), OPTIONAL, INTENT(OUT)  ::  cftransout
+       REAL, DIMENSION(dimxin,nionsin,numicoefs), OPTIONAL, INTENT(OUT)  ::  cftransout
 
        ! optional output arrays from which the saturation rule can be calculated without rerunning dispersion relation solver
        REAL , DIMENSION(dimxin,dimnin), OPTIONAL, INTENT(OUT)  :: distanout,ntorout,kperp2out
@@ -158,6 +159,7 @@ PROGRAM qlk_standalone
   REAL(KIND=DBL), DIMENSION(:,:), ALLOCATABLE :: phi
   INTEGER, PARAMETER :: ntheta = 64
   INTEGER, PARAMETER :: numecoefs = 13
+  INTEGER, PARAMETER :: numicoefs = 6
 
   REAL, PARAMETER :: epsD = 1d-14
   INTEGER :: runcounter ! used for counting runs inside integrated modelling applications for deciding to recalculate all or just jump to newton based on old solutions
@@ -1189,7 +1191,7 @@ CONTAINS
     ALLOCATE(phi(dimx,ntheta))
     ALLOCATE(npol(dimx,ntheta,nions))
     ALLOCATE(ecoefs(dimx,0:nions,numecoefs)) !includes electrons
-    ALLOCATE(cftrans(dimx,nions,6)) ! only for ions
+    ALLOCATE(cftrans(dimx,nions,numicoefs)) ! only for ions
 
     ALLOCATE( sol (dimx, dimn, numsols) )
     ALLOCATE( fdsol (dimx, dimn, numsols) )
