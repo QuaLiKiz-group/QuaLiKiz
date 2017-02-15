@@ -26,14 +26,14 @@ CONTAINS
     ALLOCATE(iord(limit))
 
     !Trapped electrons
-!!$    CALL DQAGSE(nFLRep,minFLR,maxFLR,epsFLR,epsFLR,limit,Joe2p,relerr,npts,ifailloc,&
+!!$    CALL DQAGSE_QLK(nFLRep,minFLR,maxFLR,epsFLR,epsFLR,limit,Joe2p,relerr,npts,ifailloc,&
 !!$         alist, blist, rlist, elist, iord, last)
 !!$
-!!$    CALL DQAGSE(nFLRep1,minFLR,maxFLR,epsFLR,epsFLR,limit,J1e2p,relerr,npts,ifailloc,&
+!!$    CALL DQAGSE_QLK(nFLRep1,minFLR,maxFLR,epsFLR,epsFLR,limit,J1e2p,relerr,npts,ifailloc,&
 !!$         alist, blist, rlist, elist, iord, last)
 !!$
 !!$    !Passing electrons
-!!$    CALL DQAGSE(nFLRec,minFLR,maxFLR,epsFLR,epsFLR,limit,Joe2c,relerr,npts,ifailloc,&
+!!$    CALL DQAGSE_QLK(nFLRec,minFLR,maxFLR,epsFLR,epsFLR,limit,Joe2c,relerr,npts,ifailloc,&
 !!$         alist, blist, rlist, elist, iord, last)
 
     ifailloc = 1
@@ -59,7 +59,7 @@ CONTAINS
 
 
     DO ion = 1,nions
-       !       CALL DQAGSE(nFLRip,minFLR,maxFLR,epsFLR,epsFLR,limit,Joi2p(ion),relerr,npts,ifailloc,&
+       !       CALL DQAGSE_QLK(nFLRip,minFLR,maxFLR,epsFLR,epsFLR,limit,Joi2p(ion),relerr,npts,ifailloc,&
        !           alist, blist, rlist, elist, iord, last)
 
        ifailloc = 1
@@ -76,11 +76,11 @@ CONTAINS
                &'. Abnormal termination of J1i2p FLR integration at p=',p,', nu=',nu
        ENDIF
 
-       !       CALL DQAGSE(nFLRip1,minFLR,maxFLR,epsFLR,epsFLR,limit,J1i2p(ion),relerr,npts,ifailloc,&
+       !       CALL DQAGSE_QLK(nFLRip1,minFLR,maxFLR,epsFLR,epsFLR,limit,J1i2p(ion),relerr,npts,ifailloc,&
        !           alist, blist, rlist, elist, iord, last)
 
        !Passing ions 
-       !CALL DQAGSE(nFLRic,minFLR,maxFLR,epsFLR,epsFLR,limit,Joi2c(ion),relerr,npts,ifailloc,&
+       !CALL DQAGSE_QLK(nFLRic,minFLR,maxFLR,epsFLR,epsFLR,limit,Joi2c(ion),relerr,npts,ifailloc,&
        !     alist, blist, rlist, elist, iord, last)
 
        ifailloc = 1
@@ -121,10 +121,10 @@ CONTAINS
     ALLOCATE(iord(limit))
 
     !Trapped electrons
-!!$    CALL DQAGSE(nFLReprot,minFLR,maxFLR,epsFLR,epsFLR,limit,Joe2p,relerr,npts,ifailloc,&
+!!$    CALL DQAGSE_QLK(nFLReprot,minFLR,maxFLR,epsFLR,epsFLR,limit,Joe2p,relerr,npts,ifailloc,&
 !!$         alist, blist, rlist, elist, iord, last)
 !!$
-!!$    CALL DQAGSE(nFLRep1rot,minFLR,maxFLR,epsFLR,epsFLR,limit,J1e2p,relerr,npts,ifailloc,&
+!!$    CALL DQAGSE_QLK(nFLRep1rot,minFLR,maxFLR,epsFLR,epsFLR,limit,J1e2p,relerr,npts,ifailloc,&
 !!$         alist, blist, rlist, elist, iord, last)
     ifailloc = 1
     Joe2p = d01ahf(minFLR,maxFLR,epsFLR,npts,relerr,nFLReprot,lw,ifailloc)
@@ -140,15 +140,22 @@ CONTAINS
     ENDIF
 
 
-    !Passing electrons
-!!$    CALL DQAGSE(nFLRecrot,minFLR,maxFLR,epsFLR,epsFLR,limit,Joe2c,relerr,npts,ifailloc,&
+!!$    !Passing electrons
+!!$    ifailloc = 1
+!!$    Joe2c = d01ahf(minFLR,maxFLR,epsFLR,npts,relerr,nFLRecrot,lw,ifailloc)
+!!$    IF (ifailloc /= 0) THEN
+!!$       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0,A,I0)") 'ifailloc = ',ifailloc,&
+!!$            &'. Abnormal termination of J0e2c FLR integration at p=',p,', nu=',nu
+!!$    ENDIF
+
+!!$    CALL DQAGSE_QLK(nFLRecrot,minFLR,maxFLR,epsFLR,epsFLR,limit,Joe2c,relerr,npts,ifailloc,&
 !!$         alist, blist, rlist, elist, iord, last)
 
     DO ion = 1,nions
-!!$       CALL DQAGSE(nFLRiprot,minFLR,maxFLR,epsFLR,epsFLR,limit,Joi2p(ion),relerr,npts,ifailloc,&
+!!$       CALL DQAGSE_QLK(nFLRiprot,minFLR,maxFLR,epsFLR,epsFLR,limit,Joi2p(ion),relerr,npts,ifailloc,&
 !!$            alist, blist, rlist, elist, iord, last)
 !!$
-!!$       CALL DQAGSE(nFLRip1rot,minFLR,maxFLR,epsFLR,epsFLR,limit,J1i2p(ion),relerr,npts,ifailloc,&
+!!$       CALL DQAGSE_QLK(nFLRip1rot,minFLR,maxFLR,epsFLR,epsFLR,limit,J1i2p(ion),relerr,npts,ifailloc,&
 !!$            alist, blist, rlist, elist, iord, last)
        ifailloc = 1
        Joi2p(ion) = d01ahf(minFLR,maxFLR,epsFLR,npts,relerr,nFLRiprot,lw,ifailloc)
@@ -164,8 +171,15 @@ CONTAINS
                &'. Abnormal termination of J1i2p FLR integration at p=',p,', nu=',nu
        ENDIF
 
+!!$       ifailloc = 1
+!!$       Joi2c(ion) = d01ahf(minFLR,maxFLR,epsFLR,npts,relerr,nFLRicrot,lw,ifailloc)
+!!$       IF (ifailloc /= 0) THEN
+!!$          IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0,A,I0)") 'ifailloc = ',ifailloc,&
+!!$               &'. Abnormal termination of J0i2c FLR integration at p=',p,', nu=',nu
+!!$       ENDIF
+
        !Passing ions 
-!!$       CALL DQAGSE(nFLRicrot,minFLR,maxFLR,epsFLR,epsFLR,limit,Joi2c(ion),relerr,npts,ifailloc,&
+!!$       CALL DQAGSE_QLK(nFLRicrot,minFLR,maxFLR,epsFLR,epsFLR,limit,Joi2c(ion),relerr,npts,ifailloc,&
 !!$            alist, blist, rlist, elist, iord, last)
 
     ENDDO
@@ -359,10 +373,10 @@ CONTAINS
     ! warning : sure that correct? do not miss 1/2 inside exp here???
     ! warning : for passing eigenfun^2 already in functionnals, shoudl not be there twice???
 
-    !gau = EXP(-(REAL(mwidth)*krr*normkr)**2-2*krr*normkr*AIMAG(mshift)+(REAL(mshift)**2-AIMAG(mshift)**2)/REAL(mwidth))    !!definition of the eigenfun
+    !gau = EXP(-(REAL(mwidth)*krr*normkr)**2-2*krr*normkr*AIMAG(mshift2)+(REAL(mshift2)**2-AIMAG(mshift2)**2)/REAL(mwidth))    !!definition of the eigenfun
 
-    normgs = normkr * SQRT((REAL(mwidth)**2 - AIMAG(mwidth)**2)) / SQRT(pi) * EXP(-AIMAG(mshift)**2/(REAL(mwidth)**2-AIMAG(mwidth)**2))
-    gau = EXP(-0.5_DBL*(krr*normkr*mwidth)**2._DBL - ci*krr*normkr*mshift)   !!definition of the eigenfun in k-space
+    normgs = normkr * SQRT((REAL(mwidth)**2 - AIMAG(mwidth)**2)) / SQRT(pi) * EXP(-AIMAG(mshift2)**2/(REAL(mwidth)**2-AIMAG(mwidth)**2))
+    gau = EXP(-0.5_DBL*(krr*normkr*mwidth)**2._DBL - ci*krr*normkr*mshift2)   !!definition of the eigenfun in k-space
 
     nFLRecrot = normgs * ABS(gau)**2. * bessm2 
 
@@ -391,8 +405,8 @@ CONTAINS
     !gau = EXP(-0.5_DBL*(krr*normkr*mwidth)**2._DBL)    !!definition of the eigenfun
     ! warning not dimless inside exp!! pb in QLK_mom nFLRep.f90???
 
-    normgs = normkr * SQRT((REAL(mwidth)**2 - AIMAG(mwidth)**2)) / SQRT(pi) * EXP(-AIMAG(mshift)**2/(REAL(mwidth)**2-AIMAG(mwidth)**2))
-    gau = EXP(-0.5_DBL*(krr*normkr*mwidth)**2._DBL - ci*krr*normkr*mshift)   !!definition of the eigenfun in k-space
+    normgs = normkr * SQRT((REAL(mwidth)**2 - AIMAG(mwidth)**2)) / SQRT(pi) * EXP(-AIMAG(mshift2)**2/(REAL(mwidth)**2-AIMAG(mwidth)**2))
+    gau = EXP(-0.5_DBL*(krr*normkr*mwidth)**2._DBL - ci*krr*normkr*mshift2)   !!definition of the eigenfun in k-space
 
     nFLReprot = normgs * ABS(gau)**2. * bessm1 * bessm2 
 
@@ -418,8 +432,8 @@ CONTAINS
     bessm1 = BESEI1(var1)
     bessm2 = BESEI0(var2+var3)
 
-    normgs = normkr * SQRT((REAL(mwidth)**2 - AIMAG(mwidth)**2)) / SQRT(pi) * EXP(-AIMAG(mshift)**2/(REAL(mwidth)**2-AIMAG(mwidth)**2))
-    gau = EXP(-0.5_DBL*(krr*normkr*mwidth)**2._DBL - ci*krr*normkr*mshift)   !!definition of the eigenfun in k-space
+    normgs = normkr * SQRT((REAL(mwidth)**2 - AIMAG(mwidth)**2)) / SQRT(pi) * EXP(-AIMAG(mshift2)**2/(REAL(mwidth)**2-AIMAG(mwidth)**2))
+    gau = EXP(-0.5_DBL*(krr*normkr*mwidth)**2._DBL - ci*krr*normkr*mshift2)   !!definition of the eigenfun in k-space
 
     nFLRep1rot = normgs * ABS(gau)**2. * bessm1*bessm2 
 
@@ -443,8 +457,8 @@ CONTAINS
 
     bessm2 = BESEI0(var2+var3)
  
-    normgs = normkr * SQRT((REAL(mwidth)**2 - AIMAG(mwidth)**2)) / SQRT(pi) * EXP(-AIMAG(mshift)**2/(REAL(mwidth)**2-AIMAG(mwidth)**2))
-    gau = EXP(-0.5_DBL*(krr*normkr*mwidth)**2._DBL - ci*krr*normkr*mshift)   !!definition of the eigenfun in k-space
+    normgs = normkr * SQRT((REAL(mwidth)**2 - AIMAG(mwidth)**2)) / SQRT(pi) * EXP(-AIMAG(mshift2)**2/(REAL(mwidth)**2-AIMAG(mwidth)**2))
+    gau = EXP(-0.5_DBL*(krr*normkr*mwidth)**2._DBL - ci*krr*normkr*mshift2)   !!definition of the eigenfun in k-space
 
     nFLRicrot = normgs * ABS(gau)**2. * bessm2 
 
@@ -470,8 +484,8 @@ CONTAINS
     bessm1 = BESEI0(var1)
     bessm2 = BESEI0(var2+var3)
 
-    normgs = normkr * SQRT((REAL(mwidth)**2 - AIMAG(mwidth)**2)) / SQRT(pi) * EXP(-AIMAG(mshift)**2/(REAL(mwidth)**2-AIMAG(mwidth)**2))
-    gau = EXP(-0.5_DBL*(krr*normkr*mwidth)**2._DBL - ci*krr*normkr*mshift)   !!definition of the eigenfun in k-space
+    normgs = normkr * SQRT((REAL(mwidth)**2 - AIMAG(mwidth)**2)) / SQRT(pi) * EXP(-AIMAG(mshift2)**2/(REAL(mwidth)**2-AIMAG(mwidth)**2))
+    gau = EXP(-0.5_DBL*(krr*normkr*mwidth)**2._DBL - ci*krr*normkr*mshift2)   !!definition of the eigenfun in k-space
 
     nFLRiprot = normgs * ABS(gau)**2. * bessm1 * bessm2 
 
@@ -488,15 +502,16 @@ CONTAINS
     REAL(KIND=DBL)    :: var1, var2, var3
     REAL(KIND=DBL)    :: bessm1, bessm2, gau
     INTEGER :: ifailloc
-    ifailloc  = 0
+
+    ifailloc = 0
     var1 = (normkr*krr*di(pnFLR,ion))**2.    !!argument of 1st Bessel fun
     var2 = (normkr*krr*Rhoi(pnFLR,ion))**2.  !!1st argument of 2nd Bessel fun
     var3 = (ktetaRhoi(ion))**2.               !!2nd argument of 2nd Bessel fun
     bessm1 = BESEI1(var1)
     bessm2 = BESEI0(var2+var3)
 
-    normgs = normkr * SQRT((REAL(mwidth)**2 - AIMAG(mwidth)**2)) / SQRT(pi) * EXP(-AIMAG(mshift)**2/(REAL(mwidth)**2-AIMAG(mwidth)**2))
-    gau = EXP(-0.5_DBL*(krr*normkr*mwidth)**2._DBL - ci*krr*normkr*mshift)   !!definition of the eigenfun in k-space
+    normgs = normkr * SQRT((REAL(mwidth)**2 - AIMAG(mwidth)**2)) / SQRT(pi) * EXP(-AIMAG(mshift2)**2/(REAL(mwidth)**2-AIMAG(mwidth)**2))
+    gau = EXP(-0.5_DBL*(krr*normkr*mwidth)**2._DBL - ci*krr*normkr*mshift2)   !!definition of the eigenfun in k-space
 
     nFLRip1rot = normgs * ABS(gau)**2. * bessm1 *bessm2
 
