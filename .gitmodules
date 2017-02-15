@@ -1,0 +1,3 @@
+[submodule "QuaLiKiz-pythontools"]
+	path = QuaLiKiz-pythontools
+	url = https://github.com/QuaLiKiz-group/QuaLiKiz-pythontools.git

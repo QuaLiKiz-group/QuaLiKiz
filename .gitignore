@@ -1,0 +1,13 @@
+# Ignore temporary text-editor files
+*.swp
+*.swo
+*~
+
+# Ignore compiled Fortran files
+*.o
+*.a
+*.mod
+QuaLiKiz
+
+# Ignore platform specific files
+src/Makefile.inc
