@@ -202,23 +202,23 @@ SUBROUTINE CALCI1(ARG,RESULT,JINT)
  
 END SUBROUTINE CALCI1
 
-DOUBLE PRECISION FUNCTION BESI1(X)
-  !--------------------------------------------------------------------
-  !
-  ! This long precision subprogram computes approximate values for
-  !   modified Bessel functions of the first kind of order one for
-  !   arguments ABS(ARG) .LE. XMAX  (see comments heading CALCI1).
-  !
-  !--------------------------------------------------------------------
-  INTEGER JINT
-  DOUBLE PRECISION :: X, RESULT
-  !--------------------------------------------------------------------
-  JINT=1
-  CALL CALCI1(X,RESULT,JINT)
-  BESI1=RESULT
-  RETURN
-  !---------- Last line of BESI1 ----------
-END FUNCTION BESI1
+!!$DOUBLE PRECISION FUNCTION BESI1(X)
+!!$  !--------------------------------------------------------------------
+!!$  !
+!!$  ! This long precision subprogram computes approximate values for
+!!$  !   modified Bessel functions of the first kind of order one for
+!!$  !   arguments ABS(ARG) .LE. XMAX  (see comments heading CALCI1).
+!!$  !
+!!$  !--------------------------------------------------------------------
+!!$  INTEGER JINT
+!!$  DOUBLE PRECISION :: X, RESULT
+!!$  !--------------------------------------------------------------------
+!!$  JINT=1
+!!$  CALL CALCI1(X,RESULT,JINT)
+!!$  BESI1=RESULT
+!!$  RETURN
+!!$  !---------- Last line of BESI1 ----------
+!!$END FUNCTION BESI1
 
 DOUBLE PRECISION FUNCTION BESEI1(X)
   !--------------------------------------------------------------------

@@ -18,23 +18,18 @@ CONTAINS
 
     INTEGER, INTENT(IN) :: p, nu
     COMPLEX(KIND=DBL) :: dw2,sol,width,width2,width4,shift , A0,A1,A2,A3,B0,B1,U1,U2,U3,D1,D2,ww0,ww1,ww2
-    COMPLEX(KIND=DBL) :: oldsol,oldwidth,oldshift,shiftfac
-    COMPLEX(KIND=DBL) :: newsol,newwidth,newshift
     COMPLEX(KIND=DBL), DIMENSION(2) :: width1vec,width2vec
     REAL(KIND=DBL) :: fc2,ft2,norm,ktheta,fk,fk2,VT,a,b,c,relerr,Wv3,Wv4,Wv5,Wv6,lam
     INTEGER :: i,j,npts
     COMPLEX(KIND=DBL), DIMENSION(ndegpoly+1) :: poly
     COMPLEX(KIND=DBL), DIMENSION(ndegpoly) :: polysol
     REAL(KIND=DBL), DIMENSION(2*ndegpoly*(ndegpoly+1)) :: warray
-
     REAL(KIND=DBL), DIMENSION(nions) :: kbar,Wd1i0,Wd1i1,Wd1i2,Wd2i,Wd3i0,Wd3i1
     REAL(KIND=DBL), DIMENSION(nions) :: WvT1i,WvT21i,Wv1i,Wv2i0,Wv2i1,Wv3i,Wv4i0,Wv5i,Wv6i0,nwdi !for ions
     COMPLEX(KIND=DBL), DIMENSION(nions) :: rhohat,banhat,icoef
     REAL(KIND=DBL) :: Wd1e0,Wd2e,Wd3e0,WvT1e,WvT21e,Wv1e,Wv2e0,Wv2e1,Wv3e,Wv4e0,nwde !for electrons
     REAL(KIND=DBL) :: V1,V2,V3,V4, cputime1, cputime2,gamEunnorm
-    REAL(KIND=DBL) :: converge = 1e-3
     INTEGER, DIMENSION(1) :: iloc  
-    INTEGER :: maxiter
     INTEGER :: ifailloc
 
     CALL CPU_TIME(cputime1)
@@ -42,7 +37,7 @@ CONTAINS
     !Set integration limits
     a=  0.0d0
     b = 1.0d0 !- barelyavoid
-    c = 1-2.*epsilon(p)
+    c = 1.-2.*epsilon(p)
 
     ktheta = ntor(p,nu)*qx(p)/(Rmin(p)*x(p))
 
@@ -82,9 +77,9 @@ CONTAINS
 
 !!$    fc2 = fc(p)
 !!$    ft2 = ft(p)
-
     fc2 = norm
     ft2 = 1-norm
+
     ifailloc = 1
     lam = d01ahf(a,c,relacc1,npts,relerr,lamint,lw,ifailloc)!*fc(p)/norm
     IF (ifailloc /= 0) THEN
@@ -150,6 +145,17 @@ CONTAINS
             &'. Abnormal termination of fluid solution Wv6 integration at p=',p,', nu=',nu
     ENDIF
 
+    !test strong passing
+!!$    lam=0.
+!!$    V1=1.
+!!$    V2=0.
+!!$    V3=1.
+!!$    V4=0. 
+!!$    Wv3=2.
+!!$    Wv4=2.*(smag(p)-alphax(p)-0.5)
+!!$    Wv5=4.
+!!$    Wv6=8.*(smag(p)-alphax(p)-0.5)
+    
     Wd1e0 = nwde*Ane(p)
     Wd2e = nwde*Ate(p)
     Wd3e0 = 0.
@@ -179,161 +185,121 @@ CONTAINS
 
     gamEunnorm=gammaE(p)*cref(p)/Ro(p)
 
-    maxiter=100
+    ! set ion coefficients
+    icoef(:) = ninorm(p,:)*Zi(p,:)**2*Tex(p)/Tix(p,:)
+    rhohat(:) = 1. - ((ktheta**2)*(Rhoi(p,:))**2)/2.
 
-    !set initial values of shift and width
-    width = distan(p,nu)
-    width2 = distan(p,nu)**2
-    width4 = distan(p,nu)**4
-    shift = (0.,0)
-    sol =CMPLX(REAL(ana_solflu(p,nu)),AIMAG(ana_solflu(p,nu)))*nwg
-
-    ! WRITE(*,*) width,shift,sol
-    DO i=1,maxiter ! 100 is the maximum number of iterations
-
-       oldwidth = width
-       oldshift = shift
-       oldsol = sol 
-
-       !initialize certain ion coefficients
-       icoef(:) = ninorm(p,:)*Zi(p,:)**2*Tex(p)/Tix(p,:)
-       rhohat(:) = 1. - ((ktheta**2)*(Rhoi(p,:))**2)/4.
-       banhat(:) = 1. - (di(p,:)**2)/(4.*width**2)
-       dw2 = (distan(p,nu)/width)**2
-
-       DO j=1,nions
-          IF (REAL(rhohat(j)) < 0.25) rhohat(j) = CMPLX(((ktheta**4)*(Rhoi(p,j))**4)/64,0.)
-       ENDDO
-
-       !WIDTH TERMS
-       !self-consistent ordering
-
-       A3 = SUM(icoef*ft2*di(p,:)**2/4.)
-
-       A2 = SUM(icoef*( (ft2*(Wd1i0+Wd1i1)-1.5*WvT1i)*di(p,:)**2/4. + 1.5*fc2*distan(p,nu)**2*Wv2i0))
-
-       A1 = SUM(icoef*( (1.5*(Wd1i0+Wd2i)*Wv2i0*fc2*distan(p,nu)**2 - 1.5*(Wd1i0+Wd2i)*WvT1i*di(p,:)**2/4.)))
-
-       B1 = SUM(icoef* 1.5*V1 *kbar**2)
-
-       B0 = SUM(icoef*1.5*V1*(Wd1i0+Wd2i)*kbar**2)
-
-       ww0 = sol**3*A3+sol**2*A2+sol*A1
-
-       ww2 = B0+B1*sol
-
-       width4 = -ww0/ww2
-
-       width2vec(1) = ABS(width4)**0.5*EXP(ci*(ATAN(AIMAG(width4)/REAL(width4))/2. + 2.*pi*0./2.))
-       width2vec(2) = ABS(width4)**0.5*EXP(ci*(ATAN(AIMAG(width4)/REAL(width4))/2. + 2.*pi*1./2.))
-
-       IF (REAL(width2vec(1)) > 0) THEN
-          width2=width2vec(1)
-       ELSE
-          width2=width2vec(2)
-       ENDIF
-
-       width1vec(1) = ABS(width2)**0.5*EXP(ci*(ATAN(AIMAG(width2)/REAL(width2))/2. + 2.*pi*0./2.))
-       width1vec(2) = ABS(width2)**0.5*EXP(ci*(ATAN(AIMAG(width2)/REAL(width2))/2. + 2.*pi*1./2.))
-
-       IF (REAL(width1vec(1)) > 0) THEN
-          newwidth=width1vec(1)
-       ELSE
-          newwidth=width1vec(2)
-       ENDIF
-
-       !Polynomial coefficients
-       !With self consistent ordering
-       poly(1) = -1. + ft2 + SUM( icoef*(-1+ft2*banhat-ft2*Machi(p,:)**2+fc2*rhohat+3.*Machi(p,:)**2*V1-Machi(p,:)**2*fc2)  ) !C3 in notes
-
-       poly(2) = Wd1e0*ft2 - 1.5*WvT1e+SUM( icoef*( ft2*banhat*(Wd1i0+Wd1i1)+ft2*Wd1i2 - Machi(p,:)**2*ft2*Wd1i0 - 1.5*banhat*WvT1i + &
-            & banhat*1.5*Machi(p,:)*Wd3i0*VT + &
-            & rhohat*fc2*(Wd1i0+Wd1i1)+fc2*Wd1i2 - 1.5*fc2*Wv1i*rhohat - 1.5*fc2*dw2*(Wv2i0*rhohat+Wv2i1) - Machi(p,:)**2*fc2*Wd1i0 + &
-            & 3.*Machi(p,:)*(Wd3i0*(V1*rhohat+dw2*V2)+Wd3i1*V1) + 3.*Machi(p,:)**2*(Wd1i0+Wd2i)*V1))
-
-       poly(3) = -1.5*WvT1e*(Wd1e0+Wd2e)+ 1.5*WvT21e + SUM(icoef*( -1.5*WvT1i*(Wd1i0+Wd2i)*banhat - 1.5*WvT1i*Wd1i1 + 1.5*WvT21i -  & 
-            & 1.5*fc2*(Wd1i0+Wd2i)*(Wv1i*rhohat+dw2*(Wv2i0*rhohat+Wv2i1)) -1.5*fc2*Wd1i1*(Wv1i+dw2*Wv2i0) - &
-            & 15./2.*Machi(p,:)*Wd3i0*(Wv3i+dw2*Wv4i0) + 15./4.*(Wv5i+dw2*Wv6i0) )) !C1 in notes
-
-       poly(4) = 1.5*WvT21e*(Wd1e0+Wd2e) +SUM(icoef*(1.5*WvT21i*(Wd1i0+Wd2i) + &  !C0 in notes
-            & 15./4.*(Wd1i0+2.*Wd2i)*(Wv5i+dw2*Wv6i0) ))
-
-       !**FIND ROOT OF POLYNOMIAL**
-       ifailloc=1
-       CALL CPQR79(ndegpoly,poly,polysol,ifailloc,warray)        
-       IF (ifailloc /= 0) THEN
-          IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0,A,I0)") 'ifailloc = ',ifailloc,&
-               &'. Abnormal termination of fluid solution CPQR root finder at p=',p,', nu=',nu
-       ENDIF
-
-       !      WRITE(*,*) 'p=',p,' . Polysol = ',polysol
-       !find and set most unstable mode
-       iloc = MAXLOC(AIMAG(polysol))
-       newsol = polysol(iloc(1))
-
-       width=newwidth
-       !shift=newshift 
-       sol=newsol
-
-       !Update values for outside of module
-       omeflu = sol
-       mwidth = width
-       !mshift = shift
-
-       !Convergence check
-       IF ( ( ABS((ABS(width)-ABS(oldwidth))) / (ABS(oldwidth)+epsD) < converge) .AND. &
-            ( ABS((ABS(sol)-ABS(oldsol))) / (ABS(oldsol)+epsD) < converge) ) THEN
-!!$          WRITE(*,*) 'n= ',i,' number of fluid solution convergence steps for p,nu = ',p,nu
-          EXIT
-       ENDIF
-
-       IF ( i == maxiter-2)  THEN
-          IF (verbose .EQV. .TRUE.) THEN
-             WRITE(stderr,'(A,I2,A,I2,A)') 'Warning, rot fluid solver did not converge at (p,nu)=(',p,',',nu,')'
-          ENDIF
-          !reset initial values of shift and width for last iteration
-          width = distan(p,nu)
-          width2 = distan(p,nu)**2
-          width4 = distan(p,nu)**4
-          sol =CMPLX(REAL(ana_solflu(p,nu)),AIMAG(ana_solflu(p,nu)))*nwg
-       ENDIF
-
+    DO j=1,nions
+       IF (REAL(rhohat(j)) < 0.25) rhohat(j) = CMPLX(((ktheta**4)*(Rhoi(p,j))**4)/64,0.)
     ENDDO
+
+    !Polynomial coefficients
+    !With self consistent ordering
+    !Without rotation or d/dx^2 as per perturbative solution
+
+    poly(1) = -1. + ft2 + SUM( icoef*(-1.+ rhohat )) !C3 in notes
+
+    poly(2) = Wd1e0*ft2 - 1.5*WvT1e+SUM( icoef*rhohat*( ft2*Wd1i0 - 1.5*WvT1i + &
+         & fc2*Wd1i0 - 1.5*fc2*Wv1i))
+
+    poly(3) = -1.5*WvT1e*(Wd1e0+Wd2e)+ 1.5*WvT21e + SUM(icoef*( -1.5*WvT1i*(Wd1i0+Wd2i)*rhohat + 1.5*WvT21i -  & 
+         & 1.5*fc2*(Wd1i0+Wd2i)*Wv1i*rhohat + 15./4.*Wv5i )) !C1 in notes
+
+    poly(4) = 1.5*WvT21e*(Wd1e0+Wd2e) +SUM(icoef*(1.5*WvT21i*(Wd1i0+Wd2i) + &  !C0 in notes
+         & 15./4.*(Wd1i0+2.*Wd2i)*Wv5i ))
+
+
+    !**FIND ROOT OF POLYNOMIAL**
+    ifailloc=1
+    CALL CPQR79(ndegpoly,poly,polysol,ifailloc,warray)        
+    IF (ifailloc /= 0) THEN
+       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0,A,I0)") 'ifailloc = ',ifailloc,&
+            &'. Abnormal termination of fluid solution CPQR root finder at p=',p,', nu=',nu
+    ENDIF
+
+    !      WRITE(*,*) 'p=',p,' . Polysol = ',polysol
+    !find and set most unstable mode
+    iloc = MAXLOC(AIMAG(polysol))
+    sol = polysol(iloc(1))
+
+!!$    sol=CMPLX(REAL(sol),AIMAG(sol)/1.3/widthtuneITG) !fudge factor to increase correspondance with actual solution
+
+    !WIDTH TERMS
+    !self-consistent ordering
+  
+    A3 = SUM(icoef*(ft2*di(p,:)**2/2. + fc2*Rhoi(p,:)**2/2.))
+
+    A2 = SUM(icoef*( (ft2*(Wd1i0+Wd1i1)-1.5*WvT1i)*di(p,:)**2/2. + Wd1i0*fc2*Rhoi(p,:)**2/2. + 1.5*fc2*distan(p,nu)**2*Wv2i0))
+
+    A1 = SUM(icoef*( (1.5*(Wd1i0+Wd2i)*Wv2i0*fc2*distan(p,nu)**2 - 1.5*(Wd1i0+Wd2i)*WvT1i*di(p,:)**2/2.)))
+
+    B1 = SUM(icoef* 1.5*V1 *kbar**2)
+
+    B0 = SUM(icoef*1.5*V1*(Wd1i0+Wd2i)*kbar**2)
+
+    ww0 = sol**3*A3+sol**2*A2+sol*A1
+
+    ww2 = B0+B1*sol
+
+    width4 = -ww0/ww2
+
+    width2vec(1) = ABS(width4)**0.5*EXP(ci*(ATAN(AIMAG(width4)/REAL(width4))/2. + 2.*pi*0./2.))
+    width2vec(2) = ABS(width4)**0.5*EXP(ci*(ATAN(AIMAG(width4)/REAL(width4))/2. + 2.*pi*1./2.))
+
+    IF (REAL(width2vec(1)) > 0) THEN
+       width2=width2vec(1)
+    ELSE
+       width2=width2vec(2)
+    ENDIF
+
+    width1vec(1) = ABS(width2)**0.5*EXP(ci*(ATAN(AIMAG(width2)/REAL(width2))/2. + 2.*pi*0./2.))
+    width1vec(2) = ABS(width2)**0.5*EXP(ci*(ATAN(AIMAG(width2)/REAL(width2))/2. + 2.*pi*1./2.))
+
+    IF (REAL(width1vec(1)) > 0) THEN
+       width=width1vec(1)
+    ELSE
+       width=width1vec(2)
+    ENDIF
 
     ! set tuning factor in width
     width4 = width4*widthtuneITG
     width2 = width2 * widthtuneITG**0.5
     width =  width * widthtuneITG**0.25
-    IF (REAL(width) < 0.66*distan(p,nu)) THEN 
+    IF (REAL(width) < 0.6*distan(p,nu)) THEN 
        !width=width*0.66*distan(p,nu)/REAL(width)
-       width=CMPLX(0.66*distan(p,nu),0.)
+       width=CMPLX(0.6*distan(p,nu),0.)
        width2=width**2
        width4=width**4
     ENDIF
+
+    !Update values for outside of module
+    omeflu = sol
     mwidth = width
 
-    !reinitialize certain ion coefficients
-    banhat(:) = 1. - (di(p,:)**2)/(4.*width**2)
+    !set ion coefficients
+    banhat(:) = 1. - (di(p,:)**2)/(2.*width**2)
     dw2 = (distan(p,nu)/width)**2
 
-    !! calculate shift using solved width and solution
+    !! calculate shift using solved width and eigenvalue solution
     !self consistent ordering
     U1 = (1.-ft2)*3.*ktheta*sol**2 - 2.*ktheta*Wd1e0*sol*ft2 + 3.*WvT1e*ktheta*sol+1.5*ktheta*WvT1e*(Wd1e0+Wd2e) + &
-         & SUM(icoef*( ( (1.-ft2)*3.*ktheta*sol**2 - 2.*ktheta*sol*(Wd1i0*banhat+Wd1i1)*ft2 +  3.*ktheta*WvT1i*sol+1.5*ktheta*WvT1i*(Wd1i0+Wd2i)) + &
+         & SUM(icoef*( ( (1.-ft2*banhat)*3.*ktheta*sol**2 - 2.*ktheta*sol*(Wd1i0*banhat+Wd1i1)*ft2 +  3.*ktheta*WvT1i*sol+1.5*ktheta*WvT1i*(Wd1i0+Wd2i)) + &
          & (-fc2*3.*ktheta*sol**2 + 3.*ktheta*sol*(Wv1i+Wv2i0*dw2)*fc2 - 2.*fc2*(Wd1i0+Wd1i1)*sol*ktheta + & 
-         & 1.5*ktheta*fc2*(Wd2i+Wd1i0+Wd1i1)*(Wv1i+Wv2i0*dw2)))) + &
-         & SUM(- 6.*icoef*Machi(p,:)*ktheta*V1*sol*Wd3i0 )
+         & 1.5*ktheta*fc2*(Wd2i+Wd1i0)*(Wv1i+Wv2i0*dw2))))     
 
     U2 = SUM(icoef*3.*(kbar*sol**2*V1+kbar*sol*(Wd1i0+Wd2i)*V1)*Machi(p,:))
 
     U3 = SUM(icoef*1.5*kbar*sol*V1*( Wd3i0+Wd3i1))
 
-    D1  = SUM(icoef*(-di(p,:)**2/width**4/2.*ft2*(sol**3+Wd1i0*sol**2))) + &
+    D1  = SUM(icoef*(-di(p,:)**2/width**4*ft2*(sol**3+Wd1i0*sol**2))) + &
          & SUM(icoef*(-3.*sol**2*distan(p,nu)**2/width**4*Wv2i0*fc2 - 3.*sol*(Wd1i0+Wd2i)*Wv2i0*distan(p,nu)**2/width**4*fc2))
 
     shift = -(gamEunnorm*U1+U2+U3)/D1
-!    shift = -CMPLX(0.1d-2,0.5d-2)
     mshift = shift
+
+    ! Ordering should maintain shift < width. Pathalogical cases break this, so for code stability we constrain mshift:
+    IF (ABS(REAL(mshift))>REAL(mwidth)) mshift=CMPLX(SIGN(REAL(mwidth),REAL(mshift)),AIMAG(mshift))
+    IF (ABS(AIMAG(mshift))>REAL(mwidth)) mshift=CMPLX(REAL(mshift),SIGN(REAL(mwidth),AIMAG(mshift)))
 
     mshift2 = -(gamEunnorm*U1)/D1 !For testing Aupar and M not increasing shift. shift2 used in FLR and kperp2 terms
     IF ( ABS(AIMAG(mshift)) < ABS(AIMAG(mshift2)) ) mshift2=mshift 
@@ -349,20 +315,16 @@ CONTAINS
 
     INTEGER, INTENT(IN) :: p, nu
     COMPLEX(KIND=DBL) :: dw2,sol,width,width2,width4, A0,A1,A2
-    COMPLEX(KIND=DBL) :: oldsol,oldwidth
     COMPLEX(KIND=DBL), DIMENSION(2) :: width1vec,width2vec
     REAL(KIND=DBL) :: ft2,fc2,norm,ktheta,fk,a,b,c,relerr,Wv5,Wv6,lam,kbar
     INTEGER :: i,j,npts
     COMPLEX(KIND=DBL), DIMENSION(ndegpoly) :: poly
     COMPLEX(KIND=DBL), DIMENSION(ndegpoly-1) :: polysol
     REAL(KIND=DBL), DIMENSION(2*(ndegpoly-1)*(ndegpoly)) :: warray
-
-    COMPLEX(KIND=DBL) :: rhohat,banhat
+    COMPLEX(KIND=DBL) :: rhohat
     REAL(KIND=DBL) :: Wd1e,Wd2e,Wd3e,WvT1e,Wv1e,Wv2e0,Wv2e1,Wv5e,Wv6e,nwde !for electrons
     REAL(KIND=DBL) :: V1,V2,V3,V4, cputime1, cputime2,gamEunnorm
-    REAL(KIND=DBL) :: converge = 1e-3
     INTEGER, DIMENSION(1) :: iloc  
-    INTEGER :: maxiter
     INTEGER :: ifailloc
 
     !Set integration limits
@@ -433,111 +395,74 @@ CONTAINS
     Wv5e = nwde**2*Wv5
     Wv6e = nwde**2*Wv6
 
-    maxiter=100
+    !initialize certain ion coefficients
+    rhohat = 1. - (ktheta**2*Rhoe(p)**2)/2.
 
-    !set initial values of shift and width
-    width = distan(p,nu)
-    width2 = distan(p,nu)**2
-    width4 = distan(p,nu)**4
-    sol =CMPLX(REAL(ana_solflu(p,nu)),AIMAG(ana_solflu(p,nu)))*nwg
+    IF (REAL(rhohat) < 0.25) rhohat = CMPLX(((ktheta**4)*(Rhoe(p))**4)/64,0.)
 
-    DO i=1,maxiter ! 100 is the maximum number of iterations
+    !calculate polynomial coefficients
+    poly(1) = -1. - Tex(p)/Tix(p,1)*Zeffx(p) + rhohat !C2 in notes
 
-       oldwidth = width
-       oldsol = sol 
+    poly(2) = (Wd1e*ft2*rhohat-1.5*WvT1e)+fc2*Wd1e*rhohat-1.5*fc2*Wv1e !C1 in notes
 
-       !initialize certain ion coefficients
-       rhohat = 1. - (ktheta**2*Rhoe(p)**2)/4.
-       banhat = 1. - de(p)**2/(4.*width**2)
-       dw2 = (distan(p,nu)/width)**2
-
-       IF (REAL(rhohat) < 0.25) rhohat = CMPLX(((ktheta**4)*(Rhoe(p))**4)/64,0.)
-
-       !calculate polynomial coefficients
-       poly(1) = -1. - Tex(p)/Tix(p,1)*Zeffx(p) + banhat*ft2 +rhohat*fc2 !C3 in notes
-
-       poly(2) = (Wd1e*ft2-1.5*WvT1e)*banhat+rhohat*fc2*Wd1e-1.5*fc2*(Wv1e+dw2*Wv2e0) !C2 in notes
-
-       poly(3) = -1.5*(Wd1e+Wd2e)*WvT1e*banhat - 1.5*fc2*(Wd1e+Wd2e)*(Wv1e+Wv2e0*dw2)  !C1 in notes
-
-!      poly(4) = 0.  !C0 in notes
+    poly(3) = -1.5*(Wd1e+Wd2e)*WvT1e - 1.5*fc2*(Wd1e+Wd2e)*Wv1e !C0 in notes
 
 
-       !**FIND ROOT OF POLYNOMIAL**
-       ifailloc = 1
-       CALL CPQR79(ndegpoly-1,poly,polysol,ifailloc,warray)
-       !      WRITE(*,*) 'p=',p,' . Polysol = ',polysol
-       !find and set most unstable mode
-       iloc = MAXLOC(AIMAG(polysol))
-       sol = polysol(iloc(1))
+    !**FIND ROOT OF POLYNOMIAL**
+    ifailloc = 1
+    CALL CPQR79(ndegpoly-1,poly,polysol,ifailloc,warray)
+    !      WRITE(*,*) 'p=',p,' . Polysol = ',polysol
+    !find and set most unstable mode
+    iloc = MAXLOC(AIMAG(polysol))
+    sol = polysol(iloc(1))
 
-       !! width
+    !! width
 
-       A2 = 1.5*kbar**2*V1*(sol+Wd1e+Wd2e)
+    A2 = 1.5*kbar**2*V1*(sol+Wd1e+Wd2e)
 
-       A1 = 1.5*kbar**2*V2*distan(p,nu)**2*(sol+Wd1e+Wd2e)
+    A1 = 1.5*kbar**2*V2*distan(p,nu)**2*(sol+Wd1e+Wd2e)
 
-       A0 = ft2*(sol**3 + sol**2*Wd1e)*de(p)**2/4. + &
-            & fc2*(1.5*sol**2*Wv2e0*distan(p,nu)**2 + 1.5*sol*(Wd1e+Wd2e)*distan(p,nu)**2*Wv2e0)
+    A0 = ft2*rhohat*(sol**3 + sol**2*Wd1e)*de(p)**2/2. + &
+         fc2*(sol**3 + sol**2*Wd1e)*Rhoe(p)**2/2. + &
+         & fc2*(1.5*sol**2*Wv2e0*distan(p,nu)**2 + 1.5*sol*(Wd1e+Wd2e)*distan(p,nu)**2*Wv2e0)
 
-       width4 = -A0/A2
+    width4 = -A0/A2
 
-       !TESTING DEBUGGING
+    !TESTING DEBUGGING
 !!$       WRITE(*,*) width4
 !!$       WRITE(*,*) (-A1 + SQRT(A1**2-4.*A0*A2))/A0
 !!$       WRITE(*,*) (-A1 - SQRT(A1**2-4.*A0*A2))/A0
 
-       width2vec(1) = ABS(width4)**0.5*EXP(ci*(ATAN(AIMAG(width4)/REAL(width4))/2. + 2.*pi*0./2.))
-       width2vec(2) = ABS(width4)**0.5*EXP(ci*(ATAN(AIMAG(width4)/REAL(width4))/2. + 2.*pi*1./2.))
+    width2vec(1) = ABS(width4)**0.5*EXP(ci*(ATAN(AIMAG(width4)/REAL(width4))/2. + 2.*pi*0./2.))
+    width2vec(2) = ABS(width4)**0.5*EXP(ci*(ATAN(AIMAG(width4)/REAL(width4))/2. + 2.*pi*1./2.))
 
-       IF (REAL(width2vec(1)) > 0) THEN
-          width2=width2vec(1)
-       ELSE
-          width2=width2vec(2)
-       ENDIF
+    IF (REAL(width2vec(1)) > 0) THEN
+       width2=width2vec(1)
+    ELSE
+       width2=width2vec(2)
+    ENDIF
 
-       width1vec(1) = ABS(width2)**0.5*EXP(ci*(ATAN(AIMAG(width2)/REAL(width2))/2. + 2.*pi*0./2.))
-       width1vec(2) = ABS(width2)**0.5*EXP(ci*(ATAN(AIMAG(width2)/REAL(width2))/2. + 2.*pi*1./2.))
+    width1vec(1) = ABS(width2)**0.5*EXP(ci*(ATAN(AIMAG(width2)/REAL(width2))/2. + 2.*pi*0./2.))
+    width1vec(2) = ABS(width2)**0.5*EXP(ci*(ATAN(AIMAG(width2)/REAL(width2))/2. + 2.*pi*1./2.))
 
-       IF (REAL(width1vec(1)) > 0) THEN
-          width=width1vec(1)
-       ELSE
-          width=width1vec(2)
-       ENDIF
+    IF (REAL(width1vec(1)) > 0) THEN
+       width=width1vec(1)
+    ELSE
+       width=width1vec(2)
+    ENDIF
 
-       !Update values for outside of module
-       omeflu = sol
-       mwidth = width
-       mshift = 0.
-       mshift2 = 0.
-
-       !Convergence check
-       IF ( ( ABS((ABS(width)-ABS(oldwidth))) / (ABS(oldwidth)+epsD) < converge) .AND. &
-            ( ABS((ABS(sol)-ABS(oldsol))) / (ABS(oldsol)+epsD) < converge) ) THEN
-          EXIT
-       ENDIF
-
-       IF (i==maxiter-2) THEN 
-          IF (verbose .EQV. .TRUE.) THEN
-             WRITE(stderr,'(A,I2,A,I2,A)') 'Warning, electron fluid solution did not converge at (p,nu)=(',p,',',nu,'). Reverting to non self-consistent solution'
-          ENDIF
-          !reset initial values of shift and width for last iteration
-          width = distan(p,nu)
-          width2 = distan(p,nu)**2
-          width4 = distan(p,nu)**4
-          sol =CMPLX(REAL(ana_solflu(p,nu)),AIMAG(ana_solflu(p,nu)))*nwg
-       ENDIF
-
-    ENDDO
+    !Update values for outside of module
+    omeflu = sol
+    mwidth = width
+    mshift = 0.
+    mshift2 = 0.
 
     ! tuning factor for width
     width = width*widthtuneETG**0.25
-    IF (REAL(width) < 0.66*distan(p,nu)) width=CMPLX(0.66*distan(p,nu),0.)
-    !IF (REAL(width) < 0.66*distan(p,nu)) width=width*0.66*distan(p,nu)/REAL(width)
+    IF (REAL(width) < 0.6*distan(p,nu)) width=CMPLX(0.6*distan(p,nu),0.)
     mwidth = width
 
   END SUBROUTINE jon_fluidsol_ele
-
 
   SUBROUTINE jon_fluidsol_norot(p,nu)
     !Constructs the various coefficients used in the advanced fluid solver with rotation.
@@ -546,20 +471,18 @@ CONTAINS
 
     INTEGER, INTENT(IN) :: p, nu
     COMPLEX(KIND=DBL) :: sol,width,width2,width4 , A0,A1,A2,A3,B0,B1,U1,U2,U3,D1,D2
-    COMPLEX(KIND=DBL) :: oldsol,oldwidth,dw2
     COMPLEX(KIND=DBL), DIMENSION(2) :: width1vec,width2vec
     REAL(KIND=DBL) :: ft2,fc2,norm,ktheta,fk,fk2,VT,a,b,c,relerr,Wv3,Wv4,Wv5,Wv6,lam
-    INTEGER :: i,j,npts,maxiter
+    INTEGER :: i,j,npts
     COMPLEX(KIND=DBL), DIMENSION(ndegpoly+1) :: poly
     COMPLEX(KIND=DBL), DIMENSION(ndegpoly) :: polysol
     REAL(KIND=DBL), DIMENSION(2*ndegpoly*(ndegpoly+1)) :: warray
 
     REAL(KIND=DBL), DIMENSION(nions) :: kbar,Wd1i0,Wd2i
     REAL(KIND=DBL), DIMENSION(nions) :: WvT1i,WvT21i,Wv1i,Wv2i0,Wv2i1,Wv3i,Wv4i0,Wv5i,Wv6i0,nwdi !for ions
-    COMPLEX(KIND=DBL), DIMENSION(nions) :: rhohat,banhat,icoef
+    COMPLEX(KIND=DBL), DIMENSION(nions) :: rhohat,icoef
     REAL(KIND=DBL) :: Wd1e0,Wd2e,Wd3e0,WvT1e,WvT21e,Wv1e,Wv2e0,Wv2e1,Wv3e,Wv4e0,nwde !for electrons
     REAL(KIND=DBL) :: V1,V2,V3,V4, cputime1, cputime2
-    REAL(KIND=DBL) :: converge = 1e-3
     INTEGER, DIMENSION(1) :: iloc    
     INTEGER :: ifailloc
 
@@ -572,7 +495,6 @@ CONTAINS
 
     !IF ( SUM(ninorm(p,:)*(Machi(p,:)+Aui(p,:)
 
-    maxiter=100
     CALL CPU_TIME(cputime1)
 
     !Set integration limits
@@ -712,112 +634,74 @@ CONTAINS
     WvT1i(:) = nwdi(:)*fk
     WvT21i(:) = nwdi(:)**2*fk2
 
-    !set initial values of width and sol
-    width = distan(p,nu)
-    width2 = distan(p,nu)**2
-    width4 = distan(p,nu)**4
-    sol =CMPLX(REAL(ana_solflu(p,nu)),AIMAG(ana_solflu(p,nu)))*nwg
+    !initialize certain ion coefficients
+    icoef(:) = ninorm(p,:)*Zi(p,:)**2*Tex(p)/Tix(p,:)
+    rhohat(:) = 1. - ((ktheta**2)*(Rhoi(p,:))**2)/2.
 
-    DO i=1,maxiter ! 100 is the maximum number of iterations
-
-       oldwidth = width
-       oldsol = sol
-
-       !initialize certain ion coefficients
-       icoef(:) = ninorm(p,:)*Zi(p,:)**2*Tex(p)/Tix(p,:)
-       rhohat(:) = 1. - ((ktheta**2)*(Rhoi(p,:))**2)/4.
-       banhat(:) = 1. - (di(p,:)**2)/(4.*width2)
-       dw2 = distan(p,nu)**2/width2
-
-       DO j=1,nions
-          IF (REAL(rhohat(j)) < 0.25) rhohat(j) = CMPLX(((ktheta**4)*(Rhoi(p,j))**4)/64,0.)
-       ENDDO
-
-       !calculate polynomial coefficients
-       !With self consistent ordering
-       poly(1) = -1. + ft2 + SUM( icoef*(-1+ft2*banhat+fc2*rhohat)) !C3 in notes
-
-       poly(2) = Wd1e0*ft2 - 1.5*WvT1e+SUM( icoef*( ft2*banhat*Wd1i0 - 1.5*banhat*WvT1i + &
-            & rhohat*fc2*Wd1i0- 1.5*fc2*Wv1i*rhohat - 1.5*fc2*dw2*(Wv2i0*rhohat+Wv2i1))) !C2 in notes
-
-       poly(3) = -1.5*WvT1e*(Wd1e0+Wd2e)+ 1.5*WvT21e + SUM(icoef*( -1.5*WvT1i*(Wd1i0+Wd2i)*banhat  + 1.5*WvT21i -  & 
-            & 1.5*fc2*(Wd1i0+Wd2i)*(Wv1i*rhohat+dw2*(Wv2i0*rhohat+Wv2i1)) + &
-            & 15./4.*(Wv5i+dw2*Wv6i0) )) !C1 in notes
-
-       poly(4) = 1.5*WvT21e*(Wd1e0+Wd2e) +SUM(icoef*(1.5*WvT21i*(Wd1i0+Wd2i) + &  !C0 in notes
-            & 15./4.*(Wd1i0+2.*Wd2i)*(Wv5i+dw2*Wv6i0) ))
-
-       !**FIND ROOT OF POLYNOMIAL**
-       CALL CPQR79(ndegpoly,poly,polysol,ifailloc,warray)
-       !      WRITE(*,*) 'p=',p,' . Polysol = ',polysol
-       !find and set most unstable mode
-       iloc = MAXLOC(AIMAG(polysol))
-       sol = polysol(iloc(1))
-
-       !! width
-       !self-consistent ordering
-       A3 = SUM(icoef*ft2*di(p,:)**2/4.)
-
-       A2 = SUM(icoef*( (ft2*Wd1i0-1.5*WvT1i)*di(p,:)**2/4. + 1.5*fc2*distan(p,nu)**2*Wv2i0))
-
-       A1 = SUM(icoef*( (1.5*(Wd1i0+Wd2i)*Wv2i0*fc2*distan(p,nu)**2 - 1.5*(Wd1i0+Wd2i)*WvT1i*di(p,:)**2/4.)))
-    
-       B1 = SUM(icoef* 1.5*V1 *kbar**2)
-
-       B0 = SUM(icoef*1.5*V1*(Wd1i0+Wd2i)*kbar**2)
-
-       width4 = -((sol**3*A3+sol**2*A2+sol*A1)/(B0+B1*sol))
-
-       width2vec(1) = ABS(width4)**0.5*EXP(ci*(ATAN(AIMAG(width4)/REAL(width4))/2. + 2.*pi*0./2.))
-       width2vec(2) = ABS(width4)**0.5*EXP(ci*(ATAN(AIMAG(width4)/REAL(width4))/2. + 2.*pi*1./2.))
-
-       IF (REAL(width2vec(1)) > 0) THEN
-          width2=width2vec(1)
-       ELSE
-          width2=width2vec(2)
-       ENDIF
-
-       width1vec(1) = ABS(width2)**0.5*EXP(ci*(ATAN(AIMAG(width2)/REAL(width2))/2. + 2.*pi*0./2.))
-       width1vec(2) = ABS(width2)**0.5*EXP(ci*(ATAN(AIMAG(width2)/REAL(width2))/2. + 2.*pi*1./2.))
-
-       IF (REAL(width1vec(1)) > 0) THEN
-          width=width1vec(1)
-       ELSE
-          width=width1vec(2)
-       ENDIF
-
-       omeflu = sol
-       mwidth = width
-       mshift = 0. ! By definition
-       mshift2 = 0.
-
-       IF ( ( ABS((ABS(width)-ABS(oldwidth))) / (ABS(oldwidth)+epsD) < converge) .AND. &
-            ( ABS((ABS(sol)-ABS(oldsol))) / (ABS(oldsol)+epsD) < converge) ) EXIT
-
-       IF (i==maxiter-2) THEN
-          IF (verbose .EQV. .TRUE.) THEN 
-             WRITE(stderr,'(A,I2,A,I2,A)') 'Warning: norot fluid solver did not converge at (p,nu)=(',p,',',nu,'). Reverting to non-self-consistent solution'
-             !       STOP 
-          ENDIF
-          !reset initial values of shift and width for last iteration
-          width = distan(p,nu)
-          width2 = distan(p,nu)**2
-          width4 = distan(p,nu)**4
-          sol =CMPLX(REAL(ana_solflu(p,nu)),AIMAG(ana_solflu(p,nu)))*nwg
-       ENDIF
-
-       !DEBUG
-!!$       IF ((p==11) .AND. (nu==7)) THEN
-!!$          WRITE(*,*) 'width=',width
-!!$          WRITE(*,*) 'sol=',sol
-!!$       ENDIF
-
+    DO j=1,nions
+       IF (REAL(rhohat(j)) < 0.25) rhohat(j) = CMPLX(((ktheta**4)*(Rhoi(p,j))**4)/64,0.)
     ENDDO
+
+    !calculate polynomial coefficients
+    !With self consistent ordering
+    poly(1) = -1. + ft2 + SUM( icoef*(-1.+ rhohat )) !C3 in notes
+
+    poly(2) = Wd1e0*ft2 - 1.5*WvT1e+SUM( icoef*rhohat*( ft2*Wd1i0 - 1.5*WvT1i + &
+         & fc2*Wd1i0 - 1.5*fc2*Wv1i))
+
+    poly(3) = -1.5*WvT1e*(Wd1e0+Wd2e)+ 1.5*WvT21e + SUM(icoef*( -1.5*WvT1i*(Wd1i0+Wd2i)*rhohat + 1.5*WvT21i -  & 
+         & 1.5*fc2*(Wd1i0+Wd2i)*Wv1i*rhohat + 15./4.*Wv5i )) !C1 in notes
+
+    poly(4) = 1.5*WvT21e*(Wd1e0+Wd2e) +SUM(icoef*(1.5*WvT21i*(Wd1i0+Wd2i) + &  !C0 in notes
+         & 15./4.*(Wd1i0+2.*Wd2i)*Wv5i ))
+
+    !**FIND ROOT OF POLYNOMIAL**
+    CALL CPQR79(ndegpoly,poly,polysol,ifailloc,warray)
+    !      WRITE(*,*) 'p=',p,' . Polysol = ',polysol
+    !find and set most unstable mode
+    iloc = MAXLOC(AIMAG(polysol))
+    sol = polysol(iloc(1))
+
+    !! width
+    !self-consistent ordering
+    A3 = SUM(icoef*(ft2*di(p,:)**2/2. + fc2*Rhoi(p,:)**2/2.))
+
+    A2 = SUM(icoef*( (ft2*Wd1i0-1.5*WvT1i)*di(p,:)**2/2. + Wd1i0*fc2*Rhoi(p,:)**2/2. + 1.5*fc2*distan(p,nu)**2*Wv2i0))
+
+    A1 = SUM(icoef*( (1.5*(Wd1i0+Wd2i)*Wv2i0*fc2*distan(p,nu)**2 - 1.5*(Wd1i0+Wd2i)*WvT1i*di(p,:)**2/2.)))
+
+    B1 = SUM(icoef* 1.5*V1 *kbar**2)
+
+    B0 = SUM(icoef*1.5*V1*(Wd1i0+Wd2i)*kbar**2)
+
+    width4 = -((sol**3*A3+sol**2*A2+sol*A1)/(B0+B1*sol))
+
+    width2vec(1) = ABS(width4)**0.5*EXP(ci*(ATAN(AIMAG(width4)/REAL(width4))/2. + 2.*pi*0./2.))
+    width2vec(2) = ABS(width4)**0.5*EXP(ci*(ATAN(AIMAG(width4)/REAL(width4))/2. + 2.*pi*1./2.))
+
+    IF (REAL(width2vec(1)) > 0) THEN
+       width2=width2vec(1)
+    ELSE
+       width2=width2vec(2)
+    ENDIF
+
+    width1vec(1) = ABS(width2)**0.5*EXP(ci*(ATAN(AIMAG(width2)/REAL(width2))/2. + 2.*pi*0./2.))
+    width1vec(2) = ABS(width2)**0.5*EXP(ci*(ATAN(AIMAG(width2)/REAL(width2))/2. + 2.*pi*1./2.))
+
+    IF (REAL(width1vec(1)) > 0) THEN
+       width=width1vec(1)
+    ELSE
+       width=width1vec(2)
+    ENDIF
+
+    omeflu = sol
+    mwidth = width
+    mshift = 0. ! By definition
+    mshift2 = 0.
 
     ! tuning factor for width
     width = width*widthtuneITG**0.25
-    !IF (REAL(width) < 0.66*distan(p,nu)) width=width*0.66*distan(p,nu)/REAL(width)
-    IF (REAL(width) < 0.66*distan(p,nu)) width=CMPLX(0.66*distan(p,nu),0.)
+    IF (REAL(width) < 0.6*distan(p,nu)) width=CMPLX(0.6*distan(p,nu),0.)
     mwidth = width
 
     CALL CPU_TIME(cputime2)
@@ -905,7 +789,7 @@ CONTAINS
     Tint = 2./SQRT(1-lamin*(1+2.*epsilon(pFFk)*SIN(theta/2.)**2))
 
     ifailloc=0
-    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc) !calculate transit time
+    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc,17) !calculate transit time
 
     IF (ifailloc /= 1) THEN
        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifailloc = ',ifailloc,&
@@ -926,7 +810,7 @@ CONTAINS
     Tint = 2./SQRT(1-lamin*(1+2.*epsilon(pFFk)*SIN(theta/2.)**2))
 
     ifailloc=0
-    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc) !calculate transit time
+    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc,18) !calculate transit time
 
     IF (ifailloc /= 1) THEN
        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifailloc = ',ifailloc,&
@@ -948,7 +832,7 @@ CONTAINS
     Tint = 2./SQRT(1-lamin*(1+2.*epsilon(pFFk)*SIN(theta/2.)**2))
 
     ifailloc=0
-    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc) !calculate transit time
+    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc,19) !calculate transit time
 
     IF (ifailloc /= 1) THEN
        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifailloc = ',ifailloc,&
@@ -970,7 +854,7 @@ CONTAINS
     Tint = 2./SQRT(1-lamin*(1+2.*epsilon(pFFk)*SIN(theta/2.)**2))
 
     ifailloc=0
-    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc) !calculate transit time
+    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc,20) !calculate transit time
 
     IF (ifailloc /= 1) THEN
        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifailloc = ',ifailloc,&
@@ -993,7 +877,7 @@ CONTAINS
     Tint = 2./SQRT(1-lamin*(1+2.*epsilon(pFFk)*SIN(theta/2.)**2))
 
     ifailloc=0
-    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc) !calculate transit time
+    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc,21) !calculate transit time
 
     IF (ifailloc /= 1) THEN
        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifailloc = ',ifailloc,&
@@ -1015,7 +899,7 @@ CONTAINS
     Tint = 2./SQRT(1-lamin*(1+2.*epsilon(pFFk)*SIN(theta/2.)**2))
 
     ifailloc=0
-    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc) !calculate transit time
+    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc,22) !calculate transit time
 
     IF (ifailloc /= 1) THEN
        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifailloc = ',ifailloc,&
@@ -1038,7 +922,7 @@ CONTAINS
     Tint = 2./SQRT(1-lamin*(1+2.*epsilon(pFFk)*SIN(theta/2.)**2))
 
     ifailloc=0
-    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc) !calculate transit time
+    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc,23) !calculate transit time
 
     IF (ifailloc /= 1) THEN
        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifailloc = ',ifailloc,&
@@ -1060,7 +944,7 @@ CONTAINS
     Tint = 2./SQRT(1-lamin*(1+2.*epsilon(pFFk)*SIN(theta/2.)**2))
 
     ifailloc=0
-    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc) !calculate transit time
+    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc,24) !calculate transit time
 
     IF (ifailloc /= 1) THEN
        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifailloc = ',ifailloc,&
@@ -1083,7 +967,7 @@ CONTAINS
     Tint = 2./SQRT(1-lamin*(1+2.*epsilon(pFFk)*SIN(theta/2.)**2))
 
     ifailloc=0
-    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc) !calculate transit time
+    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc,25) !calculate transit time
 
     IF (ifailloc /= 1) THEN
        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifailloc = ',ifailloc,&
@@ -1105,7 +989,7 @@ CONTAINS
     Tint = 2./SQRT(1-lamin*(1+2.*epsilon(pFFk)*SIN(theta/2.)**2))
 
     ifailloc=0
-    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc) !calculate transit time
+    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc,26) !calculate transit time
 
     IF (ifailloc /= 1) THEN
        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifailloc = ',ifailloc,&

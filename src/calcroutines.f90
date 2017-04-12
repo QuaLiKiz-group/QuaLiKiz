@@ -80,8 +80,8 @@ CONTAINS
 
     ! Set the ktheta dependent width tuning factors. The 0.075 prefactor was chosen on the base of optimizing a scan
 
-    widthtuneITG = (0.1/kthetarhos(nu));
-    widthtuneETG = (0.1/( kthetarhos(nu)*SQRT(me/mi(p,1)) ) );
+    widthtuneITG = (0.075/kthetarhos(nu));
+    widthtuneETG = (0.075/( kthetarhos(nu)*SQRT(me/mi(p,1)) ) );
 
     ! Calculates growth rate based on analytical fluid interchange / slab formulation. in units of nwg
     CALL ana_fluidsol(p,nu,ana_gamma)! with or without rotation ana_gamma used only for contour limit
@@ -149,7 +149,7 @@ CONTAINS
 
     solflu(p,nu) = ana_solflu(p,nu)
 
-    !! choose which one to keep for the testing
+    !! choose which one to actually keep for use in the code
     modewidth(p,nu) = jon_modewidth(p,nu)
     mwidth = modewidth(p,nu)
     modeshift(p,nu) = jon_modeshift(p,nu)
@@ -734,7 +734,7 @@ CONTAINS
        maxgradanglespi = maxdifalphan / pi
 
        Nenv = ABS( (alphan(M) - alphan(1) ) / 2. / pi )
-      !test timeout
+       !test timeout
        IF ((MPI_Wtime()-calltimeinit) > timeout) THEN
           anomflag = .TRUE.
        ENDIF
@@ -752,6 +752,12 @@ CONTAINS
 
     !Count the number of zeros found in the contour
     Nenv = ABS( (alphan(M) - alphan(1) ) / 2. / pi )
+
+    !Abandon solution of D(omega)=0 anywhere on contour
+    IF (ANY(ABS(fonct)<epsD)) THEN
+       WRITE(stderr,'(A,I2,A,I2,A)') 'Main contour phase: contour had D(omega)=0! Skipping solution. (p,nu)=(',p,',',nu,')'
+       anomflag = .TRUE.
+    ENDIF
 
     IF (anomflag .EQV. .TRUE.) Nenv = 0.
     NN = NINT( Nenv ) 
@@ -809,8 +815,8 @@ CONTAINS
        DO j=1,NN
           exprnreal = REAL(exprn(:,j))
           exprnimag = AIMAG(exprn(:,j))
-          CALL davint(theta,exprnreal, M, 0._DBL, 2.*pi , realintans, ifailloc)
-          CALL davint(theta,exprnimag, M, 0._DBL, 2.*pi , imagintans, ifailloc)
+          CALL davint(theta,exprnreal, M, 0._DBL, 2.*pi , realintans, ifailloc,1)
+          CALL davint(theta,exprnimag, M, 0._DBL, 2.*pi , imagintans, ifailloc,2)
           Sint(j) = CMPLX(realintans,imagintans)
        END DO
 
@@ -1125,7 +1131,7 @@ CONTAINS
     Tint = 2./SQRT(1-lamin*(1+2.*epsilon(plam)*SIN(theta/2.)**2))
 
     ifailloc=0
-    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc) !calculate transit time
+    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc,2) !calculate transit time
 
     IF (ifailloc /= 1) THEN
        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifailloc = ',ifailloc,&
@@ -1148,7 +1154,7 @@ CONTAINS
     Tint = 2./SQRT(1-lamin*(1+2.*epsilon(plam)*SIN(theta/2.)**2))
 
     ifailloc=0
-    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc) 
+    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc,3) 
 
     IF (ifailloc /= 1) THEN
        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifailloc = ',ifailloc,&
@@ -1158,12 +1164,12 @@ CONTAINS
     !Carry out transit average of Vpar
     Rint1=1./SQRT(1.-lamin*(1.+2.*epsilon(plam)*SIN(theta/2.)**2))
     Rint2=Rint1 * SQRT(1.-lamin*(1.+2.*epsilon(plam)*SIN(theta/2.)**2))**1. 
-    CALL davint(theta,Rint1,ntheta,0.,pi,Rlam1,ifailloc) 
+    CALL davint(theta,Rint1,ntheta,0.,pi,Rlam1,ifailloc,4) 
     IF (ifailloc /= 1) THEN
        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of alam1 solution Rlam1 integration at p=',plam
     ENDIF
-    CALL davint(theta,Rint2,ntheta,0.,pi,Rlam2,ifailloc) 
+    CALL davint(theta,Rint2,ntheta,0.,pi,Rlam2,ifailloc,5) 
     IF (ifailloc /= 1) THEN
        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of alam1 solution Rlam2 integration at p=',plam
@@ -1183,7 +1189,7 @@ CONTAINS
     Tint = 2./SQRT(1-lamin*(1+2.*epsilon(plam)*SIN(theta/2.)**2))
 
     ifailloc=0
-    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc) 
+    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc,6) 
 
     IF (ifailloc /= 1) THEN
        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifailloc = ',ifailloc,&
@@ -1193,12 +1199,12 @@ CONTAINS
     !Carry out transit average of Vpar^2
     Rint1=1./SQRT(1.-lamin*(1.+2.*epsilon(plam)*SIN(theta/2.)**2))
     Rint2=Rint1 * SQRT(1.-lamin*(1.+2.*epsilon(plam)*SIN(theta/2.)**2))**2. 
-    CALL davint(theta,Rint1,ntheta,0.,pi,Rlam1,ifailloc) 
+    CALL davint(theta,Rint1,ntheta,0.,pi,Rlam1,ifailloc,7) 
     IF (ifailloc /= 1) THEN
        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of alam2 solution Rlam1 integration at p=',plam
     ENDIF
-    CALL davint(theta,Rint2,ntheta,0.,pi,Rlam2,ifailloc) 
+    CALL davint(theta,Rint2,ntheta,0.,pi,Rlam2,ifailloc,8) 
     IF (ifailloc /= 1) THEN
        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of alam2 solution Rlam2 integration at p=',plam
@@ -1218,7 +1224,7 @@ CONTAINS
     Tint = 2./SQRT(1-lamin*(1+2.*epsilon(plam)*SIN(theta/2.)**2))
 
     ifailloc=0
-    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc) 
+    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc,9) 
 
     IF (ifailloc /= 1) THEN
        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifailloc = ',ifailloc,&
@@ -1228,12 +1234,12 @@ CONTAINS
     !Carry out transit average of Vpar^3
     Rint1=1./SQRT(1.-lamin*(1.+2.*epsilon(plam)*SIN(theta/2.)**2))
     Rint2=Rint1 * SQRT(1.-lamin*(1.+2.*epsilon(plam)*SIN(theta/2.)**2))**3. 
-    CALL davint(theta,Rint1,ntheta,0.,pi,Rlam1,ifailloc) 
+    CALL davint(theta,Rint1,ntheta,0.,pi,Rlam1,ifailloc,10) 
     IF (ifailloc /= 1) THEN
        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of alam3 solution Rlam1 integration at p=',plam
     ENDIF
-    CALL davint(theta,Rint2,ntheta,0.,pi,Rlam2,ifailloc) 
+    CALL davint(theta,Rint2,ntheta,0.,pi,Rlam2,ifailloc,10) 
     IF (ifailloc /= 1) THEN
        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of alam3 solution Rlam2 integration at p=',plam
@@ -1253,7 +1259,7 @@ CONTAINS
     Tint = 2./SQRT(1-lamin*(1+2.*epsilon(plam)*SIN(theta/2.)**2))
 
     ifailloc=0
-    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc) 
+    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc,11) 
 
     IF (ifailloc /= 1) THEN
        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifailloc = ',ifailloc,&
@@ -1263,12 +1269,12 @@ CONTAINS
     !Carry out transit average of Vpar^4
     Rint1=1./SQRT(1.-lamin*(1.+2.*epsilon(plam)*SIN(theta/2.)**2))
     Rint2=Rint1 * SQRT(1.-lamin*(1.+2.*epsilon(plam)*SIN(theta/2.)**2))**4. 
-    CALL davint(theta,Rint1,ntheta,0.,pi,Rlam1,ifailloc) 
+    CALL davint(theta,Rint1,ntheta,0.,pi,Rlam1,ifailloc,12) 
     IF (ifailloc /= 1) THEN
        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of alam4 solution Rlam1 integration at p=',plam
     ENDIF
-    CALL davint(theta,Rint2,ntheta,0.,pi,Rlam2,ifailloc) 
+    CALL davint(theta,Rint2,ntheta,0.,pi,Rlam2,ifailloc,13) 
     IF (ifailloc /= 1) THEN
        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of alam4 solution Rlam2 integration at p=',plam
@@ -1288,7 +1294,7 @@ CONTAINS
     Tint = 2./SQRT(1-lamin*(1+2.*epsilon(plam)*SIN(theta/2.)**2))
 
     ifailloc=0
-    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc) 
+    CALL davint(theta,Tint,ntheta,0.,pi,Tlam,ifailloc,14) 
 
     IF (ifailloc /= 1) THEN
        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifailloc = ',ifailloc,&
@@ -1298,12 +1304,12 @@ CONTAINS
     !Carry out transit average of Vpar^5
     Rint1=1./SQRT(1.-lamin*(1.+2.*epsilon(plam)*SIN(theta/2.)**2))
     Rint2=Rint1 * SQRT(1.-lamin*(1.+2.*epsilon(plam)*SIN(theta/2.)**2))**5. 
-    CALL davint(theta,Rint1,ntheta,0.,pi,Rlam1,ifailloc) 
+    CALL davint(theta,Rint1,ntheta,0.,pi,Rlam1,ifailloc,15) 
     IF (ifailloc /= 1) THEN
        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of alam5 solution Rlam1 integration at p=',plam
     ENDIF
-    CALL davint(theta,Rint2,ntheta,0.,pi,Rlam2,ifailloc) 
+    CALL davint(theta,Rint2,ntheta,0.,pi,Rlam2,ifailloc,16) 
     IF (ifailloc /= 1) THEN
        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of alam5 solution Rlam2 integration at p=',plam

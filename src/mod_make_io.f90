@@ -43,7 +43,7 @@ CONTAINS
     phys_meth = phys_methin
     coll_flag = coll_flagin
     rot_flag = rot_flagin
-    IF (verbosein == 1) verbose = .TRUE.
+    IF (verbosein > 0) verbose = .TRUE.
     IF (verbosein == 0) verbose = .FALSE.
     el_type = el_typein
 
@@ -73,7 +73,7 @@ CONTAINS
     ALLOCATE(qx(dimx)); qx = qxin
     ALLOCATE(smag(dimx)); smag = smagin
     WHERE(ABS(smag) < 0.1) smag = SIGN(0.1,smag) !filter very low magnetic shear which is not valid under QLK assumptions (locality and strong ballooning)
-!    WHERE(smag < -0.3) smag = -0.3               !filter very negative magnetic shear which is not presently valid under QLK assumptions (we have no slab modes)
+    WHERE(smag < -0.3) smag = -0.3               !filter very negative magnetic shear which is not presently valid under QLK assumptions (we have no slab modes)
     ALLOCATE(alphax(dimx)); alphax = alphaxin
     WHERE( (smag - alphax) < 0.2 ) alphax = -0.2 + smag !filter high alpha where s-alpha goes into invalid regime under QLK assumptions (we have no slab modes)
     WHERE( alphax < 0.) alphax = 0. ! For negative magnetic shear: make sure pressure gradients are not positive due to above constraint
@@ -255,9 +255,14 @@ CONTAINS
        di(:,i) = qx(:)/SQRT(2._DBL*(epsilon(:)+eps))*Rhoi(:,i) !Ion banana width
 
        Machi(:,i) = Machpar(:)*cref(:)/cthi(:,i) !Mach number in parallel direction
+       Machitemp = Machi ! Original, unaltered Mach number
+      
        IF (rot_flag == 2) THEN
           Machiorig(:,i) = Machparorig(:)*cref(:)/cthi(:,i) !Mach number in parallel direction
           Machimod(:,i) = Machparmod(:)*cref(:)/cthi(:,i) !Mach number in parallel direction
+          WHERE(Ai>20.5) Machiorig=0. !Filter out Mach numbers for heavy impurities due to breaking of Mach ordering. 
+          !Split off at Ne (still relatively common in tokamaks and completes 2nd row of periodic table)
+          WHERE(Ai>20.5) Machimod=0. 
        ENDIF
 
        WHERE (ion_type(:,i) .NE. 3) 
@@ -265,8 +270,6 @@ CONTAINS
           Zeffx(:) = Zeffx(:)+ninorm(:,i)*Zi(:,i)**2 !Zeff
        ENDWHERE
     ENDDO
-    Machitemp = Machi
-    WHERE(Ai>2) Machi=0. !Filter out Mach numbers for impurities due to breaking of Mach ordering
 
     Lambe(:) = 15.2_DBL - 0.5_DBL*LOG(0.1_DBL*Nex(:)) + LOG(Tex(:))  !Coulomb constant and collisionality. Wesson 2nd edition p661-663
     Nue(:) = 1._DBL/(1.09d-3) *Zeffx(:)*Nex(:)*Lambe(:)/(Tex(:))**1.5_DBL*collmult 
@@ -796,7 +799,6 @@ CONTAINS
     CALL MPI_Reduce(cot_modeshift,cot_modeshifttmp,dimx*dimn,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
     CALL MPI_Reduce(old_modewidth,old_modewidthtmp,dimx*dimn,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
     CALL MPI_Reduce(old_modeshift,old_modeshifttmp,dimx*dimn,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-
     CALL MPI_Reduce(FLRec,FLRectmp,dimx*dimn,MPI_DOUBLE_PRECISION,MPI_SUM,0,mpi_comm_world,ierr)
     CALL MPI_Reduce(FLRep,FLReptmp,dimx*dimn,MPI_DOUBLE_PRECISION,MPI_SUM,0,mpi_comm_world,ierr)
     CALL MPI_Reduce(gamma,gammatmp,dimx*dimn*numsols,MPI_DOUBLE_PRECISION,MPI_SUM,0,mpi_comm_world,ierr)
@@ -810,7 +812,6 @@ CONTAINS
     CALL MPI_Reduce(ana_solflu,ana_solflutmp,dimx*dimn,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
     CALL MPI_Reduce(sol,soltmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
     CALL MPI_Reduce(fdsol,fdsoltmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-
     CALL MPI_Reduce(Lcirce,Lcircetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
     CALL MPI_Reduce(Lpiege,Lpiegetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
     CALL MPI_Reduce(Lecirce,Lecircetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
@@ -823,7 +824,6 @@ CONTAINS
     CALL MPI_Reduce(Lepiegi,Lepiegitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
     CALL MPI_Reduce(Lvcirci,Lvcircitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
     CALL MPI_Reduce(Lvpiegi,Lvpiegitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-
     CALL MPI_Reduce(ecoefsgau,ecoefsgautmp,dimx*dimn*(nions+1)*10,MPI_DOUBLE_PRECISION,MPI_SUM,0,mpi_comm_world,ierr)
 
     IF (phys_meth /= 0) THEN
@@ -835,7 +835,6 @@ CONTAINS
        CALL MPI_Reduce(Lpieggue,Lpiegguetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
        CALL MPI_Reduce(Lcircce,Lcirccetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
        CALL MPI_Reduce(Lpiegce,Lpiegcetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-
        CALL MPI_Reduce(Lcircgti,Lcircgtitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
        CALL MPI_Reduce(Lpieggti,Lpieggtitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
        CALL MPI_Reduce(Lcircgni,Lcircgnitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
@@ -854,7 +853,6 @@ CONTAINS
           CALL MPI_Reduce(Lepieggue,Lepiegguetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
           CALL MPI_Reduce(Lecircce,Lecirccetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
           CALL MPI_Reduce(Lepiegce,Lepiegcetmp,dimx*dimn*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
-
           CALL MPI_Reduce(Lecircgti,Lecircgtitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
           CALL MPI_Reduce(Lepieggti,Lepieggtitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)
           CALL MPI_Reduce(Lecircgni,Lecircgnitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_COMPLEX,MPI_SUM,0,mpi_comm_world,ierr)

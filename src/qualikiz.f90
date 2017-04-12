@@ -233,11 +233,24 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
      CLOSE(900)
 
      !DEBUG
-!!$     WRITE(fmtn,'(A,I0, A)') '(',dimn,'G15.7)'
-!!$     OPEN(unit=myunit, file="rjonsolflu.dat", action="write", status="replace")
-!!$     WRITE(myunit,fmtn) ((REAL(jon_solflu(i,j)),j=1,dimn),i=1,dimx) ; CLOSE(myunit)
-!!$     OPEN(unit=myunit, file="ijonsolflu.dat", action="write", status="replace")
-!!$     WRITE(myunit,fmtn) ((AIMAG(jon_solflu(i,j)),j=1,dimn),i=1,dimx) ; CLOSE(myunit)
+     WRITE(fmtn,'(A,I0, A)') '(',dimn,'G15.7)'
+     OPEN(unit=myunit, file="output/primitive/rjonsolflu.dat", action="write", status="replace")
+     WRITE(myunit,fmtn) ((REAL(jon_solflu(i,j)),j=1,dimn),i=1,dimx) ; CLOSE(myunit)
+     OPEN(unit=myunit, file="output/primitive/ijonsolflu.dat", action="write", status="replace")
+     WRITE(myunit,fmtn) ((AIMAG(jon_solflu(i,j)),j=1,dimn),i=1,dimx) ; CLOSE(myunit)
+     OPEN(unit=myunit, file="output/primitive/rcotsolflu.dat", action="write", status="replace")
+     WRITE(myunit,fmtn) ((REAL(cot_solflu(i,j)),j=1,dimn),i=1,dimx) ; CLOSE(myunit)
+     OPEN(unit=myunit, file="output/primitive/icotsolflu.dat", action="write", status="replace")
+     WRITE(myunit,fmtn) ((AIMAG(cot_solflu(i,j)),j=1,dimn),i=1,dimx) ; CLOSE(myunit)
+     OPEN(unit=myunit, file="output/primitive/rcotmodewidth.dat", action="write", status="replace")
+     WRITE(myunit,fmtn) ((REAL(cot_modewidth(i,j)),j=1,dimn),i=1,dimx) ; CLOSE(myunit)
+     OPEN(unit=myunit, file="output/primitive/icotmodewidth.dat", action="write", status="replace")
+     WRITE(myunit,fmtn) ((AIMAG(cot_modewidth(i,j)),j=1,dimn),i=1,dimx) ; CLOSE(myunit)
+     OPEN(unit=myunit, file="output/primitive/rcotmodeshift.dat", action="write", status="replace")
+     WRITE(myunit,fmtn) ((REAL(cot_modeshift(i,j)),j=1,dimn),i=1,dimx) ; CLOSE(myunit)
+     OPEN(unit=myunit, file="output/primitive/icotmodeshift.dat", action="write", status="replace")
+     WRITE(myunit,fmtn) ((AIMAG(cot_modeshift(i,j)),j=1,dimn),i=1,dimx) ; CLOSE(myunit)
+
 !!$     OPEN(unit=900, file="FLRep.dat", action="write", status="replace")
 !!$     WRITE(900,'(16G15.7)') ((FLRep(i,j),j=1,dimn),i=1,dimx) ;  CLOSE(900)
 !!$     OPEN(unit=900, file="FLRip.dat", action="write", status="replace")

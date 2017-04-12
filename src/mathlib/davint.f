@@ -1,5 +1,5 @@
 *     DECK DAVINT
-      SUBROUTINE DAVINT (X, Y, N, XLO, XUP, ANS, IERR)
+      SUBROUTINE DAVINT (X, Y, N, XLO, XUP, ANS, IERR, MARKER)
 C***  BEGIN PROLOGUE  DAVINT
 C***  PURPOSE  Integrate a function tabulated at arbitrarily spaced
 C     abscissas using overlapping parabolas.
@@ -53,6 +53,8 @@ C     =4 Means the restriction X(I+1).GT.X(I) was violated.
 C     =5 Means the number N of function values was .lt. 2.
 C     ANS is set to zero if IERR=2,3,4,or 5.
 C     
+C     MARKER - User provided identifier for debugging purposes 
+C
 C     DAVINT is documented completely in SC-M-69-335
 C     Original program from *Numerical Integration* by Davis & Rabinowitz
 C     Adaptation and modifications by Rondall E Jones.
@@ -70,7 +72,7 @@ C     900315  CALLs to XERROR changed to CALLs to XERMSG.  (THJ)
 C     920501  Reformatted the REFERENCES section.  (WRB)
 C***  END PROLOGUE  DAVINT
 C     
-      INTEGER I, IERR, INLFT, INRT, ISTART, ISTOP, N
+      INTEGER I, IERR, INLFT, INRT, ISTART, ISTOP, N, MARKER
       DOUBLE PRECISION A, ANS, B, C, CA, CB, CC, FL, FR, R3, RP5,
      1     SLOPE, SUM, SYL, SYL2, SYL3, SYU, SYU2, SYU3, TERM1, TERM2,
      2     TERM3, X, X1, X12, X13, X2, X23, X3, XLO, XUP, Y
@@ -206,6 +208,16 @@ C     ......EXIT
       GO TO 190
  180  CONTINUE
       IERR = 4
+      WRITE(*,*) 'MARKER=',MARKER
+      WRITE(*,*) N
+      DO 200 I = 1, N
+         WRITE(*,*) X(I)
+ 200  CONTINUE
+      WRITE(*,*)
+      DO 210 I = 1, N
+         WRITE(*,*) Y(I)
+ 210  CONTINUE
+      WRITE(*,*)
       CALL XERMSG ('SLATEC', 'DAVINT',
      +     'THE ABSCISSAS WERE NOT STRICTLY INCREASING.  MUST HAVE ' //
      +     'X(I-1) .LT. X(I) FOR ALL I.', 4, 1)
