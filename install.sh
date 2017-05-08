@@ -12,6 +12,9 @@ case $HOSTNAME in
   edison*)
     ARCH=edison
     ;;
+  fusionsim)
+    ARCH=fusionsim
+    ;;
 esac
 
 echo Detected machine \'$ARCH\' with root \'$PWD\'. Is this correct? \[Y\/n]
