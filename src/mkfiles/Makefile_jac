@@ -20,7 +20,7 @@ mod_fonct.o callpassQLints.o calltrapQLints.o QLflux.o nanfilter.o calcroutines.
 all: $(CUB)/libcubpack.a $(ROUT)/librout.a QuaLiKiz.exe
 
 QuaLiKiz.exe: qlk_standalone.f90 $(OBJS_QUALIKIZ) $(ROUT)/librout.a $(CUB)/libcubpack.a
-	$(FC) -o QuaLiKiz.exe qlk_standalone.f90 $(OBJS_QUALIKIZ) $(F90FLAGS) $(INCLUDE) -L$(ROUT) -lrout -L$(CUB) -l$(CUB)
+	$(FC) -o QuaLiKiz.exe qlk_standalone.f90 $(OBJS_QUALIKIZ) $(F90FLAGS) $(INCLUDE) -L$(ROUT) -lrout -L$(CUB) -l$(CUB) -lnag_nag
 
 #qlk_makeflux.exe: qlk_makeflux.f90 $(OBJS_MAKEFLUX) $(ROUT)/librout.a
 #	$(FC) -o qlk_makeflux.exe qlk_makeflux.f90 $(OBJS_MAKEFLUX) $(F90FLAGS) $(INCLUDE) -L$(ROUT) -lrout
