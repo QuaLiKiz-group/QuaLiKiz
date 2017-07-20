@@ -7,7 +7,7 @@ ROUT = mathlib
 CUB = cubpack
 
 # Directory for NAG routines
-NAG = /home/emc/citrin/mathlibs
+NAG = /Differ/Shares/Departments/Fusiefysica/IMT/libs
 
 FC=mpif90.openmpi
 FFLAGS = -O3 -fdefault-real-8 -fdefault-double-8 -ffree-line-length-none -I$(CUB)
