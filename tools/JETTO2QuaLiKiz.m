@@ -60,24 +60,24 @@ dimxr=input(' number of radial points, default = 25 : ');
 if isempty(dimxr) == 1
 	dimxr = 25;
 end
-
-   x=linspace(ro,r1,dimxr); % (-) radial normalised coordinate (midplane average)
-
-   scann = length(x); % for these cases the length of x determines the number of
+   
+   scann = dimxr; % for these cases the length of x determines the number of
    % QuaLiKiz spectra calculated
 
-   Bo = Bo.*ones(1,scann); %magnetic field, (T) Likely not very rigorous to use this sqrt(<B²>) for calculating the Larmor radius % quite close to <Bphi> in practice however 
-
    srmi=size(rmije);
-   Rmin = rmije(ind,srmi(2)).*ones(1,scann); % (m) Geometric minor radius. Assumed to be a midplane average at LCFS. Currently a profile but should probably be shifted to a scalar
+
+   x=linspace(ro,r1,scann); % (-) radial normalised coordinate (midplane average)
+
+   Rmin = spline(xrhoje,rmije(ind,:),x); %(m) Minor radius. Radial profile due to Shafranov shift
+   rho = spline(xrhoje,rmije(ind,:),x)./Rmin(scann); % radial coordinate outboard midplane
+   
+   Bo = Bo.*ones(1,scann); %magnetic field, (T) Likely not very rigorous to use this sqrt(<B²>) for calculating the Larmor radius % quite close to <Bphi> in practice however 
 
    [rmaje,tje,xrje]= ...
    jetreaddata(['ppf/',int2str(shotn),'/jsp/r?uid=',uidje,'+seq=',num2str(seqje)]);
    [aa,ind] = min(abs(tje-tt));
    R0 = rmaje(ind,1); %(m) Geometric major radius used for normalizations
    Ro = spline(xrje,rmaje(ind,:),x); %(m) Major radius. Radial profile due to Shafranov shift
-   xxje = spline(xrhoje,rmije(ind,:),x)./Rmin; 
-   rho = x; % (-) normalized toroidal flux coordinate
    xx=linspace(x(1),x(scann),100); % xx to calculate gradients with more radial
    %points in the outboard midplane
    
@@ -86,9 +86,10 @@ end
    [aa,ind] = min(abs(tje-tt));
    qx = spline(xqje,qje(ind,:),x); % safety factor
    qxx=spline(x,qx,xx);
-   qprimxx=gradient(qxx,xx.*Rmin(1));
+   rhoxx=spline(x,rho,xx);
+   qprimxx=gradient(qxx,rhoxx.*Rmin(scann));
    qprim=spline(xx,qprimxx,x);
-   smag=x.*Rmin./qx.*qprim; % magnetic shear calculated in OMP
+   smag=rho.*Rmin(scann)./qx.*qprim; % magnetic shear calculated in OMP
 
    
 %Electrons
@@ -97,14 +98,14 @@ end
    [aa,ind] = min(abs(tje-tt));
    Tex = spline(xteje,teje(ind,:),x).*1e-3; %(keV) Vector (radial grid x(aa))
    Texx=spline(x,Tex,xx);
-   Atexx=-gradient(Texx,xx.*Rmin(1)).*R0./Texx;  
+   Atexx=-gradient(Texx,rhoxx.*Rmin(scann)).*R0./Texx;  
    Ate=spline(xx,Atexx,x);
    [neje,tje,xneje]= ...
    jetreaddata(['ppf/',int2str(shotn),'/jsp/ne?uid=',uidje,'+seq=',num2str(seqje)]);
    [aa,ind] = min(abs(tje-tt));
    Nex = spline(xneje,neje(ind,:),x).*1e-19; % (10^19 m^-3) Vector (radial grid x(aa))
    Nexx=spline(x,Nex,xx);
-   Anexx=-gradient(Nexx,xx.*Rmin(1)).*R0./Nexx;  
+   Anexx=-gradient(Nexx,rhoxx.*Rmin(scann)).*R0./Nexx;  
    Ane=spline(xx,Anexx,x);
    el_type = 1; % 1 for active, 2 for adiabatic, 3 for adiabatic passing at ion scales (kthetarhosmax<2)
    anise = 1.*ones(1,scann); % Tperp/Tpar at LFS
@@ -128,7 +129,7 @@ end
    [aa,ind] = min(abs(tje-tt));   
    Tix(iind,:) = spline(xtije,tije(ind,:),x).*1e-3; %(keV) Vector (radial grid x(aa))
    Tixx=spline(x,Tix(iind,:),xx);
-   Atixx=-gradient(Tixx,xx.*Rmin(1)).*R0./Tixx;  
+   Atixx=-gradient(Tixx,rhoxx.*Rmin(scann)).*R0./Tixx;  
    Ati(iind,:)=spline(xx,Atixx,x);
    ninorm(iind,:)=0.8.*ones(1,scann);  ; % ni/ne arbitrary for main ions (will be rewritten to ensure quasineutrality)
    Ani(iind,:) = Ane; %arbitrary for main ions, will be rewritten to ensure quasineutrality of gradients
@@ -165,7 +166,7 @@ end
    ninorm(iind,:)=Nzx./Nex; % ni/ne
    Ati(iind,:)=Ati(1,:);% assume all ions at the same temperature
    Nzxx=spline(x,Nzx,xx);
-   Anzxx=-gradient(Nzxx,xx.*Rmin(1)).*R0./Nzxx;  
+   Anzxx=-gradient(Nzxx,rhoxx.*Rmin(scann)).*R0./Nzxx;  
    Anz=spline(xx,Anzxx,x);
    Ani(iind,:) = Anz; 
    ion_type(iind,:)=1.*ones(1,scann); %1 for active, 2 for adiabatic, 3 for tracer (also won't be included in quasineutrality checks), 4 for tracer but included in Zeff
@@ -188,7 +189,7 @@ end
    Vtorx = spline(xvtorje,vtorje(ind,:),x); %(m/s) toroidal velocity at Router
    Machtor = Vtorx./cref; % Toroidal mach number: vtor / cref . Can use cthi value above to scale to desired value with respect to main ion
    Vtorxx=spline(x,Vtorx,xx);
-   Autorxx=gradient(Vtorxx,xx.*Rmin(1)).*R0./cref;  % Toroidal velocity shear: dvtor/dr * R/cref
+   Autorxx=gradient(Vtorxx,rhoxx.*Rmin(scann)).*R0./cref;  % Toroidal velocity shear: dvtor/dr * R/cref
    Autor=spline(xx,Autorxx,x);
    Machpar = Machtor ./ sqrt(1+(epsilon./qx).^2) ;  % Parallel mach number: vpar / cref . This form assumes pure toroidal rotation in the problem, but free to choose any number
    Aupar = Autor./ sqrt(1+(epsilon./qx).^2) ; %Parallel velocity shear: vpar/dr * R/cref . This form assumes pure toroidal rotation in the problem, but free to choose any number
