@@ -54,26 +54,34 @@ figure;
 subplot(221)
 set(gca,'FontSize',18)
 plot(x,Ati(:,1),'r',x,Tix(:,1),'r--',x,Ate,'b',x,Tex,'b--','LineWidth',2)
-legend('-R\nabla{T_i}/T_i','Ti','-R\nabla{T_e}/T_e','T_e')
-xlabel('\rho')
+l1=legend('-$R\nabla{T_i}/T_i$','$T_i$','-$R\nabla{T_e}/T_e$','$T_e$')
+set(l1,'Interpreter','latex')
+l2=xlabel('$\rho$')
+set(l2,'Interpreter','latex')
 grid on
 subplot(222)
 set(gca,'FontSize',18)
 plot(x,Ane,'g',x,Nex,'g--','LineWidth',2)
-legend('-R\nabla{n_e}/n_e','n_e')
-xlabel('\rho')
+l1=legend('-$R\nabla{n_e}/n_e$','$n_e$')
+set(l1,'Interpreter','latex')
+l2=xlabel('$\rho$')
+set(l2,'Interpreter','latex')
 grid on
 subplot(223)
 set(gca,'FontSize',18)
 plot(x,Tex./Tix(:,1),'c',x,Zeffx,'c--',x,ft,'c-.',x,10*Nuestar,'b--','LineWidth',2)
-legend('T_e/T_i','Z_{eff}','f_t', '10*\nu^{*}')
-xlabel('\rho')
+l1=legend('$T_e/T_i$','$Z_{eff}$','$f_t$', '$10*\nu^{*}$')
+set(l1,'Interpreter','latex')
+l2=xlabel('$\rho$')
+set(l2,'Interpreter','latex')
 grid on
 subplot(224)
 set(gca,'FontSize',18)
 plot(x,smag,'m',x,qx,'m--',x,alphax,'m-.s','LineWidth',2)
-legend('s','q','\alpha')
-xlabel('\rho')
+l1=legend('s','q','$\alpha$')
+set(l1,'Interpreter','latex')
+l2=xlabel('$\rho$')
+set(l2,'Interpreter','latex')
 grid on
 
 % reading outputs
@@ -123,9 +131,12 @@ contourf(x,kthetarhos,gam_SI(1:length(x),:)','LineWidth',2);
 hold on
 colorbar
 shading flat
-xlabel('\rho');
-ylabel('k_\theta\rho');
-title('1st root, \gamma in s^{-1}');
+l2=xlabel('$\rho$')
+set(l2,'Interpreter','latex')
+l3=ylabel('$k_\theta\rho$');
+set(l3,'Interpreter','latex')
+l1=title('1st root, $\gamma$ in $s^{-1}$');
+set(l1,'Interpreter','latex')
 
 
 Aa=input('do you want to visualize more details on spectra ? all unstable modes, mode frequencies? type 1 for yes, and 2 for no ');
@@ -142,17 +153,23 @@ jj=1;
 	plot(kthetarhos,gam_SI(j,:),kthetarhos,gam_SI(j+length(x),:),kthetarhos,gam_SI(j+2.*length(x),:),'LineWidth',2)
 	hold on
 	grid on
-	legend('1st root','2nd root','3rd root')
-	xlabel('k_{\theta}\rho_s')
-	ylabel(['\gamma in s^{-1} at \rho=', num2str(x1)])
+	l1=legend('1st root','2nd root','3rd root')
+	set(l1,'Interpreter','latex')
+	l2=xlabel('$k_{\theta}\rho_s$')
+	set(l2,'Interpreter','latex')
+	l3=ylabel(['$\gamma$ in $s^{-1}$ at $\rho=$', num2str(x1)])
+	set(l3,'Interpreter','latex')
 	subplot(212)
 	set(gca,'FontSize',18)
 	plot(kthetarhos,ome_SI(j,:),kthetarhos,ome_SI(j+length(x),:),kthetarhos,ome_SI(j+2.*length(x),:),'LineWidth',2)
 	hold on
 	grid on	
-	title('positive: electron drift direction, negative: ion drift direction')
-	xlabel('k_{\theta}\rho_s')
-	ylabel(['\omega_r in s^{-1}at \rho=', num2str(x1)])
+	l1=title('positive: electron drift direction, negative: ion drift direction')
+	set(l1,'Interpreter','latex')
+	l2=xlabel('$k_{\theta}\rho_s$')
+	set(l2,'Interpreter','latex')
+	l3=ylabel(['$\omega_r$ in $s^{-1}$ at $\rho=$', num2str(x1)])
+	set(l3,'Interpreter','latex')
 	bb=input('one more radius? to stop and plot the fluxes type 1 ');
 	if bb==1
 	   jj=-1;
@@ -165,9 +182,12 @@ end
 figure; 
 set(gca,'FontSize',18)
 plot(x,eef_SI,'b.--',x,ief_SI,'r.--','LineWidth',2);
-xlabel('\rho');
-title('energy flux W.m^{-2}');
-legend('electron', 'main ion')
+l2=xlabel('$\rho$')
+set(l2,'Interpreter','latex')
+l3=title('energy flux $W.m^{-2}$');
+set(l3,'Interpreter','latex')
+l1=legend('electron', 'main ion')
+set(l1,'Interpreter','latex')
 hold on
 grid on
 
@@ -183,9 +203,12 @@ end
 figure; 
 set(gca,'FontSize',18)
 plot(x,epf_SI,'b.-',x,sum(ipf_SI.*Zi,sizions(2)),'r.-',x,sum(Fluxi.*Zi,sizions(2)),'m.-','LineWidth',2);
-xlabel('\rho');
-title('particle flux (m^{-2}s^{-1})');
-legend('\Gamma_e', 'Sum Z_i \Gamma_i', 'Sum Z_i (-D\nabla n_i+V n_i)')
+l2=xlabel('$\rho$');
+set(l2,'Interpreter','latex')
+l3=title('particle flux $m^{-2}s^{-1}$');
+set(l3,'Interpreter','latex')
+l1=legend('$ \Gamma_e $', '$ \sum Z_i \Gamma_i $', '$  \sum Z_i (-D\nabla n_i+V n_i)$')
+set(l1,'Interpreter','latex')
 grid on
 hold on
 
@@ -194,16 +217,21 @@ figure;
 subplot(1,2,1)
 set(gca,'FontSize',18)
 plot(x,vce_SI,x,vte_SI,x,vre_SI,x,vce_SI+vte_SI+vre_SI,'m.-','LineWidth',2);
-xlabel('\rho');
-title('el. convection velocity (m.s^{-1})');
-legend('compressibility', 'thermodiffusion', 'rotodiffusion','total')
+l1=xlabel('$\rho$');
+set(l1,'Interpreter','latex')
+l2=title('el. convection velocity ($m.s^{-1}$)');
+set(l2,'Interpreter','latex')
+l1=legend('compressibility', 'thermodiffusion', 'rotodiffusion','total')
+set(l1,'Interpreter','latex')
 hold on 
 grid on
 subplot(1,2,2)
 set(gca,'FontSize',18)
 plot(x,dfe_SI,'m.-','LineWidth',2);
-xlabel('\rho');
-title('el. particle diffusion (m^2.s^{-1})');
+l1=xlabel('$\rho$');
+set(l1,'Interpreter','latex')
+l2=title('el. particle diffusion ($m^2.s^{-1}$)');
+set(l2,'Interpreter','latex')
 hold on 
 grid on
 
@@ -215,16 +243,21 @@ if sizions(2)>1
 	subplot(1,2,1)
 	set(gca,'FontSize',18)
 	plot(x,vci_SI(:,ii),x,vti_SI(:,ii),x,vri_SI(:,ii),x,vci_SI(:,ii)+vti_SI(:,ii)+vri_SI(:,ii),'m.-','LineWidth',2);
-	xlabel('\rho');
-	title('ion convection velocity (m.s^{-1})' );
-	legend('compressibility', 'thermodiffusion', 'rotodiffusion', 'total')
+	l1=xlabel('$\rho$');
+	set(l1,'Interpreter','latex')
+	l2=title('ion convection velocity (m.s^{-1})' );
+	set(l2,'Interpreter','latex')
+	l3=legend('compressibility', 'thermodiffusion', 'rotodiffusion', 'total')
+	set(l3,'Interpreter','latex')
 	hold on 
 	grid on
 	subplot(1,2,2)
 	set(gca,'FontSize',18)
 	plot(x,dfi_SI(:,ii),'m.-','LineWidth',2);
-	xlabel('\rho');
-	title(['ion particle diffusion (m^2.s^{-1}). A=',num2str(Ai(1,ii)),' Z=',num2str(Zi(1,ii))]);
+	l1=xlabel('$\rho$');
+	set(l1,'Interpreter','latex')
+	l2=title(['ion particle diffusion ($m^2.s^{-1}$). A=',num2str(Ai(1,ii)),' Z=',num2str(Zi(1,ii))]);
+	set(l2,'Interpreter','latex')
 	hold on 
 	grid on
    end
