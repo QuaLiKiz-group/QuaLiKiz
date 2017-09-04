@@ -30,7 +30,8 @@ CONTAINS
     COMPLEX(kind=DBL), DIMENSION(numsols) :: soll, fdsoll, solltmp, fdsolltmp
     COMPLEX(kind=DBL) :: fdsollj, omin, fonout,newsol,newfdsol,soltest
     REAL(kind=DBL),    DIMENSION(numsols) :: isol,rsol,ifdsol,rfdsol,tmpsol
-    INTEGER :: NN, NNN, i,j,npts, ifailloc
+    INTEGER :: NN, i,j,npts, ifailloc,minlocind
+    INTEGER, DIMENSION(1) :: minloci
     LOGICAL :: issol
     REAL(kind=DBL) :: kteta,maxdia
     REAL(KIND=DBL) :: maxklam,minklam,relerr
@@ -375,10 +376,10 @@ CONTAINS
        ELSE 
           L = 1.0 !begin the calculation
           ! LAUNCH VARIOUS CONTOURS SCANNING THE REAL AXIS 
-          ! The loop exits following finding 6 solutions (highly unlikely!)
-          ! or when the contour center extends beyond the defined maximum
+          ! The loop exits when the contour center extends
+          ! beyond the defined maximum on the real axis
 
-          DO WHILE (NN<numsols+1 .AND. (L+0.5)*rint < ABS(REAL(omegmax)))
+          DO WHILE ((L+0.5)*rint < ABS(REAL(omegmax)))
              !Loop over both positive and negative frequencies in solution search
 
              IF ((MPI_Wtime()-calltimeinit) > timeout) THEN
@@ -412,21 +413,24 @@ CONTAINS
                 !The vast bulk of QuaLiKiz computation is within this procedure
 
                 IF ( ( rho(p) >= rhomin ) .AND. ( rho(p) <= rhomax) ) THEN !check if rho is within the defined range, otherwise return zero
-                   CALL calculsol(p, nu, Centre, NNN, solltmp, fdsolltmp)
+                   CALL calculsol(p, nu, Centre, NN, solltmp, fdsolltmp)
+
                 ELSE
                    solltmp(:)=0.
                    fdsolltmp(:)=0.
-                   NNN=0
+                   NN=0
                 ENDIF
 !!$                solltmp(:)=0
                 !Solution cleanup: all solutions within soldel*100 percent. soldel found in datcal
-                !of a previously found solution (from another contour) is set to zero
-                IF (NNN > 0) THEN
-                   DO j = 1,NN
-                      WHERE (ABS(solltmp-soll(j))/ABS(soll(j)) < soldel)                       
-                         solltmp = (0.,0.)
-                         fdsolltmp = (0.,0.)
-                      END WHERE
+                !of a previously found solution (from another contour) is set to zero             
+                IF (NN > 0) THEN
+                   DO j = 1,numsols
+                      IF (ABS(soll(j)) > epsD) THEN !only compare to non-zero solutions in soll
+                         WHERE (ABS(solltmp-soll(j))/ABS(soll(j)) < soldel)                       
+                            solltmp = (0.,0.)
+                            fdsolltmp = (0.,0.)
+                         END WHERE
+                      ENDIF
                    ENDDO
                 ENDIF
 
@@ -439,17 +443,22 @@ CONTAINS
                       fdsolltmp(j) = (0.,0.)
                    ENDIF
                 ENDDO
-                !If any solutions survive, they are saved together with any previous solutions
-                NNN=0
+
+                ! If any solutions survive, they are saved together with any previous solutions
+                ! If numsols is not high enough to save all solutions, then the largest growth rates are saved first
                 DO j=1,numsols 
-                   IF (solltmp(j) /= (0.,0.)) THEN
-                      NNN = NNN+1
-                      soll(NN+NNN)   = solltmp(j)
-                      fdsoll(NN+NNN) = fdsolltmp(j)
+                   IF ( ABS(solltmp(j)) > epsD ) THEN
+                      minloci = MINLOC(AIMAG(soll))
+                      minlocind = minloci(1)
+                      IF ( (ABS(soll(minlocind)) > epsD) .AND. (verbose .EQV. .TRUE.) ) THEN
+                         WRITE(stdout,'(A,I2,A,I2,A)') 'Valid instability discarded due to limited number of numsols at (p,nu)=(',p,',',nu,')'
+                      ENDIF
+                      IF (AIMAG(solltmp(j)) > AIMAG(soll(minlocind))) THEN
+                         soll(minlocind)   = solltmp(j)
+                         fdsoll(minlocind) = fdsolltmp(j)                        
+                      ENDIF
                    ENDIF
                 ENDDO
-                !Recalculate the total number of solutions found until now
-                NN = NN + NNN
              ENDDO
              !Shift the contours for the next iteration
              L = L+2. - overlapfac
