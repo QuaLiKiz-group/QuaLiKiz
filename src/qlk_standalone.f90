@@ -2,7 +2,6 @@ PROGRAM qlk_standalone
   !Standalone driver for qualikiz. Detailed code info in call_qualikiz subroutine header
 
   USE kind
-  !USE mod_io_management !MPI is included in this module
   USE diskio
 
   IMPLICIT NONE
@@ -10,12 +9,12 @@ PROGRAM qlk_standalone
   INCLUDE 'mpif.h'
   ! INTERFACE WITH EXTERNAL QUALIKIZ SUBROUTINE
   INTERFACE 
-     SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll_flagin, rot_flagin, verbosein,  separatefluxin,kthetarhosin, & !general param
+     SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll_flagin, rot_flagin, verbosein, separatefluxin, kthetarhosin, & !general param
           & xin, Roin, Rminin, R0in, Boin, qxin, smagin, alphaxin, & !geometry input
           & el_typein, Texin, Nexin, Atein, Anein, anisein, danisedrin, & !electron input
           & ion_typein, Aiin, Ziin, Tixin, ninormin, Atiin, Aniin, anisin, danisdrin, & !ion input
           & Machtorin, Autorin, Machparin, Auparin, gammaEin, & !rotation input
-          & maxrunsin, maxptsin, relacc1in, relacc2in, timeoutin, & !code specific input
+          & maxrunsin, maxptsin, relacc1in, relacc2in, timeoutin, ETGmultin, collmultin, & !code specific input
           & epf_SIout,eef_SIout,evf_SIout,ipf_SIout,ief_SIout,ivf_SIout, & ! Non optional outputs
           & solflu_SIout, solflu_GBout, gam_SIout,gam_GBout,ome_SIout,ome_GBout, & !growth rate and frequency output
           & epf_GBout,eef_GBout, evf_GBout, dfe_SIout,vte_SIout,vre_SIout,vce_SIout,epf_cmout,eef_cmout,evf_cmout,ckeout, & !electron flux outputs
@@ -37,7 +36,6 @@ PROGRAM qlk_standalone
           & iefTEM_SIout,iefTEM_GBout,ipfTEM_SIout,ivfTEM_SIout,ivfTEM_GBout,dfiTEM_SIout,vtiTEM_SIout,vciTEM_SIout,vriTEM_SIout,dfiTEM_GBout,vtiTEM_GBout,vciTEM_GBout,vriTEM_GBout,&
           & iefITG_SIout,iefITG_GBout,ipfITG_SIout,ivfITG_SIout,ivfITG_GBout,dfiITG_SIout,vtiITG_SIout,vciITG_SIout,vriITG_SIout,dfiITG_GBout,vtiITG_GBout,vciITG_GBout,vriITG_GBout)
 
-
        INTEGER, INTENT(IN) :: dimxin, dimnin, nionsin, numsolsin, phys_methin, coll_flagin, rot_flagin, verbosein, separatefluxin, el_typein
        INTEGER, DIMENSION(dimxin,nionsin), INTENT(IN) :: ion_typein
        REAL, DIMENSION(dimxin,nionsin), INTENT(IN) :: Aiin, Ziin
@@ -47,13 +45,13 @@ PROGRAM qlk_standalone
        REAL, DIMENSION(dimxin,nionsin), INTENT(IN) :: Tixin, ninormin, Atiin, Aniin, anisin, danisdrin
        REAL, DIMENSION(dimxin), INTENT(IN) :: Machtorin, Autorin, Machparin, Auparin, gammaEin
        INTEGER, INTENT(IN) :: maxrunsin, maxptsin
-       REAL, INTENT(IN) :: relacc1in, relacc2in, timeoutin, R0in
+       REAL, INTENT(IN) :: relacc1in, relacc2in, timeoutin, ETGmultin, collmultin, R0in
        REAL, OPTIONAL, INTENT(IN) :: rhominin,rhomaxin
 
        ! List of output variables: 
        INTEGER, PARAMETER :: ntheta = 64
        INTEGER, PARAMETER :: numecoefs = 13
-       INTEGER, PARAMETER :: numicoefs = 6
+       INTEGER, PARAMETER :: numicoefs = 7
 
        ! growth rate and frequency outputs
        COMPLEX, DIMENSION(dimxin,dimnin), OPTIONAL, INTENT(OUT) :: solflu_SIout, solflu_GBout, solfluout
@@ -62,7 +60,6 @@ PROGRAM qlk_standalone
        ! final output arrays following saturation rule
        REAL, DIMENSION(dimxin), INTENT(OUT)  :: epf_SIout,eef_SIout,evf_SIout
        REAL, DIMENSION(dimxin,nionsin), INTENT(OUT)  :: ipf_SIout,ief_SIout,ivf_SIout
-
        REAL, DIMENSION(dimxin), OPTIONAL, INTENT(OUT) :: eefETG_SIout,eefETG_GBout
        REAL, DIMENSION(dimxin), OPTIONAL, INTENT(OUT) :: eefTEM_SIout,eefTEM_GBout,epfTEM_SIout,dfeTEM_SIout,vteTEM_SIout,vceTEM_SIout,vreTEM_SIout,dfeTEM_GBout,vteTEM_GBout,vceTEM_GBout,vreTEM_GBout
        REAL, DIMENSION(dimxin), OPTIONAL, INTENT(OUT) :: eefITG_SIout,eefITG_GBout,epfITG_SIout,dfeITG_SIout,vteITG_SIout,vceITG_SIout,vreITG_SIout,dfeITG_GBout,vteITG_GBout,vceITG_GBout,vreITG_GBout
@@ -70,7 +67,6 @@ PROGRAM qlk_standalone
        REAL, DIMENSION(dimxin,nionsin), OPTIONAL, INTENT(OUT) :: vriTEM_SIout,vriTEM_GBout,ivfTEM_SIout,ivfTEM_GBout
        REAL, DIMENSION(dimxin,nionsin), OPTIONAL, INTENT(OUT) :: iefITG_SIout,iefITG_GBout,ipfITG_SIout,dfiITG_SIout,vtiITG_SIout,vciITG_SIout,vriITG_SIout,dfiITG_GBout,vtiITG_GBout,vciITG_GBout,vriITG_GBout
        REAL, DIMENSION(dimxin,nionsin), OPTIONAL, INTENT(OUT) :: ivfITG_SIout,ivfITG_GBout
-
        REAL, DIMENSION(dimxin), OPTIONAL, INTENT(OUT)  :: epf_GBout,eef_GBout, evf_GBout,dfe_SIout, vte_SIout, vre_SIout,vce_SIout, dfe_GBout, vte_GBout, vre_GBout,vce_GBout, ckeout, modeflagout, Nustarout, Zeffxout
        REAL, DIMENSION(dimxin), OPTIONAL, INTENT(OUT)  :: vene_SIout, chiee_SIout, vere_SIout,vece_SIout, cekeout
        REAL, DIMENSION(dimxin,nionsin), OPTIONAL, INTENT(OUT)  :: ipf_GBout,ief_GBout, ivf_GBout,dfi_SIout, vti_SIout, vri_SIout,vci_SIout,dfi_GBout,vti_GBout,vri_GBout,vci_GBout,ckiout
@@ -107,7 +103,6 @@ PROGRAM qlk_standalone
   CHARACTER(len=20) :: myfmt, myint
   CHARACTER(len=:), ALLOCATABLE :: debugdir, outputdir, primitivedir, inputdir
 
-
   !MPI variables:
   INTEGER :: ierror, nproc, myrank
 
@@ -118,7 +113,7 @@ PROGRAM qlk_standalone
   REAL(KIND=DBL), DIMENSION(:), ALLOCATABLE :: Tex, Nex, Ate, Ane, anise, danisedr
   REAL(KIND=DBL), DIMENSION(:,:), ALLOCATABLE :: Tix, ninorm, Ati, Ani, anis, danisdr, Ai, Zi
   REAL(KIND=DBL), DIMENSION(:), ALLOCATABLE :: Machtor, Autor, Machpar, Aupar, gammaE
-  REAL(KIND=DBL) :: relacc1, relacc2, timeout, R0
+  REAL(KIND=DBL) :: relacc1, relacc2, ETGmult, collmult, timeout, R0
   INTEGER :: maxpts,maxruns
 
   ! Output arrays. The 3 dimensions are 'radial grid', 'kthetarhos grid', 'number of modes'
@@ -159,7 +154,7 @@ PROGRAM qlk_standalone
   REAL(KIND=DBL), DIMENSION(:,:), ALLOCATABLE :: phi
   INTEGER, PARAMETER :: ntheta = 64
   INTEGER, PARAMETER :: numecoefs = 13
-  INTEGER, PARAMETER :: numicoefs = 6
+  INTEGER, PARAMETER :: numicoefs = 7
 
   REAL, PARAMETER :: epsD = 1d-14
   INTEGER :: runcounter ! used for counting runs inside integrated modelling applications for deciding to recalculate all or just jump to newton based on old solutions
@@ -184,7 +179,7 @@ PROGRAM qlk_standalone
 
   IF (myrank==0) THEN
      WRITE(stdout,*) ' _________________________________________________________________________________ '
-     WRITE(stdout,*) '                                     QUALIKIZ 2.0 '
+     WRITE(stdout,*) '                                     QUALIKIZ 2.3.1 '
      WRITE(stdout,*) '  gyrokinetic calculation of linear growth rates and quasilinear transport fluxes  '
      WRITE(stdout,*) ' _________________________________________________________________________________ '
      WRITE(stdout,*) ' '
@@ -207,7 +202,7 @@ PROGRAM qlk_standalone
              & el_type, Tex, Nex, Ate, Ane, anise, danisedr, & !electrons
              & ion_type, Ai, Zi, Tix, ninorm, Ati, Ani, anis, danisdr, & !ions
              & Machtor, Autor, Machpar, Aupar, gammaE, & !rotation input
-             & maxruns, maxpts, relacc1, relacc2, timeout, & !code specific inputs
+             & maxruns, maxpts, relacc1, relacc2, timeout, ETGmult, collmult, & !code specific inputs
              & epf_SI,eef_SI,evf_SI,ipf_SI,ief_SI, ivf_SI, & ! Non optional outputs
              & solflu_SIout=solflu_SI, solflu_GBout=solflu_GB, gam_SIout=gam_SI,gam_GBout=gam_GB,ome_SIout=ome_SI,ome_GBout=ome_GB, & !optional growth rate and frequency output
              & epf_GBout=epf_GB,eef_GBout=eef_GB, evf_GBout=evf_GB, epf_cmout=epf_cm,eef_cmout=eef_cm, evf_cmout=evf_cm, & !optional electron flux outputs
@@ -233,7 +228,7 @@ PROGRAM qlk_standalone
              & el_type, Tex, Nex, Ate, Ane, anise, danisedr, & !electrons
              & ion_type, Ai, Zi, Tix, ninorm, Ati, Ani, anis, danisdr, & !ions
              & Machtor, Autor, Machpar, Aupar, gammaE, & !rotation input
-             & maxruns, maxpts, relacc1, relacc2, timeout, & !code specific inputs
+             & maxruns, maxpts, relacc1, relacc2, timeout, ETGmult, collmult,  & !code specific inputs
              & epf_SI,eef_SI,evf_SI,ipf_SI,ief_SI, ivf_SI, & ! Non optional outputs
              & solflu_SIout=solflu_SI, solflu_GBout=solflu_GB, gam_SIout=gam_SI,gam_GBout=gam_GB,ome_SIout=ome_SI,ome_GBout=ome_GB, & !optional growth rate and frequency output
              & epf_GBout=epf_GB,eef_GBout=eef_GB, evf_GBout=evf_GB, dfe_SIout=dfe_SI,vte_SIout=vte_SI,vre_SIout=vre_SI, vce_SIout=vce_SI,epf_cmout=epf_cm,eef_cmout=eef_cm,evf_cmout=evf_cm, ckeout=cke, & !optional electron flux outputs
@@ -268,7 +263,7 @@ PROGRAM qlk_standalone
              & el_type, Tex, Nex, Ate, Ane, anise, danisedr, & !electrons
              & ion_type, Ai, Zi, Tix, ninorm, Ati, Ani, anis, danisdr, & !ions
              & Machtor, Autor, Machpar, Aupar, gammaE, & !rotation input
-             & maxruns, maxpts, relacc1, relacc2, timeout, & !code specific inputs
+             & maxruns, maxpts, relacc1, relacc2, timeout, ETGmult, collmult,  & !code specific inputs
              & epf_SI,eef_SI,evf_SI,ipf_SI,ief_SI, ivf_SI, & ! Non optional outputs
              & solflu_SIout=solflu_SI, solflu_GBout=solflu_GB, gam_SIout=gam_SI,gam_GBout=gam_GB,ome_SIout=ome_SI,ome_GBout=ome_GB, & !optional growth rate and frequency output
              & epf_GBout=epf_GB,eef_GBout=eef_GB, evf_GBout=evf_GB, dfe_SIout=dfe_SI,vte_SIout=vte_SI,vre_SIout=vre_SI, vce_SIout=vce_SI,epf_cmout=epf_cm,eef_cmout=eef_cm,evf_cmout=evf_cm, ckeout=cke, & !optional electron flux outputs
@@ -308,7 +303,7 @@ PROGRAM qlk_standalone
              & el_type, Tex, Nex, Ate, Ane, anise, danisedr, & !electrons
              & ion_type, Ai, Zi, Tix, ninorm, Ati, Ani, anis, danisdr, & !ions
              & Machtor, Autor, Machpar, Aupar, gammaE, & !rotation input
-             & maxruns, maxpts, relacc1, relacc2, timeout, & !code specific inputs
+             & maxruns, maxpts, relacc1, relacc2, timeout, ETGmult, collmult,  & !code specific inputs
              & epf_SI,eef_SI,evf_SI,ipf_SI,ief_SI, ivf_SI, & ! Non optional outputs
              & solflu_SIout=solflu_SI, solflu_GBout=solflu_GB, gam_SIout=gam_SI,gam_GBout=gam_GB,ome_SIout=ome_SI,ome_GBout=ome_GB, & !optional growth rate and frequency output
              & epf_GBout=epf_GB,eef_GBout=eef_GB, evf_GBout=evf_GB, epf_cmout=epf_cm,eef_cmout=eef_cm, evf_cmout=evf_cm, & !optional electron flux outputs
@@ -332,7 +327,7 @@ PROGRAM qlk_standalone
              & el_type, Tex, Nex, Ate, Ane, anise, danisedr, & !electrons
              & ion_type, Ai, Zi, Tix, ninorm, Ati, Ani, anis, danisdr, & !ions
              & Machtor, Autor, Machpar, Aupar, gammaE, & !rotation input
-             & maxruns, maxpts, relacc1, relacc2, timeout, & !code specific inputs
+             & maxruns, maxpts, relacc1, relacc2, timeout, ETGmult, collmult,  & !code specific inputs
              & epf_SI,eef_SI,evf_SI,ipf_SI,ief_SI, ivf_SI, & ! Non optional outputs
              & solflu_SIout=solflu_SI, solflu_GBout=solflu_GB, gam_SIout=gam_SI,gam_GBout=gam_GB,ome_SIout=ome_SI,ome_GBout=ome_GB, & !optional growth rate and frequency output
              & epf_GBout=epf_GB,eef_GBout=eef_GB, evf_GBout=evf_GB, dfe_SIout=dfe_SI,vte_SIout=vte_SI,vre_SIout=vre_SI, vce_SIout=vce_SI,epf_cmout=epf_cm,eef_cmout=eef_cm,evf_cmout=evf_cm, ckeout=cke, & !optional electron flux outputs
@@ -365,7 +360,7 @@ PROGRAM qlk_standalone
              & el_type, Tex, Nex, Ate, Ane, anise, danisedr, & !electrons
              & ion_type, Ai, Zi, Tix, ninorm, Ati, Ani, anis, danisdr, & !ions
              & Machtor, Autor, Machpar, Aupar, gammaE, & !rotation input
-             & maxruns, maxpts, relacc1, relacc2, timeout, & !code specific inputs
+             & maxruns, maxpts, relacc1, relacc2, timeout, ETGmult, collmult, & !code specific inputs
              & epf_SI,eef_SI,evf_SI,ipf_SI,ief_SI, ivf_SI, & ! Non optional outputs
              & solflu_SIout=solflu_SI, solflu_GBout=solflu_GB, gam_SIout=gam_SI,gam_GBout=gam_GB,ome_SIout=ome_SI,ome_GBout=ome_GB, & !optional growth rate and frequency output
              & epf_GBout=epf_GB,eef_GBout=eef_GB, evf_GBout=evf_GB, dfe_SIout=dfe_SI,vte_SIout=vte_SI,vre_SIout=vre_SI, vce_SIout=vce_SI,epf_cmout=epf_cm,eef_cmout=eef_cm,evf_cmout=evf_cm, ckeout=cke, & !optional electron flux outputs
@@ -441,7 +436,7 @@ CONTAINS
   SUBROUTINE data_init()
     !Parallel read data, allocate input and output arrays
     INTEGER, PARAMETER :: ktype = 1 ! BINARY FILES
-    INTEGER :: kc, doit,ierr
+    INTEGER :: doit,ierr
     REAL(kind=DBL) :: dummy !dummy variable for obtaining input. Must be real for readvar
 
     REAL(kind=DBL), DIMENSION(:), ALLOCATABLE :: dummyn
@@ -450,7 +445,7 @@ CONTAINS
 
     INTEGER :: dimxtmp,dimntmp,nionstmp,phys_methtmp,coll_flagtmp,rot_flagtmp,verbosetmp
     INTEGER :: separatefluxtmp,numsolstmp,maxrunstmp,maxptstmp,el_typetmp,runcountertmp
-    REAL(kind=DBL) :: relacc1tmp,relacc2tmp,timeouttmp,R0tmp
+    REAL(kind=DBL) :: relacc1tmp,relacc2tmp,timeouttmp,R0tmp,ETGmulttmp,collmulttmp
     REAL(kind=DBL), DIMENSION(:), ALLOCATABLE :: kthetarhostmp 
     REAL(kind=DBL), DIMENSION(:), ALLOCATABLE :: xtmp,rhotmp,Rotmp,Rmintmp,Botmp,qxtmp,smagtmp,alphaxtmp
     REAL(kind=DBL), DIMENSION(:), ALLOCATABLE :: Machtortmp,Autortmp,Machpartmp,Aupartmp,gammaEtmp
@@ -588,64 +583,74 @@ CONTAINS
     IF (myrank == doit) timeout = readvar(inputdir // 'timeout.bin', dummy, ktype, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
 
-    ! p{15} R0 geometric major radius (for normalizations)
-    RO = 0
+    ! p{15} Multiplier for ETG saturation rule (default 1. Mostly for testing)
+    ETGmult = 0
+    IF (myrank == doit) ETGmult = readvar(inputdir // 'ETGmult.bin', dummy, ktype, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
+
+    ! p{16} Multiplier for collisionality (default 1. Mostly for testing)
+    collmult = 0
+    IF (myrank == doit) collmult = readvar(inputdir // 'collmult.bin', dummy, ktype, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
+
+    ! p{17} R0 geometric major radius (for normalizations)
+    R0 = 0
     IF (myrank == doit) R0 = readvar(inputdir // 'R0.bin', dummy, ktype, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
 
-    ! p{16} Toroidal wave-number grid
+    ! p{18} Toroidal wave-number grid
     ALLOCATE(kthetarhos(dimn)); kthetarhos = 0 
     IF (myrank == doit) kthetarhos = readvar(inputdir // 'kthetarhos.bin', dummyn, ktype, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
 
-    ! p{17} Normalised radial coordinate (midplane radius)
+    ! p{19} Normalised radial coordinate (midplane radius)
     ALLOCATE(x(dimx)); x=0
     IF (myrank == doit) x = readvar(inputdir // 'x.bin', dummyx, ktype, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
 
-    ! p{18} Normalised radial coordinate (midplane radius)
+    ! p{20} Normalised radial coordinate (midplane radius)
     ALLOCATE(rho(dimx)); rho=0
     IF (myrank == doit) rho = readvar(inputdir // 'rho.bin', dummyx, ktype, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
 
-    ! p{19} <Ro> major radius
+    ! p{21} <Ro> major radius
     ALLOCATE(Ro(dimx)); Ro=0
     IF (myrank == doit) Ro = readvar(inputdir // 'Ro.bin', dummyx, ktype, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
 
-    ! p{20} <a> minor radius
+    ! p{22} <a> minor radius
     ALLOCATE(Rmin(dimx)); Rmin=0
     IF (myrank == doit) Rmin = readvar(inputdir // 'Rmin.bin', dummyx, ktype, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
 
-    ! p{21} B(rho) magnetic field
+    ! p{23} B(rho) magnetic field
     ALLOCATE(Bo(dimx)); Bo=0
     IF (myrank == doit) Bo = readvar(inputdir // 'Bo.bin', dummyx, ktype, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
 
-    ! p{22} q(rho) profile
+    ! p{24} q(rho) profile
     ALLOCATE(qx(dimx)); qx=0
     IF (myrank == doit) qx = readvar(inputdir // 'q.bin', dummyx, ktype, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
 
-    ! p{23} s(rho) profile
+    ! p{25} s(rho) profile
     ALLOCATE(smag(dimx)); smag=0
     IF (myrank == doit) smag = readvar(inputdir // 'smag.bin', dummyx, ktype, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
 
-    ! p{24} alpha(rho) profile
+    ! p{26} alpha(rho) profile
     ALLOCATE(alphax(dimx)); alphax=0
     IF (myrank == doit) alphax = readvar(inputdir // 'alpha.bin', dummyx, ktype, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
 
-    ! p{25} Machtor(rho) profile
+    ! p{27} Machtor(rho) profile
     ALLOCATE(Machtor(dimx)); Machtor=0
     IF (myrank == doit) Machtor = readvar(inputdir // 'Machtor.bin', dummyx, ktype, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
 
 !!$    WHERE(ABS(Machtor) < epsD) Machtor = epsD
 
-    ! p{26} Autor(rho) profile
+    ! p{28} Autor(rho) profile
     ALLOCATE(Autor(dimx)); Autor=0
     IF (myrank == doit) THEN 
        Autor = readvar(inputdir // 'Autor.bin', dummyx, ktype, myunit)
@@ -653,13 +658,13 @@ CONTAINS
     ENDIF
     doit=doit+1; IF (doit==nproc) doit=0 
 
-    ! p{27} Machpar(rho) profile
+    ! p{29} Machpar(rho) profile
     ALLOCATE(Machpar(dimx)); Machpar=0
     IF (myrank == doit) Machpar = readvar(inputdir // 'Machpar.bin', dummyx, ktype, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
 !!$    WHERE(ABS(Machpar) < epsD) Machpar = epsD
 
-    ! p{28} Aupar(rho) profile
+    ! p{30} Aupar(rho) profile
     ALLOCATE(Aupar(dimx)); Aupar=0
     IF (myrank == doit) THEN
        Aupar = readvar(inputdir // 'Aupar.bin', dummyx, ktype, myunit)
@@ -667,7 +672,7 @@ CONTAINS
     ENDIF
     doit=doit+1; IF (doit==nproc) doit=0 
 
-    ! p{29} gammaE(rho) profile
+    ! p{31} gammaE(rho) profile
     ALLOCATE(gammaE(dimx)); gammaE=0
     IF (myrank == doit) THEN
        gammaE = readvar(inputdir // 'gammaE.bin', dummyx, ktype, myunit)
@@ -675,17 +680,17 @@ CONTAINS
     ENDIF
     doit=doit+1; IF (doit==nproc) doit=0 
 
-    ! p{30} Te(rho) profile
+    ! p{32} Te(rho) profile
     ALLOCATE(Tex(dimx)); Tex=0
     IF (myrank == doit) Tex = readvar(inputdir // 'Te.bin', dummyx, ktype, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
 
-    ! p{31} ne(rho) profile
+    ! p{33} ne(rho) profile
     ALLOCATE(Nex(dimx)); Nex=0
     IF (myrank == doit) Nex = readvar(inputdir // 'ne.bin', dummyx, ktype, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
 
-    ! p{32} R/LTe(rho) profile
+    ! p{34} R/LTe(rho) profile
     ALLOCATE(Ate(dimx)); Ate=0
     IF (myrank == doit) THEN 
        Ate = readvar(inputdir // 'Ate.bin', dummyx, ktype, myunit)
@@ -693,8 +698,7 @@ CONTAINS
     ENDIF
     doit=doit+1; IF (doit==nproc) doit=0 
 
-    kc=33
-    ! p{33} R/Lne(rho) profile
+    ! p{35} R/Lne(rho) profile
     ALLOCATE(Ane(dimx)); Ane=0
     IF (myrank == doit) THEN 
        Ane = readvar(inputdir // 'Ane.bin', dummyx, ktype, myunit)
@@ -703,17 +707,17 @@ CONTAINS
     ENDIF
     doit=doit+1; IF (doit==nproc) doit=0 
 
-    ! p{34} Flag for adiabatic electrons
+    ! p{36} Flag for adiabatic electrons
     el_type = 0
     IF (myrank == doit) el_type = INT(readvar(inputdir // 'typee.bin', dummy, ktype, myunit))
     doit=doit+1; IF (doit==nproc) doit=0 
 
-    ! p{35} Species temp anisotropy at LFS. Zero is electrons
+    ! p{37} Species temp anisotropy at LFS. Zero is electrons
     ALLOCATE(anise(dimx)); anise=0
     IF (myrank == doit) anise = readvar(inputdir // 'anise.bin', dummyx, ktype, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
 
-    ! p{36} Species temp anisotropy at LFS. Zero is electrons
+    ! p{38} Species temp anisotropy at LFS. Zero is electrons
     ALLOCATE(danisedr(dimx)); danisedr=0
     IF (myrank == doit)  THEN
        danisedr = readvar(inputdir // 'danisdre.bin', dummyx, ktype, myunit)
@@ -721,17 +725,17 @@ CONTAINS
     ENDIF
     doit=doit+1; IF (doit==nproc) doit=0 
 
-    ! p{37} Ti(rho) profiles
+    ! p{39} Ti(rho) profiles
     ALLOCATE(Tix(dimx,nions)); Tix=0
     IF (myrank == doit) Tix = readvar(inputdir // 'Ti.bin', dummyxnions, ktype, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
 
-    ! p{38} ni/ne (rho) profiles
+    ! p{40} ni/ne (rho) profiles
     ALLOCATE(ninorm(dimx,nions)); ninorm=0
     IF (myrank == doit) ninorm = readvar(inputdir // 'normni.bin', dummyxnions, ktype, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
 
-    ! p{39} R/LTi(rho) profiles
+    ! p{41} R/LTi(rho) profiles
     ALLOCATE(Ati(dimx,nions)); Ati=0
     IF (myrank == doit) THEN
        Ati = readvar(inputdir // 'Ati.bin', dummyxnions, ktype, myunit)
@@ -739,7 +743,7 @@ CONTAINS
     ENDIF
     doit=doit+1; IF (doit==nproc) doit=0 
 
-    ! p{40} R/Lni(rho) profiles
+    ! p{42} R/Lni(rho) profiles
     ALLOCATE(Ani(dimx,nions)); Ani=0
     IF (myrank == doit) THEN 
        Ani = readvar(inputdir // 'Ani.bin', dummyxnions, ktype, myunit)
@@ -748,17 +752,17 @@ CONTAINS
     ENDIF
     doit=doit+1; IF (doit==nproc) doit=0 
 
-    ! p{41} Ion types
+    ! p{43} Ion types
     ALLOCATE(ion_type(dimx,nions)); ion_type=0
     IF (myrank == doit) ion_type = INT(readvar(inputdir // 'typei.bin', dummyxnions, ktype, myunit))
     doit=doit+1; IF (doit==nproc) doit=0 
 
-    ! p{42} Species temp anisotropy at LFS. Zero is electrons
+    ! p{44} Species temp anisotropy at LFS. Zero is electrons
     ALLOCATE(anis(dimx,1:nions)); anis=0
     IF (myrank == doit) anis = readvar(inputdir // 'anisi.bin', dummyxnions, ktype, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
 
-    ! p{43} Species temp anisotropy at LFS. Zero is electrons
+    ! p{45} Species temp anisotropy at LFS. Zero is electrons
     ALLOCATE(danisdr(dimx,1:nions)); danisdr=0
     IF (myrank == doit) THEN 
        danisdr = readvar(inputdir // 'danisdri.bin', dummyxnions, ktype, myunit)
@@ -766,12 +770,12 @@ CONTAINS
     ENDIF
     doit=doit+1; IF (doit==nproc) doit=0 
 
-    ! p{44} Main ion mass
+    ! p{46} Main ion mass
     ALLOCATE(Ai(dimx,nions)); Ai=0
     IF (myrank == doit) Ai = readvar(inputdir // 'Ai.bin', dummyxnions, ktype, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
 
-    ! p{45} Main ion charge
+    ! p{47} Main ion charge
     ALLOCATE(Zi(dimx,nions)); Zi=0
     IF (myrank == doit) Zi = readvar(inputdir // 'Zi.bin', dummyxnions, ktype, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
@@ -817,6 +821,8 @@ CONTAINS
     CALL MPI_AllReduce(relacc1,relacc1tmp,1,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
     CALL MPI_AllReduce(relacc2,relacc2tmp,1,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
     CALL MPI_AllReduce(timeout,timeouttmp,1,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(ETGmult,ETGmulttmp,1,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(collmult,collmulttmp,1,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
     CALL MPI_AllReduce(R0,R0tmp,1,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
     CALL MPI_AllReduce(kthetarhos,kthetarhostmp,dimn,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
     CALL MPI_AllReduce(x,xtmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
@@ -862,6 +868,8 @@ CONTAINS
     relacc1=relacc1tmp
     relacc2=relacc2tmp
     timeout=timeouttmp
+    ETGmult=ETGmulttmp
+    collmult=collmulttmp
     R0=R0tmp
     kthetarhos=kthetarhostmp
     x=xtmp
@@ -961,14 +969,14 @@ CONTAINS
     doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'nions.dat', nions, myint, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
-    !    IF (myrank == doit) CALL writevar(debugdir // 'phys_meth.dat', phys_meth, myfmt, myunit)
-    !    doit=doit+1; IF (doit==nproc) doit=0 
+    IF (myrank == doit) CALL writevar(debugdir // 'phys_meth.dat', phys_meth, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'coll_flag.dat', coll_flag, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'rot_flag.dat', rot_flag, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
-    !    IF (myrank == doit) CALL writevar(debugdir // 'verbose.dat', verbose, myfmt, myunit)
-    !    doit=doit+1; IF (doit==nproc) doit=0 
+    IF (myrank == doit) CALL writevar(debugdir // 'verbose.dat', verbose, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'separateflux.dat', separateflux, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'numsols.dat', numsols, myfmt, myunit)
@@ -977,8 +985,8 @@ CONTAINS
     doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'x.dat', x, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
-    !   IF (myrank == doit) CALL writevar(debugdir // 'rho.dat', rho, myfmt, myunit)
-    !   doit=doit+1; IF (doit==nproc) doit=0 
+    IF (myrank == doit) CALL writevar(debugdir // 'rho.dat', rho, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'Ro.dat', Ro, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'R0.dat', R0, myfmt, myunit)
@@ -991,8 +999,8 @@ CONTAINS
     doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'smag.dat', smag, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
-    !   IF (myrank == doit) CALL writevar(debugdir // 'alphax.dat', alphax, myfmt, myunit)
-    !   doit=doit+1; IF (doit==nproc) doit=0 
+    IF (myrank == doit) CALL writevar(debugdir // 'alphax.dat', alphax, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'Machtor.dat', Machtor, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'Autor.dat', Autor, myfmt, myunit)
@@ -1011,8 +1019,8 @@ CONTAINS
     doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'Ane.dat', Ane, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
-    !   IF (myrank == doit) CALL writevar(debugdir // 'el_type.dat', el_type, myfmt, myunit)
-    !   doit=doit+1; IF (doit==nproc) doit=0 
+    IF (myrank == doit) CALL writevar(debugdir // 'el_type.dat', el_type, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'Ai.dat', Ai, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'Zi.dat', Zi, myfmt, myunit)
@@ -1037,8 +1045,10 @@ CONTAINS
     doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'timeout.dat', timeout, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
-
-    !STOP
+    IF (myrank == doit) CALL writevar(debugdir // 'ETGmult.dat', ETGmult, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
+    IF (myrank == doit) CALL writevar(debugdir // 'collmult.dat', collmult, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0   
 
     !Allocate output
     ALLOCATE(solflu_SI(dimx,dimn))
@@ -1483,7 +1493,13 @@ CONTAINS
   END SUBROUTINE deallocate_all
 
   SUBROUTINE outputascii()
+
+    CHARACTER(len=20) :: fmtxrow,fmtecoef,fmtcftrans
     INTEGER :: i,j,k,l, doit
+
+    WRITE(fmtxrow,'(A,I0,A)') '(',dimx,'G15.7)'
+    WRITE(fmtecoef,'(A,I0, A)') '(',numecoefs,'G15.7)'
+    WRITE(fmtcftrans,'(A)') '(7G15.7)'
 
     doit = 0
 
@@ -1491,14 +1507,14 @@ CONTAINS
     myfmt='G16.7E3'
     IF (myrank == doit) CALL writevar(primitivedir // 'solflu.dat', solflu, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
-    !    IF (myrank == doit) CALL writevar(primitivedir // 'kymaxITG.dat', krmmuITG, myfmt, myunit)
-    !    doit=doit+1; IF (doit==nproc) doit=0 
-    !    IF (myrank == doit) CALL writevar(primitivedir // 'kymaxETG.dat', krmmuETG, myfmt, myunit)
-    !    doit=doit+1; IF (doit==nproc) doit=0 
-    !    IF (myrank == doit) CALL writevar(primitivedir // 'distan.dat', distan, myfmt, myunit)
-    !    doit=doit+1; IF (doit==nproc) doit=0 
-    !    IF (myrank == doit) CALL writevar(primitivedir // 'kperp2.dat', kperp2, myfmt, myunit)
-    !    doit=doit+1; IF (doit==nproc) doit=0 
+    IF (myrank == doit) CALL writevar(primitivedir // 'kymaxITG.dat', krmmuITG, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
+    IF (myrank == doit) CALL writevar(primitivedir // 'kymaxETG.dat', krmmuETG, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
+    IF (myrank == doit) CALL writevar(primitivedir // 'distan.dat', distan, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
+    IF (myrank == doit) CALL writevar(primitivedir // 'kperp2.dat', kperp2, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(primitivedir // 'modewidth.dat', modewidth, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(primitivedir // 'modeshift.dat', modeshift, myfmt, myunit)
@@ -1617,10 +1633,10 @@ CONTAINS
 
     outputdir = 'debug/'
 
-    !    IF (myrank == doit) CALL writevar(outputdir // 'modeflag.dat', modeflag, myfmt, myunit)
-    !    doit=doit+1; IF (doit==nproc) doit=0
-    !    IF (myrank == doit) CALL writevar(outputdir // 'phi.dat', TRANSPOSE(phi), myfmt, myunit)          
-    !    doit=doit+1; IF (doit==nproc) doit=0
+        IF (myrank == doit) CALL writevar(outputdir // 'modeflag.dat', modeflag, myfmt, myunit)
+        doit=doit+1; IF (doit==nproc) doit=0
+        IF (myrank == doit) CALL writevar(outputdir // 'phi.dat', TRANSPOSE(phi), myfmt, myunit)          
+        doit=doit+1; IF (doit==nproc) doit=0
         IF (myrank == doit) CALL writevar(outputdir // 'Nustar.dat', Nustar, myfmt, myunit)
         doit=doit+1; IF (doit==nproc) doit=0
         IF (myrank == doit) CALL writevar(outputdir // 'Zeff.dat', Zeffx, myfmt, myunit)
@@ -1628,36 +1644,36 @@ CONTAINS
      
     outputdir = 'output/'
 
-!!$    OPEN(unit=myunit, file="output/npol.dat", action="write", status="replace")
-!!$    WRITE(myunit,fmtxrow) (((npol(i,j,k),i=1,dimx),j=1,ntheta),k=1,nions) ; CLOSE(myunit)
-!!$
-!!$    OPEN(unit=myunit, file="output/ecoefs.dat", action="write", status="replace")
-!!$    WRITE(myunit,fmtecoef) (((ecoefs(i,j,k),k=1,numecoefs),i=1,dimx),j=0,nions) ; CLOSE(myunit)
-!!$
-!!$    OPEN(unit=myunit, file="output/cftrans.dat", action="write", status="replace")
-!!$    WRITE(myunit,fmtcftrans) (((cftrans(i,j,k),k=1,6),i=1,dimx),j=1,nions) ; CLOSE(myunit)
+    OPEN(unit=myunit, file="output/npol.dat", action="write", status="replace")
+    WRITE(myunit,fmtxrow) (((npol(i,j,k),i=1,dimx),j=1,ntheta),k=1,nions) ; CLOSE(myunit)
+
+    OPEN(unit=myunit, file="output/ecoefs.dat", action="write", status="replace")
+    WRITE(myunit,fmtecoef) (((ecoefs(i,j,k),k=1,numecoefs),i=1,dimx),j=0,nions) ; CLOSE(myunit)
+
+    OPEN(unit=myunit, file="output/cftrans.dat", action="write", status="replace")
+    WRITE(myunit,fmtcftrans) (((cftrans(i,j,k),k=1,7),i=1,dimx),j=1,nions) ; CLOSE(myunit)
 
     IF (myrank == doit) CALL writevar(outputdir // 'gam_GB.dat', gam_GB, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0
     IF (myrank == doit) CALL writevar(outputdir // 'ome_GB.dat', ome_GB, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0
-    !   IF (myrank == doit) CALL writevar(outputdir // 'gam_SI.dat', gam_SI, myfmt, myunit)
-    !   doit=doit+1; IF (doit==nproc) doit=0
-    !   IF (myrank == doit) CALL writevar(outputdir // 'ome_SI.dat', ome_SI, myfmt, myunit)
-    !   doit=doit+1; IF (doit==nproc) doit=0
+    IF (myrank == doit) CALL writevar(outputdir // 'gam_SI.dat', gam_SI, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0
+    IF (myrank == doit) CALL writevar(outputdir // 'ome_SI.dat', ome_SI, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0
 
     IF (phys_meth /= 0) THEN
        IF (myrank == doit) CALL writevar(outputdir // 'cke.dat', cke, myfmt, myunit)
        doit=doit+1; IF (doit==nproc) doit=0
 
-!!$       IF (myrank == doit) CALL writevar(outputdir // 'dfe_SI.dat', dfe_SI, myfmt, myunit)
-!!$       doit=doit+1; IF (doit==nproc) doit=0
-!!$       IF (myrank == doit) CALL writevar(outputdir // 'vte_SI.dat', vte_SI, myfmt, myunit)
-!!$       doit=doit+1; IF (doit==nproc) doit=0
-!!$       IF (myrank == doit) CALL writevar(outputdir // 'vce_SI.dat', vce_SI, myfmt, myunit)
-!!$       doit=doit+1; IF (doit==nproc) doit=0
-!!$       IF (myrank == doit) CALL writevar(outputdir // 'vre_SI.dat', vre_SI, myfmt, myunit)
-!!$       doit=doit+1; IF (doit==nproc) doit=0
+       IF (myrank == doit) CALL writevar(outputdir // 'dfe_SI.dat', dfe_SI, myfmt, myunit)
+       doit=doit+1; IF (doit==nproc) doit=0
+       IF (myrank == doit) CALL writevar(outputdir // 'vte_SI.dat', vte_SI, myfmt, myunit)
+       doit=doit+1; IF (doit==nproc) doit=0
+       IF (myrank == doit) CALL writevar(outputdir // 'vce_SI.dat', vce_SI, myfmt, myunit)
+       doit=doit+1; IF (doit==nproc) doit=0
+       IF (myrank == doit) CALL writevar(outputdir // 'vre_SI.dat', vre_SI, myfmt, myunit)
+       doit=doit+1; IF (doit==nproc) doit=0
 
        IF (myrank == doit) CALL writevar(outputdir // 'dfe_GB.dat', dfe_GB, myfmt, myunit)
        doit=doit+1; IF (doit==nproc) doit=0
@@ -1665,40 +1681,40 @@ CONTAINS
        doit=doit+1; IF (doit==nproc) doit=0
        IF (myrank == doit) CALL writevar(outputdir // 'vce_GB.dat', vce_GB, myfmt, myunit)
        doit=doit+1; IF (doit==nproc) doit=0
-!!$       IF (myrank == doit) CALL writevar(outputdir // 'vre_GB.dat', vre_GB, myfmt, myunit)
-!!$       doit=doit+1; IF (doit==nproc) doit=0
+       IF (myrank == doit) CALL writevar(outputdir // 'vre_GB.dat', vre_GB, myfmt, myunit)
+       doit=doit+1; IF (doit==nproc) doit=0
 
        IF (separateflux == 1) THEN
-!!$          IF (myrank == doit) CALL writevar(outputdir // 'dfeITG_SI.dat', dfeITG_SI, myfmt, myunit)
-!!$          doit=doit+1; IF (doit==nproc) doit=0
-!!$          IF (myrank == doit) CALL writevar(outputdir // 'vteITG_SI.dat', vteITG_SI, myfmt, myunit)
-!!$          doit=doit+1; IF (doit==nproc) doit=0
-!!$          IF (myrank == doit) CALL writevar(outputdir // 'vreITG_SI.dat', vreITG_SI, myfmt, myunit)
-!!$          doit=doit+1; IF (doit==nproc) doit=0
-!!$          IF (myrank == doit) CALL writevar(outputdir // 'vceITG_SI.dat', vceITG_SI, myfmt, myunit)
-!!$          doit=doit+1; IF (doit==nproc) doit=0
-!!$          IF (myrank == doit) CALL writevar(outputdir // 'dfeTEM_SI.dat', dfeTEM_SI, myfmt, myunit)
-!!$          doit=doit+1; IF (doit==nproc) doit=0
-!!$          IF (myrank == doit) CALL writevar(outputdir // 'vteTEM_SI.dat', vteTEM_SI, myfmt, myunit)
-!!$          doit=doit+1; IF (doit==nproc) doit=0
-!!$          IF (myrank == doit) CALL writevar(outputdir // 'vreTEM_SI.dat', vreTEM_SI, myfmt, myunit)
-!!$          doit=doit+1; IF (doit==nproc) doit=0
-!!$          IF (myrank == doit) CALL writevar(outputdir // 'vceTEM_SI.dat', vceTEM_SI, myfmt, myunit)
-!!$          doit=doit+1; IF (doit==nproc) doit=0
+          IF (myrank == doit) CALL writevar(outputdir // 'dfeITG_SI.dat', dfeITG_SI, myfmt, myunit)
+          doit=doit+1; IF (doit==nproc) doit=0
+          IF (myrank == doit) CALL writevar(outputdir // 'vteITG_SI.dat', vteITG_SI, myfmt, myunit)
+          doit=doit+1; IF (doit==nproc) doit=0
+          IF (myrank == doit) CALL writevar(outputdir // 'vreITG_SI.dat', vreITG_SI, myfmt, myunit)
+          doit=doit+1; IF (doit==nproc) doit=0
+          IF (myrank == doit) CALL writevar(outputdir // 'vceITG_SI.dat', vceITG_SI, myfmt, myunit)
+          doit=doit+1; IF (doit==nproc) doit=0
+          IF (myrank == doit) CALL writevar(outputdir // 'dfeTEM_SI.dat', dfeTEM_SI, myfmt, myunit)
+          doit=doit+1; IF (doit==nproc) doit=0
+          IF (myrank == doit) CALL writevar(outputdir // 'vteTEM_SI.dat', vteTEM_SI, myfmt, myunit)
+          doit=doit+1; IF (doit==nproc) doit=0
+          IF (myrank == doit) CALL writevar(outputdir // 'vreTEM_SI.dat', vreTEM_SI, myfmt, myunit)
+          doit=doit+1; IF (doit==nproc) doit=0
+          IF (myrank == doit) CALL writevar(outputdir // 'vceTEM_SI.dat', vceTEM_SI, myfmt, myunit)
+          doit=doit+1; IF (doit==nproc) doit=0
           IF (myrank == doit) CALL writevar(outputdir // 'dfeITG_GB.dat', dfeITG_GB, myfmt, myunit)
           doit=doit+1; IF (doit==nproc) doit=0
           IF (myrank == doit) CALL writevar(outputdir // 'vteITG_GB.dat', vteITG_GB, myfmt, myunit)
           doit=doit+1; IF (doit==nproc) doit=0
-!!$          IF (myrank == doit) CALL writevar(outputdir // 'vreITG_GB.dat', vreITG_GB, myfmt, myunit)
-!!$          doit=doit+1; IF (doit==nproc) doit=0
+          IF (myrank == doit) CALL writevar(outputdir // 'vreITG_GB.dat', vreITG_GB, myfmt, myunit)
+          doit=doit+1; IF (doit==nproc) doit=0
           IF (myrank == doit) CALL writevar(outputdir // 'vceITG_GB.dat', vceITG_GB, myfmt, myunit)
           doit=doit+1; IF (doit==nproc) doit=0
           IF (myrank == doit) CALL writevar(outputdir // 'dfeTEM_GB.dat', dfeTEM_GB, myfmt, myunit)
           doit=doit+1; IF (doit==nproc) doit=0
           IF (myrank == doit) CALL writevar(outputdir // 'vteTEM_GB.dat', vteTEM_GB, myfmt, myunit)
           doit=doit+1; IF (doit==nproc) doit=0
-!!$          IF (myrank == doit) CALL writevar(outputdir // 'vreTEM_GB.dat', vreTEM_GB, myfmt, myunit)
-!!$          doit=doit+1; IF (doit==nproc) doit=0
+          IF (myrank == doit) CALL writevar(outputdir // 'vreTEM_GB.dat', vreTEM_GB, myfmt, myunit)
+          doit=doit+1; IF (doit==nproc) doit=0
           IF (myrank == doit) CALL writevar(outputdir // 'vceTEM_GB.dat', vceTEM_GB, myfmt, myunit)
           doit=doit+1; IF (doit==nproc) doit=0
 
@@ -1707,14 +1723,14 @@ CONTAINS
 
        IF (myrank == doit) CALL writevar(outputdir // 'cki.dat', cki, myfmt, myunit)
        doit=doit+1; IF (doit==nproc) doit=0
-!!$       IF (myrank == doit) CALL writevar(outputdir // 'dfi_SI.dat', dfi_SI, myfmt, myunit)
-!!$       doit=doit+1; IF (doit==nproc) doit=0
-!!$       IF (myrank == doit) CALL writevar(outputdir // 'vti_SI.dat', vti_SI, myfmt, myunit)
-!!$       doit=doit+1; IF (doit==nproc) doit=0
-!!$       IF (myrank == doit) CALL writevar(outputdir // 'vri_SI.dat', vri_SI, myfmt, myunit)
-!!$       doit=doit+1; IF (doit==nproc) doit=0
-!!$       IF (myrank == doit) CALL writevar(outputdir // 'vci_SI.dat', vci_SI, myfmt, myunit)
-!!$       doit=doit+1; IF (doit==nproc) doit=0
+       IF (myrank == doit) CALL writevar(outputdir // 'dfi_SI.dat', dfi_SI, myfmt, myunit)
+       doit=doit+1; IF (doit==nproc) doit=0
+       IF (myrank == doit) CALL writevar(outputdir // 'vti_SI.dat', vti_SI, myfmt, myunit)
+       doit=doit+1; IF (doit==nproc) doit=0
+       IF (myrank == doit) CALL writevar(outputdir // 'vri_SI.dat', vri_SI, myfmt, myunit)
+       doit=doit+1; IF (doit==nproc) doit=0
+       IF (myrank == doit) CALL writevar(outputdir // 'vci_SI.dat', vci_SI, myfmt, myunit)
+       doit=doit+1; IF (doit==nproc) doit=0
        IF (myrank == doit) CALL writevar(outputdir // 'dfi_GB.dat', dfi_GB, myfmt, myunit)
        doit=doit+1; IF (doit==nproc) doit=0
        IF (myrank == doit) CALL writevar(outputdir // 'vti_GB.dat', vti_GB, myfmt, myunit)
@@ -1725,22 +1741,22 @@ CONTAINS
        doit=doit+1; IF (doit==nproc) doit=0
 
        IF (separateflux == 1) THEN
-!!$          IF (myrank == doit) CALL writevar(outputdir // 'dfiITG_SI.dat', dfiITG_SI, myfmt, myunit)
-!!$          doit=doit+1; IF (doit==nproc) doit=0
-!!$          IF (myrank == doit) CALL writevar(outputdir // 'vtiITG_SI.dat', vtiITG_SI, myfmt, myunit)
-!!$          doit=doit+1; IF (doit==nproc) doit=0
-!!$          IF (myrank == doit) CALL writevar(outputdir // 'vciITG_SI.dat', vciITG_SI, myfmt, myunit)
-!!$          doit=doit+1; IF (doit==nproc) doit=0
-!!$          IF (myrank == doit) CALL writevar(outputdir // 'vriITG_SI.dat', vriITG_SI, myfmt, myunit)
-!!$          doit=doit+1; IF (doit==nproc) doit=0
-!!$          IF (myrank == doit) CALL writevar(outputdir // 'dfiTEM_SI.dat', dfiTEM_SI, myfmt, myunit)
-!!$          doit=doit+1; IF (doit==nproc) doit=0
-!!$          IF (myrank == doit) CALL writevar(outputdir // 'vtiTEM_SI.dat', vtiTEM_SI, myfmt, myunit)
-!!$          doit=doit+1; IF (doit==nproc) doit=0
-!!$          IF (myrank == doit) CALL writevar(outputdir // 'vciTEM_SI.dat', vciTEM_SI, myfmt, myunit)
-!!$          doit=doit+1; IF (doit==nproc) doit=0
-!!$          IF (myrank == doit) CALL writevar(outputdir // 'vriTEM_SI.dat', vriTEM_SI, myfmt, myunit)
-!!$          doit=doit+1; IF (doit==nproc) doit=0
+          IF (myrank == doit) CALL writevar(outputdir // 'dfiITG_SI.dat', dfiITG_SI, myfmt, myunit)
+          doit=doit+1; IF (doit==nproc) doit=0
+          IF (myrank == doit) CALL writevar(outputdir // 'vtiITG_SI.dat', vtiITG_SI, myfmt, myunit)
+          doit=doit+1; IF (doit==nproc) doit=0
+          IF (myrank == doit) CALL writevar(outputdir // 'vciITG_SI.dat', vciITG_SI, myfmt, myunit)
+          doit=doit+1; IF (doit==nproc) doit=0
+          IF (myrank == doit) CALL writevar(outputdir // 'vriITG_SI.dat', vriITG_SI, myfmt, myunit)
+          doit=doit+1; IF (doit==nproc) doit=0
+          IF (myrank == doit) CALL writevar(outputdir // 'dfiTEM_SI.dat', dfiTEM_SI, myfmt, myunit)
+          doit=doit+1; IF (doit==nproc) doit=0
+          IF (myrank == doit) CALL writevar(outputdir // 'vtiTEM_SI.dat', vtiTEM_SI, myfmt, myunit)
+          doit=doit+1; IF (doit==nproc) doit=0
+          IF (myrank == doit) CALL writevar(outputdir // 'vciTEM_SI.dat', vciTEM_SI, myfmt, myunit)
+          doit=doit+1; IF (doit==nproc) doit=0
+          IF (myrank == doit) CALL writevar(outputdir // 'vriTEM_SI.dat', vriTEM_SI, myfmt, myunit)
+          doit=doit+1; IF (doit==nproc) doit=0
 
           IF (myrank == doit) CALL writevar(outputdir // 'dfiITG_GB.dat', dfiITG_GB, myfmt, myunit)
           doit=doit+1; IF (doit==nproc) doit=0
@@ -1784,57 +1800,57 @@ CONTAINS
        ENDIF
     ENDIF
 
-!!$    IF (myrank == doit) CALL writevar(outputdir // 'epf_SI.dat', epf_SI, myfmt, myunit)
-!!$    doit=doit+1; IF (doit==nproc) doit=0
+    IF (myrank == doit) CALL writevar(outputdir // 'epf_SI.dat', epf_SI, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0
     IF (myrank == doit) CALL writevar(outputdir // 'pfe_GB.dat', epf_GB, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0
-    !    IF (myrank == doit) CALL writevar(outputdir // 'epf_cm.dat', epf_cm, myfmt, myunit)
-    !    doit=doit+1; IF (doit==nproc) doit=0
+    IF (myrank == doit) CALL writevar(outputdir // 'epf_cm.dat', epf_cm, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0
 
-!!$    IF (myrank == doit) CALL writevar(outputdir // 'eef_SI.dat', eef_SI, myfmt, myunit)
-!!$    doit=doit+1; IF (doit==nproc) doit=0
+    IF (myrank == doit) CALL writevar(outputdir // 'eef_SI.dat', eef_SI, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0
     IF (myrank == doit) CALL writevar(outputdir // 'efe_GB.dat', eef_GB, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0
     IF (myrank == doit) CALL writevar(outputdir // 'efe_cm.dat', eef_cm, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0
 
-    !    IF (myrank == doit) CALL writevar(outputdir // 'evf_SI.dat', evf_SI, myfmt, myunit)
-    !    doit=doit+1; IF (doit==nproc) doit=0
-    !    IF (myrank == doit) CALL writevar(outputdir // 'evf_GB.dat', evf_GB, myfmt, myunit)
-    !    doit=doit+1; IF (doit==nproc) doit=0
-    !    IF (myrank == doit) CALL writevar(outputdir // 'evf_cm.dat', evf_cm, myfmt, myunit)
-    !    doit=doit+1; IF (doit==nproc) doit=0
+    IF (myrank == doit) CALL writevar(outputdir // 'evf_SI.dat', evf_SI, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0
+    IF (myrank == doit) CALL writevar(outputdir // 'evf_GB.dat', evf_GB, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0
+    IF (myrank == doit) CALL writevar(outputdir // 'evf_cm.dat', evf_cm, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0
 
-!!$    IF (myrank == doit) CALL writevar(outputdir // 'ipf_SI.dat', ipf_SI, myfmt, myunit)
-!!$    doit=doit+1; IF (doit==nproc) doit=0
+    IF (myrank == doit) CALL writevar(outputdir // 'ipf_SI.dat', ipf_SI, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0
     IF (myrank == doit) CALL writevar(outputdir // 'pfi_GB.dat', ipf_GB, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0
-    !   IF (myrank == doit) CALL writevar(outputdir // 'ipf_cm.dat', ipf_cm, myfmt, myunit)
-    !   doit=doit+1; IF (doit==nproc) doit=0
+    IF (myrank == doit) CALL writevar(outputdir // 'ipf_cm.dat', ipf_cm, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0
 
-!!$    IF (myrank == doit) CALL writevar(outputdir // 'ief_SI.dat', ief_SI, myfmt, myunit)
-!!$    doit=doit+1; IF (doit==nproc) doit=0
+    IF (myrank == doit) CALL writevar(outputdir // 'ief_SI.dat', ief_SI, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0
     IF (myrank == doit) CALL writevar(outputdir // 'efi_GB.dat', ief_GB, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0
     IF (myrank == doit) CALL writevar(outputdir // 'efi_cm.dat', ief_cm, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0
 
-!!$    IF (myrank == doit) CALL writevar(outputdir // 'ivf_SI.dat', ivf_SI, myfmt, myunit)
-!!$    doit=doit+1; IF (doit==nproc) doit=0
+    IF (myrank == doit) CALL writevar(outputdir // 'ivf_SI.dat', ivf_SI, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0
     IF (myrank == doit) CALL writevar(outputdir // 'vfi_GB.dat', ivf_GB, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0
-    !    IF (myrank == doit) CALL writevar(outputdir // 'ivf_cm.dat', ivf_cm, myfmt, myunit)
-    !    doit=doit+1; IF (doit==nproc) doit=0
+    IF (myrank == doit) CALL writevar(outputdir // 'ivf_cm.dat', ivf_cm, myfmt, myunit)
+    doit=doit+1; IF (doit==nproc) doit=0
 
     IF (separateflux==1) THEN
-!!$       IF (myrank == doit) CALL writevar(outputdir // 'iefITG_SI.dat', iefITG_SI, myfmt, myunit)
-!!$       doit=doit+1; IF (doit==nproc) doit=0
-!!$       IF (myrank == doit) CALL writevar(outputdir // 'iefTEM_SI.dat', iefTEM_SI, myfmt, myunit)
-!!$       doit=doit+1; IF (doit==nproc) doit=0
-!!$       IF (myrank == doit) CALL writevar(outputdir // 'ivfITG_SI.dat', ivfITG_SI, myfmt, myunit)
-!!$       doit=doit+1; IF (doit==nproc) doit=0
-!!$       IF (myrank == doit) CALL writevar(outputdir // 'ivfTEM_SI.dat', ivfTEM_SI, myfmt, myunit)
-!!$       doit=doit+1; IF (doit==nproc) doit=0
+       IF (myrank == doit) CALL writevar(outputdir // 'iefITG_SI.dat', iefITG_SI, myfmt, myunit)
+       doit=doit+1; IF (doit==nproc) doit=0
+       IF (myrank == doit) CALL writevar(outputdir // 'iefTEM_SI.dat', iefTEM_SI, myfmt, myunit)
+       doit=doit+1; IF (doit==nproc) doit=0
+       IF (myrank == doit) CALL writevar(outputdir // 'ivfITG_SI.dat', ivfITG_SI, myfmt, myunit)
+       doit=doit+1; IF (doit==nproc) doit=0
+       IF (myrank == doit) CALL writevar(outputdir // 'ivfTEM_SI.dat', ivfTEM_SI, myfmt, myunit)
+       doit=doit+1; IF (doit==nproc) doit=0
 
        IF (myrank == doit) CALL writevar(outputdir // 'efiITG_GB.dat', iefITG_GB, myfmt, myunit)
        doit=doit+1; IF (doit==nproc) doit=0
@@ -1845,12 +1861,12 @@ CONTAINS
        IF (myrank == doit) CALL writevar(outputdir // 'vfiTEM_GB.dat', ivfTEM_GB, myfmt, myunit)
        doit=doit+1; IF (doit==nproc) doit=0
 
-!!$       IF (myrank == doit) CALL writevar(outputdir // 'eefITG_SI.dat', eefITG_SI, myfmt, myunit)
-!!$       doit=doit+1; IF (doit==nproc) doit=0
-!!$       IF (myrank == doit) CALL writevar(outputdir // 'eefTEM_SI.dat', eefTEM_SI, myfmt, myunit)
-!!$       doit=doit+1; IF (doit==nproc) doit=0
-!!$       IF (myrank == doit) CALL writevar(outputdir // 'eefETG_SI.dat', eefETG_SI, myfmt, myunit)
-!!$       doit=doit+1; IF (doit==nproc) doit=0
+       IF (myrank == doit) CALL writevar(outputdir // 'eefITG_SI.dat', eefITG_SI, myfmt, myunit)
+       doit=doit+1; IF (doit==nproc) doit=0
+       IF (myrank == doit) CALL writevar(outputdir // 'eefTEM_SI.dat', eefTEM_SI, myfmt, myunit)
+       doit=doit+1; IF (doit==nproc) doit=0
+       IF (myrank == doit) CALL writevar(outputdir // 'eefETG_SI.dat', eefETG_SI, myfmt, myunit)
+       doit=doit+1; IF (doit==nproc) doit=0
 
        IF (myrank == doit) CALL writevar(outputdir // 'efeITG_GB.dat', eefITG_GB, myfmt, myunit)
        doit=doit+1; IF (doit==nproc) doit=0

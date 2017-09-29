@@ -59,14 +59,14 @@ CONTAINS
 
     IF (inttype == 1) THEN
 
-       CALL DQAGSE(rFFkiz,cc,dd,absacc1,relacc1,limit,rfonctpiz,relerr,npts,ifailloc,&
+       CALL DQAGSE_QLK(rFFkiz,cc,dd,absacc1,relacc1,limit,rfonctpiz,relerr,npts,ifailloc,&
             alist, blist, rlist, elist, iord, last)
        IF (ifailloc /= 0) THEN
           IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
                & '. Abnormal termination of rFFkiz integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
        ENDIF
 
-       CALL DQAGSE(iFFkiz,cc,dd,absacc1,relacc1,limit,ifonctpiz,relerr,npts,ifailloc,&
+       CALL DQAGSE_QLK(iFFkiz,cc,dd,absacc1,relacc1,limit,ifonctpiz,relerr,npts,ifailloc,&
             alist, blist, rlist, elist, iord, last)
        IF (ifailloc /= 0) THEN
           IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
@@ -121,17 +121,17 @@ CONTAINS
           ENDIF
        ELSE !Collisionless simulation, revert to faster single integral
           IF (inttype == 1) THEN
-             CALL DQAGSE(rFFke_nocoll,cc,dd,absacc1,relacc1,limit,intout(1),relerr,npts,ifailloc,&
+             CALL DQAGSE_QLK(rFFke_nocoll,cc,dd,absacc1,relacc1,limit,intout(1),relerr,npts,ifailloc,&
                   alist, blist, rlist, elist, iord, last)
              IF (ifailloc /= 0) THEN
                 IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
-                     &'. Abnormal termination of DQAGSE rFFke_nocoll integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+                     &'. Abnormal termination of DQAGSE_QLK rFFke_nocoll integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
              ENDIF
-             CALL DQAGSE(iFFke_nocoll,cc,dd,absacc1,relacc1,limit,intout(2),relerr,npts,ifailloc,&
+             CALL DQAGSE_QLK(iFFke_nocoll,cc,dd,absacc1,relacc1,limit,intout(2),relerr,npts,ifailloc,&
                   alist, blist, rlist, elist, iord, last)
              IF (ifailloc /= 0) THEN
                 IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
-                     &'. Abnormal termination of DQAGSE iFFke_nocoll integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+                     &'. Abnormal termination of DQAGSE_QLK iFFke_nocoll integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
              ENDIF
 
           ELSEIF (inttype == 2) THEN
@@ -253,6 +253,10 @@ CONTAINS
        IF (ifailloc /= 0) THEN
           IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
                &'. Abnormal termination of 2DNAG rFkstarrstar integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+          IF (ifailloc == -399) THEN
+             WRITE(stderr,"(A)") 'NAG license error! Exiting'
+             STOP
+          ENDIF
        ENDIF
 
        minpts=0; ifailloc = 1
@@ -319,14 +323,14 @@ CONTAINS
 
     IF (inttype == 1) THEN
 
-       CALL DQAGSE(rFFkizrot,cc,dd,absacc1,relacc1,limit,rfonctpiz,relerr,npts,ifailloc,&
+       CALL DQAGSE_QLK(rFFkizrot,cc,dd,absacc1,relacc1,limit,rfonctpiz,relerr,npts,ifailloc,&
             alist, blist, rlist, elist, iord, last)
        IF (ifailloc /= 0) THEN
           IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
                & '. Abnormal termination of rFFkizrot integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
        ENDIF
 
-       CALL DQAGSE(iFFkizrot,cc,dd,absacc1,relacc1,limit,ifonctpiz,relerr,npts,ifailloc,&
+       CALL DQAGSE_QLK(iFFkizrot,cc,dd,absacc1,relacc1,limit,ifonctpiz,relerr,npts,ifailloc,&
             alist, blist, rlist, elist, iord, last)
        IF (ifailloc /= 0) THEN
           IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
@@ -380,17 +384,17 @@ CONTAINS
           ENDIF
        ELSE !collisionless integral, do single integral
           IF (inttype == 1) THEN
-             CALL DQAGSE(rFFke_nocollrot,cc,dd,absacc1,relacc1,limit,intout(1),relerr,npts,ifailloc,&
+             CALL DQAGSE_QLK(rFFke_nocollrot,cc,dd,absacc1,relacc1,limit,intout(1),relerr,npts,ifailloc,&
                   alist, blist, rlist, elist, iord, last)
              IF (ifailloc /= 0) THEN
                 IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
-                     &'. Abnormal termination of DQAGSE rFFke_nocollrot integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+                     &'. Abnormal termination of DQAGSE_QLK rFFke_nocollrot integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
              ENDIF
-             CALL DQAGSE(iFFke_nocollrot,cc,dd,absacc1,relacc1,limit,intout(2),relerr,npts,ifailloc,&
+             CALL DQAGSE_QLK(iFFke_nocollrot,cc,dd,absacc1,relacc1,limit,intout(2),relerr,npts,ifailloc,&
                   alist, blist, rlist, elist, iord, last)
              IF (ifailloc /= 0) THEN
                 IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
-                     &'. Abnormal termination of DQAGSE iFFke_nocollrot integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+                     &'. Abnormal termination of DQAGSE_QLK iFFke_nocollrot integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
              ENDIF
 
           ELSEIF (inttype == 2) THEN
@@ -516,6 +520,10 @@ CONTAINS
        IF (ifailloc /= 0) THEN
           IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
                &'. Abnormal termination of 2DNAG rFkstarrstarrot integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+          IF (ifailloc == -399) THEN
+             WRITE(stderr,"(A)") 'NAG license error! Exiting'
+             STOP
+          ENDIF
        ENDIF
 
        minpts=0; ifailloc = 1  

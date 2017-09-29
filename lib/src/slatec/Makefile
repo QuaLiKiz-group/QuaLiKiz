@@ -6,7 +6,7 @@ include $(SRC)/Makefile.inc
 FFLAGS_SLATEC=-fdefault-real-8  
 
 # Fortran routine files
-SRCS_SLATEC=cpqr79.f davint.f dqagse.f dsort.f rd.f rf.f rpqr79.f slatecroutines.f
+SRCS_SLATEC=cpqr79.f davint.f dqagse_qlk.f dsort.f rd.f rf.f rpqr79.f slatecroutines.f
 OBJS_SLATEC=$(SRCS_SLATEC:%f=%o)
 
 ##############################################################################

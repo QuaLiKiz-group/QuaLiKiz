@@ -118,11 +118,14 @@ CONTAINS
 
     !If rot_flag == 2, then still set momentum transport according to case with symmetry breaking
     IF ((rho(p)<1.0) .AND. (rotflagarray(dimx) == 1) .AND. (ETG_flag(nu) .EQV. .FALSE.)) THEN
-       mwidth=mwidth_rot
-       mshift=mshift_rot
-       widthhat = ABS(mwidth)**2 / SQRT(REAL(mwidth**2))
-       Athe=widthhat*cthe(p)/qRd 
-       Athi(:)=widthhat*cthi(p,:)/qRd
+       IF (rot_flag == 2) THEN
+          Machi=Machiorig; Aui=Auiorig; gammaE=gammaEorig;
+          mwidth=mwidth_rot
+          mshift=mshift_rot
+          widthhat = ABS(mwidth)**2 / SQRT(REAL(mwidth**2))
+          Athe=widthhat*cthe(p)/qRd 
+          Athi(:)=widthhat*cthi(p,:)/qRd
+       ENDIF
        CALL momtrapQLintsrot( p, nu, omega, fonctvpi)
        CALL mompassQLintsrot( p, nu, omega, fonctvci)
     ENDIF
