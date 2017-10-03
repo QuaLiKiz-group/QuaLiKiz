@@ -999,7 +999,7 @@ CONTAINS
     doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'smag.dat', smag, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
-    IF (myrank == doit) CALL writevar(debugdir // 'alphax.dat', alphax, myfmt, myunit)
+    IF (myrank == doit) CALL writevar(debugdir // 'alpha.dat', alphax, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'Machtor.dat', Machtor, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
@@ -1019,7 +1019,7 @@ CONTAINS
     doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'Ane.dat', Ane, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
-    IF (myrank == doit) CALL writevar(debugdir // 'el_type.dat', el_type, myfmt, myunit)
+    IF (myrank == doit) CALL writevar(debugdir // 'typee.dat', el_type, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
     IF (myrank == doit) CALL writevar(debugdir // 'Ai.dat', Ai, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0 
@@ -1800,56 +1800,56 @@ CONTAINS
        ENDIF
     ENDIF
 
-    IF (myrank == doit) CALL writevar(outputdir // 'epf_SI.dat', epf_SI, myfmt, myunit)
+    IF (myrank == doit) CALL writevar(outputdir // 'pfe_SI.dat', epf_SI, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0
     IF (myrank == doit) CALL writevar(outputdir // 'pfe_GB.dat', epf_GB, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0
-    IF (myrank == doit) CALL writevar(outputdir // 'epf_cm.dat', epf_cm, myfmt, myunit)
+    IF (myrank == doit) CALL writevar(outputdir // 'pfe_cm.dat', epf_cm, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0
 
-    IF (myrank == doit) CALL writevar(outputdir // 'eef_SI.dat', eef_SI, myfmt, myunit)
+    IF (myrank == doit) CALL writevar(outputdir // 'efe_SI.dat', eef_SI, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0
     IF (myrank == doit) CALL writevar(outputdir // 'efe_GB.dat', eef_GB, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0
     IF (myrank == doit) CALL writevar(outputdir // 'efe_cm.dat', eef_cm, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0
 
-    IF (myrank == doit) CALL writevar(outputdir // 'evf_SI.dat', evf_SI, myfmt, myunit)
+    IF (myrank == doit) CALL writevar(outputdir // 'vfe_SI.dat', evf_SI, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0
-    IF (myrank == doit) CALL writevar(outputdir // 'evf_GB.dat', evf_GB, myfmt, myunit)
+    IF (myrank == doit) CALL writevar(outputdir // 'vfe_GB.dat', evf_GB, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0
-    IF (myrank == doit) CALL writevar(outputdir // 'evf_cm.dat', evf_cm, myfmt, myunit)
+    IF (myrank == doit) CALL writevar(outputdir // 'vfe_cm.dat', evf_cm, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0
 
-    IF (myrank == doit) CALL writevar(outputdir // 'ipf_SI.dat', ipf_SI, myfmt, myunit)
+    IF (myrank == doit) CALL writevar(outputdir // 'pfi_SI.dat', ipf_SI, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0
     IF (myrank == doit) CALL writevar(outputdir // 'pfi_GB.dat', ipf_GB, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0
-    IF (myrank == doit) CALL writevar(outputdir // 'ipf_cm.dat', ipf_cm, myfmt, myunit)
+    IF (myrank == doit) CALL writevar(outputdir // 'pfi_cm.dat', ipf_cm, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0
 
-    IF (myrank == doit) CALL writevar(outputdir // 'ief_SI.dat', ief_SI, myfmt, myunit)
+    IF (myrank == doit) CALL writevar(outputdir // 'efi_SI.dat', ief_SI, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0
     IF (myrank == doit) CALL writevar(outputdir // 'efi_GB.dat', ief_GB, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0
     IF (myrank == doit) CALL writevar(outputdir // 'efi_cm.dat', ief_cm, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0
 
-    IF (myrank == doit) CALL writevar(outputdir // 'ivf_SI.dat', ivf_SI, myfmt, myunit)
+    IF (myrank == doit) CALL writevar(outputdir // 'vfi_SI.dat', ivf_SI, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0
     IF (myrank == doit) CALL writevar(outputdir // 'vfi_GB.dat', ivf_GB, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0
-    IF (myrank == doit) CALL writevar(outputdir // 'ivf_cm.dat', ivf_cm, myfmt, myunit)
+    IF (myrank == doit) CALL writevar(outputdir // 'vfi_cm.dat', ivf_cm, myfmt, myunit)
     doit=doit+1; IF (doit==nproc) doit=0
 
     IF (separateflux==1) THEN
-       IF (myrank == doit) CALL writevar(outputdir // 'iefITG_SI.dat', iefITG_SI, myfmt, myunit)
+       IF (myrank == doit) CALL writevar(outputdir // 'efiITG_SI.dat', iefITG_SI, myfmt, myunit)
        doit=doit+1; IF (doit==nproc) doit=0
-       IF (myrank == doit) CALL writevar(outputdir // 'iefTEM_SI.dat', iefTEM_SI, myfmt, myunit)
+       IF (myrank == doit) CALL writevar(outputdir // 'efiTEM_SI.dat', iefTEM_SI, myfmt, myunit)
        doit=doit+1; IF (doit==nproc) doit=0
-       IF (myrank == doit) CALL writevar(outputdir // 'ivfITG_SI.dat', ivfITG_SI, myfmt, myunit)
+       IF (myrank == doit) CALL writevar(outputdir // 'vfiITG_SI.dat', ivfITG_SI, myfmt, myunit)
        doit=doit+1; IF (doit==nproc) doit=0
-       IF (myrank == doit) CALL writevar(outputdir // 'ivfTEM_SI.dat', ivfTEM_SI, myfmt, myunit)
+       IF (myrank == doit) CALL writevar(outputdir // 'vfiTEM_SI.dat', ivfTEM_SI, myfmt, myunit)
        doit=doit+1; IF (doit==nproc) doit=0
 
        IF (myrank == doit) CALL writevar(outputdir // 'efiITG_GB.dat', iefITG_GB, myfmt, myunit)
@@ -1861,11 +1861,11 @@ CONTAINS
        IF (myrank == doit) CALL writevar(outputdir // 'vfiTEM_GB.dat', ivfTEM_GB, myfmt, myunit)
        doit=doit+1; IF (doit==nproc) doit=0
 
-       IF (myrank == doit) CALL writevar(outputdir // 'eefITG_SI.dat', eefITG_SI, myfmt, myunit)
+       IF (myrank == doit) CALL writevar(outputdir // 'efeITG_SI.dat', eefITG_SI, myfmt, myunit)
        doit=doit+1; IF (doit==nproc) doit=0
-       IF (myrank == doit) CALL writevar(outputdir // 'eefTEM_SI.dat', eefTEM_SI, myfmt, myunit)
+       IF (myrank == doit) CALL writevar(outputdir // 'efeTEM_SI.dat', eefTEM_SI, myfmt, myunit)
        doit=doit+1; IF (doit==nproc) doit=0
-       IF (myrank == doit) CALL writevar(outputdir // 'eefETG_SI.dat', eefETG_SI, myfmt, myunit)
+       IF (myrank == doit) CALL writevar(outputdir // 'efeETG_SI.dat', eefETG_SI, myfmt, myunit)
        doit=doit+1; IF (doit==nproc) doit=0
 
        IF (myrank == doit) CALL writevar(outputdir // 'efeITG_GB.dat', eefITG_GB, myfmt, myunit)
