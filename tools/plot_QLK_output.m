@@ -32,15 +32,6 @@ Ai=load('Ai.dat');
 Rmin=load('Rmin.dat');
 scann=length(x);
 
-Lambe=1-0.078.*log10(Nex.*0.1)+0.15.*log10(Tex);
-Nue=1.36e5.*Lambe.*Nex.*0.1./(Tex.^1.5).*Zi(:,1);
-q_ele  = 1.6022e-19;
-me     = 9.1094e-31;
-cthe=sqrt(2*Tex*1e3*q_ele./me);
-Athe=cthe./(qx.*Ro);
-Epsilonx=Rmin.*x./Ro;
-Nuestar = Nue./(Epsilonx.^1.5.*Athe);
-ft=2.*(2.*Epsilonx).^(0.5)./pi; %trapped particle fraction
 sizions=size(Tix);
 Zeffx=ninorm(:,1).*Zi(:,1).^2;
 if sizions(2)>1
@@ -48,6 +39,15 @@ for ii=1:sizions(2)
     Zeffx=Zeffx+ninorm(:,ii).*Zi(:,ii).^2;
 end
 end
+Lambe=1-0.078.*log10(Nex.*0.1)+0.15.*log10(Tex);
+Nue=1.36e5.*Lambe.*Nex.*0.1./(Tex.^1.5).*Zeffx;
+q_ele  = 1.6022e-19;
+me     = 9.1094e-31;
+cthe=sqrt(2*Tex*1e3*q_ele./me);
+Athe=cthe./(qx.*Ro);
+Epsilonx=Rmin.*x./Ro;
+Nuestar = Nue./(Epsilonx.^1.5.*Athe);
+ft=2.*(2.*Epsilonx).^(0.5)./pi; %trapped particle fraction
 
 % a figure summarizing the main input parameters
 figure;
@@ -70,7 +70,7 @@ grid on
 subplot(223)
 set(gca,'FontSize',18)
 plot(x,Tex./Tix(:,1),'c',x,Zeffx,'c--',x,ft,'c-.',x,10*Nuestar,'b--','LineWidth',2)
-l1=legend('$T_e/T_i$','$Z_{eff}$','$f_t$', '$10*\nu^{*}$')
+l1=legend('$T_e/T_i$','$Z_{eff}$','$f_t$', '$10\times\nu_e^{*}$')
 set(l1,'Interpreter','latex')
 l2=xlabel('$\rho$')
 set(l2,'Interpreter','latex')
