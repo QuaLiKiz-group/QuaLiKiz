@@ -21,10 +21,6 @@ end
 JETTO2QuaLiKiz; %will ask user which pulse, JETTO run and time
 
 %WriteQLKBatchPBS(runname,nprocs) %write jobs to be submitted in batch
-%Calculate auxilliary quantities for plotting
-Epsilonx=Rmin.*x./Ro;
-ft=2.*(2.*Epsilonx).^(0.5)./pi; %trapped particle fraction
-tau=Tex./Tix(1,:);
 
 %%Quasineutrality (including gradients) test and Zeff calculation
 ninormd=ninorm;
@@ -78,35 +74,50 @@ for i=1:scann
    Zeffx(i)=sum(ninormz(:,i).*Zi(:,i).^2); %calculate Zeff
 end
 
+%Calculate auxilliary quantities for plotting
+ft=2.*(2.*epsilonx).^(0.5)./pi; %trapped particle fraction
+tau=Tex./Tix(1,:);
+Lambe=1-0.078.*log10(Nex.*0.1)+0.15.*log10(Tex);
+Nue=1.36e5.*Lambe.*Nex.*0.1./(Tex.^1.5).*Zeffx; % e-main ions collisionality
+q_ele  = 1.6022e-19;
+me     = 9.1094e-31;
+cthe=sqrt(2*Tex*1e3*q_ele./me);
+Athe=cthe./(qx.*R0);
+Nuestar = Nue./(epsilonx.^1.5.*Athe);
+
 figure; 
 disp('Figures to verify key data as expected before sending QuaLiKiz run') 
 subplot(221)
 set(gca,'FontSize',18)
 plot(x,Ati(1,:),'r',x,Tix(1,:),'r--',x,Ate,'b',x,Tex,'b--','LineWidth',2)
-xlabel('\rho')
-legend('-R\nabla{T_i}/T_i','Ti','-R\nabla{T_e}/T_e','T_e');
-legend boxoff
+l1=legend('-$R\nabla{T_i}/T_i$','$T_i$','-$R\nabla{T_e}/T_e$','$T_e$');
+set(l1,'Interpreter','latex')
+l2=xlabel('$\rho$');
+set(l2,'Interpreter','latex')
 grid on
 subplot(222)
 set(gca,'FontSize',18)
 plot(x,Ane,'g',x,Nex,'g--','LineWidth',2)
-xlabel('\rho')
-legend('-R\nabla{n_e}/n_e','n_e');
-legend boxoff
+l1=legend('-$R\nabla{n_e}/n_e$','$n_e$');
+set(l1,'Interpreter','latex')
+l2=xlabel('$\rho$');
+set(l2,'Interpreter','latex')
 grid on
 subplot(223)
 set(gca,'FontSize',18)
-plot(x,tau,'c',x,Zeffx,'c--',x,ft,'c-.','LineWidth',2)
-xlabel('\rho')
-legend('T_e/T_i','Z_{eff}','f_t');
-legend boxoff
+plot(x,tau,'c',x,Zeffx,'c--',x,ft,'c-.',x,10*Nuestar,'b--','LineWidth',2)
+l1=legend('$T_e/T_i$','$Z_{eff}$','$f_t$', '$10\times\nu_e^{*}$');
+set(l1,'Interpreter','latex')
+l2=xlabel('$\rho$');
+set(l2,'Interpreter','latex')
 grid on
 subplot(224)
 set(gca,'FontSize',18)
 plot(x,smag,'m',x,qx,'m--',x,alphax,'m-.s','LineWidth',2)
-xlabel('\rho')
-legend('s','q','\alpha');
-legend boxoff
+l1=legend('s','q','$\alpha$');
+set(l1,'Interpreter','latex')
+l2=xlabel('$\rho$');
+set(l2,'Interpreter','latex')
 grid on
 
 %%% End
