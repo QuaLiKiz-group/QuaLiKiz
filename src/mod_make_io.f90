@@ -17,7 +17,7 @@ CONTAINS
        & el_typein, Texin, Nexin, Atein, Anein, anisein, danisedrin, & !electrons
        & ion_typein, Aiin, Ziin, Tixin, ninormin, Atiin, Aniin, anisin, danisdrin, & !ions
        & Machtorin, Autorin, Machparin, Auparin, gammaEin, & !rotation
-       & maxrunsin, maxptsin, relacc1in, relacc2in, timeoutin)  !code specific inputs
+       & maxrunsin, maxptsin, relacc1in, relacc2in, timeoutin, ETGmultin, collmultin)  !code specific inputs
 
     ! List of input variables
     INTEGER, INTENT(IN) :: dimxin, dimnin, nionsin, numsolsin, phys_methin, coll_flagin, rot_flagin, el_typein,verbosein, separatefluxin
@@ -28,10 +28,10 @@ CONTAINS
     REAL(kind=DBL), DIMENSION(:,:), INTENT(IN) :: Tixin, ninormin, Atiin, Aniin, anisin, danisdrin, Aiin, Ziin
     REAL(kind=DBL), DIMENSION(:), INTENT(IN) :: Machtorin, Autorin, Machparin, Auparin, gammaEin
     INTEGER, INTENT(IN) :: maxrunsin, maxptsin
-    REAL(kind=DBL), INTENT(IN) :: relacc1in, relacc2in, timeoutin
+    REAL(kind=DBL), INTENT(IN) :: relacc1in, relacc2in, timeoutin, ETGmultin, collmultin
 
     INTEGER:: p,nu !counter for loop over coordinates. p is radius (or general scan), nu is wavenumber
-    INTEGER:: i !counter for loops
+    INTEGER:: i,ilow,ihi !counter for loops
     REAL(kind=DBL), DIMENSION(:), ALLOCATABLE :: Lambe, Nue !physical quantities used for the derivations, then discarded
 
     ! POPULATE GLOBAL VARIABLES
@@ -42,7 +42,7 @@ CONTAINS
     phys_meth = phys_methin
     coll_flag = coll_flagin
     rot_flag = rot_flagin
-    IF (verbosein == 1) verbose = .TRUE.
+    IF (verbosein > 0) verbose = .TRUE.
     IF (verbosein == 0) verbose = .FALSE.
     IF (separatefluxin == 1) separateflux = .TRUE.
     IF (separatefluxin == 0) separateflux = .FALSE.
@@ -56,6 +56,8 @@ CONTAINS
     timeout=timeoutin
     relaccQL1=relacc1in
     relaccQL2=relacc2in
+    ETGmult=ETGmultin
+    collmult=collmultin
 
     R0=R0in
 
@@ -73,9 +75,10 @@ CONTAINS
     ALLOCATE(qx(dimx)); qx = qxin
     ALLOCATE(smag(dimx)); smag = smagin
     WHERE(ABS(smag) < 0.1) smag = SIGN(0.1,smag) !filter very low magnetic shear which is not valid under QLK assumptions (locality and strong ballooning)
-!!$    WHERE(smag < -0.3) smag = -0.3               !filter very negative magnetic shear which is not presently valid under QLK assumptions (we have no slab modes)
+    WHERE(smag < -0.3) smag = -0.3               !filter very negative magnetic shear which is not presently valid under QLK assumptions (we have no slab modes)
     ALLOCATE(alphax(dimx)); alphax = alphaxin
-!!$    WHERE( (smag - alphax) < -0.3 ) alphax = 0.3 + smag !filter high alpha where s-alpha goes into invalid regime under QLK assumptions (we have no slab modes)
+    WHERE( (smag - alphax) < 0.2 ) alphax = -0.2 + smag !filter high alpha where s-alpha goes into invalid regime under QLK assumptions (we have no slab modes)
+    WHERE( alphax < 0.) alphax = 0. ! For negative magnetic shear: make sure pressure gradients are not positive due to above constraint
     ALLOCATE(Machtor(dimx)); Machtor = Machtorin ! Mach number in toroidal direction Mach = v_tor / C_ref, C_ref thermal velocity of D at 1keV sqrt(1keV/m_p)
     ALLOCATE(Autor(dimx)); Autor = Autorin ! Normalized toroidal velocity gradient: - R\nabla U_\tor / C_ref
     ALLOCATE(Machpar(dimx)); Machpar = Machparin ! Mach number in parallel direction Mach = v_par / C_ref, C_ref thermal velocity of D at 1keV sqrt(1keV/m_p)
@@ -97,15 +100,46 @@ CONTAINS
     ALLOCATE(anis(dimx,1:nions)); anis = anisin
     ALLOCATE(danisdr(dimx,1:nions)); danisdr = danisdrin
 
-    ! Set radial depending rotation flag
+    ! Set radial dependent rotation flag
     ALLOCATE(rotflagarray(dimx)); 
     IF (rot_flag == 0) THEN
        rotflagarray(:)=0
     ELSE
        rotflagarray(:)=1
     ENDIF
-    IF (rot_flag == 2) THEN 
-       WHERE(rho<0.5) rotflagarray = 0
+
+    IF (rot_flag == 2) THEN !Do not use rotation version (much slower) for rho < 0.4
+       WHERE (rho < 0.4) rotflagarray = 0
+       ALLOCATE(Machparorig(dimx)); Machparorig = Machpar
+       ALLOCATE(Auparorig(dimx)); Auparorig = Aupar
+       ALLOCATE(gammaEorig(dimx)); gammaEorig = gammaE
+       ALLOCATE(Machiorig(dimx,nions))
+       ALLOCATE(Auiorig(dimx,nions))
+
+       ALLOCATE(Machparmod(dimx)); Machparmod=1d-14
+       ALLOCATE(Auparmod(dimx)) ; Auparmod=1d-14
+       ALLOCATE(gammaEmod(dimx)) ; gammaEmod=1d-14
+       ALLOCATE(Machimod(dimx,nions));  Machimod=1d-14
+       ALLOCATE(Auimod(dimx,nions)); Auimod=1d-14
+       ALLOCATE(filterprof(dimx))
+
+       ihi=dimx
+       DO i=1,dimx ! define filterprof
+          IF (rho(i) < 0.4) THEN 
+             filterprof(i)=1d-14
+             ilow=i
+          ELSEIF (rho(i) > 0.6) THEN
+             filterprof(i)=1.
+             IF (i<ihi) ihi=i
+          ENDIF
+       ENDDO
+
+       filterprof(ilow:ihi) = (/( REAL((i-ilow))/REAL((ihi-ilow))  ,i=ilow,ihi)/)     
+       WHERE(filterprof<1d-14) filterprof=1d-14
+       gammaEmod=gammaE*filterprof
+       Auparmod=Aupar*filterprof
+       Machparmod=Machpar*filterprof
+
     ENDIF
 
     ! Define all quantities derived in the code from the input arrays
@@ -140,6 +174,7 @@ CONTAINS
     ALLOCATE(ft(dimx))
     ALLOCATE(fc(dimx))
     ALLOCATE(Machi(dimx,nions))
+    ALLOCATE(Machitemp(dimx,nions))
     ALLOCATE(Mache(dimx))
     ALLOCATE(Aui(dimx,nions))
     ALLOCATE(Aue(dimx))
@@ -203,12 +238,36 @@ CONTAINS
        !Set tracer density. Arbitrary 1e-5, in case ninorm was 0 in input. Does not affect physics since in the end we divide fluxes by nz
        WHERE (ion_type(:,i) == 3) ninorm(:,i)=1d-5 
 
+    ENDDO
+
+    IF (nions > 1) THEN
+       DO i = 1,dimx !impose quasineutrality due to potential ion_type=3
+          IF (nions == 2) THEN
+             ninorm(i,1) = (1. - Zi(i,2)*ninorm(i,2)) /Zi(i,1)
+          ELSE
+             ninorm(i,1) = (1. - SUM(Zi(i,2:nions)*ninorm(i,2:nions))) /Zi(i,1)
+          ENDIF
+       ENDDO
+    ENDIF
+
+    DO i = 1,nions
        Nix(:,i) = ninorm(:,i)*Nex(:) !Ion densities
        coefi(:,i) = Zi(:,i)*Zi(:,i) * Nix(:,i) * tau(:,i) !Ion coefficients throughout equations
        cthi(:,i) = SQRT(2._DBL*qe*Tix(:,i)*1.d3/mi(:,i)) !Thermal velocities
        Rhoi(:,i) = SQRT(2._DBL*qe*Tix(:,i)*1.d3*mi(:,i))/(qe*Zi(:,i)*Bo(:)) !Larmor radii
        di(:,i) = qx(:)/SQRT(2._DBL*(epsilon(:)+eps))*Rhoi(:,i) !Ion banana width
+
        Machi(:,i) = Machpar(:)*cref(:)/cthi(:,i) !Mach number in parallel direction
+       Machitemp = Machi ! Original, unaltered Mach number
+
+       IF (rot_flag == 2) THEN
+          Machiorig(:,i) = Machparorig(:)*cref(:)/cthi(:,i) !Mach number in parallel direction
+          Machimod(:,i) = Machparmod(:)*cref(:)/cthi(:,i) !Mach number in parallel direction
+          WHERE(Ai>20.5) Machiorig=0. !Filter out Mach numbers for heavy impurities due to breaking of Mach ordering. 
+          !Split off at Ne (still relatively common in tokamaks and completes 2nd row of periodic table)
+          WHERE(Ai>20.5) Machimod=0. 
+       ENDIF
+
        WHERE (ion_type(:,i) .NE. 3) 
           Ac(:) = Ac(:) + Zi(:,i)**2._DBL*Nix(:,i)*tau(:,i) !Rest of adiabatic term
           Zeffx(:) = Zeffx(:)+ninorm(:,i)*Zi(:,i)**2 !Zeff
@@ -216,7 +275,7 @@ CONTAINS
     ENDDO
 
     Lambe(:) = 15.2_DBL - 0.5_DBL*LOG(0.1_DBL*Nex(:)) + LOG(Tex(:))  !Coulomb constant and collisionality. Wesson 2nd edition p661-663
-    Nue(:) = 1._DBL/(1.09d-3) *Zeffx(:)*Nex(:)*Lambe(:)/(Tex(:))**1.5_DBL 
+    Nue(:) = 1._DBL/(1.09d-3) *Zeffx(:)*Nex(:)*Lambe(:)/(Tex(:))**1.5_DBL*collmult 
     Nustar(:) = Nue(:)*qx(:)*Ro(:)/epsilon(:)**1.5/(SQRT(Tex(:)*1.d3*qe/me))
 
     ! Collisionality array
@@ -227,7 +286,6 @@ CONTAINS
     ENDIF
 
     !DEBUGGING
-
 !!$    OPEN(unit=700, file="input/Zeffx.dat", action="write", status="replace")
 !!$    WRITE(700,'(G15.7)') (Zeffx(i),i=1,dimx) ; CLOSE(700)
 !!$    OPEN(unit=700, file="input/Anue.dat", action="write", status="replace")
@@ -258,7 +316,12 @@ CONTAINS
     Aue(:) = Aupar(:)*cref(:)/cthe(:)      
     DO i = 1,nions
        Aui(:,i) = Aupar(:)*cref(:)/cthi(:,i)
+       IF (rot_flag == 2) THEN
+          Auiorig(:,i) = Auparorig(:)*cref(:)/cthi(:,i)
+          Auimod(:,i) = Auparmod(:)*cref(:)/cthi(:,i)
+       ENDIF
     ENDDO
+
 
 
     !   omega=cref(irad)*Mach(irad)/Ro(irad)*SQRT(1+(epsilon(irad)/qx(irad))**2) !angular toroidal velocity of main ions. We assume that all ions rotate with same omega
@@ -303,6 +366,7 @@ CONTAINS
     ALLOCATE( kperp2 (dimx, dimn) ); kperp2=0
     ALLOCATE( modewidth (dimx, dimn) ); modewidth=0
     ALLOCATE( modeshift (dimx, dimn) ); modeshift=0
+    ALLOCATE( modeshift2 (dimx, dimn) ); modeshift2=0
     ALLOCATE( distan (dimx, dimn) ); distan=0
     ALLOCATE( FLRec (dimx, dimn) ); FLRec=0
     ALLOCATE( FLRep (dimx, dimn) ); FLRep=0
@@ -439,7 +503,12 @@ CONTAINS
     DEALLOCATE(Ai)
     DEALLOCATE(Zi)
 
+    IF (rot_flag == 2) THEN
+       DEALLOCATE(gammaEmod,Auparmod,Machparmod,gammaEorig,Auparorig,Machparorig,Machiorig,Auiorig,Machimod,Auimod,filterprof)
+    ENDIF
+
     DEALLOCATE(Machi)
+    DEALLOCATE(Machitemp)
     DEALLOCATE(Mache)
     DEALLOCATE(Aue)
     DEALLOCATE(Aui)
@@ -495,6 +564,7 @@ CONTAINS
     DEALLOCATE( kperp2 )
     DEALLOCATE( modewidth )
     DEALLOCATE( modeshift )
+    DEALLOCATE( modeshift2 )
     DEALLOCATE( distan )
     DEALLOCATE( Athi )
     DEALLOCATE( FLRic )

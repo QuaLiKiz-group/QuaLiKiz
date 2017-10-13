@@ -7,10 +7,13 @@ MODULE datmat
   INTEGER, SAVE, DIMENSION(:,:), ALLOCATABLE :: ion_type
   REAL(KIND=DBL), SAVE  :: R0
   REAL(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: x, rho, Ro, Rmin, Bo, kthetarhos, qx, smag, alphax, rotflagarray
-  REAL(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: Tex, Nex, Ate, Ane, anise, danisedr
+  REAL(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: Tex, Nex, Ate, Ane, anise, danisedr, filterprof
   REAL(KIND=DBL), SAVE, DIMENSION(:,:), ALLOCATABLE :: Tix, Ati, Ani, ninorm, anis, danisdr, Ai, Zi
   REAL(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: Machtor, Autor, Machpar, Aupar, gammaE
   LOGICAL, SAVE :: verbose,separateflux   !Boolean input parameters
+
+  REAL(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: Machparmod, Auparmod, gammaEmod !backup arrays used in rotationless dispersion relation solver with rot_flag=2
+  REAL(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: Machparorig, Auparorig, gammaEorig !backup arrays used in rotationless dispersion relation solver with rot_flag=2
 
   !Parameters for deciding how often to jump to full solution searching in integrated modelling applications
   INTEGER, SAVE :: maxruns !default is 50
@@ -22,17 +25,19 @@ MODULE datmat
   REAL(KIND=DBL), SAVE :: relaccQL1 !  !1D integral relative error demanded. Default = 1.0d-3
   REAL(KIND=DBL), SAVE :: relaccQL2 !2D integral relative error demanded. Default = 2.0d-2
 
+  REAL(KIND=DBL), SAVE :: ETGmult, collmult !multpliers for ETG saturation level and collisionality (default 1)
+
   ! List of derived 'radial' variables (see mod_make_input.f90 for details)
   REAL(KIND=DBL), SAVE :: widthtuneITG, widthtuneETG
   REAL(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: csou, cref,cthe, de, epsilon, qprim, ft, fc
   REAL(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: Ac, Rhoe, Anue, Zeffx, omegator, domegatordr, Nustar
   REAL(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: wg, rhostar, Rhoeff, ktetasn, Mache, Aue, krmmuITG,krmmuETG
-  REAL(KIND=DBL), SAVE, DIMENSION(:,:), ALLOCATABLE :: coefi, Machi, Aui, Nix, Rhoi, di, cthi, tau, mi
+  REAL(KIND=DBL), SAVE, DIMENSION(:,:), ALLOCATABLE :: coefi, Machi, Machitemp, Aui, Nix, Rhoi, di, cthi, tau, mi, Auiorig, Auimod, Machiorig, Machimod
 
   ! Output arrays. The 3 dimensions are 'radial grid', 'kthetarhos grid', 'number of modes'
   REAL(KIND=DBL), SAVE , DIMENSION(:,:), ALLOCATABLE :: distan,FLRec,FLRep,ntor,kperp2
   REAL(KIND=DBL), SAVE, DIMENSION(:,:,:), ALLOCATABLE :: gamma, Ladia, FLRip, FLRic
-  COMPLEX(KIND=DBL), SAVE, DIMENSION(:,:), ALLOCATABLE :: modewidth, modeshift
+  COMPLEX(KIND=DBL), SAVE, DIMENSION(:,:), ALLOCATABLE :: modewidth, modeshift, modeshift2
   COMPLEX(KIND=DBL), SAVE, DIMENSION(:,:), ALLOCATABLE :: ommax, solflu
   COMPLEX(KIND=DBL), SAVE, DIMENSION(:,:,:), ALLOCATABLE :: sol, fdsol, oldsol, oldfdsol
   REAL(KIND=DBL), SAVE, DIMENSION(:,:,:), ALLOCATABLE :: Lcirce, Lpiege, Lecirce, Lepiege, Lvcirce, Lvpiege, Lcircgte, Lpieggte,  Lcircgne, Lpieggne,  Lcircgue, Lpieggue, Lcircce, Lpiegce
@@ -43,7 +48,7 @@ MODULE datmat
   ! Final output arrays following saturation rule. These can be printed as ASCII output
   COMPLEX(KIND=DBL), SAVE, DIMENSION(:,:), ALLOCATABLE :: solflu_SI, solflu_GB
   REAL(KIND=DBL), SAVE, DIMENSION(:,:,:), ALLOCATABLE :: gam_SI,gam_GB,ome_SI,ome_GB
-  REAL(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: epf_SI,epf_GB,eef_SI,eef_GB,evf_SI,evf_GB 
+  REAL(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: epf_SI,epf_GB,eef_SI,eefETG_SI,eef_GB,evf_SI,evf_GB 
   REAL(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: dfe_SI,vte_SI,vce_SI,vre_SI,cke,modeflag
   REAL(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: dfe_GB,vte_GB,vce_GB,vre_GB
   REAL(KIND=DBL), SAVE, DIMENSION(:,:), ALLOCATABLE :: ipf_SI,ipf_GB,ief_SI,ief_GB,ivf_SI,ivf_GB, dfi_SI,vti_SI,vci_SI,vri_SI,cki,eef_cm,epf_cm,evf_cm
@@ -80,7 +85,7 @@ MODULE datmat
   REAL(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: Athi, ktetaRhoi
   REAL(KIND=DBL), SAVE :: nwg, qRd, omega2bar
   REAL(KIND=DBL), SAVE :: fonxad
-  COMPLEX(KIND=DBL), SAVE :: mwidth, mshift, omeflu ! the width and the shift of eigenfunctions can be complex. omeflu is the solution used for the contour limit from Pierre solution
+  COMPLEX(KIND=DBL), SAVE :: mwidth, mshift, mshift2, omeflu ! the width and the shift of eigenfunctions can be complex. omeflu is the solution used for the contour limit from Pierre solution
   COMPLEX(KIND=DBL), SAVE :: mwidth_rot, mshift_rot ! width and the shift of eigenfunctions for momentum transport cases
   REAL(KIND=DBL), SAVE :: widthhat ! the width corresponding to |phi(x)| . Used instead of mwidth when phi(x) is complex
   COMPLEX(KIND=DBL), SAVE :: fonxcirce, fonxpiege, fonxcircgte, fonxpieggte, fonxcircgne, fonxcircgue
@@ -130,8 +135,8 @@ MODULE datmat
   !EXTERNAL FUNCTION AND SUBROUTINE DECLARATIONS
 
   !Elliptic integrals (from SLATEC)
-  REAL(KIND=DBL) :: ceik, ceie, DGAMMA
-  EXTERNAL ceik, ceie, DGAMMA
+  REAL(KIND=DBL) :: ceik, ceie, DGAMMA2
+  EXTERNAL ceik, ceie, DGAMMA2
 
   !Scaled modified Bessel functions routines (from SPECFUN)
   REAL(KIND=DBL) :: BESEI0, BESEI1

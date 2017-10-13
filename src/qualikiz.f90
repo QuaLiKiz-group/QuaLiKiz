@@ -13,7 +13,7 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
      & el_typein, Texin, Nexin, Atein, Anein, anisein, danisedrin, & !electron input
      & ion_typein, Aiin, Ziin, Tixin, ninormin, Atiin, Aniin, anisin, danisdrin, & !ion input
      & Machtorin, Autorin, Machparin, Auparin, gammaEin, & !rotation input
-     & maxrunsin, maxptsin, relacc1in, relacc2in, timeoutin, & !code specific input
+     & maxrunsin, maxptsin, relacc1in, relacc2in, timeoutin, ETGmultin, collmultin, & !code specific input
      & epf_SIout,eef_SIout,evf_SIout,ipf_SIout,ief_SIout,ivf_SIout, & ! Non optional outputs
      & solflu_SIout, solflu_GBout, gam_SIout,gam_GBout,ome_SIout,ome_GBout, & !growth rate and frequency output
      & epf_GBout,eef_GBout, evf_GBout, dfe_SIout,vte_SIout,vre_SIout,vce_SIout,epf_cmout,eef_cmout,evf_cmout,ckeout, & !electron flux outputs
@@ -35,7 +35,7 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
      & eefITG_SIout,eefITG_GBout,epfITG_SIout,dfeITG_SIout,vteITG_SIout,vceITG_SIout,vreITG_SIout,dfeITG_GBout,vteITG_GBout,vceITG_GBout,vreITG_GBout,&
      & iefTEM_SIout,iefTEM_GBout,ipfTEM_SIout,ivfTEM_SIout,ivfTEM_GBout,dfiTEM_SIout,vtiTEM_SIout,vciTEM_SIout,vriTEM_SIout,dfiTEM_GBout,vtiTEM_GBout,vciTEM_GBout,vriTEM_GBout,&
      & iefITG_SIout,iefITG_GBout,ipfITG_SIout,ivfITG_SIout,ivfITG_GBout,dfiITG_SIout,vtiITG_SIout,vciITG_SIout,vriITG_SIout,dfiITG_GBout,vtiITG_GBout,vciITG_GBout,vriITG_GBout)
-
+  
   !BRIEF EXPLANATION OF MODULES
   !
   !kind defines the kind numbers and output/error units
@@ -48,7 +48,6 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
   !saturation calculates the nonlinear saturation rule and makes the final output
 
   USE kind
-  !USE mod_io_management !MPI is included in this module
   USE mod_make_io
   USE datmat
   USE datcal
@@ -63,7 +62,7 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
   !Local data dictionary.
   !
   !Time measuring variables
-  REAL(kind=DBL) :: cputime1, cputime2, tpstot, timetot
+  REAL(kind=DBL) :: cputime1, cputime2, tpstot, timetot, timetot2
   INTEGER :: time1, time2, time3, time4, freq, cputimetot
   CHARACTER(len=20) :: myfmt
   !MPI variables:
@@ -83,7 +82,7 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
   REAL(kind=DBL), DIMENSION(dimxin,nionsin), INTENT(IN) :: Tixin, ninormin, Atiin, Aniin, anisin, danisdrin, Aiin, Ziin
   REAL(kind=DBL), DIMENSION(dimxin), INTENT(IN) :: Auparin, gammaEin, Machtorin, Machparin, Autorin
   INTEGER, INTENT(IN) :: maxrunsin, maxptsin
-  REAL(kind=DBL), INTENT(IN) :: relacc1in, relacc2in, timeoutin
+  REAL(kind=DBL), INTENT(IN) :: relacc1in, relacc2in, timeoutin, ETGmultin, collmultin
   REAL(kind=DBL), OPTIONAL, INTENT(IN) :: rhominin,rhomaxin
 
   ! List of output variables: 
@@ -95,8 +94,6 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
   ! final output arrays following saturation rule
   REAL(KIND=DBL), DIMENSION(dimxin), INTENT(OUT)  :: epf_SIout,eef_SIout,evf_SIout
   REAL(KIND=DBL), DIMENSION(dimxin,nionsin), INTENT(OUT)  :: ipf_SIout,ief_SIout,ivf_SIout
-
-
   REAL(KIND=DBL), DIMENSION(dimxin), OPTIONAL, INTENT(OUT) :: eefETG_SIout,eefETG_GBout
   REAL(KIND=DBL), DIMENSION(dimxin), OPTIONAL, INTENT(OUT) :: eefTEM_SIout,eefTEM_GBout,epfTEM_SIout,dfeTEM_SIout,vteTEM_SIout,vceTEM_SIout,vreTEM_SIout,dfeTEM_GBout,vteTEM_GBout,vceTEM_GBout,vreTEM_GBout
   REAL(KIND=DBL), DIMENSION(dimxin), OPTIONAL, INTENT(OUT) :: eefITG_SIout,eefITG_GBout,epfITG_SIout,dfeITG_SIout,vteITG_SIout,vceITG_SIout,vreITG_SIout,dfeITG_GBout,vteITG_GBout,vceITG_GBout,vreITG_GBout
@@ -104,17 +101,13 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
   REAL(KIND=DBL), DIMENSION(dimxin,nionsin), OPTIONAL, INTENT(OUT) :: vriTEM_SIout,vriTEM_GBout,ivfTEM_SIout,iefTEM_GBout,ivfTEM_GBout
   REAL(KIND=DBL), DIMENSION(dimxin,nionsin), OPTIONAL, INTENT(OUT) :: iefITG_SIout,ipfITG_SIout,dfiITG_SIout,vtiITG_SIout,vciITG_SIout,vriITG_SIout,dfiITG_GBout,vtiITG_GBout,vciITG_GBout,vriITG_GBout
   REAL(KIND=DBL), DIMENSION(dimxin,nionsin), OPTIONAL, INTENT(OUT) :: ivfITG_SIout,ivfITG_GBout,iefITG_GBout
-
   REAL(KIND=DBL), DIMENSION(dimxin) :: eefETG_SIouttmp,eefETG_GBouttmp
   REAL(KIND=DBL), DIMENSION(dimxin) :: eefTEM_SIouttmp,epfTEM_SIouttmp,eefTEM_GBouttmp,dfeTEM_SIouttmp,vteTEM_SIouttmp,vceTEM_SIouttmp,vreTEM_SIouttmp,dfeTEM_GBouttmp,vteTEM_GBouttmp,vceTEM_GBouttmp,vreTEM_GBouttmp
   REAL(KIND=DBL), DIMENSION(dimxin) :: eefITG_SIouttmp,epfITG_SIouttmp,eefITG_GBouttmp,dfeITG_SIouttmp,vteITG_SIouttmp,vceITG_SIouttmp,vreITG_SIouttmp,dfeITG_GBouttmp,vteITG_GBouttmp,vceITG_GBouttmp,vreITG_GBouttmp
-
   REAL(KIND=DBL), DIMENSION(dimxin,nionsin) :: iefTEM_SIouttmp,iefTEM_GBouttmp,ipfTEM_SIouttmp,dfiTEM_SIouttmp,vtiTEM_SIouttmp,vciTEM_SIouttmp,dfiTEM_GBouttmp,vtiTEM_GBouttmp,vciTEM_GBouttmp
   REAL(KIND=DBL), DIMENSION(dimxin,nionsin) :: vriTEM_SIouttmp,vriTEM_GBouttmp,ivfTEM_SIouttmp,ivfTEM_GBouttmp
   REAL(KIND=DBL), DIMENSION(dimxin,nionsin) :: iefITG_SIouttmp,iefITG_GBouttmp,ipfITG_SIouttmp,dfiITG_SIouttmp,vtiITG_SIouttmp,vciITG_SIouttmp,vriITG_SIouttmp,dfiITG_GBouttmp,vtiITG_GBouttmp,vciITG_GBouttmp,vriITG_GBouttmp
   REAL(KIND=DBL), DIMENSION(dimxin,nionsin) :: ivfITG_SIouttmp,ivfITG_GBouttmp
-
-
   REAL(KIND=DBL), DIMENSION(dimxin), OPTIONAL, INTENT(OUT)  :: epf_GBout,eef_GBout, evf_GBout, dfe_SIout, vte_SIout, vre_SIout, vce_SIout, dfe_GBout, vte_GBout, vre_GBout, vce_GBout, ckeout, modeflagout, Nustarout, Zeffxout
   REAL(KIND=DBL), DIMENSION(dimxin), OPTIONAL, INTENT(OUT)  :: vene_SIout, chiee_SIout, vere_SIout, vece_SIout, cekeout
   REAL(KIND=DBL), DIMENSION(dimxin,nionsin), OPTIONAL, INTENT(OUT)  :: ipf_GBout,ief_GBout, ivf_GBout, dfi_SIout, vti_SIout, vri_SIout, vci_SIout,dfi_GBout, vti_GBout, vri_GBout, vci_GBout, ckiout
@@ -160,7 +153,7 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
        & el_typein, Texin, Nexin, Atein, Anein, anisein, danisedrin, & 
        & ion_typein, Aiin, Ziin, Tixin, ninormin, Atiin, Aniin, anisin, danisdrin, & 
        & Machtorin, Autorin, Machparin, Auparin, gammaEin, &
-       & maxrunsin, maxptsin, relacc1in, relacc2in, timeoutin)  !code specific inputs
+       & maxrunsin, maxptsin, relacc1in, relacc2in, timeoutin,ETGmultin,collmultin)  !code specific inputs
 
   ! set optional input
   IF (PRESENT(oldsolin)) THEN
@@ -179,12 +172,12 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
   IF (PRESENT(rhominin)) THEN
      rhomin=rhominin
   ELSE
-     rhomin=0.00 
+     rhomin=0. 
   ENDIF
   IF (PRESENT(rhomaxin)) THEN
      rhomax=rhomaxin
   ELSE
-     rhomax=1.0
+     rhomax=1.
   ENDIF
 
   !Check sanity of input (these can be much expanded)
@@ -340,10 +333,15 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
   IF (myrank==0) THEN
      CALL SYSTEM_CLOCK(time2)
      CALL SYSTEM_CLOCK(count_rate=freq)
-     timetot = REAL(time2-time1) / REAL(freq)
-     WRITE(stdout,"(A,F11.3,A)") 'Profiling: saturation rule calculation time = ',timetot,' s'  
+     timetot2 = REAL(time2-time1) / REAL(freq)
+     WRITE(stdout,"(A,F11.3,A)") 'Profiling: saturation rule calculation time = ',timetot2,' s'  
+     WRITE(stdout,"(A,F7.3,A)") 'Hurrah! QuaLiKiz Job completed! Total time = ',timetot+timetot2,' s'  !final write
 
-!!!DEBUGGING FOR DIFFERENT FLUID SOLUTIONS
+     OPEN(unit=900, file="lastruntime.qlk", action="write", status="replace")
+     WRITE(900,"(A,F7.3,A)") 'Last completed run time = ',timetot+timetot2,' s'  !final write
+     CLOSE(900)
+
+!!!DEBUGGING FOR FLUID SOLUTION
      WRITE(fmtn,'(A,I0, A)') '(',dimn,'G15.7)'
      OPEN(unit=900, file="output/primitive/rjonsolflu.dat", action="write", status="replace")
      WRITE(900,fmtn) ((REAL(jon_solflu(i,j)),j=1,dimn),i=1,dimx) ; CLOSE(900)
@@ -523,7 +521,6 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
   IF (PRESENT(oldsolin)) DEALLOCATE(oldsol)
   IF (PRESENT(oldfdsolin)) DEALLOCATE(oldfdsol)
 
-
 CONTAINS 
 
   SUBROUTINE DistriTask(NumTasks,numprocs,rank)
@@ -691,7 +688,6 @@ CONTAINS
 
     epf_SIout = epf_SI
     eef_SIout = eef_SI
-
     evf_SIout = evf_SI
     ipf_SIout = ipf_SI
     ief_SIout = ief_SI
@@ -779,8 +775,8 @@ CONTAINS
        IF (PRESENT(vte_GBout))     vte_GBout = vte_GB
        IF (PRESENT(vce_GBout))     vce_GBout = vce_GB
        IF (PRESENT(vre_GBout))     vre_GBout = vre_GB
-
        IF (PRESENT(ckeout))        ckeout = cke
+
        IF (PRESENT(dfi_SIout))     dfi_SIout = dfi_SI
        IF (PRESENT(vti_SIout))     vti_SIout = vti_SI
        IF (PRESENT(vci_SIout))     vci_SIout = vci_SI
@@ -789,7 +785,6 @@ CONTAINS
        IF (PRESENT(vti_GBout))     vti_GBout = vti_GB
        IF (PRESENT(vci_GBout))     vci_GBout = vci_GB
        IF (PRESENT(vri_GBout))     vri_GBout = vri_GB
-
        IF (PRESENT(ckiout))        ckiout = cki
 
        IF (phys_meth == 2) THEN
