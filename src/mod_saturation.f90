@@ -24,9 +24,8 @@ CONTAINS
     ALLOCATE(epf_GB(dimx)); epf_GB=0
     ALLOCATE(eef_SI(dimx)); eef_SI=0
     ALLOCATE(eefETG_SI(dimx)); eefETG_SI=0
+    ALLOCATE(eefETG_GB(dimx)); eefETG_GB=0
     ALLOCATE(eef_GB(dimx)); eef_GB=0
-    ALLOCATE(evf_SI(dimx)); evf_SI=0 
-    ALLOCATE(evf_GB(dimx)); evf_GB=0
     ALLOCATE(ipf_SI(dimx,nions)); ipf_SI=0
     ALLOCATE(ipf_GB(dimx,nions)); ipf_GB=0
     ALLOCATE(ief_SI(dimx,nions)); ief_SI=0
@@ -38,13 +37,11 @@ CONTAINS
        ALLOCATE(dfe_SI(dimx)); dfe_SI=0
        ALLOCATE(vte_SI(dimx)); vte_SI=0
        ALLOCATE(vce_SI(dimx)); vce_SI=0
-       ALLOCATE(vre_SI(dimx)); vre_SI=0
-
+       
        ALLOCATE(dfe_GB(dimx)); dfe_GB=0
        ALLOCATE(vte_GB(dimx)); vte_GB=0
        ALLOCATE(vce_GB(dimx)); vce_GB=0
-       ALLOCATE(vre_GB(dimx)); vre_GB=0
-
+       
        ALLOCATE(cke(dimx))
        ALLOCATE(dfi_SI(dimx,nions)); dfi_SI=0
        ALLOCATE(vti_SI(dimx,nions)); vti_SI=0
@@ -62,19 +59,25 @@ CONTAINS
           ALLOCATE(vene_SI(dimx)); vene_SI=0
           ALLOCATE(chiee_SI(dimx)); chiee_SI=0
           ALLOCATE(vece_SI(dimx)); vece_SI=0
-          ALLOCATE(vere_SI(dimx)); vere_SI=0
           ALLOCATE(ceke(dimx))
           ALLOCATE(veni_SI(dimx,nions)); veni_SI=0
           ALLOCATE(chiei_SI(dimx,nions)); chiei_SI=0
           ALLOCATE(veci_SI(dimx,nions)); veci_SI=0
           ALLOCATE(veri_SI(dimx,nions)); veri_SI=0
           ALLOCATE(ceki(dimx,nions))
+          ALLOCATE(vene_GB(dimx)); vene_GB=0
+          ALLOCATE(chiee_GB(dimx)); chiee_GB=0
+          ALLOCATE(vece_GB(dimx)); vece_GB=0
+          ALLOCATE(veni_GB(dimx,nions)); veni_GB=0
+          ALLOCATE(chiei_GB(dimx,nions)); chiei_GB=0
+          ALLOCATE(veci_GB(dimx,nions)); veci_GB=0
+          ALLOCATE(veri_GB(dimx,nions)); veri_GB=0
+
        ENDIF
     ENDIF
 
     ALLOCATE(epf_cm(dimx,dimn)); epf_cm=0
     ALLOCATE(eef_cm(dimx,dimn)); eef_cm=0
-    ALLOCATE(evf_cm(dimx,dimn)); evf_cm=0
     ALLOCATE(ipf_cm(dimx,dimn,nions)); ipf_cm=0
     ALLOCATE(ief_cm(dimx,dimn,nions)); ief_cm=0
     ALLOCATE(ivf_cm(dimx,dimn,nions)); ivf_cm=0
@@ -95,9 +98,9 @@ CONTAINS
     DEALLOCATE(epf_GB)
     DEALLOCATE(eef_SI)
     DEALLOCATE(eefETG_SI)
-    DEALLOCATE(eef_GB)
-    DEALLOCATE(evf_SI)
-    DEALLOCATE(evf_GB)
+    DEALLOCATE(eefETG_GB)
+    
+	DEALLOCATE(eef_GB)
     DEALLOCATE(ipf_SI)
     DEALLOCATE(ipf_GB)
     DEALLOCATE(ief_SI)
@@ -109,7 +112,6 @@ CONTAINS
        DEALLOCATE(dfe_SI)
        DEALLOCATE(vte_SI)
        DEALLOCATE(vce_SI)
-       DEALLOCATE(vre_SI)
        DEALLOCATE(cke)
        DEALLOCATE(dfi_SI)
        DEALLOCATE(vti_SI)
@@ -120,7 +122,6 @@ CONTAINS
        DEALLOCATE(dfe_GB)
        DEALLOCATE(vte_GB)
        DEALLOCATE(vce_GB)
-       DEALLOCATE(vre_GB)
        DEALLOCATE(dfi_GB)
        DEALLOCATE(vti_GB)
        DEALLOCATE(vci_GB)
@@ -130,19 +131,24 @@ CONTAINS
           DEALLOCATE(vene_SI)
           DEALLOCATE(chiee_SI)
           DEALLOCATE(vece_SI)
-          DEALLOCATE(vere_SI)
           DEALLOCATE(ceke)
           DEALLOCATE(veni_SI)
           DEALLOCATE(chiei_SI)
           DEALLOCATE(veci_SI)
           DEALLOCATE(veri_SI)
           DEALLOCATE(ceki)
+		  DEALLOCATE(vene_GB)
+          DEALLOCATE(chiee_GB)
+          DEALLOCATE(vece_GB)
+          DEALLOCATE(veni_GB)
+          DEALLOCATE(chiei_GB)
+          DEALLOCATE(veci_GB)
+          DEALLOCATE(veri_GB)
        ENDIF
     ENDIF
 
     DEALLOCATE(epf_cm)
     DEALLOCATE(eef_cm)
-    DEALLOCATE(evf_cm)
     DEALLOCATE(ipf_cm)
     DEALLOCATE(ief_cm)
     DEALLOCATE(ivf_cm)
@@ -163,12 +169,12 @@ CONTAINS
     REAL(KIND=DBL) :: cfaca,cfacb,cfacc,cfacd,qfac,rhos,locmaxgamma
     REAL(KIND=DBL) :: sfac, normNL !normalization factors
     REAL(KIND=DBL),DIMENSION(dimn) :: normETG
-    REAL(KIND=DBL), DIMENSION(dimx,dimn,numsols) :: fi, constp, conste, constv, cmpfe_k, cmefe_k, cmvfe_k, cmpfgne_k, cmpfgte_k, cmpfgue_k, cmpfce_k, cmefgne_k, cmefgte_k, cmefgue_k, cmefce_k
+    REAL(KIND=DBL), DIMENSION(dimx,dimn,numsols) :: fi, constp, conste, constv, cmpfe_k, cmefe_k, cmvfe_k, cmpfgne_k, cmpfgte_k, cmpfce_k, cmefgne_k, cmefgte_k, cmefce_k
     REAL(KIND=DBL), DIMENSION(dimx,dimn,nions,numsols) :: cmpfi_k, cmefi_k, cmvfi_k, cmpfgni_k, cmpfgti_k, cmpfgui_k, cmpfci_k, cmefgni_k, cmefgti_k, cmefgui_k, cmefci_k
     COMPLEX(KIND=DBL), DIMENSION(dimx,dimn,numsols) :: solbck,solbcktmp
-    REAL(KIND=DBL), DIMENSION(dimx,dimn) :: cmpfe, cmefe, cmvfe, cmpfgne, cmpfgte, cmpfgue, cmpfce, cmefgne, cmefgte, cmefgue, cmefce
+    REAL(KIND=DBL), DIMENSION(dimx,dimn) :: cmpfe, cmefe, cmvfe, cmpfgne, cmpfgte, cmpfce, cmefgne, cmefgte, cmefce
     REAL(KIND=DBL), DIMENSION(dimx,dimn,nions) :: cmpfi, cmefi, cmvfi, cmpfgni, cmpfgti, cmpfgui, cmpfci, cmefgni, cmefgti, cmefgui, cmefci
-    REAL(KIND=DBL), DIMENSION(dimx) :: pfe, dpfe,efe, efeETG, defe,vfe, dvfe, dffte, vthte, vcpte, vrdte, deffte, vethte, vecpte, verdte, ion_epf_GB, ion_eef_GB, ion_evf_GB, ele_epf_GB, ele_eef_GB, ele_evf_GB
+    REAL(KIND=DBL), DIMENSION(dimx) :: pfe, dpfe,efe, efeETG, defe,defeETG,vfe, dvfe, dffte, vthte, vcpte, deffte, vethte, vecpte, verdte, ion_epf_GB, ion_eef_GB, ele_epf_GB, ele_eef_GB
     REAL(KIND=DBL), DIMENSION(dimx,nions) :: pfi, dpfi,efi, defi,vfi, dvfi, dffti, vthti, vcpti, vrdti, deffti, vethti, vecpti, verdti, ion_ipf_GB, ion_ief_GB, ion_ivf_GB, ele_ipf_GB, ele_ief_GB, ele_ivf_GB
     REAL(KIND=DBL) :: alphp,alphm,lowlim,massrat,rat
     CHARACTER(len=7) :: fmtx,fmtn,fmtion !for debugging
@@ -469,9 +475,6 @@ CONTAINS
                 !added thermal velocity
 
                 IF (rotflagarray(dimx) == 1) THEN
-                   cmvfe_k(ir,j,k) = -1._DBL/Ze*1d19*kteta(ir,j)/1._DBL *  ( &
-                        & constv(ir,j,k) * fi(ir,j,k) * me * cthe(ir) * R0 *( Lvcirce(ir,j,k) + Lvpiege(ir,j,k) ))
-
                    cmvfi_k(ir,j,:,k) = -1._DBL/Zi(ir,:)*1d19*kteta(ir,j) /1._DBL  * ( &
                         & constv(ir,j,k)* fi(ir,j,k) * Ai(ir,:) * cthi(ir,:) * mp * R0 * ( Lvcirci(ir,j,:,k) + Lvpiegi(ir,j,:,k) ))
                 ELSE
@@ -498,16 +501,12 @@ CONTAINS
                    ! ROTO-DIFFUSION TERM
 
                    IF (rotflagarray(ir) == 1) THEN
-                      cmpfgue_k(ir,j,k) = -1._DBL/Ze* kteta(ir,j) * Aue(ir) / Nex(ir) * normNL * ( &
-                           &	constp(ir,j,k) * fi(ir,j,k) * ( Lcircgue(ir,j,k) + Lpieggue(ir,j,k) ))
                       cmpfgui_k(ir,j,:,k) = -1._DBL/Zi(ir,:)* kteta(ir,j) * Aui(ir,:)/ Nix(ir,:) * normNL * ( &
                            &	constp(ir,j,k) * fi(ir,j,k) * ( Lcircgui(ir,j,:,k) + Lpieggui(ir,j,:,k) ))
                    ELSE 
-                      cmpfgue_k(ir,j,k) = 0
                       cmpfgui_k(ir,j,:,k) = 0
                    ENDIF
-                   cmpfgue_k(ir,j,k) = 0  !HACK to zero out rotodiffusion, which is negligible for main ions anyway, and not trusted for impurities (due to QLK approximations)
-                   cmpfgui_k(ir,j,:,k) = 0
+                   cmpfgui_k(ir,j,:,k) = 0 !HACK to zero out rotodiffusion, which is negligible for main ions anyway, and not trusted for impurities (due to QLK approximations)
                    ! COMPRESSIBILITY TERM
 
                    cmpfce_k(ir,j,k) = -1._DBL/Ze* kteta(ir,j) * 1._DBL / Nex(ir) * normNL * ( &
@@ -527,17 +526,14 @@ CONTAINS
                       !HEAT PINCH ROTO-DIFFUSION TERM   Assume decomposition Q = -chi * n * dT/dr + T*n*V   Then chi = m^2/s and V=m/s
                       !                      normNL=603._DBL/3.1633;
                       IF (rotflagarray(ir) == 1) THEN
-                         cmefgue_k(ir,j,k) = -1._DBL/Ze*1.6d3* kteta(ir,j) * 1._DBL/1._DBL  * ( &
-                              & conste(ir,j,k) * fi(ir,j,k) * ( Lecircgue(ir,j,k) + Lepieggue(ir,j,k) )) * Aue(ir) / (Nex(ir)*1d19 * Tex(ir)*1d3*qe)* normNL
 
                          cmefgui_k(ir,j,:,k) = -1._DBL/Zi(ir,:)*1.6d3* kteta(ir,j) * 1._DBL/(tau(ir,:)*1._DBL )  * ( &
                               & conste(ir,j,k) * fi(ir,j,k) * ( Lecircgui(ir,j,:,k) + Lepieggui(ir,j,:,k) )) * Aui(ir,:) / (Nix(ir,:)*1d19 * Tix(ir,:)*1d3*qe)* normNL
                       ELSE
-                         cmefgue_k(ir,j,k)=0
                          cmefgui_k(ir,j,:,k)=0
                       ENDIF
-                      cmefgue_k(ir,j,k) = 0  !HACK to zero out rotodiffusion, which is negligible for main ions anyway, and not trusted for impurities (due to QLK approximations)
-                      cmefgui_k(ir,j,:,k) = 0
+
+                      cmefgui_k(ir,j,:,k) = 0 !HACK to zero out rotodiffusion, which is negligible for main ions anyway, and not trusted for impurities (due to QLK approximations)
 
                       ! HEAT DIFFUSION TERM. Defined such that we multiple by -n*dT/dr for flux
 
@@ -569,12 +565,10 @@ CONTAINS
              IF ( phys_meth /= 0.0 ) THEN
                 cmpfgne(ir,j)=SUM(cmpfgne_k(ir,j,:))
                 cmpfgte(ir,j)=SUM(cmpfgte_k(ir,j,:))
-                cmpfgue(ir,j)=SUM(cmpfgue_k(ir,j,:))
                 cmpfce(ir,j)=SUM(cmpfce_k(ir,j,:))
                 IF (phys_meth == 2) THEN
                    cmefgne(ir,j)=SUM(cmefgne_k(ir,j,:))
                    cmefgte(ir,j)=SUM(cmefgte_k(ir,j,:))
-                   cmefgue(ir,j)=SUM(cmefgue_k(ir,j,:))
                    cmefce(ir,j)=SUM(cmefce_k(ir,j,:))
                 ENDIF
                 DO ion=1,nions
@@ -605,7 +599,6 @@ CONTAINS
              cmpfe(ir,:) = 0.
              cmpfgne(ir,:) = 0.
              cmpfgte(ir,:) = 0.
-             cmpfgue(ir,:) = 0.
              cmpfce(ir,:) = 0.
           ENDWHERE
 
@@ -641,7 +634,8 @@ CONTAINS
           ELSE
              efeETG(ir) = 0.
           ENDIF
-
+          defeETG(ir) = (efeETG(ir)/(Nex(ir)*1e19*Tex(ir)*1e3*qe/R0))/chi_GB(ir)
+		  
           ! Ang mom flux using all roots
           xint= (/0._DBL,kthr(ir,:)/) ; yint=(/0._DBL,cmvfe(ir,:)/)
           IF (dimn == 1) THEN 
@@ -702,13 +696,6 @@ CONTAINS
              ELSE
                 CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),vthte(ir),ifailloc,36)
              ENDIF
-             ! Total roto-diffusion coefficient
-             xint= (/0._DBL,kthr(ir,:)/) ; yint=(/0._DBL,cmpfgue(ir,:)/)
-             IF (dimn == 1) THEN 
-                vrdte(ir)=cmpfgue(ir,1)
-             ELSE
-                CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),vrdte(ir),ifailloc,37)
-             ENDIF
              ! Total compressibility coefficient
              xint= (/0._DBL,kthr(ir,:)/) ; yint=(/0._DBL,cmpfce(ir,:)/)
              IF (dimn == 1) THEN 
@@ -732,13 +719,6 @@ CONTAINS
                    vethte(ir)=cmefgte(ir,1)
                 ELSE
                    CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),vethte(ir),ifailloc,40)
-                ENDIF
-                ! Thermal roto-diffusion coefficient
-                xint= (/0._DBL,kthr(ir,:)/) ; yint=(/0._DBL,cmefgue(ir,:)/)
-                IF (dimn == 1) THEN 
-                   verdte(ir)=cmefgue(ir,1)
-                ELSE
-                   CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),verdte(ir),ifailloc,41)
                 ENDIF
                 ! Total compressibility coefficient
                 xint= (/0._DBL,kthr(ir,:)/) ; yint=(/0._DBL,cmefce(ir,:)/)
@@ -864,7 +844,9 @@ CONTAINS
 
        !Energy transport, all roots
        defe=normNL*defe
-       defi=normNL*defi
+       defeETG=normNL*defeETG
+       
+	   defi=normNL*defi
 
        !Ang mom transport, all roots
        dvfe=normNL*dvfe
@@ -896,20 +878,17 @@ CONTAINS
           ief_SI(ir,:) = efi(ir,:)*normNL
           !          eef_SI(ir) = defe(ir)*Nex(ir)*1e19*Tex(ir)*1e3*qe*Ate(ir)/R0*chi_GB(ir)
           eef_SI(ir) = efe(ir)*normNL
-          eefETG_SI(ir) = efeETG(ir)*normNL
-
+          eefETG_SI(ir) = efeETG(ir)*normNL        
+		  
           ief_GB(ir,:) = defi(ir,:)
           eef_GB(ir) = defe(ir)
+          eefETG_GB(ir) = defeETG(ir)
 
-          ivf_SI(ir,:) = vfi(ir,:)*normNL
-          evf_SI(ir) = vfe(ir)*normNL
-
+		  ivf_SI(ir,:) = vfi(ir,:)*normNL
           ivf_GB(ir,:) = dvfi(ir,:)
-          evf_GB(ir) = dvfe(ir)
 
           !FLUX SPECTRA
           eef_cm(ir,:) = normNL*cmefe(ir,:)
-          evf_cm(ir,:) = normNL*cmvfe(ir,:)
           epf_cm(ir,:) = normNL*cmpfe(ir,:)
 
           DO ion=1,nions
@@ -944,7 +923,6 @@ CONTAINS
              !vci(ir,:) = vcpti(ir,:)*Nix(ir,:)*1e19
 
              !! roto diffusion terms
-             vre_SI(ir) = vrdte(ir)
              vri_SI(ir,:) = vrdti(ir,:)
 
              dfe_GB(ir) = dfe_SI(ir)/chi_GB(ir)
@@ -956,12 +934,11 @@ CONTAINS
              vce_GB(ir) = vce_SI(ir)*Ro(ir)/chi_GB(ir)
              vci_GB(ir,:) = vci_SI(ir,:)*Ro(ir)/chi_GB(ir)
 
-             vre_GB(ir) = vre_SI(ir)*Ro(ir)/chi_GB(ir)
              vri_GB(ir,:) = vri_SI(ir,:)*Ro(ir)/chi_GB(ir)
 
              !! check on particle fluxes
              cke(ir) = 1d2* ( epf_SI(ir) - ( dffte(ir)*Ane(ir)*Nex(ir)*1d19/R0 + & 
-                  &	Nex(ir)*1d19*(vthte(ir)+vcpte(ir)+vrdte(ir)) ) )/ (epf_SI(ir)+epsD)
+                  &	Nex(ir)*1d19*(vthte(ir)+vcpte(ir)) ) )/ (epf_SI(ir)+epsD)
              cki(ir,:) = 1d2* ( ipf_SI(ir,:) - ( dffti(ir,:)*Ani(ir,:)*Nix(ir,:)*1d19/R0 + &
                   &	Nix(ir,:)*1d19*(vthti(ir,:)+vcpti(ir,:)+vrdti(ir,:)) ) ) / (ipf_SI(ir,:)+epsD)
 
@@ -979,12 +956,22 @@ CONTAINS
                 veci_SI(ir,:) = vecpti(ir,:)
 
                 ! Heat roto-diff pinch
-                vere_SI(ir) = verdte(ir)
                 veri_SI(ir,:) = verdti(ir,:)
 
+	 		    chiee_GB(ir) = chiee_SI(ir)/chi_GB(ir)
+                chiei_GB(ir,:) = chiei_SI(ir,:)/chi_GB(ir)
+
+                vene_GB(ir) = vene_SI(ir)*Ro(ir)/chi_GB(ir)
+                veni_GB(ir,:) = veni_SI(ir,:)*Ro(ir)/chi_GB(ir)
+
+                vece_GB(ir) = vece_SI(ir)*Ro(ir)/chi_GB(ir)
+                veci_GB(ir,:) = veci_SI(ir,:)*Ro(ir)/chi_GB(ir)
+
+                veri_GB(ir,:) = veri_SI(ir,:)*Ro(ir)/chi_GB(ir)
+				
                 !! check on energy fluxes
                 ceke(ir) = 1d2* ( eef_SI(ir) - ( chiee_SI(ir)*Ate(ir)/R0*Tex(ir)*qe*1d3*Nex(ir)*1d19 + & 
-                     &	Nex(ir)*1d19*Tex(ir)*qe*1d3*(vene_SI(ir)+vece_SI(ir)+vere_SI(ir)) ) )/ (eef_SI(ir)+epsD)
+                     &	Nex(ir)*1d19*Tex(ir)*qe*1d3*(vene_SI(ir)+vece_SI(ir)) ) )/ (eef_SI(ir)+epsD)
 
                 ceki(ir,:) = 1d2* ( ief_SI(ir,:) - ( chiei_SI(ir,:)*Ati(ir,:)/R0*Tix(ir,:)*qe*1d3*Nix(ir,:)*1d19 + & 
                      &	Nix(ir,:)*1d19*Tix(ir,:)*qe*1d3*(veni_SI(ir,:)+veci_SI(ir,:)+veri_SI(ir,:)) ) )/ (ief_SI(ir,:)+epsD)
@@ -997,7 +984,6 @@ CONTAINS
              ion_ipf_GB(ir,:) = dpfi(ir,:)
              ion_eef_GB(ir) = defe(ir)
              ion_ief_GB(ir,:) = defi(ir,:)
-             ion_evf_GB(ir) = dvfe(ir)
              ion_ivf_GB(ir,:) = dvfi(ir,:)
           END IF
           IF (gg==2) THEN !save electron mode only output
@@ -1005,7 +991,6 @@ CONTAINS
              ele_ipf_GB(ir,:) = dpfi(ir,:)
              ele_eef_GB(ir) = defe(ir)
              ele_ief_GB(ir,:) = defi(ir,:)
-             ele_evf_GB(ir) = dvfe(ir)
              ele_ivf_GB(ir,:) = dvfi(ir,:)
           END IF
 

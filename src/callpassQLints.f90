@@ -657,8 +657,8 @@ CONTAINS
   ! with rotation
   !*****************************************************************************************
 
-  SUBROUTINE passQLintsrot( p, nu, omega, fonctce, fonctci, fonctcgte, fonctcgti, fonctcgne, fonctcgni, fonctcgue, fonctcgui, &
-       & fonctcce, fonctcci, fonctece, foncteci, fonctecgte, fonctecgti, fonctecgne, fonctecgni, fonctecgue, fonctecgui, fonctecce, fonctecci, fonctvce, fonctvci)
+  SUBROUTINE passQLintsrot( p, nu, omega, fonctce, fonctci, fonctcgte, fonctcgti, fonctcgne, fonctcgni, fonctcgui, &
+       & fonctcce, fonctcci, fonctece, foncteci, fonctecgte, fonctecgti, fonctecgne, fonctecgni, fonctecgui, fonctecce, fonctecci, fonctvci)
     !-----------------------------------------------------------
     ! Calculates the passing particle integrals at the omega of the linear solutions
     ! Integrals (with switch) in order to identify particle flux contributions due to An, At and curvature
@@ -667,8 +667,8 @@ CONTAINS
     !-----------------------------------------------------------   
     INTEGER, INTENT(IN)  :: p, nu
     COMPLEX(KIND=DBL), INTENT(IN)  :: omega
-    COMPLEX(KIND=DBL), INTENT(OUT) :: fonctce, fonctcgte, fonctcgne, fonctcgue, fonctcce, fonctece, fonctvce
-    COMPLEX(KIND=DBL), INTENT(OUT) :: fonctecgte, fonctecgne, fonctecgue, fonctecce
+    COMPLEX(KIND=DBL), INTENT(OUT) :: fonctce, fonctcgte, fonctcgne, fonctcce, fonctece
+    COMPLEX(KIND=DBL), INTENT(OUT) :: fonctecgte, fonctecgne, fonctecce
     COMPLEX(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fonctci, fonctcgti, fonctcgni, fonctcgui, fonctcci, foncteci, fonctvci
     COMPLEX(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fonctecgti, fonctecgni, fonctecgui, fonctecci
 
@@ -685,10 +685,10 @@ CONTAINS
     REAL(kind=DBL) , DIMENSION(nf) :: reerrarr !NOT USED. Estimated absolute error after CUBATR restart
     INTEGER, DIMENSION(numrgn) :: rgtype
 
-    REAL(KIND=DBL)    :: rfonctce, rfonctcgte, rfonctcgne, rfonctcgue, rfonctcce, rfonctece, rfonctvce 
-    REAL(KIND=DBL)    :: rfonctecgte, rfonctecgne, rfonctecgue, rfonctecce 
-    REAL(KIND=DBL)    :: ifonctce, ifonctcgte, ifonctcgne, ifonctcgue, ifonctcce, ifonctece, ifonctvce
-    REAL(KIND=DBL)    :: ifonctecgte, ifonctecgne, ifonctecgue, ifonctecce
+    REAL(KIND=DBL)    :: rfonctce, rfonctcgte, rfonctcgne, rfonctcce, rfonctece 
+    REAL(KIND=DBL)    :: rfonctecgte, rfonctecgne, rfonctecce 
+    REAL(KIND=DBL)    :: ifonctce, ifonctcgte, ifonctcgne, ifonctcce, ifonctece
+    REAL(KIND=DBL)    :: ifonctecgte, ifonctecgne, ifonctecce
     REAL(KIND=DBL)    :: intmult=1. ! with rotation need to integrate from -inf to +inf
     REAL(KIND=DBL), DIMENSION(nions) :: rfonctci, rfonctcgti, rfonctcgni, rfonctcgui, rfonctcci, rfoncteci, rfonctvci
     REAL(KIND=DBL), DIMENSION(nions) :: rfonctecgti, rfonctecgni, rfonctecgui, rfonctecci
@@ -775,19 +775,6 @@ CONTAINS
 
           minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
           IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
-!!$             CALL CUBATR(ndim,nf,Fkstarrstarguerot_cub,numrgn,vertices4,rgtype,intout,reerrarr,&
-!!$                  ifailloc,neval,abaccQL2,relaccQL2,restar,minpts,maxpts,key,job,tune)
-             IF (ifailloc /= 0) THEN
-                IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of CUBATR QL Fkstarrstarguerot integration at p=',p,' nu=',nu
-             ENDIF
-          ELSE
-             intout(1)=0
-             intout(2)=0
-          ENDIF
-          rfonctcgue = intmult*intout(1); ifonctcgue=intmult*intout(2)
-
-          minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
-          IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
 !!$             CALL CUBATR(ndim,nf,Fkstarrstarcerot_cub,numrgn,vertices4,rgtype,intout,reerrarr,&
 !!$                  ifailloc,neval,abaccQL2,relaccQL2,restar,minpts,maxpts,key,job,tune)
              IF (ifailloc /= 0) THEN
@@ -828,19 +815,6 @@ CONTAINS
 
              minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
              IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
-!!$                CALL CUBATR(ndim,nf,Fekstarrstarguerot_cub,numrgn,vertices4,rgtype,intout,reerrarr,&
-!!$                     ifailloc,neval,abaccQL2,relaccQL2,restar,minpts,maxpts,key,job,tune)
-                IF (ifailloc /= 0) THEN
-                   IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of CUBATR QL Fekstarrstarguerot integration at p=',p,' nu=',nu
-                ENDIF
-             ELSE
-                intout(1)=0
-                intout(2)=0
-             ENDIF
-             rfonctecgue = intmult*intout(1); ifonctecgue=intmult*intout(2)
-
-             minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
-             IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
 !!$                CALL CUBATR(ndim,nf,Fekstarrstarcerot_cub,numrgn,vertices4,rgtype,intout,reerrarr,&
 !!$                     ifailloc,neval,abaccQL2,relaccQL2,restar,minpts,maxpts,key,job,tune)
                 IF (ifailloc /= 0) THEN
@@ -858,8 +832,6 @@ CONTAINS
           ifonctcgte = 0.0
           rfonctcgne = 0.0
           ifonctcgne = 0.0
-          rfonctcgue = 0.0
-          ifonctcgue = 0.0
           rfonctcce = 0.0
           ifonctcce = 0.0
 
@@ -867,8 +839,6 @@ CONTAINS
           ifonctecgte = 0.0
           rfonctecgne = 0.0
           ifonctecgne = 0.0
-          rfonctecgue = 0.0
-          ifonctecgue = 0.0
           rfonctecce = 0.0
           ifonctecce = 0.0
 
@@ -887,21 +857,6 @@ CONTAINS
           intout(2)=0
        ENDIF
        rfonctece = intmult*intout(1); ifonctece=intmult*intout(2)
-
-
-       !ELECTRON ang mom INTEGRALS
-       minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
-       IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
-!!$          CALL CUBATR(ndim,nf,Fvkstarrstarerot_cub,numrgn,vertices4,rgtype,intout,reerrarr,&
-!!$               ifailloc,neval,abaccQL2,relaccQL2,restar,minpts,maxpts,key,job,tune)
-          IF (ifailloc /= 0) THEN
-             IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of CUBATR QL Fekstarrstarerot integration at p=',p,' nu=',nu
-          ENDIF
-       ELSE
-          intout(1)=0
-          intout(2)=0
-       ENDIF
-       rfonctvce = intmult*intout(1); ifonctvce=intmult*intout(2)
 
        DO ion=1,nions
 
@@ -1089,29 +1044,6 @@ CONTAINS
           minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
           IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
 !!$             ifailloc=1
-!!$             CALL d01fcf(ndim,a,b,minpts,maxpts,rFkstarrstarguerot,relaccQL2,acc,lenwrk,wrkstr,intout(1),ifailloc)
-!!$             IF (ifailloc /= 0) THEN
-!!$                IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL rFkstarrstarguerot integration at p=',p,' nu=',nu
-!!$             ENDIF
-             intout(1)=0
-             IF ( (ABS(Machpar(p)) < epsS) .AND. (ABS(Aupar(p)) < epsS) .AND. (ABS(gammaE(p)) < epsS) ) THEN
-                intout(2) = 0
-             ELSE
-                minpts=0; ifailloc=1
-                CALL d01fcf(ndim,a,b,minpts,maxpts,iFkstarrstarguerot,relaccQL2,acc,lenwrk,wrkstr,intout(2),ifailloc)
-                IF (ifailloc /= 0) THEN
-                   IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFkstarrstarguerot integration at p=',p,' nu=',nu
-                ENDIF
-             ENDIF
-          ELSE
-             intout(1)=0
-             intout(2)=0
-          ENDIF
-          rfonctcgue = intmult*intout(1); ifonctcgue=intmult*intout(2)
-
-          minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
-          IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
-!!$             ifailloc=1
 !!$             CALL d01fcf(ndim,a,b,minpts,maxpts,rFkstarrstarcerot,relaccQL2,acc,lenwrk,wrkstr,intout(1),ifailloc)
 !!$             IF (ifailloc /= 0) THEN
 !!$                IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL rFkstarrstarcerot integration at p=',p,' nu=',nu
@@ -1171,29 +1103,6 @@ CONTAINS
              minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
              IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
 !!$                ifailloc=1
-!!$                CALL d01fcf(ndim,a,b,minpts,maxpts,rFekstarrstarguerot,relaccQL2,acc,lenwrk,wrkstr,intout(1),ifailloc)
-!!$                IF (ifailloc /= 0) THEN
-!!$                   IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL rFekstarrstarguerot integration at p=',p,' nu=',nu
-!!$                ENDIF
-                intout(1)=0
-                IF ( (ABS(Machpar(p)) < epsS) .AND. (ABS(Aupar(p)) < epsS) .AND. (ABS(gammaE(p)) < epsS) ) THEN
-                   intout(2) = 0
-                ELSE
-                   minpts=0; ifailloc=1
-                   CALL d01fcf(ndim,a,b,minpts,maxpts,iFekstarrstarguerot,relaccQL2,acc,lenwrk,wrkstr,intout(2),ifailloc)
-                   IF (ifailloc /= 0) THEN
-                      IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFekstarrstarguerot integration at p=',p,' nu=',nu
-                   ENDIF
-                ENDIF
-             ELSE
-                intout(1)=0
-                intout(2)=0
-             ENDIF
-             rfonctecgue = intmult*intout(1); ifonctecgue=intmult*intout(2)
-
-             minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
-             IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
-!!$                ifailloc=1
 !!$                CALL d01fcf(ndim,a,b,minpts,maxpts,rFekstarrstarcerot,relaccQL2,acc,lenwrk,wrkstr,intout(1),ifailloc)
 !!$                IF (ifailloc /= 0) THEN
 !!$                   IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL rFekstarrstarcerot integration at p=',p,' nu=',nu
@@ -1215,8 +1124,6 @@ CONTAINS
           ifonctcgte = 0.0
           rfonctcgne = 0.0
           ifonctcgne = 0.0
-          rfonctcgue = 0.0
-          ifonctcgue = 0.0
           rfonctcce = 0.0
           ifonctcce = 0.0
 
@@ -1224,8 +1131,6 @@ CONTAINS
           ifonctecgte = 0.0
           rfonctecgne = 0.0
           ifonctecgne = 0.0
-          rfonctecgue = 0.0
-          ifonctecgue = 0.0
           rfonctecce = 0.0
           ifonctecce = 0.0
 
@@ -1250,31 +1155,6 @@ CONTAINS
           intout(2)=0
        ENDIF
        rfonctece = intmult*intout(1); ifonctece=intmult*intout(2)
-
-       !ELECTRON ang mom INTEGRALS
-       minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
-       IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
-!!$          ifailloc=1
-!!$          CALL d01fcf(ndim,a,b,minpts,maxpts,rFvkstarrstarerot,relaccQL2,acc,lenwrk,wrkstr,intout(1),ifailloc)
-!!$          IF (ifailloc /= 0) THEN
-!!$             IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL rFekstarrstarerot integration at p=',p,' nu=',nu
-!!$          ENDIF
-          intout(1)=0
-          IF ( (ABS(Machpar(p)) < epsS) .AND. (ABS(Aupar(p)) < epsS) .AND. (ABS(gammaE(p)) < epsS) ) THEN
-             intout(2) = 0
-          ELSE
-             minpts=0; ifailloc=1
-!!$             CALL d01fcf(ndim,a,b,minpts,maxpts,iFvkstarrstarerot,relaccQL2,acc,lenwrk,wrkstr,intout(2),ifailloc)
-             intout(2) = 0
-!!$             IF (ifailloc /= 0) THEN
-!!$                IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFvkstarrstarerot integration at p=',p,' nu=',nu
-!!$             ENDIF
-          ENDIF
-       ELSE
-          intout(1)=0
-          intout(2)=0
-       ENDIF
-       rfonctvce = intmult*intout(1); ifonctvce=intmult*intout(2)
 
        DO ion=1,nions
 
@@ -1487,16 +1367,12 @@ CONTAINS
     fonctce = rfonctce + ci * ifonctce
     fonctcgte = rfonctcgte + ci * ifonctcgte
     fonctcgne = rfonctcgne + ci * ifonctcgne
-    fonctcgue = rfonctcgue + ci * ifonctcgue
     fonctcce = rfonctcce + ci * ifonctcce
 
     fonctece = rfonctece + ci * ifonctece
     fonctecgte = rfonctecgte + ci * ifonctecgte
     fonctecgne = rfonctecgne + ci * ifonctecgne
-    fonctecgue = rfonctecgue + ci * ifonctecgue
     fonctecce = rfonctecce + ci * ifonctecce
-
-    fonctvce = rfonctvce + ci * ifonctvce
 
     fonctci = rfonctci + ci * ifonctci
     fonctcgti = rfonctcgti + ci * ifonctcgti

@@ -356,8 +356,8 @@ CONTAINS
     ALLOCATE(fonxpiegi(nions)); fonxpiegi=0; fonxpiege=0
     ALLOCATE(fonxecirci(nions)); fonxecirci=0; fonxecirce=0
     ALLOCATE(fonxepiegi(nions)); fonxepiegi=0; fonxepiege=0
-    ALLOCATE(fonxvcirci(nions)); fonxvcirci=0; fonxvcirce=0
-    ALLOCATE(fonxvpiegi(nions)); fonxvpiegi=0; fonxvpiege=0
+    ALLOCATE(fonxvcirci(nions)); fonxvcirci=0; 
+    ALLOCATE(fonxvpiegi(nions)); fonxvpiegi=0; 
 
     ALLOCATE( krmmuITG (dimx) ); krmmuITG=0;
     ALLOCATE( krmmuETG (dimx) ); krmmuETG=0;
@@ -398,8 +398,6 @@ CONTAINS
     ALLOCATE( Lpiege (dimx, dimn, numsols) ); Lpiege=0
     ALLOCATE( Lecirce (dimx, dimn, numsols) ); Lecirce=0
     ALLOCATE( Lepiege (dimx, dimn, numsols) ); Lepiege=0
-    ALLOCATE( Lvcirce (dimx, dimn, numsols) ); Lvcirce=0
-    ALLOCATE( Lvpiege (dimx, dimn, numsols) ); Lvpiege=0
     !Complex 4D arrays with 3rd dimension equal to nions and 4th to numsols
     ALLOCATE( Lcirci (dimx, dimn, nions, numsols) ); Lcirci=0
     ALLOCATE( Lpiegi (dimx, dimn, nions, numsols) ); Lpiegi=0
@@ -414,8 +412,6 @@ CONTAINS
        ALLOCATE(fonxpieggti(nions)); fonxpieggti=0; fonxpieggte=0
        ALLOCATE(fonxcircgni(nions)); fonxcircgni=0; fonxcircgne=0
        ALLOCATE(fonxpieggni(nions)); fonxpieggni=0; fonxpieggne=0
-       ALLOCATE(fonxcircgui(nions)); fonxcircgui=0; fonxcircgue=0
-       ALLOCATE(fonxpieggui(nions)); fonxpieggui=0; fonxpieggue=0
        ALLOCATE(fonxcircci(nions)); fonxcircci=0; fonxcircce=0
        ALLOCATE(fonxpiegci(nions)); fonxpiegci=0; fonxpiegce=0
        !Complex 3D arrays with 3rd dimension equal to number of solutions searched for
@@ -423,8 +419,6 @@ CONTAINS
        ALLOCATE( Lpieggte (dimx, dimn, numsols) ); Lpieggte=0
        ALLOCATE( Lcircgne (dimx, dimn, numsols) ); Lcircgne=0
        ALLOCATE( Lpieggne (dimx, dimn, numsols) ); Lpieggne=0
-       ALLOCATE( Lcircgue (dimx, dimn, numsols) ); Lcircgue=0
-       ALLOCATE( Lpieggue (dimx, dimn, numsols) ); Lpieggue=0
        ALLOCATE( Lcircce (dimx, dimn, numsols) ); Lcircce=0
        ALLOCATE( Lpiegce (dimx, dimn, numsols) ); Lpiegce=0
        !Complex 4D arrays with 3rd dimension equal to nions and 4th to numsols
@@ -443,8 +437,6 @@ CONTAINS
           ALLOCATE(fonxepieggti(nions)); fonxepieggti=0; fonxepieggte=0
           ALLOCATE(fonxecircgni(nions)); fonxecircgni=0; fonxecircgne=0
           ALLOCATE(fonxepieggni(nions)); fonxepieggni=0; fonxepieggne=0
-          ALLOCATE(fonxecircgui(nions)); fonxecircgui=0; fonxecircgue=0
-          ALLOCATE(fonxepieggui(nions)); fonxepieggui=0; fonxepieggue=0
           ALLOCATE(fonxecircci(nions)); fonxecircci=0; fonxecircce=0
           ALLOCATE(fonxepiegci(nions)); fonxepiegci=0; fonxepiegce=0
           !Complex 3D arrays with 3rd dimension equal to number of solutions searched for
@@ -452,8 +444,6 @@ CONTAINS
           ALLOCATE( Lepieggte (dimx, dimn, numsols) ); Lepieggte=0
           ALLOCATE( Lecircgne (dimx, dimn, numsols) ); Lecircgne=0
           ALLOCATE( Lepieggne (dimx, dimn, numsols) ); Lepieggne=0
-          ALLOCATE( Lecircgue (dimx, dimn, numsols) ); Lecircgue=0
-          ALLOCATE( Lepieggue (dimx, dimn, numsols) ); Lepieggue=0
           ALLOCATE( Lecircce (dimx, dimn, numsols) ); Lecircce=0
           ALLOCATE( Lepiegce (dimx, dimn, numsols) ); Lepiegce=0
           !Complex 4D arrays with 3rd dimension equal to nions and 4th to numsols
@@ -604,8 +594,6 @@ CONTAINS
     DEALLOCATE( Lecirce )
     DEALLOCATE( Lecirci )
     DEALLOCATE( Lepiegi )
-    DEALLOCATE( Lvpiege )
-    DEALLOCATE( Lvcirce )
     DEALLOCATE( Lvcirci )
     DEALLOCATE( Lvpiegi )
 
@@ -624,8 +612,6 @@ CONTAINS
        DEALLOCATE( Lpieggti )
        DEALLOCATE( Lcircgne )
        DEALLOCATE( Lpieggne )
-       DEALLOCATE( Lcircgue )
-       DEALLOCATE( Lpieggue )
        DEALLOCATE( Lcircgni )
        DEALLOCATE( Lpieggni )
        DEALLOCATE( Lcircgui )
@@ -649,8 +635,6 @@ CONTAINS
           DEALLOCATE( Lepieggti )
           DEALLOCATE( Lecircgne )
           DEALLOCATE( Lepieggne )
-          DEALLOCATE( Lecircgue )
-          DEALLOCATE( Lepieggue )
           DEALLOCATE( Lecircgni )
           DEALLOCATE( Lepieggni )
           DEALLOCATE( Lecircgui )
@@ -684,8 +668,6 @@ CONTAINS
           fonxpieggti(:)=(0.,0.)
           fonxcircgne=(0.,0.)
           fonxpieggne=(0.,0.)
-          fonxcircgue=(0.,0.)
-          fonxpieggue=(0.,0.)
           fonxcircgni(:)=(0.,0.)
           fonxpieggni(:)=(0.,0.)
           fonxcircgui(:)=(0.,0.)
@@ -701,8 +683,6 @@ CONTAINS
              fonxepieggti(:)=(0.,0.)
              fonxecircgne=(0.,0.)
              fonxepieggne=(0.,0.)
-             fonxecircgue=(0.,0.)
-             fonxepieggue=(0.,0.)
              fonxecircgni(:)=(0.,0.)
              fonxepieggni(:)=(0.,0.)
              fonxecircgui(:)=(0.,0.)
@@ -717,8 +697,6 @@ CONTAINS
        fonxepiege=(0.,0.)
        fonxecirci(:)=(0.,0.)
        fonxepiegi(:)=(0.,0.)
-       fonxvcirce=(0.,0.)
-       fonxvpiege=(0.,0.)
        fonxvcirci(:)=(0.,0.)
        fonxvpiegi(:)=(0.,0.)
     ELSE
@@ -735,8 +713,6 @@ CONTAINS
           Lpieggti(p,nu,:,j) = AIMAG(fonxpieggti(:))
           Lcircgne(p,nu,j) = AIMAG(fonxcircgne)
           Lpieggne(p,nu,j) = AIMAG(fonxpieggne)
-          Lcircgue(p,nu,j) = AIMAG(fonxcircgue)
-          Lpieggue(p,nu,j) = AIMAG(fonxpieggue)
           Lcircgni(p,nu,:,j) = AIMAG(fonxcircgni(:))
           Lpieggni(p,nu,:,j) = AIMAG(fonxpieggni(:))
           Lcircgui(p,nu,:,j) = AIMAG(fonxcircgui(:))
@@ -752,8 +728,6 @@ CONTAINS
              Lepieggti(p,nu,:,j) = AIMAG(fonxepieggti(:))
              Lecircgne(p,nu,j) = AIMAG(fonxecircgne)
              Lepieggne(p,nu,j) = AIMAG(fonxepieggne)
-             Lecircgue(p,nu,j) = AIMAG(fonxecircgue)
-             Lepieggue(p,nu,j) = AIMAG(fonxepieggue)
              Lecircgni(p,nu,:,j) = AIMAG(fonxecircgni(:))
              Lepieggni(p,nu,:,j) = AIMAG(fonxepieggni(:))
              Lecircgui(p,nu,:,j) = AIMAG(fonxecircgui(:))
@@ -768,8 +742,6 @@ CONTAINS
        Lepiege(p,nu,j) = AIMAG(fonxepiege)
        Lecirci(p,nu,:,j) = AIMAG(fonxecirci(:))
        Lepiegi(p,nu,:,j) = AIMAG(fonxepiegi(:))
-       Lvcirce(p,nu,j) = AIMAG(fonxvcirce)
-       Lvpiege(p,nu,j) = AIMAG(fonxvpiege)
        Lvcirci(p,nu,:,j) = AIMAG(fonxvcirci(:))
        Lvpiegi(p,nu,:,j) = AIMAG(fonxvpiegi(:))
     ENDIF
@@ -787,8 +759,8 @@ CONTAINS
     COMPLEX(KIND=DBL), DIMENSION(dimx,dimn) :: modewidthtmp, modeshifttmp,jon_modewidthtmp, jon_modeshifttmp,cot_modewidthtmp, cot_modeshifttmp,old_modewidthtmp, old_modeshifttmp
     COMPLEX(KIND=DBL), DIMENSION(dimx,dimn) :: ommaxtmp, solflutmp,jon_solflutmp,ana_solflutmp,cot_solflutmp
     COMPLEX(KIND=DBL), DIMENSION(dimx,dimn,numsols) :: soltmp, fdsoltmp
-    REAL(KIND=DBL), DIMENSION(dimx,dimn,numsols) :: Lcircetmp, Lpiegetmp, Lecircetmp, Lepiegetmp, Lvcircetmp, Lvpiegetmp, Lcircgtetmp, Lpieggtetmp,  Lcircgnetmp, Lpieggnetmp,  Lcircguetmp, Lpiegguetmp, Lcirccetmp, Lpiegcetmp
-    REAL(KIND=DBL), DIMENSION(dimx,dimn,numsols) :: Lecircgtetmp, Lepieggtetmp, Lecircgnetmp, Lepieggnetmp, Lecircguetmp, Lepiegguetmp, Lecirccetmp, Lepiegcetmp
+    REAL(KIND=DBL), DIMENSION(dimx,dimn,numsols) :: Lcircetmp, Lpiegetmp, Lecircetmp, Lepiegetmp, Lcircgtetmp, Lpieggtetmp,  Lcircgnetmp, Lpieggnetmp,  Lcirccetmp, Lpiegcetmp
+    REAL(KIND=DBL), DIMENSION(dimx,dimn,numsols) :: Lecircgtetmp, Lepieggtetmp, Lecircgnetmp, Lepieggnetmp, Lecirccetmp, Lepiegcetmp
     REAL(KIND=DBL), DIMENSION(dimx,dimn,nions,numsols) :: Lcircitmp, Lpiegitmp, Lecircitmp, Lepiegitmp, Lvcircitmp, Lvpiegitmp, Lcircgtitmp, Lpieggtitmp, Lcircgnitmp, Lpieggnitmp, Lcircguitmp, Lpiegguitmp, Lcirccitmp, Lpiegcitmp
     REAL(KIND=DBL), DIMENSION(dimx,dimn,nions,numsols) :: Lecircgtitmp, Lepieggtitmp, Lecircgnitmp, Lepieggnitmp, Lecircguitmp, Lepiegguitmp, Lecirccitmp, Lepiegcitmp
 
@@ -823,8 +795,6 @@ CONTAINS
     CALL MPI_AllReduce(Lpiege,Lpiegetmp,dimx*dimn*numsols,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
     CALL MPI_AllReduce(Lecirce,Lecircetmp,dimx*dimn*numsols,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
     CALL MPI_AllReduce(Lepiege,Lepiegetmp,dimx*dimn*numsols,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
-    CALL MPI_AllReduce(Lvcirce,Lvcircetmp,dimx*dimn*numsols,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
-    CALL MPI_AllReduce(Lvpiege,Lvpiegetmp,dimx*dimn*numsols,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
     CALL MPI_AllReduce(Lcirci,Lcircitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
     CALL MPI_AllReduce(Lpiegi,Lpiegitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
     CALL MPI_AllReduce(Lecirci,Lecircitmp,dimx*dimn*nions*numsols,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
@@ -839,8 +809,6 @@ CONTAINS
        CALL MPI_AllReduce(Lpieggte,Lpieggtetmp,dimx*dimn*numsols,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
        CALL MPI_AllReduce(Lcircgne,Lcircgnetmp,dimx*dimn*numsols,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
        CALL MPI_AllReduce(Lpieggne,Lpieggnetmp,dimx*dimn*numsols,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
-       CALL MPI_AllReduce(Lcircgue,Lcircguetmp,dimx*dimn*numsols,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
-       CALL MPI_AllReduce(Lpieggue,Lpiegguetmp,dimx*dimn*numsols,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
        CALL MPI_AllReduce(Lcircce,Lcirccetmp,dimx*dimn*numsols,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
        CALL MPI_AllReduce(Lpiegce,Lpiegcetmp,dimx*dimn*numsols,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
 
@@ -858,8 +826,6 @@ CONTAINS
           CALL MPI_AllReduce(Lepieggte,Lepieggtetmp,dimx*dimn*numsols,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
           CALL MPI_AllReduce(Lecircgne,Lecircgnetmp,dimx*dimn*numsols,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
           CALL MPI_AllReduce(Lepieggne,Lepieggnetmp,dimx*dimn*numsols,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
-          CALL MPI_AllReduce(Lecircgue,Lecircguetmp,dimx*dimn*numsols,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
-          CALL MPI_AllReduce(Lepieggue,Lepiegguetmp,dimx*dimn*numsols,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
           CALL MPI_AllReduce(Lecircce,Lecirccetmp,dimx*dimn*numsols,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
           CALL MPI_AllReduce(Lepiegce,Lepiegcetmp,dimx*dimn*numsols,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
 
@@ -901,8 +867,6 @@ CONTAINS
     Lpiege=Lpiegetmp
     Lecirce=Lecircetmp
     Lepiege=Lepiegetmp
-    Lvcirce=Lvcircetmp
-    Lvpiege=Lvpiegetmp
     Lcirci=Lcircitmp
     Lpiegi=Lpiegitmp
     Lecirci=Lecircitmp
@@ -916,8 +880,6 @@ CONTAINS
        Lpieggte=Lpieggtetmp
        Lcircgne=Lcircgnetmp
        Lpieggne=Lpieggnetmp
-       Lcircgue=Lcircguetmp
-       Lpieggue=Lpiegguetmp
        Lcircce=Lcirccetmp
        Lpiegce=Lpiegcetmp
        Lcircgti=Lcircgtitmp
@@ -933,8 +895,6 @@ CONTAINS
           Lepieggte=Lepieggtetmp
           Lecircgne=Lecircgnetmp
           Lepieggne=Lepieggnetmp
-          Lecircgue=LecirCguetmp
-          Lepieggue=Lepiegguetmp
           Lecircce=Lecirccetmp
           Lepiegce=Lepiegcetmp
           Lecircgti=Lecircgtitmp
@@ -954,16 +914,16 @@ CONTAINS
     ! collect all output into all cores for parallel writing
     INTEGER :: ierr,myrank, i, nproc
 
-    REAL(KIND=DBL), DIMENSION(dimx) :: epf_SItmp, eef_SItmp, evf_SItmp,epf_GBtmp, eef_GBtmp, evf_GBtmp,modeflagtmp
+    REAL(KIND=DBL), DIMENSION(dimx) :: epf_SItmp, eef_SItmp, epf_GBtmp, eef_GBtmp, modeflagtmp
     REAL(KIND=DBL), DIMENSION(dimx) :: krmmuITGtmp, krmmuETGtmp
-    REAL(KIND=DBL), DIMENSION(dimx) :: dfe_SItmp, vte_SItmp, vce_SItmp, vre_SItmp,dfe_GBtmp, vte_GBtmp, vce_GBtmp, vre_GBtmp, cketmp
-    REAL(KIND=DBL), DIMENSION(dimx) :: chiee_SItmp, vene_SItmp, vece_SItmp, vere_SItmp, ceketmp
+    REAL(KIND=DBL), DIMENSION(dimx) :: dfe_SItmp, vte_SItmp, vce_SItmp, dfe_GBtmp, vte_GBtmp, vce_GBtmp, cketmp
+    REAL(KIND=DBL), DIMENSION(dimx) :: chiee_SItmp, vene_SItmp, vece_SItmp, chiee_GBtmp, vene_GBtmp, vece_GBtmp, ceketmp
     REAL(KIND=DBL), DIMENSION(dimx,nions) :: ipf_SItmp, ief_SItmp, ivf_SItmp, ipf_GBtmp, ief_GBtmp, ivf_GBtmp
     REAL(KIND=DBL), DIMENSION(dimx,nions) :: dfi_SItmp, vti_SItmp, vci_SItmp, vri_SItmp,dfi_GBtmp, vti_GBtmp, vci_GBtmp, vri_GBtmp, ckitmp
-    REAL(KIND=DBL), DIMENSION(dimx,nions) :: chiei_SItmp, veni_SItmp, veci_SItmp, veri_SItmp, cekitmp
+    REAL(KIND=DBL), DIMENSION(dimx,nions) :: chiei_SItmp, veni_SItmp, veci_SItmp, veri_SItmp, chiei_GBtmp, veni_GBtmp, veci_GBtmp, veri_GBtmp, cekitmp
 
     COMPLEX(KIND=DBL), DIMENSION(dimx,dimn) :: solflu_SItmp, solflu_GBtmp
-    REAL(KIND=DBL), DIMENSION(dimx,dimn) :: epf_cmtmp, eef_cmtmp, evf_cmtmp, kperp2tmp
+    REAL(KIND=DBL), DIMENSION(dimx,dimn) :: epf_cmtmp, eef_cmtmp, kperp2tmp
     REAL(KIND=DBL), DIMENSION(dimx,dimn,nions) :: ipf_cmtmp, ief_cmtmp, ivf_cmtmp
 
     REAL(KIND=DBL), DIMENSION(dimx,dimn,numsols) :: gam_SItmp, gam_GBtmp, ome_SItmp, ome_GBtmp
@@ -977,17 +937,14 @@ CONTAINS
 
     CALL MPI_AllReduce(epf_SI,epf_SItmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
     CALL MPI_AllReduce(eef_SI,eef_SItmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
-    CALL MPI_AllReduce(evf_SI,evf_SItmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
     CALL MPI_AllReduce(epf_GB,epf_GBtmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
     CALL MPI_AllReduce(eef_GB,eef_GBtmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
-    CALL MPI_AllReduce(evf_GB,evf_GBtmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
     CALL MPI_AllReduce(modeflag,modeflagtmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
     CALL MPI_AllReduce(krmmuITG,krmmuITGtmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
     CALL MPI_AllReduce(krmmuETG,krmmuETGtmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
 
     CALL MPI_AllReduce(epf_cm,epf_cmtmp,dimx*dimn,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
     CALL MPI_AllReduce(eef_cm,eef_cmtmp,dimx*dimn,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
-    CALL MPI_AllReduce(evf_cm,evf_cmtmp,dimx*dimn,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
 
     CALL MPI_AllReduce(kperp2,kperp2tmp,dimx*dimn,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
     CALL MPI_AllReduce(solflu_SI,solflu_SItmp,dimx*dimn,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
@@ -1018,12 +975,10 @@ CONTAINS
        CALL MPI_AllReduce(dfe_SI,dfe_SItmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
        CALL MPI_AllReduce(vte_SI,vte_SItmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
        CALL MPI_AllReduce(vce_SI,vce_SItmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
-       CALL MPI_AllReduce(vre_SI,vre_SItmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
        CALL MPI_AllReduce(dfe_GB,dfe_GBtmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
        CALL MPI_AllReduce(vte_GB,vte_GBtmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
        CALL MPI_AllReduce(vce_GB,vce_GBtmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
-       CALL MPI_AllReduce(vre_GB,vre_GBtmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
-
+       
        CALL MPI_AllReduce(cke,cketmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
        CALL MPI_AllReduce(dfi_SI,dfi_SItmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
        CALL MPI_AllReduce(vti_SI,vti_SItmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
@@ -1038,7 +993,6 @@ CONTAINS
        IF (phys_meth == 2) THEN
           CALL MPI_AllReduce(chiee_SI,chiee_SItmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
           CALL MPI_AllReduce(vene_SI,vene_SItmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
-          CALL MPI_AllReduce(vere_SI,vere_SItmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
           CALL MPI_AllReduce(vece_SI,vece_SItmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
           CALL MPI_AllReduce(ceke,ceketmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
           CALL MPI_AllReduce(chiei_SI,chiei_SItmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
@@ -1046,22 +1000,27 @@ CONTAINS
           CALL MPI_AllReduce(veri_SI,veri_SItmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
           CALL MPI_AllReduce(veci_SI,veci_SItmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
           CALL MPI_AllReduce(ceki,cekitmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+		  CALL MPI_AllReduce(chiee_GB,chiee_GBtmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+          CALL MPI_AllReduce(vene_GB,vene_GBtmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+          CALL MPI_AllReduce(vece_GB,vece_GBtmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+          CALL MPI_AllReduce(chiei_GB,chiei_GBtmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+          CALL MPI_AllReduce(veni_GB,veni_GBtmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+          CALL MPI_AllReduce(veri_GB,veri_GBtmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+          CALL MPI_AllReduce(veci_GB,veci_GBtmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+          
        ENDIF
     ENDIF
 
     epf_SI=epf_SItmp
     eef_SI=eef_SItmp
-    evf_SI=evf_SItmp
     epf_GB=epf_GBtmp
     eef_GB=eef_GBtmp
-    evf_GB=evf_GBtmp
     modeflag=modeflagtmp
     krmmuITG=krmmuITGtmp
     krmmuETG=krmmuETGtmp
 
     epf_cm=epf_cmtmp
     eef_cm=eef_cmtmp
-    evf_cm=evf_cmtmp
 
     kperp2=kperp2tmp
     solflu_SI=solflu_SItmp
@@ -1093,7 +1052,6 @@ CONTAINS
        dfe_SI=dfe_SItmp
        vte_SI=vte_SItmp
        vce_SI=vce_SItmp
-       vre_SI=vre_SItmp
        cke=cketmp
        dfi_SI=dfi_SItmp
        vti_SI=vti_SItmp
@@ -1104,7 +1062,6 @@ CONTAINS
        dfe_GB=dfe_GBtmp
        vte_GB=vte_GBtmp
        vce_GB=vce_GBtmp
-       vre_GB=vre_GBtmp
         
        dfi_GB=dfi_GBtmp
        vti_GB=vti_GBtmp
@@ -1115,7 +1072,6 @@ CONTAINS
 
           chiee_SI=chiee_SItmp
           vene_SI=vene_SItmp
-          vere_SI=vere_SItmp
           vece_SI=vece_SItmp
           ceke=ceketmp
           chiei_SI=chiei_SItmp
@@ -1123,6 +1079,13 @@ CONTAINS
           veri_SI=veri_SItmp
           veci_SI=veci_SItmp
           ceki=cekitmp
+          chiee_GB=chiee_GBtmp
+          vene_GB=vene_GBtmp
+          vece_GB=vece_GBtmp
+          chiei_GB=chiei_GBtmp
+          veni_GB=veni_GBtmp
+          veri_GB=veri_GBtmp
+          veci_GB=veci_GBtmp
 
        ENDIF
     ENDIF

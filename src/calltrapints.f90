@@ -689,39 +689,6 @@ CONTAINS
     FFekcerot_cub(2) = AIMAG ( FFkerot(nf, kv, 8) )
   END FUNCTION FFekcerot_cub
 
-  FUNCTION FFkguerot_cub(nf, kv)
-    !---------------------------------------------------------------------------
-    ! Calculates the real part of the trapped electron integrand (Aue term only)
-    !---------------------------------------------------------------------------
-    INTEGER, INTENT(IN) :: nf
-    REAL(KIND=DBL), DIMENSION(nf), INTENT(IN) :: kv
-    REAL(KIND=DBL), DIMENSION(nf) :: FFkguerot_cub
-    FFkguerot_cub(1) = REAL ( FFkerot(nf, kv, 9) )
-    FFkguerot_cub(2) = AIMAG ( FFkerot(nf, kv, 9) )
-  END FUNCTION FFkguerot_cub
-
-  FUNCTION FFekguerot_cub(nf, kv)
-    !---------------------------------------------------------------------------
-    ! Calculates the real part of the trapped electron integrand (Aue term only) for energy
-    !---------------------------------------------------------------------------
-    INTEGER, INTENT(IN) :: nf
-    REAL(KIND=DBL), DIMENSION(nf), INTENT(IN) :: kv
-    REAL(KIND=DBL), DIMENSION(nf) :: FFekguerot_cub
-    FFekguerot_cub(1) = REAL ( FFkerot(nf, kv, 10) )
-    FFekguerot_cub(2) = AIMAG ( FFkerot(nf, kv, 10) )
-  END FUNCTION FFekguerot_cub
-
-  FUNCTION FFvkerot_cub(nf, kv)
-    !---------------------------------------------------------------------------
-    ! Calculates the real part of the trapped electron integrand: angular momentum 
-    !--------------------------------------------------------------------------- 
-    INTEGER, INTENT(IN) :: nf
-    REAL(KIND=DBL), DIMENSION(nf), INTENT(IN) :: kv
-    REAL(KIND=DBL), DIMENSION(nf) :: FFvkerot_cub
-    FFvkerot_cub(1) = REAL ( FFkerot(nf, kv, 11) )
-    FFvkerot_cub(2) = AIMAG ( FFkerot(nf, kv, 11) )
-  END FUNCTION FFvkerot_cub
-
   REAL(KIND=DBL) FUNCTION rFFkizrot(kk)
     !-------------------------------------------------------------
     ! Returns the real component of the trapped ion (all ions) integrand
@@ -1143,61 +1110,6 @@ CONTAINS
     iFFekcerot = AIMAG ( FFkerot(nf, kv, 8) )
   END FUNCTION iFFekcerot
 
-  REAL(KIND=DBL) FUNCTION rFFkguerot(nf, kv)
-    !---------------------------------------------------------------------
-    ! Calculates the real part of the trapped electron integrand (Aue term)
-    !---------------------------------------------------------------------  
-    INTEGER, INTENT(IN) :: nf
-    REAL(KIND=DBL), DIMENSION(nf), INTENT(IN) :: kv
-    rFFkguerot = REAL ( FFkerot(nf, kv, 9) )
-  END FUNCTION rFFkguerot
-
-  REAL(KIND=DBL) FUNCTION iFFkguerot(nf, kv)
-    !---------------------------------------------------------------------
-    ! Calculates the imaginary part of the trapped electron integrand (Aue term),
-    !---------------------------------------------------------------------  
-    INTEGER, INTENT(IN) :: nf
-    REAL(KIND=DBL), DIMENSION(nf), INTENT(IN) :: kv
-    iFFkguerot = AIMAG ( FFkerot(nf, kv, 9) )
-  END FUNCTION iFFkguerot
-
-  REAL(KIND=DBL) FUNCTION rFFekguerot(nf, kv)
-    !---------------------------------------------------------------------
-    ! Calculates the real part of the trapped electron integrand (Aue term) energy contribution
-    !---------------------------------------------------------------------  
-    INTEGER, INTENT(IN) :: nf
-    REAL(KIND=DBL), DIMENSION(nf), INTENT(IN) :: kv
-    rFFekguerot = REAL ( FFkerot(nf, kv, 10) )
-  END FUNCTION rFFekguerot
-
-  REAL(KIND=DBL) FUNCTION iFFekguerot(nf, kv)
-    !---------------------------------------------------------------------
-    ! Calculates the imaginary part of the trapped electron integrand (Aue term) energy contribution
-    !---------------------------------------------------------------------  
-    INTEGER, INTENT(IN) :: nf
-    REAL(KIND=DBL), DIMENSION(nf), INTENT(IN) :: kv
-    iFFekguerot = AIMAG ( FFkerot(nf, kv, 10) )
-  END FUNCTION iFFekguerot
-
-  REAL(KIND=DBL) FUNCTION rFFvkerot(nf, kv)
-    !---------------------------------------------------------------------
-    ! Calculates the real part of the trapped electron integrand, ang momentum
-    !---------------------------------------------------------------------  
-    INTEGER, INTENT(IN) :: nf
-    REAL(KIND=DBL), DIMENSION(nf), INTENT(IN) :: kv
-    rFFvkerot = REAL ( FFkerot(nf, kv, 11) )
-  END FUNCTION rFFvkerot
-
-  REAL(KIND=DBL) FUNCTION iFFvkerot(nf, kv)
-    !---------------------------------------------------------------------
-    ! Calculates the imaginary part of the trapped electron integrand, ang momentum
-    !---------------------------------------------------------------------  
-    INTEGER, INTENT(IN) :: nf
-    REAL(KIND=DBL), DIMENSION(nf), INTENT(IN) :: kv
-    iFFvkerot = AIMAG ( FFkerot(nf, kv, 11) )
-  END FUNCTION iFFvkerot
-
-!!
   REAL(KIND=DBL) FUNCTION rFFke_nocollrot(kk)
     !---------------------------------------------------------------------
     ! Calculates the real part of the trapped electron integrand
@@ -1326,53 +1238,5 @@ CONTAINS
     iFFekce_nocollrot = AIMAG ( FFke_nocollrot(kk, 8) )
   END FUNCTION iFFekce_nocollrot
 
-  REAL(KIND=DBL) FUNCTION rFFkgue_nocollrot(kk)
-    !---------------------------------------------------------------------
-    ! Calculates the real part of the trapped electron integrand (Aue term)
-    !---------------------------------------------------------------------  
-      REAL(KIND=DBL), INTENT(IN) :: kk
-    rFFkgue_nocollrot = REAL ( FFke_nocollrot(kk, 9) )
-  END FUNCTION rFFkgue_nocollrot
-
-  REAL(KIND=DBL) FUNCTION iFFkgue_nocollrot(kk)
-    !---------------------------------------------------------------------
-    ! Calculates the imaginary part of the trapped electron integrand (Aue term),
-    !---------------------------------------------------------------------  
-     REAL(KIND=DBL), INTENT(IN) :: kk
-    iFFkgue_nocollrot = AIMAG ( FFke_nocollrot(kk, 9) )
-  END FUNCTION iFFkgue_nocollrot
-
-  REAL(KIND=DBL) FUNCTION rFFekgue_nocollrot(kk)
-    !---------------------------------------------------------------------
-    ! Calculates the real part of the trapped electron integrand (Aue term) energy contribution
-    !---------------------------------------------------------------------  
-      REAL(KIND=DBL), INTENT(IN) :: kk
-    rFFekgue_nocollrot = REAL ( FFke_nocollrot(kk, 10) )
-  END FUNCTION rFFekgue_nocollrot
-
-  REAL(KIND=DBL) FUNCTION iFFekgue_nocollrot(kk)
-    !---------------------------------------------------------------------
-    ! Calculates the imaginary part of the trapped electron integrand (Aue term) energy contribution
-    !---------------------------------------------------------------------  
-       REAL(KIND=DBL), INTENT(IN) :: kk
-    iFFekgue_nocollrot = AIMAG ( FFke_nocollrot(kk, 10) )
-  END FUNCTION iFFekgue_nocollrot
-
-  REAL(KIND=DBL) FUNCTION rFFvke_nocollrot(kk)
-    !---------------------------------------------------------------------
-    ! Calculates the real part of the trapped electron integrand, ang momentum
-    !---------------------------------------------------------------------  
-      REAL(KIND=DBL), INTENT(IN) :: kk
-    rFFvke_nocollrot = REAL ( FFke_nocollrot(kk, 11) )
-  END FUNCTION rFFvke_nocollrot
-
-  REAL(KIND=DBL) FUNCTION iFFvke_nocollrot(kk)
-    !---------------------------------------------------------------------
-    ! Calculates the imaginary part of the trapped electron integrand, ang momentum
-    !---------------------------------------------------------------------  
-    REAL(KIND=DBL), INTENT(IN) :: kk
-    iFFvke_nocollrot = AIMAG ( FFke_nocollrot(kk, 11) )
-  END FUNCTION iFFvke_nocollrot
-
-
+    
 END MODULE calltrapints
