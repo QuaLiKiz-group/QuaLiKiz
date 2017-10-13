@@ -1,10 +1,7 @@
 #!/bin/bash
 case $HOSTNAME in
-  karel-work | karel-macbook | karel-super)
+  karel-work | karel-macbook | karel-super | karel-differ)
     ARCH=archlinux
-    ;;
-  shannon)
-    ARCH=shannon
     ;;
   rs*)
     ARCH=rsrijnhuizen
@@ -15,13 +12,25 @@ case $HOSTNAME in
   fusionsim)
     ARCH=fusionsim
     ;;
+  freia*)
+    ARCH=freia
+    ;;
+  andromede*)
+    ARCH=andromede
+    ;;
 esac
 
-echo Detected machine \'$ARCH\' with root \'$PWD\'. Is this correct? \[Y\/n]
-read yno
-if [ "$yno" == "" ]
+if [ "$ARCH" == "" ]
 then
-  yno=Y
+    echo "Machine not found"
+    yno=N
+else
+    echo Detected machine \'$ARCH\' with root \'$PWD\'. Is this correct? \[Y\/n]
+    read yno
+    if [ "$yno" == "" ]
+    then
+      yno=Y
+    fi
 fi
 
 case $yno in
