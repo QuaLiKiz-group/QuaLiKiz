@@ -2,7 +2,17 @@
 QuaLiKiz is a quasilinear gyrokinetic code rapid enough to ease systematic interface with experiments. The quasilinear approximation is justified over a wide range of tokamak core parameters where nonlinear and quasilinear turbulent fluxes have been shown to agree. QuaLiKiz computes quasilinear gyrokinetic turbulent heat, particle and angular momentum fluxes. It is coupled in integrated modelling platforms such as CRONOS and JETTO. QuaLiKiz is available to all users. It allows for extensive stand-alone interpretative analysis and for first principle based integrated predictive modelling.
 
 ## Install
-To install QuaLiKiz you will need a fortran compiler and usually an openmpi library. The platform-specific files can be found in [src/make.inc/](src/make.inc/). It already contains files for most systems QuaLiKiz is run on. The [./install.sh](./install.sh) auto-detects which Makefile you need for your system, so:
+1. [Clone the repository from GitHub](https://help.github.com/articles/cloning-a-repository/).
+    * If you want to install as submodule of QuaLiKiz (preferred)
+
+            git clone git@github.com:QuaLiKiz-group/QuaLiKiz.git
+
+      and then
+
+          git submodule init
+          git submodule update
+
+2. Compile QuaLiKiz. To install QuaLiKiz you will need a fortran compiler and usually an openmpi library. The platform-specific files can be found in [src/make.inc/](src/make.inc/). It already contains files for most systems QuaLiKiz is run on. The [./install.sh](./install.sh) auto-detects which Makefile you need for your system, so:
 
 ``` bash
 ./install.sh
