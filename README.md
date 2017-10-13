@@ -15,4 +15,4 @@ After making, you should have a binary called `QuaLiKiz` in your root directory.
 To run QuaLiKiz, one first has to create a folder `input` with the input binaries, as well as the folder `output`, `output/primitive` and `debug`. Then, one needs to generate input binaries. To make this easier, we have developed tools in [MATLAB](https://github.com/QuaLiKiz-group/QuaLiKiz-matlabtools) and [Python](https://github.com/QuaLiKiz-group/QuaLiKiz-pythontools) to set up, validate and plot QuaLiKiz runs. Please continue this guide on the respective GitHub page. There is also a [wiki](https://github.com/Karel-van-de-Plassche/QuaLiKiz/wiki) available with references and reading material.
 
 ## Disclaimer
-QuaLiKiz is free and open-source software. If you have used QuaLiKiz in your own work, please cite our latest paper, [J. Citrin et al. PPCF 2017](http://iopscience.iop.org/10.1088/1361-6587/aa8aeb).
+QuaLiKiz is free and open-source software. If you have used QuaLiKiz in your own work, please cite our latest paper, [J. Citrin et al. PPCF 2017](http://iopscience.iop.org/article/10.1088/1361-6587/aa8aeb).
