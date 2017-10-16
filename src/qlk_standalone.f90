@@ -1133,7 +1133,7 @@ CONTAINS
        ALLOCATE(eefITG_GB(dimx))
        ALLOCATE(epfITG_SI(dimx))
        ALLOCATE(epfTEM_SI(dimx))
-	   ALLOCATE(epfITG_GB(dimx))
+       ALLOCATE(epfITG_GB(dimx))
        ALLOCATE(epfTEM_GB(dimx))
     ENDIF
 

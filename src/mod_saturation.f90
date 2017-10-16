@@ -99,8 +99,8 @@ CONTAINS
     DEALLOCATE(eef_SI)
     DEALLOCATE(eefETG_SI)
     DEALLOCATE(eefETG_GB)
-    
-	DEALLOCATE(eef_GB)
+
+    DEALLOCATE(eef_GB)
     DEALLOCATE(ipf_SI)
     DEALLOCATE(ipf_GB)
     DEALLOCATE(ief_SI)
@@ -137,7 +137,7 @@ CONTAINS
           DEALLOCATE(veci_SI)
           DEALLOCATE(veri_SI)
           DEALLOCATE(ceki)
-		  DEALLOCATE(vene_GB)
+          DEALLOCATE(vene_GB)
           DEALLOCATE(chiee_GB)
           DEALLOCATE(vece_GB)
           DEALLOCATE(veni_GB)
@@ -157,7 +157,7 @@ CONTAINS
   END SUBROUTINE deallocate_endoutput
 
   SUBROUTINE saturation(outputcase)
-    INTEGER, INTENT(IN) :: outputcase !0 for all modes, 1 for ITG only, 2 for TEM only, 3 for ETG only
+    INTEGER, INTENT(IN) :: outputcase !0 for all modes, 1 for ITG only, 2 for TEM only. ETG-only is calculated anyway for outputcase==0
     INTEGER :: ir,j,k,gg,ifailloc
     REAL(KIND=DBL), DIMENSION(dimx,dimn) :: kteta,kthr,kxshift,nwgmat,smagn,qxn,dw
     REAL(KIND=DBL), DIMENSION(dimx,dimn) :: kx2shear,kxadd,kxnl
@@ -238,7 +238,7 @@ CONTAINS
           IF (gg == 2) THEN
              WHERE (REAL(solbck) < 0.) solbck=0.  !kill all ion modes
           END IF
-       ELSE ! If outputcase=1, then only keep ITG modes, if =2, then only TEM, if =3, then only ETG. In all cases, no need for gg for loop
+       ELSE ! If outputcase=1, then only keep ITG modes, if =2, then only TEM. Separate ETG is calculated anyway with outputcase=0. For ITG or TEM only, no need for gg for loop
           IF (outputcase == 1) THEN
              WHERE (REAL(solbck) > 0.) solbck=0.  !kill all electron modes
              IF (gg<3) CYCLE
@@ -247,13 +247,6 @@ CONTAINS
              DO ir=1,dimx
                 DO k=1,numsols
                    WHERE (kthetarhos > ETGk) solbck(ir,:,k) = 0
-                ENDDO
-             ENDDO
-             IF (gg<3) CYCLE
-          ELSEIF (outputcase == 3) THEN !kill all ion scale modes
-             DO ir=1,dimx
-                DO k=1,numsols
-                   WHERE (kthetarhos < ETGk) solbck(ir,:,k) = 0
                 ENDDO
              ENDDO
              IF (gg<3) CYCLE
@@ -627,7 +620,7 @@ CONTAINS
           IF (ETGind > 0) THEN
              xint= (/0._DBL,kthr(ir,ETGind:dimn)/) ; yint=(/0._DBL,cmefe(ir,ETGind:dimn)/)
              IF (dimn == 1) THEN 
-                efe(ir)=cmefe(ir,1)
+                efeETG(ir)=cmefe(ir,1)
              ELSE
                 CALL davint (xint, yint ,dimn-ETGind+2,kthr(ir,ETGind), kthr(ir,dimn), efeETG(ir), ifailloc,30)
              ENDIF
@@ -635,7 +628,7 @@ CONTAINS
              efeETG(ir) = 0.
           ENDIF
           defeETG(ir) = (efeETG(ir)/(Nex(ir)*1e19*Tex(ir)*1e3*qe/R0))/chi_GB(ir)
-		  
+
           ! Ang mom flux using all roots
           xint= (/0._DBL,kthr(ir,:)/) ; yint=(/0._DBL,cmvfe(ir,:)/)
           IF (dimn == 1) THEN 
@@ -845,8 +838,8 @@ CONTAINS
        !Energy transport, all roots
        defe=normNL*defe
        defeETG=normNL*defeETG
-       
-	   defi=normNL*defi
+
+       defi=normNL*defi
 
        !Ang mom transport, all roots
        dvfe=normNL*dvfe
@@ -879,12 +872,12 @@ CONTAINS
           !          eef_SI(ir) = defe(ir)*Nex(ir)*1e19*Tex(ir)*1e3*qe*Ate(ir)/R0*chi_GB(ir)
           eef_SI(ir) = efe(ir)*normNL
           eefETG_SI(ir) = efeETG(ir)*normNL        
-		  
+
           ief_GB(ir,:) = defi(ir,:)
           eef_GB(ir) = defe(ir)
           eefETG_GB(ir) = defeETG(ir)
 
-		  ivf_SI(ir,:) = vfi(ir,:)*normNL
+          ivf_SI(ir,:) = vfi(ir,:)*normNL
           ivf_GB(ir,:) = dvfi(ir,:)
 
           !FLUX SPECTRA
@@ -958,7 +951,7 @@ CONTAINS
                 ! Heat roto-diff pinch
                 veri_SI(ir,:) = verdti(ir,:)
 
-	 		    chiee_GB(ir) = chiee_SI(ir)/chi_GB(ir)
+                chiee_GB(ir) = chiee_SI(ir)/chi_GB(ir)
                 chiei_GB(ir,:) = chiei_SI(ir,:)/chi_GB(ir)
 
                 vene_GB(ir) = vene_SI(ir)*Ro(ir)/chi_GB(ir)
@@ -968,7 +961,7 @@ CONTAINS
                 veci_GB(ir,:) = veci_SI(ir,:)*Ro(ir)/chi_GB(ir)
 
                 veri_GB(ir,:) = veri_SI(ir,:)*Ro(ir)/chi_GB(ir)
-				
+
                 !! check on energy fluxes
                 ceke(ir) = 1d2* ( eef_SI(ir) - ( chiee_SI(ir)*Ate(ir)/R0*Tex(ir)*qe*1d3*Nex(ir)*1d19 + & 
                      &	Nex(ir)*1d19*Tex(ir)*qe*1d3*(vene_SI(ir)+vece_SI(ir)) ) )/ (eef_SI(ir)+epsD)
