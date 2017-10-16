@@ -1,14 +1,14 @@
 #!/bin/make -f
-SRC?=src
-include $(SRC)/Makefile.inc
-SRC?=$(QUALIKIZ)/src
-LIBSRC?=$(QUALIKIZ)/lib/src
-CUBPACK_DIR?=$(LIBSRC)/cubpack
-GENZ_DIR?=$(LIBSRC)/genz
-NAG_DIR?=$(LIBSRC)/nag
-SLATEC_DIR?=$(LIBSRC)/slatec
-SPECFUN_DIR?=$(LIBSRC)/specfun
-FUKUSHIMA_DIR?=$(LIBSRC)/fukushima
+QUALIKIZ_SRC?=src
+include $(QUALIKIZ_SRC)/Makefile.inc
+QUALIKIZ_SRC?=$(QUALIKIZ)/src
+QUALIKIZ_LIBSRC?=$(QUALIKIZ)/lib/src
+CUBPACK_DIR?=$(QUALIKIZ_LIBSRC)/cubpack
+GENZ_DIR?=$(QUALIKIZ_LIBSRC)/genz
+NAG_DIR?=$(QUALIKIZ_LIBSRC)/nag
+SLATEC_DIR?=$(QUALIKIZ_LIBSRC)/slatec
+SPECFUN_DIR?=$(QUALIKIZ_LIBSRC)/specfun
+FUKUSHIMA_DIR?=$(QUALIKIZ_LIBSRC)/fukushima
 
 CUBPACK_LIB?=$(CUBPACK_DIR)/libcubpack.a
 GENZ_LIB?=$(GENZ_DIR)/libgenz.a
@@ -17,29 +17,29 @@ SLATEC_LIB?=$(SLATEC_DIR)/libslatec.a
 SPECFUN_LIB?=$(SPECFUN_DIR)/libspecfun.a
 FUKUSHIMA_LIB?=$(FUKUSHIMA_DIR)/libfukushima.a
 
-LIBS?=$(CUBPACK_LIB) $(GENZ_LIB) $(NAG_LIB) $(SLATEC_LIB) $(SPECFUN_LIB) $(FUKUSHIMA_LIB)
-LIBS_CLEAN?=$(LIBS:%=%.clean)
+QUALIKIZ_LIBS?=$(CUBPACK_LIB) $(GENZ_LIB) $(NAG_LIB) $(SLATEC_LIB) $(SPECFUN_LIB) $(FUKUSHIMA_LIB)
+QUALIKIZ_LIBS_CLEAN?=$(QUALIKIZ_LIBS:%=%.clean)
 
 ##############################################################################
-QualiKiz: $(LIBS)
-	make -C $(SRC) QuaLiKiz
-	cp -f $(SRC)/QuaLiKiz .
+QualiKiz: $(QUALIKIZ_LIBS)
+	make -C $(QUALIKIZ_SRC) QuaLiKiz
+	cp -f $(QUALIKIZ_SRC)/QuaLiKiz .
 
 
-libs: $(LIBS)
+libs: $(QUALIKIZ_LIBS)
 
 
-$(LIBS):
+$(QUALIKIZ_LIBS):
 	make -C $(@D) $(@F)
 
 
-$(LIBS_CLEAN):
+$(QUALIKIZ_LIBS_CLEAN):
 	@echo cleaning $(@D)
 	-make -C $(@D) distclean
 
 
 clean: $(LIBS_CLEAN)
-	make -C $(SRC) distclean
+	make -C $(QUALIKIZ_SRC) distclean
 
 
 distclean: clean
@@ -47,8 +47,8 @@ distclean: clean
 
 
 dump_variables:
-	@echo SRC=$(SRC)
-	@echo LIB_SRC=$(LIBSRC)
-	@echo LIBS=$(LIBS)
+	@echo QUALIKIZ_SRC=$(QUALIKIZ_SRC)
+	@echo LIB_SRC=$(QUALIKIZ_LIBSRC)
+	@echo QUALIKIZ_LIBS=$(QUALIKIZ_LIBS)
 	@echo LIBS_CLEAN=$(LIBS_CLEAN)
 	@echo QUALIKIZ=$(QUALIKIZ)
