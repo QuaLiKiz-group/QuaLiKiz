@@ -922,6 +922,7 @@ CONTAINS
     REAL(KIND=DBL), DIMENSION(dimx) :: krmmuITGtmp, krmmuETGtmp
     REAL(KIND=DBL), DIMENSION(dimx) :: dfe_SItmp, vte_SItmp, vce_SItmp, dfe_GBtmp, vte_GBtmp, vce_GBtmp, cketmp
     REAL(KIND=DBL), DIMENSION(dimx) :: chiee_SItmp, vene_SItmp, vece_SItmp, chiee_GBtmp, vene_GBtmp, vece_GBtmp, ceketmp
+    REAL(KIND=DBL), DIMENSION(dimx) :: chieeETG_SItmp, veneETG_SItmp, veceETG_SItmp, chieeETG_GBtmp, veneETG_GBtmp, veceETG_GBtmp
     REAL(KIND=DBL), DIMENSION(dimx,nions) :: ipf_SItmp, ief_SItmp, ivf_SItmp, ipf_GBtmp, ief_GBtmp, ivf_GBtmp
     REAL(KIND=DBL), DIMENSION(dimx,nions) :: dfi_SItmp, vti_SItmp, vci_SItmp, vri_SItmp,dfi_GBtmp, vti_GBtmp, vci_GBtmp, vri_GBtmp, ckitmp
     REAL(KIND=DBL), DIMENSION(dimx,nions) :: chiei_SItmp, veni_SItmp, veci_SItmp, veri_SItmp, chiei_GBtmp, veni_GBtmp, veci_GBtmp, veri_GBtmp, cekitmp
@@ -982,7 +983,7 @@ CONTAINS
        CALL MPI_AllReduce(dfe_GB,dfe_GBtmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
        CALL MPI_AllReduce(vte_GB,vte_GBtmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
        CALL MPI_AllReduce(vce_GB,vce_GBtmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
-       
+
        CALL MPI_AllReduce(cke,cketmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
        CALL MPI_AllReduce(dfi_SI,dfi_SItmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
        CALL MPI_AllReduce(vti_SI,vti_SItmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
@@ -1004,14 +1005,21 @@ CONTAINS
           CALL MPI_AllReduce(veri_SI,veri_SItmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
           CALL MPI_AllReduce(veci_SI,veci_SItmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
           CALL MPI_AllReduce(ceki,cekitmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
-		  CALL MPI_AllReduce(chiee_GB,chiee_GBtmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+          CALL MPI_AllReduce(chiee_GB,chiee_GBtmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
           CALL MPI_AllReduce(vene_GB,vene_GBtmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
           CALL MPI_AllReduce(vece_GB,vece_GBtmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
           CALL MPI_AllReduce(chiei_GB,chiei_GBtmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
           CALL MPI_AllReduce(veni_GB,veni_GBtmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
           CALL MPI_AllReduce(veri_GB,veri_GBtmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
           CALL MPI_AllReduce(veci_GB,veci_GBtmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
-          
+          IF (separateflux == 1) THEN
+             CALL MPI_AllReduce(chieeETG_SI,chieeETG_SItmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+             CALL MPI_AllReduce(veneETG_SI,veneETG_SItmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+             CALL MPI_AllReduce(veceETG_SI,veceETG_SItmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+             CALL MPI_AllReduce(chieeETG_GB,chieeETG_GBtmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+             CALL MPI_AllReduce(veneETG_GB,veneETG_GBtmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+             CALL MPI_AllReduce(veceETG_GB,veceETG_GBtmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)          
+          ENDIF
        ENDIF
     ENDIF
 
@@ -1066,7 +1074,7 @@ CONTAINS
        dfe_GB=dfe_GBtmp
        vte_GB=vte_GBtmp
        vce_GB=vce_GBtmp
-        
+
        dfi_GB=dfi_GBtmp
        vti_GB=vti_GBtmp
        vri_GB=vri_GBtmp
@@ -1090,7 +1098,14 @@ CONTAINS
           veni_GB=veni_GBtmp
           veri_GB=veri_GBtmp
           veci_GB=veci_GBtmp
-
+          IF (separateflux == 1) THEN
+             chieeETG_SI=chieeETG_SItmp
+             veneETG_SI=veneETG_SItmp
+             veceETG_SI=veceETG_SItmp
+             chieeETG_GB=chieeETG_GBtmp
+             veneETG_GB=veneETG_GBtmp
+             veceETG_GB=veceETG_GBtmp
+          ENDIF
        ENDIF
     ENDIF
   END SUBROUTINE reduceoutput

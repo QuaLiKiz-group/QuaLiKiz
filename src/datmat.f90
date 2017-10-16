@@ -55,6 +55,7 @@ MODULE datmat
   REAL(KIND=DBL), SAVE, DIMENSION(:,:), ALLOCATABLE :: dfi_GB,vti_GB,vci_GB,vri_GB
 
   REAL(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: vene_SI,chiee_SI,vece_SI,vene_GB,chiee_GB,vece_GB,ceke
+  REAL(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: veneETG_SI,chieeETG_SI,veceETG_SI,veneETG_GB,chieeETG_GB,veceETG_GB
   REAL(KIND=DBL), SAVE, DIMENSION(:,:), ALLOCATABLE :: veni_SI,chiei_SI,veci_SI,veri_SI,veni_GB,chiei_GB,veci_GB,veri_GB,ceki
 
   REAL(KIND=DBL), SAVE, DIMENSION(:,:,:), ALLOCATABLE :: ipf_cm,ief_cm,ivf_cm

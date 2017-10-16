@@ -179,14 +179,7 @@ CONTAINS
                 intout(2)=0
              ENDIF
              rfonctecce = intmult*intout(1); ifonctecce=intmult*intout(2)
-          ELSE 
-             rfonctcgte = 0.0
-             ifonctcgte = 0.0
-             rfonctcgne = 0.0
-             ifonctcgne = 0.0
-             rfonctcce = 0.0
-             ifonctcce = 0.0
-
+          ELSE
              rfonctecgte = 0.0
              ifonctecgte = 0.0
              rfonctecgne = 0.0
@@ -194,6 +187,20 @@ CONTAINS
              rfonctecce = 0.0
              ifonctecce = 0.0
           ENDIF
+       ELSE
+          rfonctecgte = 0.0
+          ifonctecgte = 0.0
+          rfonctecgne = 0.0
+          ifonctecgne = 0.0
+          rfonctecce = 0.0
+          ifonctecce = 0.0
+
+          rfonctcgte = 0.0
+          ifonctcgte = 0.0
+          rfonctcgne = 0.0
+          ifonctcgne = 0.0
+          rfonctcce = 0.0
+          ifonctcce = 0.0
        ENDIF
 
        !ELECTRON ENERGY INTEGRALS
@@ -272,13 +279,6 @@ CONTAINS
                 ENDIF
                 rfonctecci(ion) = intmult*intout(1); ifonctecci(ion)=intmult*intout(2)
              ELSE
-                rfonctcgti(ion) = 0.
-                ifonctcgti(ion) = 0.
-                rfonctcgni(ion) = 0.
-                ifonctcgni(ion) = 0.
-                rfonctcci(ion) = 0.
-                ifonctcci(ion) = 0.
-
                 rfonctecgti(ion) = 0.
                 ifonctecgti(ion) = 0.
                 rfonctecgni(ion) = 0.
@@ -286,6 +286,20 @@ CONTAINS
                 rfonctecci(ion) = 0.
                 ifonctecci(ion) = 0.
              ENDIF
+          ELSE
+             rfonctecgti(ion) = 0.
+             ifonctecgti(ion) = 0.
+             rfonctecgni(ion) = 0.
+             ifonctecgni(ion) = 0.
+             rfonctecci(ion) = 0.
+             ifonctecci(ion) = 0.
+
+             rfonctcgti(ion) = 0.
+             ifonctcgti(ion) = 0.
+             rfonctcgni(ion) = 0.
+             ifonctcgni(ion) = 0.
+             rfonctcci(ion) = 0.
+             ifonctcci(ion) = 0.
           ENDIF
 
           !ION ENERGY INTEGRALS
@@ -444,14 +458,6 @@ CONTAINS
              ENDIF
              rfonctecce = intmult*intout(1); ifonctecce=intmult*intout(2)
           ELSE
-
-             rfonctcgte = 0.0
-             ifonctcgte = 0.0
-             rfonctcgne = 0.0
-             ifonctcgne = 0.0
-             rfonctcce = 0.0
-             ifonctcce = 0.0
-
              rfonctecgte = 0.0
              ifonctecgte = 0.0
              rfonctecgne = 0.0
@@ -459,6 +465,20 @@ CONTAINS
              rfonctecce = 0.0
              ifonctecce = 0.0
           ENDIF
+       ELSE
+          rfonctecgte = 0.0
+          ifonctecgte = 0.0
+          rfonctecgne = 0.0
+          ifonctecgne = 0.0
+          rfonctecce = 0.0
+          ifonctecce = 0.0
+
+          rfonctcgte = 0.0
+          ifonctcgte = 0.0
+          rfonctcgne = 0.0
+          ifonctcgne = 0.0
+          rfonctcce = 0.0
+          ifonctcce = 0.0
        ENDIF
 
        !ELECTRON ENERGY INTEGRALS
@@ -591,13 +611,6 @@ CONTAINS
                 ENDIF
                 rfonctecci(ion) = intmult*intout(1); ifonctecci(ion)=intmult*intout(2)
              ELSE
-                rfonctcgti(ion) = 0.
-                ifonctcgti(ion) = 0.
-                rfonctcgni(ion) = 0.
-                ifonctcgni(ion) = 0.
-                rfonctcci(ion) = 0.
-                ifonctcci(ion) = 0.
-
                 rfonctecgti(ion) = 0.
                 ifonctecgti(ion) = 0.
                 rfonctecgni(ion) = 0.
@@ -605,6 +618,20 @@ CONTAINS
                 rfonctecci(ion) = 0.
                 ifonctecci(ion) = 0.
              ENDIF
+          ELSE
+             rfonctecgti(ion) = 0.
+             ifonctecgti(ion) = 0.
+             rfonctecgni(ion) = 0.
+             ifonctecgni(ion) = 0.
+             rfonctecci(ion) = 0.
+             ifonctecci(ion) = 0.
+
+             rfonctcgti(ion) = 0.
+             ifonctcgti(ion) = 0.
+             rfonctcgni(ion) = 0.
+             ifonctcgni(ion) = 0.
+             rfonctcci(ion) = 0.
+             ifonctcci(ion) = 0.
           ENDIF
 
           !ION ENERGY INTEGRALS
@@ -823,13 +850,6 @@ CONTAINS
              rfonctecce = intmult*intout(1); ifonctecce=intmult*intout(2)
 
           ELSE 
-             rfonctcgte = 0.0
-             ifonctcgte = 0.0
-             rfonctcgne = 0.0
-             ifonctcgne = 0.0
-             rfonctcce = 0.0
-             ifonctcce = 0.0
-
              rfonctecgte = 0.0
              ifonctecgte = 0.0
              rfonctecgne = 0.0
@@ -837,6 +857,20 @@ CONTAINS
              rfonctecce = 0.0
              ifonctecce = 0.0
           ENDIF
+       ELSE
+          rfonctecgte = 0.0
+          ifonctecgte = 0.0
+          rfonctecgne = 0.0
+          ifonctecgne = 0.0
+          rfonctecce = 0.0
+          ifonctecce = 0.0
+
+          rfonctcgte = 0.0
+          ifonctcgte = 0.0
+          rfonctcgne = 0.0
+          ifonctcgne = 0.0
+          rfonctcce = 0.0
+          ifonctcce = 0.0
        ENDIF
 
        !ELECTRON ENERGY INTEGRALS
@@ -931,15 +965,6 @@ CONTAINS
                 ENDIF
                 rfonctecci(ion) = intmult*intout(1); ifonctecci(ion)=intmult*intout(2)
              ELSE
-                rfonctcgti(ion) = 0.
-                ifonctcgti(ion) = 0.
-                rfonctcgni(ion) = 0.
-                ifonctcgni(ion) = 0.
-                rfonctcgui(ion) = 0.
-                ifonctcgui(ion) = 0.
-                rfonctcci(ion) = 0.
-                ifonctcci(ion) = 0.
-
                 rfonctecgti(ion) = 0.
                 ifonctecgti(ion) = 0.
                 rfonctecgni(ion) = 0.
@@ -949,6 +974,23 @@ CONTAINS
                 rfonctecci(ion) = 0.
                 ifonctecci(ion) = 0.
              ENDIF
+          ELSE
+             rfonctcgti(ion) = 0.
+             ifonctcgti(ion) = 0.
+             rfonctcgni(ion) = 0.
+             ifonctcgni(ion) = 0.
+             rfonctcgui(ion) = 0.
+             ifonctcgui(ion) = 0.
+             rfonctcci(ion) = 0.
+             ifonctcci(ion) = 0.
+             rfonctecgti(ion) = 0.
+             ifonctecgti(ion) = 0.
+             rfonctecgni(ion) = 0.
+             ifonctecgni(ion) = 0.
+             rfonctecgui(ion) = 0.
+             ifonctecgui(ion) = 0.
+             rfonctecci(ion) = 0.
+             ifonctecci(ion) = 0.
           ENDIF
 
           !ION ENERGY INTEGRALS
@@ -1113,13 +1155,6 @@ CONTAINS
              ENDIF
              rfonctecce = intmult*intout(1); ifonctecce=intmult*intout(2)
           ELSE 
-             rfonctcgte = 0.0
-             ifonctcgte = 0.0
-             rfonctcgne = 0.0
-             ifonctcgne = 0.0
-             rfonctcce = 0.0
-             ifonctcce = 0.0
-
              rfonctecgte = 0.0
              ifonctecgte = 0.0
              rfonctecgne = 0.0
@@ -1127,6 +1162,19 @@ CONTAINS
              rfonctecce = 0.0
              ifonctecce = 0.0
           ENDIF
+       ELSE
+          rfonctcgte = 0.0
+          ifonctcgte = 0.0
+          rfonctcgne = 0.0
+          ifonctcgne = 0.0
+          rfonctcce = 0.0
+          ifonctcce = 0.0
+          rfonctecgte = 0.0
+          ifonctecgte = 0.0
+          rfonctecgne = 0.0
+          ifonctecgne = 0.0
+          rfonctecce = 0.0
+          ifonctecce = 0.0
        ENDIF
 
        !ELECTRON ENERGY INTEGRALS
@@ -1296,15 +1344,6 @@ CONTAINS
                 ENDIF
                 rfonctecci(ion) = intmult*intout(1); ifonctecci(ion)=intmult*intout(2)
              ELSE
-                rfonctcgti(ion) = 0.
-                ifonctcgti(ion) = 0.
-                rfonctcgni(ion) = 0.
-                ifonctcgni(ion) = 0.
-                rfonctcgui(ion) = 0.
-                ifonctcgui(ion) = 0.
-                rfonctcci(ion) = 0.
-                ifonctcci(ion) = 0.
-
                 rfonctecgti(ion) = 0.
                 ifonctecgti(ion) = 0.
                 rfonctecgni(ion) = 0.
@@ -1314,6 +1353,24 @@ CONTAINS
                 rfonctecci(ion) = 0.
                 ifonctecci(ion) = 0.
              ENDIF
+          ELSE
+             rfonctcgti(ion) = 0.
+             ifonctcgti(ion) = 0.
+             rfonctcgni(ion) = 0.
+             ifonctcgni(ion) = 0.
+             rfonctcgui(ion) = 0.
+             ifonctcgui(ion) = 0.
+             rfonctcci(ion) = 0.
+             ifonctcci(ion) = 0.
+
+             rfonctecgti(ion) = 0.
+             ifonctecgti(ion) = 0.
+             rfonctecgni(ion) = 0.
+             ifonctecgni(ion) = 0.
+             rfonctecgui(ion) = 0.
+             ifonctecgui(ion) = 0.
+             rfonctecci(ion) = 0.
+             ifonctecci(ion) = 0.
           ENDIF
 
           !ION ENERGY INTEGRALS

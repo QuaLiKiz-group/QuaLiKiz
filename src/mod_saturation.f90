@@ -37,11 +37,11 @@ CONTAINS
        ALLOCATE(dfe_SI(dimx)); dfe_SI=0
        ALLOCATE(vte_SI(dimx)); vte_SI=0
        ALLOCATE(vce_SI(dimx)); vce_SI=0
-       
+
        ALLOCATE(dfe_GB(dimx)); dfe_GB=0
        ALLOCATE(vte_GB(dimx)); vte_GB=0
        ALLOCATE(vce_GB(dimx)); vce_GB=0
-       
+
        ALLOCATE(cke(dimx))
        ALLOCATE(dfi_SI(dimx,nions)); dfi_SI=0
        ALLOCATE(vti_SI(dimx,nions)); vti_SI=0
@@ -72,7 +72,14 @@ CONTAINS
           ALLOCATE(chiei_GB(dimx,nions)); chiei_GB=0
           ALLOCATE(veci_GB(dimx,nions)); veci_GB=0
           ALLOCATE(veri_GB(dimx,nions)); veri_GB=0
-
+          IF (separateflux .EQV. .TRUE.) THEN
+             ALLOCATE(veneETG_SI(dimx)); veneETG_SI=0
+             ALLOCATE(chieeETG_SI(dimx)); chieeETG_SI=0
+             ALLOCATE(veceETG_SI(dimx)); veceETG_SI=0
+             ALLOCATE(veneETG_GB(dimx)); veneETG_GB=0
+             ALLOCATE(chieeETG_GB(dimx)); chieeETG_GB=0
+             ALLOCATE(veceETG_GB(dimx)); veceETG_GB=0
+          ENDIF
        ENDIF
     ENDIF
 
@@ -144,6 +151,14 @@ CONTAINS
           DEALLOCATE(chiei_GB)
           DEALLOCATE(veci_GB)
           DEALLOCATE(veri_GB)
+          IF (separateflux .EQV. .TRUE.) THEN
+             DEALLOCATE(veneETG_SI)
+             DEALLOCATE(chieeETG_SI)
+             DEALLOCATE(veceETG_SI)
+             DEALLOCATE(veneETG_GB)
+             DEALLOCATE(chieeETG_GB)
+             DEALLOCATE(veceETG_GB)
+          ENDIF
        ENDIF
     ENDIF
 
@@ -174,7 +189,7 @@ CONTAINS
     COMPLEX(KIND=DBL), DIMENSION(dimx,dimn,numsols) :: solbck,solbcktmp
     REAL(KIND=DBL), DIMENSION(dimx,dimn) :: cmpfe, cmefe, cmvfe, cmpfgne, cmpfgte, cmpfce, cmefgne, cmefgte, cmefce
     REAL(KIND=DBL), DIMENSION(dimx,dimn,nions) :: cmpfi, cmefi, cmvfi, cmpfgni, cmpfgti, cmpfgui, cmpfci, cmefgni, cmefgti, cmefgui, cmefci
-    REAL(KIND=DBL), DIMENSION(dimx) :: pfe, dpfe,efe, efeETG, defe,defeETG,vfe, dvfe, dffte, vthte, vcpte, deffte, vethte, vecpte, verdte, ion_epf_GB, ion_eef_GB, ele_epf_GB, ele_eef_GB
+    REAL(KIND=DBL), DIMENSION(dimx) :: pfe, dpfe,efe, efeETG, defe,defeETG,vfe, dvfe, dffte, vthte, vcpte, deffte, vethte, vecpte, deffteETG, vethteETG, vecpteETG, ion_epf_GB, ion_eef_GB, ele_epf_GB, ele_eef_GB
     REAL(KIND=DBL), DIMENSION(dimx,nions) :: pfi, dpfi,efi, defi,vfi, dvfi, dffti, vthti, vcpti, vrdti, deffti, vethti, vecpti, verdti, ion_ipf_GB, ion_ief_GB, ion_ivf_GB, ele_ipf_GB, ele_ief_GB, ele_ivf_GB
     REAL(KIND=DBL) :: alphp,alphm,lowlim,massrat,rat
     CHARACTER(len=7) :: fmtx,fmtn,fmtion !for debugging
@@ -720,6 +735,44 @@ CONTAINS
                 ELSE
                    CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),vecpte(ir),ifailloc,42)
                 ENDIF
+
+                IF (separateflux .EQV. .TRUE.) THEN
+
+                   IF (ETGind > 0) THEN
+                      xint= (/0._DBL,kthr(ir,ETGind:dimn)/) ; yint=(/0._DBL,cmefgne(ir,ETGind:dimn)/)
+                      IF (dimn == 1) THEN 
+                         deffteETG(ir)=cmefgne(ir,1)
+                      ELSE
+                         CALL davint (xint, yint ,dimn-ETGind+2,kthr(ir,ETGind), kthr(ir,dimn), deffteETG(ir), ifailloc,39)
+                      ENDIF
+                   ELSE
+                      deffteETG(ir) = 0.
+                   ENDIF
+
+                   IF (ETGind > 0) THEN
+                      xint= (/0._DBL,kthr(ir,ETGind:dimn)/) ; yint=(/0._DBL,cmefgte(ir,ETGind:dimn)/)
+                      IF (dimn == 1) THEN 
+                         vethteETG(ir)=cmefgte(ir,1)
+                      ELSE
+                         CALL davint (xint, yint ,dimn-ETGind+2,kthr(ir,ETGind), kthr(ir,dimn), vethteETG(ir), ifailloc,40)
+                      ENDIF
+                   ELSE
+                      vethteETG(ir) = 0.
+                   ENDIF
+
+                   IF (ETGind > 0) THEN
+                      xint= (/0._DBL,kthr(ir,ETGind:dimn)/) ; yint=(/0._DBL,cmefce(ir,ETGind:dimn)/)
+                      IF (dimn == 1) THEN 
+                         vecpteETG(ir)=cmefce(ir,1)
+                      ELSE
+                         CALL davint (xint, yint ,dimn-ETGind+2,kthr(ir,ETGind), kthr(ir,dimn), vecpteETG(ir), ifailloc,42)
+                      ENDIF
+                   ELSE
+                      vecpteETG(ir) = 0.
+                   ENDIF
+
+                ENDIF
+
              ENDIF
 
              DO ion=1,nions
@@ -961,6 +1014,15 @@ CONTAINS
                 veci_GB(ir,:) = veci_SI(ir,:)*Ro(ir)/chi_GB(ir)
 
                 veri_GB(ir,:) = veri_SI(ir,:)*Ro(ir)/chi_GB(ir)
+
+                IF (separateflux .EQV. .TRUE.) THEN
+                   veneETG_SI(ir) = deffteETG(ir)
+                   chieeETG_SI(ir) = vethteETG(ir)
+                   veceETG_SI(ir) = vecpteETG(ir)
+                   chieeETG_GB(ir) = chieeETG_SI(ir)/chi_GB(ir)
+                   veneETG_GB(ir) = veneETG_SI(ir)*Ro(ir)/chi_GB(ir)
+                   veceETG_GB(ir) = veceETG_SI(ir)*Ro(ir)/chi_GB(ir)
+                ENDIF
 
                 !! check on energy fluxes
                 ceke(ir) = 1d2* ( eef_SI(ir) - ( chiee_SI(ir)*Ate(ir)/R0*Tex(ir)*qe*1d3*Nex(ir)*1d19 + & 

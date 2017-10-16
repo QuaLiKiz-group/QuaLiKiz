@@ -173,13 +173,6 @@ CONTAINS
                 ENDIF
                 rfonctepci(ion)=0.
              ELSE
-                rfonctpgti(ion) = 0.
-                ifonctpgti(ion) = 0.
-                rfonctpgni(ion) = 0.
-                ifonctpgni(ion) = 0.
-                rfonctpci(ion) = 0.
-                ifonctpci(ion) = 0.
-
                 rfonctepgti(ion) = 0.
                 ifonctepgti(ion) = 0.
                 rfonctepgni(ion) = 0.
@@ -187,6 +180,19 @@ CONTAINS
                 rfonctepci(ion) = 0.
                 ifonctepci(ion) = 0.
              ENDIF
+          ELSE
+             rfonctpgti(ion) = 0.
+             ifonctpgti(ion) = 0.
+             rfonctpgni(ion) = 0.
+             ifonctpgni(ion) = 0.
+             rfonctpci(ion) = 0.
+             ifonctpci(ion) = 0.
+             rfonctepgti(ion) = 0.
+             ifonctepgti(ion) = 0.
+             rfonctepgni(ion) = 0.
+             ifonctepgni(ion) = 0.
+             rfonctepci(ion) = 0.
+             ifonctepci(ion) = 0.                
           ENDIF
           ! ION ENERGY FLUX
 
@@ -413,13 +419,6 @@ CONTAINS
              rfonctepce = intout(1)
              ifonctepce = intout(2)
           ELSE
-             rfonctpgte = 0.
-             ifonctpgte = 0.
-             rfonctpgne = 0.
-             ifonctpgne = 0.
-             rfonctpce = 0.
-             ifonctpce = 0.
-
              rfonctepgte = 0.
              ifonctepgte = 0.
              rfonctepgne = 0.
@@ -427,6 +426,19 @@ CONTAINS
              rfonctepce = 0.
              ifonctepce = 0.
           ENDIF
+       ELSE
+          rfonctpgte = 0.
+          ifonctpgte = 0.
+          rfonctpgne = 0.
+          ifonctpgne = 0.
+          rfonctpce = 0.
+          ifonctpce = 0.
+          rfonctepgte = 0.
+          ifonctepgte = 0.
+          rfonctepgne = 0.
+          ifonctepgne = 0.
+          rfonctepce = 0.
+          ifonctepce = 0.
        ENDIF
 
        !ELECTRON ENERGY FLUX
@@ -571,13 +583,6 @@ CONTAINS
                 ENDIF
                 rfonctepci(ion)=0.
              ELSE
-                rfonctpgti(ion) = 0.
-                ifonctpgti(ion) = 0.
-                rfonctpgni(ion) = 0.
-                ifonctpgni(ion) = 0.
-                rfonctpci(ion) = 0.
-                ifonctpci(ion) = 0.
-
                 rfonctepgti(ion) = 0.
                 ifonctepgti(ion) = 0.
                 rfonctepgni(ion) = 0.
@@ -585,6 +590,20 @@ CONTAINS
                 rfonctepci(ion) = 0.
                 ifonctepci(ion) = 0.
              ENDIF
+          ELSE
+             rfonctpgti(ion) = 0.
+             ifonctpgti(ion) = 0.
+             rfonctpgni(ion) = 0.
+             ifonctpgni(ion) = 0.
+             rfonctpci(ion) = 0.
+             ifonctpci(ion) = 0.
+             rfonctepgti(ion) = 0.
+             ifonctepgti(ion) = 0.
+             rfonctepgni(ion) = 0.
+             ifonctepgni(ion) = 0.
+             rfonctepci(ion) = 0.
+             ifonctepci(ion) = 0.
+
           ENDIF
 
           ! ION ENERGY FLUX
@@ -858,13 +877,6 @@ CONTAINS
              rfonctepce = intout(1)
              ifonctepce = intout(2)
           ELSE
-             rfonctpgte = 0.
-             ifonctpgte = 0.
-             rfonctpgne = 0.
-             ifonctpgne = 0.
-             rfonctpce = 0.
-             ifonctpce = 0.
-
              rfonctepgte = 0.
              ifonctepgte = 0.
              rfonctepgne = 0.
@@ -872,6 +884,19 @@ CONTAINS
              rfonctepce = 0.
              ifonctepce = 0.
           ENDIF
+       ELSE
+          rfonctpgte = 0.
+          ifonctpgte = 0.
+          rfonctpgne = 0.
+          ifonctpgne = 0.
+          rfonctpce = 0.
+          ifonctpce = 0.
+          rfonctepgte = 0.
+          ifonctepgte = 0.
+          rfonctepgne = 0.
+          ifonctepgne = 0.
+          rfonctepce = 0.
+          ifonctepce = 0.
        ENDIF
 
        !ELECTRON ENERGY FLUX
@@ -1150,15 +1175,6 @@ CONTAINS
                 rfonctepci(ion)=0.
 
              ELSE
-                rfonctpgti(ion) = 0.
-                ifonctpgti(ion) = 0.
-                rfonctpgni(ion) = 0.
-                ifonctpgni(ion) = 0.
-                rfonctpgui(ion) = 0.
-                ifonctpgui(ion) = 0.
-                rfonctpci(ion) = 0.
-                ifonctpci(ion) = 0.
-
                 rfonctepgti(ion) = 0.
                 ifonctepgti(ion) = 0.
                 rfonctepgni(ion) = 0.
@@ -1168,6 +1184,23 @@ CONTAINS
                 rfonctepci(ion) = 0.
                 ifonctepci(ion) = 0.
              ENDIF
+          ELSE
+             rfonctpgti(ion) = 0.
+             ifonctpgti(ion) = 0.
+             rfonctpgni(ion) = 0.
+             ifonctpgni(ion) = 0.
+             rfonctpgui(ion) = 0.
+             ifonctpgui(ion) = 0.
+             rfonctpci(ion) = 0.
+             ifonctpci(ion) = 0.
+             rfonctepgti(ion) = 0.
+             ifonctepgti(ion) = 0.
+             rfonctepgni(ion) = 0.
+             ifonctepgni(ion) = 0.
+             rfonctepgui(ion) = 0.
+             ifonctepgui(ion) = 0.
+             rfonctepci(ion) = 0.
+             ifonctepci(ion) = 0.
           ENDIF
 
           ! ION ENERGY FLUX
@@ -1409,13 +1442,6 @@ CONTAINS
              rfonctepce = intout(1)
              ifonctepce = intout(2)
           ELSE
-             rfonctpgte = 0.
-             ifonctpgte = 0.
-             rfonctpgne = 0.
-             ifonctpgne = 0.
-             rfonctpce = 0.
-             ifonctpce = 0.
-
              rfonctepgte = 0.
              ifonctepgte = 0.
              rfonctepgne = 0.
@@ -1423,6 +1449,19 @@ CONTAINS
              rfonctepce = 0.
              ifonctepce = 0.
           ENDIF
+       ELSE
+          rfonctpgte = 0.
+          ifonctpgte = 0.
+          rfonctpgne = 0.
+          ifonctpgne = 0.
+          rfonctpce = 0.
+          ifonctpce = 0.
+          rfonctepgte = 0.
+          ifonctepgte = 0.
+          rfonctepgne = 0.
+          ifonctepgne = 0.
+          rfonctepce = 0.
+          ifonctepce = 0.
        ENDIF
 
        !ELECTRON ENERGY FLUX
@@ -1598,15 +1637,6 @@ CONTAINS
                 ENDIF
                 rfonctepci(ion)=0.
              ELSE
-                rfonctpgti(ion) = 0.
-                ifonctpgti(ion) = 0.
-                rfonctpgni(ion) = 0.
-                ifonctpgni(ion) = 0.
-                rfonctpgui(ion) = 0.
-                ifonctpgui(ion) = 0.
-                rfonctpci(ion) = 0.
-                ifonctpci(ion) = 0.
-
                 rfonctepgti(ion) = 0.
                 ifonctepgti(ion) = 0.
                 rfonctepgni(ion) = 0.
@@ -1616,6 +1646,23 @@ CONTAINS
                 rfonctepci(ion) = 0.
                 ifonctepci(ion) = 0.
              ENDIF
+          ELSE
+             rfonctpgti(ion) = 0.
+             ifonctpgti(ion) = 0.
+             rfonctpgni(ion) = 0.
+             ifonctpgni(ion) = 0.
+             rfonctpgui(ion) = 0.
+             ifonctpgui(ion) = 0.
+             rfonctpci(ion) = 0.
+             ifonctpci(ion) = 0.
+             rfonctepgti(ion) = 0.
+             ifonctepgti(ion) = 0.
+             rfonctepgni(ion) = 0.
+             ifonctepgni(ion) = 0.
+             rfonctepgui(ion) = 0.
+             ifonctepgui(ion) = 0.
+             rfonctepci(ion) = 0.
+             ifonctepci(ion) = 0.
           ENDIF
 
           ! ION ENERGY FLUX
@@ -1908,13 +1955,6 @@ CONTAINS
              rfonctepce = intout(1)
              ifonctepce = intout(2)
           ELSE
-             rfonctpgte = 0.
-             ifonctpgte = 0.
-             rfonctpgne = 0.
-             ifonctpgne = 0.
-             rfonctpce = 0.
-             ifonctpce = 0.
-
              rfonctepgte = 0.
              ifonctepgte = 0.
              rfonctepgne = 0.
@@ -1922,6 +1962,19 @@ CONTAINS
              rfonctepce = 0.
              ifonctepce = 0.
           ENDIF
+       ELSE
+          rfonctpgte = 0.
+          ifonctpgte = 0.
+          rfonctpgne = 0.
+          ifonctpgne = 0.
+          rfonctpce = 0.
+          ifonctpce = 0.
+          rfonctepgte = 0.
+          ifonctepgte = 0.
+          rfonctepgne = 0.
+          ifonctepgne = 0.
+          rfonctepce = 0.
+          ifonctepce = 0.
        ENDIF
 
        !ELECTRON ENERGY FLUX
@@ -1998,6 +2051,8 @@ CONTAINS
 
     fonctepce = rfonctepce + ci * ifonctepce
     fonctepci(:) = rfonctepci(:) + ci * ifonctepci(:)
+
+    fonctepgui(:) = rfonctepgui(:) + ci * ifonctepgui(:)
 
 
   END SUBROUTINE trapQLintsrot

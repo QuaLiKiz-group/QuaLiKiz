@@ -391,7 +391,7 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
   ENDIF
 
   CALL saturation(0) !set 0 for including all modes, 1 for only ITG, 2 for only TEM
-
+ 
   IF (myrank==0) THEN
      CALL SYSTEM_CLOCK(time2)
      CALL SYSTEM_CLOCK(count_rate=freq)
@@ -638,7 +638,8 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
      CALL SYSTEM_CLOCK(count_rate=freq)
      timetot = REAL(time4-time3) / REAL(freq)
      WRITE(stdout,*)
-     WRITE(stdout,"(A,F11.3,A)") 'Profiling: Second MPI_AllReduce time = ',timetot,' s'  
+     WRITE(stdout,"(A,F11.3,A)") 'Profiling: Second MPI_AllReduce time = ',timetot,' s'
+
   ENDIF
 
 
@@ -833,8 +834,8 @@ CONTAINS
     IF (PRESENT(epf_cmout))     epf_cmout = epf_cm
     IF (PRESENT(eef_cmout))     eef_cmout = eef_cm
 
-    IF (PRESENT(eefETG_SIout))   eefETG_SIout=eef_SI; 
-    IF (PRESENT(eefETG_GBout))   eefETG_GBout=eef_GB; 
+    IF (PRESENT(eefETG_SIout))   eefETG_SIout=eefETG_SI; 
+    IF (PRESENT(eefETG_GBout))   eefETG_GBout=eefETG_GB; 
 
     IF (PRESENT(ipf_GBout))     ipf_GBout = ipf_GB
     IF (PRESENT(ief_GBout))     ief_GBout = ief_GB
@@ -944,6 +945,16 @@ CONTAINS
           IF (PRESENT(chiei_GBout))    chiei_GBout = chiei_GB
           IF (PRESENT(veci_GBout))     veci_GBout = veci_GB
           IF (PRESENT(veri_GBout))     veri_GBout = veri_GB
+
+          IF (separateflux .EQV. .TRUE.) THEN
+             IF (PRESENT(veneETG_SIout))     veneETG_SIout = veneETG_SI
+             IF (PRESENT(chieeETG_SIout))    chieeETG_SIout = chieeETG_SI
+             IF (PRESENT(veceETG_SIout))     veceETG_SIout = veceETG_SI
+
+             IF (PRESENT(veneETG_GBout))     veneETG_GBout = veneETG_GB
+             IF (PRESENT(chieeETG_GBout))    chieeETG_GBout = chieeETG_GB
+             IF (PRESENT(veceETG_GBout))     veceETG_GBout = veceETG_GB
+          ENDIF
 
        ENDIF
     ENDIF
