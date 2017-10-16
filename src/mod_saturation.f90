@@ -302,22 +302,14 @@ CONTAINS
           rhos=SQRT(Tex(ir)*1d3*qe*mi(ir,1))/(qe*Bo(ir)) !Larmor radius with respect to sound speed (no sqrt(2))
           cfaca=0.4; cfacb=2. ; cfacc=1.5 ; cfacd=0.2 ; qfac=0.5 !tuned factors       
 
-          kx2shear = kteta**2*(smagn**2)*2*dw !contribution of kx from magnetic shear
+          kx2shear(ir,:) = kteta(ir,:)**2*(smagn(ir,:)**2)*2*dw(ir,:) !contribution of kx from magnetic shear
 
-          kxadd=kteta*rhos
-          kxadd=(kxadd-cfacd)*cfacc
+          kxadd(ir,:)=kteta(ir,:)*rhos
+          kxadd(ir,:)=(kxadd(ir,:)-cfacd)*cfacc
           WHERE (kxadd<0) kxadd=0. !'isotropic part' of kx at higher ky
 
-          WRITE(*,*) 'qxn=',qxn
-          WRITE(*,*)
-          WRITE(*,*) 'qfac=',qfac
-          WRITE(*,*)
-          WRITE(*,*) 'kxadd=',kxadd
-          WRITE(*,*)
-          WRITE(*,*) 'rhos=',rhos
-          WRITE(*,*)
-          kxnl=(cfaca*(EXP(-cfacb*ABS(smagn)) )*(1/qxn**qfac)+kxadd)/rhos !nonlinear contribution to kx
-          WRITE(*,*) 'I made it'
+          kxnl(ir,:)=(cfaca*(EXP(-cfacb*ABS(smagn(ir,:))) )*(1./qxn(ir,:)**qfac)+kxadd(ir,:))/rhos !nonlinear contribution to kx
+
           kperp2(ir,:)=kteta(ir,:)**2 + ((kx2shear(ir,:)**0.5)+kxnl(ir,:))**2 !construct finally the new kperp2 
           WHERE(kthetarhos>ETGk) kperp2(ir,:)=2.*kteta(ir,:)**2 !ETG kperp2 based on streamers isotropisation
 
