@@ -225,7 +225,7 @@ CONTAINS
     cref(:) = SQRT(qe*1.d3/mp) !Cref=sqrt(2x1keV/mD)=sqrt(1keV/mp) used to normalized gammaEin, Machin, Auparin
     cthe(:) = SQRT(2._DBL*qe*Tex(:)*1.d3/me)
 
-    Zeffx(:)=0 !Initialize Zeff
+    Zeffx(:)=0. !Initialize Zeff
     Ac(:) = Nex(:) !Adiabatic term, electrons
     DO i = 1,nions
        tau(:,i) = Tex(:)/Tix(:,i) !Temperature ratios
@@ -352,109 +352,113 @@ CONTAINS
 
   SUBROUTINE allocate_output()
     !Complex 1D arrays. These ion arrays are not the final output but used in an intermediate step
-    ALLOCATE(fonxcirci(nions)); fonxcirci=0; fonxcirce=0
-    ALLOCATE(fonxpiegi(nions)); fonxpiegi=0; fonxpiege=0
-    ALLOCATE(fonxecirci(nions)); fonxecirci=0; fonxecirce=0
-    ALLOCATE(fonxepiegi(nions)); fonxepiegi=0; fonxepiege=0
-    ALLOCATE(fonxvcirci(nions)); fonxvcirci=0; 
-    ALLOCATE(fonxvpiegi(nions)); fonxvpiegi=0; 
+    ALLOCATE(fonxcirci(nions)); fonxcirci=0.; fonxcirce=0.
+    ALLOCATE(fonxpiegi(nions)); fonxpiegi=0.; fonxpiege=0.
+    ALLOCATE(fonxecirci(nions)); fonxecirci=0.; fonxecirce=0.
+    ALLOCATE(fonxepiegi(nions)); fonxepiegi=0.; fonxepiege=0.
+    ALLOCATE(fonxvcirci(nions)); fonxvcirci=0.; 
+    ALLOCATE(fonxvpiegi(nions)); fonxvpiegi=0.; 
 
     ALLOCATE( krmmuITG (dimx) ); krmmuITG=0;
     ALLOCATE( krmmuETG (dimx) ); krmmuETG=0;
 
     !Real 2D arrays
-    ALLOCATE( kperp2 (dimx, dimn) ); kperp2=0
-    ALLOCATE( modewidth (dimx, dimn) ); modewidth=0
-    ALLOCATE( modeshift (dimx, dimn) ); modeshift=0
-    ALLOCATE( modeshift2 (dimx, dimn) ); modeshift2=0
-    ALLOCATE( distan (dimx, dimn) ); distan=0
-    ALLOCATE( FLRec (dimx, dimn) ); FLRec=0
-    ALLOCATE( FLRep (dimx, dimn) ); FLRep=0
+    ALLOCATE( kperp2 (dimx, dimn) ); kperp2=0.
+    ALLOCATE( modewidth (dimx, dimn) ); modewidth=0.
+    ALLOCATE( modeshift (dimx, dimn) ); modeshift=0.
+    ALLOCATE( modeshift2 (dimx, dimn) ); modeshift2=0.
+    ALLOCATE( distan (dimx, dimn) ); distan=0.
+    ALLOCATE( FLRec (dimx, dimn) ); FLRec=0.
+    ALLOCATE( FLRep (dimx, dimn) ); FLRep=0.
     !Real 3D arrays with 3rd dimension equal to number of ions
-    ALLOCATE( FLRic (dimx, dimn,nions) ); FLRic=0
-    ALLOCATE( FLRip (dimx, dimn,nions) ); FLRip=0
+    ALLOCATE( FLRic (dimx, dimn,nions) ); FLRic=0.
+    ALLOCATE( FLRip (dimx, dimn,nions) ); FLRip=0.
     !Real 3D arrays with 3rd dimension equal to number of solutions searched for
-    ALLOCATE( gamma (dimx, dimn, numsols) ); gamma=0
-    ALLOCATE( Ladia (dimx, dimn, numsols) ); Ladia=0
+    ALLOCATE( gamma (dimx, dimn, numsols) ); gamma=0.
+    ALLOCATE( Ladia (dimx, dimn, numsols) ); Ladia=0.
     !Complex 2D arrays 
-    ALLOCATE( ommax (dimx, dimn) ) ; ommax=0
-    ALLOCATE( solflu (dimx, dimn) ); solflu=0
+    ALLOCATE( ommax (dimx, dimn) ) ; ommax=0.
+    ALLOCATE( solflu (dimx, dimn) ); solflu=0.
     !DEBUGGING FOR FLUID SOLUTIONS
-    ALLOCATE(jon_solflu(dimx,dimn)); jon_solflu=0
-    ALLOCATE(jon_modewidth(dimx,dimn)); jon_modewidth=0
-    ALLOCATE(jon_modeshift(dimx,dimn)); jon_modeshift=0
-    ALLOCATE(cot_solflu(dimx,dimn)); cot_solflu=0
-    ALLOCATE(cot_modewidth(dimx,dimn)); cot_modewidth=0
-    ALLOCATE(cot_modeshift(dimx,dimn)); cot_modeshift=0
-    ALLOCATE(ana_solflu(dimx,dimn)); ana_solflu=0
-    ALLOCATE(old_modewidth(dimx,dimn)); old_modewidth=0
-    ALLOCATE(old_modeshift(dimx,dimn)); old_modeshift=0
+    ALLOCATE(jon_solflu(dimx,dimn)); jon_solflu=0.
+    ALLOCATE(jon_modewidth(dimx,dimn)); jon_modewidth=0.
+    ALLOCATE(jon_modeshift(dimx,dimn)); jon_modeshift=0.
+    ALLOCATE(cot_solflu(dimx,dimn)); cot_solflu=0.
+    ALLOCATE(cot_modewidth(dimx,dimn)); cot_modewidth=0.
+    ALLOCATE(cot_modeshift(dimx,dimn)); cot_modeshift=0.
+    ALLOCATE(ana_solflu(dimx,dimn)); ana_solflu=0.
+    ALLOCATE(old_modewidth(dimx,dimn)); old_modewidth=0.
+    ALLOCATE(old_modeshift(dimx,dimn)); old_modeshift=0.
 
 
     !Complex 3D arrays with 3rd dimension equal to number of solutions searched for
-    ALLOCATE( sol (dimx, dimn, numsols) ); sol=0
-    ALLOCATE( fdsol (dimx, dimn, numsols) ); fdsol=0
-    ALLOCATE( Lcirce (dimx, dimn, numsols) ); Lcirce=0
-    ALLOCATE( Lpiege (dimx, dimn, numsols) ); Lpiege=0
-    ALLOCATE( Lecirce (dimx, dimn, numsols) ); Lecirce=0
-    ALLOCATE( Lepiege (dimx, dimn, numsols) ); Lepiege=0
+    ALLOCATE( sol (dimx, dimn, numsols) ); sol=0.
+    ALLOCATE( fdsol (dimx, dimn, numsols) ); fdsol=0.
+    ALLOCATE( Lcirce (dimx, dimn, numsols) ); Lcirce=0.
+    ALLOCATE( Lpiege (dimx, dimn, numsols) ); Lpiege=0.
+    ALLOCATE( Lecirce (dimx, dimn, numsols) ); Lecirce=0.
+    ALLOCATE( Lepiege (dimx, dimn, numsols) ); Lepiege=0.
     !Complex 4D arrays with 3rd dimension equal to nions and 4th to numsols
-    ALLOCATE( Lcirci (dimx, dimn, nions, numsols) ); Lcirci=0
-    ALLOCATE( Lpiegi (dimx, dimn, nions, numsols) ); Lpiegi=0
-    ALLOCATE( Lecirci (dimx, dimn, nions, numsols) ); Lecirci=0
-    ALLOCATE( Lepiegi (dimx, dimn, nions, numsols) ); Lepiegi=0
-    ALLOCATE( Lvcirci (dimx, dimn, nions, numsols) ); Lvcirci=0
-    ALLOCATE( Lvpiegi (dimx, dimn, nions, numsols) ); Lvpiegi=0
+    ALLOCATE( Lcirci (dimx, dimn, nions, numsols) ); Lcirci=0.
+    ALLOCATE( Lpiegi (dimx, dimn, nions, numsols) ); Lpiegi=0.
+    ALLOCATE( Lecirci (dimx, dimn, nions, numsols) ); Lecirci=0.
+    ALLOCATE( Lepiegi (dimx, dimn, nions, numsols) ); Lepiegi=0.
+    ALLOCATE( Lvcirci (dimx, dimn, nions, numsols) ); Lvcirci=0.
+    ALLOCATE( Lvpiegi (dimx, dimn, nions, numsols) ); Lvpiegi=0.
     !To save memory space, the following output arrays are only produced when specifically requested
     IF (phys_meth /= 0.0) THEN
        !Intermediate 1D complex arrays
-       ALLOCATE(fonxcircgti(nions)); fonxcircgti=0; fonxcircgte=0
-       ALLOCATE(fonxpieggti(nions)); fonxpieggti=0; fonxpieggte=0
-       ALLOCATE(fonxcircgni(nions)); fonxcircgni=0; fonxcircgne=0
-       ALLOCATE(fonxpieggni(nions)); fonxpieggni=0; fonxpieggne=0
-       ALLOCATE(fonxcircci(nions)); fonxcircci=0; fonxcircce=0
-       ALLOCATE(fonxpiegci(nions)); fonxpiegci=0; fonxpiegce=0
+       ALLOCATE(fonxcircgti(nions)); fonxcircgti=0.; fonxcircgte=0.
+       ALLOCATE(fonxpieggti(nions)); fonxpieggti=0.; fonxpieggte=0.
+       ALLOCATE(fonxcircgni(nions)); fonxcircgni=0.; fonxcircgne=0.
+       ALLOCATE(fonxpieggni(nions)); fonxpieggni=0.; fonxpieggne=0.
+       ALLOCATE(fonxcircgui(nions)); fonxcircgui=0.; 
+       ALLOCATE(fonxpieggui(nions)); fonxpieggui=0.; 
+       ALLOCATE(fonxcircci(nions)); fonxcircci=0.; fonxcircce=0.
+       ALLOCATE(fonxpiegci(nions)); fonxpiegci=0.; fonxpiegce=0.
        !Complex 3D arrays with 3rd dimension equal to number of solutions searched for
-       ALLOCATE( Lcircgte (dimx, dimn, numsols) ); Lcircgte=0
-       ALLOCATE( Lpieggte (dimx, dimn, numsols) ); Lpieggte=0
-       ALLOCATE( Lcircgne (dimx, dimn, numsols) ); Lcircgne=0
-       ALLOCATE( Lpieggne (dimx, dimn, numsols) ); Lpieggne=0
-       ALLOCATE( Lcircce (dimx, dimn, numsols) ); Lcircce=0
-       ALLOCATE( Lpiegce (dimx, dimn, numsols) ); Lpiegce=0
+       ALLOCATE( Lcircgte (dimx, dimn, numsols) ); Lcircgte=0.
+       ALLOCATE( Lpieggte (dimx, dimn, numsols) ); Lpieggte=0.
+       ALLOCATE( Lcircgne (dimx, dimn, numsols) ); Lcircgne=0.
+       ALLOCATE( Lpieggne (dimx, dimn, numsols) ); Lpieggne=0.
+       ALLOCATE( Lcircce (dimx, dimn, numsols) ); Lcircce=0.
+       ALLOCATE( Lpiegce (dimx, dimn, numsols) ); Lpiegce=0.
        !Complex 4D arrays with 3rd dimension equal to nions and 4th to numsols
-       ALLOCATE( Lcircgti (dimx, dimn, nions, numsols) ); Lcircgti=0
-       ALLOCATE( Lpieggti (dimx, dimn, nions, numsols) ); Lpieggti=0
-       ALLOCATE( Lcircgni (dimx, dimn, nions, numsols) ); Lcircgni=0
-       ALLOCATE( Lpieggni (dimx, dimn, nions, numsols) ); Lpieggni=0
-       ALLOCATE( Lcircgui (dimx, dimn, nions, numsols) ); Lcircgui=0
-       ALLOCATE( Lpieggui (dimx, dimn, nions, numsols) ); Lpieggui=0
-       ALLOCATE( Lcircci (dimx, dimn, nions, numsols) ); Lcircci=0
-       ALLOCATE( Lpiegci (dimx, dimn, nions, numsols) ); Lpiegci=0
+       ALLOCATE( Lcircgti (dimx, dimn, nions, numsols) ); Lcircgti=0.
+       ALLOCATE( Lpieggti (dimx, dimn, nions, numsols) ); Lpieggti=0.
+       ALLOCATE( Lcircgni (dimx, dimn, nions, numsols) ); Lcircgni=0.
+       ALLOCATE( Lpieggni (dimx, dimn, nions, numsols) ); Lpieggni=0.
+       ALLOCATE( Lcircgui (dimx, dimn, nions, numsols) ); Lcircgui=0.
+       ALLOCATE( Lpieggui (dimx, dimn, nions, numsols) ); Lpieggui=0.
+       ALLOCATE( Lcircci (dimx, dimn, nions, numsols) ); Lcircci=0.
+       ALLOCATE( Lpiegci (dimx, dimn, nions, numsols) ); Lpiegci=0.
 !!!
        IF (phys_meth == 2) THEN
           !Intermediate 1D complex arrays
-          ALLOCATE(fonxecircgti(nions)); fonxecircgti=0; fonxecircgte=0
-          ALLOCATE(fonxepieggti(nions)); fonxepieggti=0; fonxepieggte=0
-          ALLOCATE(fonxecircgni(nions)); fonxecircgni=0; fonxecircgne=0
-          ALLOCATE(fonxepieggni(nions)); fonxepieggni=0; fonxepieggne=0
-          ALLOCATE(fonxecircci(nions)); fonxecircci=0; fonxecircce=0
-          ALLOCATE(fonxepiegci(nions)); fonxepiegci=0; fonxepiegce=0
+          ALLOCATE(fonxecircgti(nions)); fonxecircgti=0.; fonxecircgte=0.
+          ALLOCATE(fonxepieggti(nions)); fonxepieggti=0.; fonxepieggte=0.
+          ALLOCATE(fonxecircgni(nions)); fonxecircgni=0.; fonxecircgne=0.
+          ALLOCATE(fonxepieggni(nions)); fonxepieggni=0.; fonxepieggne=0.
+          ALLOCATE(fonxecircgui(nions)); fonxecircgui=0.; 
+          ALLOCATE(fonxepieggui(nions)); fonxepieggui=0.; 
+          ALLOCATE(fonxecircci(nions)); fonxecircci=0.; fonxecircce=0.
+          ALLOCATE(fonxepiegci(nions)); fonxepiegci=0.; fonxepiegce=0.
           !Complex 3D arrays with 3rd dimension equal to number of solutions searched for
-          ALLOCATE( Lecircgte (dimx, dimn, numsols) ); Lecircgte=0
-          ALLOCATE( Lepieggte (dimx, dimn, numsols) ); Lepieggte=0
-          ALLOCATE( Lecircgne (dimx, dimn, numsols) ); Lecircgne=0
-          ALLOCATE( Lepieggne (dimx, dimn, numsols) ); Lepieggne=0
-          ALLOCATE( Lecircce (dimx, dimn, numsols) ); Lecircce=0
-          ALLOCATE( Lepiegce (dimx, dimn, numsols) ); Lepiegce=0
+          ALLOCATE( Lecircgte (dimx, dimn, numsols) ); Lecircgte=0.
+          ALLOCATE( Lepieggte (dimx, dimn, numsols) ); Lepieggte=0.
+          ALLOCATE( Lecircgne (dimx, dimn, numsols) ); Lecircgne=0.
+          ALLOCATE( Lepieggne (dimx, dimn, numsols) ); Lepieggne=0.
+          ALLOCATE( Lecircce (dimx, dimn, numsols) ); Lecircce=0.
+          ALLOCATE( Lepiegce (dimx, dimn, numsols) ); Lepiegce=0.
           !Complex 4D arrays with 3rd dimension equal to nions and 4th to numsols
-          ALLOCATE( Lecircgti (dimx, dimn, nions, numsols) ); Lecircgti=0
-          ALLOCATE( Lepieggti (dimx, dimn, nions, numsols) ); Lepieggti=0
-          ALLOCATE( Lecircgni (dimx, dimn, nions, numsols) ); Lecircgni=0
-          ALLOCATE( Lepieggni (dimx, dimn, nions, numsols) ); Lepieggni=0
-          ALLOCATE( Lecircgui (dimx, dimn, nions, numsols) ); Lecircgui=0
-          ALLOCATE( Lepieggui (dimx, dimn, nions, numsols) ); Lepieggui=0
-          ALLOCATE( Lecircci (dimx, dimn, nions, numsols) ); Lecircci=0
-          ALLOCATE( Lepiegci (dimx, dimn, nions, numsols) ); Lepiegci=0
+          ALLOCATE( Lecircgti (dimx, dimn, nions, numsols) ); Lecircgti=0.
+          ALLOCATE( Lepieggti (dimx, dimn, nions, numsols) ); Lepieggti=0.
+          ALLOCATE( Lecircgni (dimx, dimn, nions, numsols) ); Lecircgni=0.
+          ALLOCATE( Lepieggni (dimx, dimn, nions, numsols) ); Lepieggni=0.
+          ALLOCATE( Lecircgui (dimx, dimn, nions, numsols) ); Lecircgui=0.
+          ALLOCATE( Lepieggui (dimx, dimn, nions, numsols) ); Lepieggui=0.
+          ALLOCATE( Lecircci (dimx, dimn, nions, numsols) ); Lecircci=0.
+          ALLOCATE( Lepiegci (dimx, dimn, nions, numsols) ); Lepiegci=0.
        ENDIF
     ENDIF
   END SUBROUTINE allocate_output

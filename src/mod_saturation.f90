@@ -308,8 +308,16 @@ CONTAINS
           kxadd=(kxadd-cfacd)*cfacc
           WHERE (kxadd<0) kxadd=0. !'isotropic part' of kx at higher ky
 
+          WRITE(*,*) 'qxn=',qxn
+          WRITE(*,*)
+          WRITE(*,*) 'qfac=',qfac
+          WRITE(*,*)
+          WRITE(*,*) 'kxadd=',kxadd
+          WRITE(*,*)
+          WRITE(*,*) 'rhos=',rhos
+          WRITE(*,*)
           kxnl=(cfaca*(EXP(-cfacb*ABS(smagn)) )*(1/qxn**qfac)+kxadd)/rhos !nonlinear contribution to kx
-
+          WRITE(*,*) 'I made it'
           kperp2(ir,:)=kteta(ir,:)**2 + ((kx2shear(ir,:)**0.5)+kxnl(ir,:))**2 !construct finally the new kperp2 
           WHERE(kthetarhos>ETGk) kperp2(ir,:)=2.*kteta(ir,:)**2 !ETG kperp2 based on streamers isotropisation
 

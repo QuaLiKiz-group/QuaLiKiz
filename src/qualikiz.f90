@@ -267,10 +267,11 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
   IF (myrank==0) THEN 
      CALL SYSTEM_CLOCK(time4)
      CALL SYSTEM_CLOCK(count_rate=freq)
-     timetot = REAL(time4-time3) / REAL(freq)
-     WRITE(stdout,*)
-     WRITE(stdout,"(A,F11.3,A)") 'Profiling: First MPI_AllReduce time = ',timetot,' s'  !final write
-
+     IF (nproc > 1) THEN
+        timetot = REAL(time4-time3) / REAL(freq)
+        WRITE(stdout,*)
+        WRITE(stdout,"(A,F11.3,A)") 'Profiling: First MPI_AllReduce time = ',timetot,' s'  !final write
+     ENDIF
      CALL SYSTEM_CLOCK(time2)
      CALL SYSTEM_CLOCK(count_rate=freq)
      timetot = REAL(time2-time1) / REAL(freq)
