@@ -619,7 +619,7 @@ CONTAINS
           ENDIF
 
           ! Total particle diffusivity Gyro-Bohm using all roots. Assumes that all particle transport is diagonal (typically not the case)
-          dpfe(ir) = (pfe(ir)/(Nex(ir)*1e19/R0))/chi_GB(ir)
+          dpfe(ir) = (pfe(ir)/(Nex(ir)*1e19/Rmin(ir)))/chi_GB(ir)
 
           ! Energy flux using all roots
           xint= (/0._DBL,kthr(ir,:)/) ; yint=(/0._DBL,cmefe(ir,:)/)
@@ -629,7 +629,7 @@ CONTAINS
              CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),efe(ir),ifailloc,28)
           ENDIF
           ! Energy diffusivity using all unstable roots
-          defe(ir) = (efe(ir)/(Nex(ir)*1e19*Tex(ir)*1e3*qe/R0))/chi_GB(ir)
+          defe(ir) = (efe(ir)/(Nex(ir)*1e19*Tex(ir)*1e3*qe/Rmin(ir)))/chi_GB(ir)
 
           !Only ETG scales particle and heat transport (if they exist)
           IF (ETGind > 0) THEN
@@ -642,7 +642,7 @@ CONTAINS
           ELSE
              efeETG(ir) = 0.
           ENDIF
-          defeETG(ir) = (efeETG(ir)/(Nex(ir)*1e19*Tex(ir)*1e3*qe/R0))/chi_GB(ir)
+          defeETG(ir) = (efeETG(ir)/(Nex(ir)*1e19*Tex(ir)*1e3*qe/Rmin(ir)))/chi_GB(ir)
 
           ! Ang mom flux using all roots
           xint= (/0._DBL,kthr(ir,:)/) ; yint=(/0._DBL,cmvfe(ir,:)/)
@@ -652,7 +652,7 @@ CONTAINS
              CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),vfe(ir),ifailloc,31)
           ENDIF
           ! Mom diffusivity using all unstable roots
-          dvfe(ir) = (vfe(ir)/(Nex(ir)*1e19*cthe(ir)*R0*me/R0))/chi_GB(ir)
+          dvfe(ir) = (vfe(ir)/(Nex(ir)*1e19*cthe(ir)*R0*me/Rmin(ir)))/chi_GB(ir)
 
           DO ion=1,nions
              !Remove any residual ETG particle transport to maintain quasineutrality
@@ -682,10 +682,10 @@ CONTAINS
              ELSE
                 CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),vfi(ir,ion),ifailloc,34)        
              ENDIF
-             dpfi(ir,ion) = (pfi(ir,ion)/(Nix(ir,ion)*1e19/R0))/chi_GB(ir)
-             defi(ir,ion) = (efi(ir,ion)/(Nix(ir,ion)*1e19*Tix(ir,ion)*1e3*qe/R0))/chi_GB(ir)
+             dpfi(ir,ion) = (pfi(ir,ion)/(Nix(ir,ion)*1e19/Rmin(ir)))/chi_GB(ir)
+             defi(ir,ion) = (efi(ir,ion)/(Nix(ir,ion)*1e19*Tix(ir,ion)*1e3*qe/Rmin(ir)))/chi_GB(ir)
              IF (rot_flag==2) Aui(ir,ion)=Auiorig(ir,ion) !reinstate original for momentum diffusivity definition
-             dvfi(ir,ion) = (vfi(ir,ion)/(Nix(ir,ion)*1e19*Ai(ir,ion)*mp*cthi(ir,ion)*R0/R0))/chi_GB(ir)
+             dvfi(ir,ion) = (vfi(ir,ion)/(Nix(ir,ion)*1e19*Ai(ir,ion)*mp*cthi(ir,ion)*R0/Rmin(ir)))/chi_GB(ir)
           ENDDO
 
           IF ( phys_meth /= 0 ) THEN
@@ -912,17 +912,13 @@ CONTAINS
              CYCLE
           ENDIF
 
-          !          ipf_SI(ir,:) = dpfi(ir,:)*Nix(ir,:)*1e19*Ani(ir,:)/R0*chi_GB(ir)
           ipf_SI(ir,:) = pfi(ir,:)*normNL
-          !          epf_SI(ir) = dpfe(ir)*Nex(ir)*1e19*Ane(ir)/R0*chi_GB(ir)
           epf_SI(ir) = pfe(ir)*normNL
 
           ipf_GB(ir,:) = dpfi(ir,:)
           epf_GB(ir) = dpfe(ir)
 
-          !          ief_SI(ir,:) = defi(ir,:)*Nix(ir,:)*1e19*Tix(ir,:)*1e3*qe*Ati(ir,:)/R0*chi_GB(ir)
           ief_SI(ir,:) = efi(ir,:)*normNL
-          !          eef_SI(ir) = defe(ir)*Nex(ir)*1e19*Tex(ir)*1e3*qe*Ate(ir)/R0*chi_GB(ir)
           eef_SI(ir) = efe(ir)*normNL
           eefETG_SI(ir) = efeETG(ir)*normNL        
 
@@ -951,22 +947,13 @@ CONTAINS
              dfe_SI(ir) = dffte(ir)
              dfi_SI(ir,:) = dffti(ir,:)
 
-             !dfe(ir) = dffte(ir)*Nex(ir)*1e19*Ane(ir)/R0
-             !dfi(ir,:) = dffti(ir,:)*Nix(ir,:)*1e19*Ani(ir,:)/R0
-
              !! Particle thermo-diffusion pinch
              vte_SI(ir) = vthte(ir)
              vti_SI(ir,:) = vthti(ir,:)
 
-             !vte(ir) = vthte(ir)*Nex(ir)*1e19
-             !vti(ir,:) = vthti(ir,:)*Nix(ir,:)*1e19
-
              !! Compressibility pinches
              vce_SI(ir) = vcpte(ir)
              vci_SI(ir,:) = vcpti(ir,:)
-
-             !vce(ir) = vcpte(ir)*Nex(ir)*1e19
-             !vci(ir,:) = vcpti(ir,:)*Nix(ir,:)*1e19
 
              !! roto diffusion terms
              vri_SI(ir,:) = vrdti(ir,:)
