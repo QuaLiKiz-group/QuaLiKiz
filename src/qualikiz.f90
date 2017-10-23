@@ -378,10 +378,10 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
      IF (PRESENT(vciTEM_GBout))  vciTEM_GBout=vci_GB; 
      IF (PRESENT(vriTEM_GBout))  vriTEM_GBout=vri_GB; 
 
-     IF (PRESENT(chieiTEM_SIout))   chieiTEM_SIout=dfi_SI; 
-     IF (PRESENT(veniTEM_SIout))  veniTEM_SIout=vti_SI; 
-     IF (PRESENT(veciTEM_SIout))  veciTEM_SIout=vci_SI; 
-     IF (PRESENT(veriTEM_SIout))  veriTEM_SIout=vri_SI; 
+     IF (PRESENT(chieiTEM_SIout))   chieiTEM_SIout=chiei_SI;
+     IF (PRESENT(veniTEM_SIout))  veniTEM_SIout=veni_SI; 
+     IF (PRESENT(veciTEM_SIout))  veciTEM_SIout=veci_SI; 
+     IF (PRESENT(veriTEM_SIout))  veriTEM_SIout=veri_SI; 
 
      IF (PRESENT(chieiTEM_GBout))  chieiTEM_GBout=chiei_GB; 
      IF (PRESENT(veniTEM_GBout))  veniTEM_GBout=veni_GB; 
