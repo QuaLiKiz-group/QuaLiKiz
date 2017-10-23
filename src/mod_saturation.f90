@@ -184,12 +184,12 @@ CONTAINS
     REAL(KIND=DBL) :: cfaca,cfacb,cfacc,cfacd,qfac,rhos,locmaxgamma
     REAL(KIND=DBL) :: sfac, normNL !normalization factors
     REAL(KIND=DBL),DIMENSION(dimn) :: normETG
-    REAL(KIND=DBL), DIMENSION(dimx,dimn,numsols) :: fi, constp, conste, constv, cmpfe_k, cmefe_k, cmvfe_k, cmpfgne_k, cmpfgte_k, cmpfce_k, cmefgne_k, cmefgte_k, cmefce_k
+    REAL(KIND=DBL), DIMENSION(dimx,dimn,numsols) :: fi, constp, conste, constv, cmpfe_k, cmefe_k, cmpfgne_k, cmpfgte_k, cmpfce_k, cmefgne_k, cmefgte_k, cmefce_k
     REAL(KIND=DBL), DIMENSION(dimx,dimn,nions,numsols) :: cmpfi_k, cmefi_k, cmvfi_k, cmpfgni_k, cmpfgti_k, cmpfgui_k, cmpfci_k, cmefgni_k, cmefgti_k, cmefgui_k, cmefci_k
     COMPLEX(KIND=DBL), DIMENSION(dimx,dimn,numsols) :: solbck,solbcktmp
-    REAL(KIND=DBL), DIMENSION(dimx,dimn) :: cmpfe, cmefe, cmvfe, cmpfgne, cmpfgte, cmpfce, cmefgne, cmefgte, cmefce
+    REAL(KIND=DBL), DIMENSION(dimx,dimn) :: cmpfe, cmefe, cmpfgne, cmpfgte, cmpfce, cmefgne, cmefgte, cmefce
     REAL(KIND=DBL), DIMENSION(dimx,dimn,nions) :: cmpfi, cmefi, cmvfi, cmpfgni, cmpfgti, cmpfgui, cmpfci, cmefgni, cmefgti, cmefgui, cmefci
-    REAL(KIND=DBL), DIMENSION(dimx) :: pfe, dpfe,efe, efeETG, defe,defeETG,vfe, dvfe, dffte, vthte, vcpte, deffte, vethte, vecpte, deffteETG, vethteETG, vecpteETG, ion_epf_GB, ion_eef_GB, ele_epf_GB, ele_eef_GB
+    REAL(KIND=DBL), DIMENSION(dimx) :: pfe, dpfe,efe, efeETG, defe,defeETG, dffte, vthte, vcpte, deffte, vethte, vecpte, deffteETG, vethteETG, vecpteETG, ion_epf_GB, ion_eef_GB, ele_epf_GB, ele_eef_GB
     REAL(KIND=DBL), DIMENSION(dimx,nions) :: pfi, dpfi,efi, defi,vfi, dvfi, dffti, vthti, vcpti, vrdti, deffti, vethti, vecpti, verdti, ion_ipf_GB, ion_ief_GB, ion_ivf_GB, ele_ipf_GB, ele_ief_GB, ele_ivf_GB
     REAL(KIND=DBL) :: alphp,alphm,lowlim,massrat,rat
     CHARACTER(len=7) :: fmtx,fmtn,fmtion !for debugging
@@ -486,7 +486,6 @@ CONTAINS
                    cmvfi_k(ir,j,:,k) = -1._DBL/Zi(ir,:)*1d19*kteta(ir,j) /1._DBL  * ( &
                         & constv(ir,j,k)* fi(ir,j,k) * Ai(ir,:) * cthi(ir,:) * mp * R0 * ( Lvcirci(ir,j,:,k) + Lvpiegi(ir,j,:,k) ))
                 ELSE
-                   cmvfe_k(ir,j,k) = 0
                    cmvfi_k(ir,j,:,k) = 0
                 ENDIF
                 !! SECTION ON ADDITIONAL CALCULATION ON PARTICLE TRANSPORT
@@ -563,8 +562,7 @@ CONTAINS
              ENDDO  !END SUM OVER SOLUTIONS
              cmpfe(ir,j)=SUM(cmpfe_k(ir,j,:))
              cmefe(ir,j)=SUM(cmefe_k(ir,j,:))
-             cmvfe(ir,j)=SUM(cmvfe_k(ir,j,:))
-
+             
              DO ion = 1,nions
                 cmpfi(ir,j,ion)=SUM(cmpfi_k(ir,j,ion,:))
                 cmefi(ir,j,ion)=SUM(cmefi_k(ir,j,ion,:))
@@ -645,14 +643,6 @@ CONTAINS
           defeETG(ir) = (efeETG(ir)/(Nex(ir)*1e19*Tex(ir)*1e3*qe/Rmin(ir)))/chi_GB(ir)
 
           ! Ang mom flux using all roots
-          xint= (/0._DBL,kthr(ir,:)/) ; yint=(/0._DBL,cmvfe(ir,:)/)
-          IF (dimn == 1) THEN 
-             vfe(ir)=cmvfe(ir,1)
-          ELSE
-             CALL davint (xint, yint, dimn+1,lowlim,kthr(ir,dimn),vfe(ir),ifailloc,31)
-          ENDIF
-          ! Mom diffusivity using all unstable roots
-          dvfe(ir) = (vfe(ir)/(Nex(ir)*1e19*cthe(ir)*R0*me/Rmin(ir)))/chi_GB(ir)
 
           DO ion=1,nions
              !Remove any residual ETG particle transport to maintain quasineutrality
@@ -895,7 +885,6 @@ CONTAINS
        defi=normNL*defi
 
        !Ang mom transport, all roots
-       dvfe=normNL*dvfe
        dvfi=normNL*dvfi
 
        ! CREATE ADDITIONAL FINAL OUTPUT ARRAYS
