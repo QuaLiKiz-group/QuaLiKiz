@@ -950,13 +950,13 @@ CONTAINS
              dfe_GB(ir) = dfe_SI(ir)/chi_GB(ir)
              dfi_GB(ir,:) = dfi_SI(ir,:)/chi_GB(ir)
 
-             vte_GB(ir) = vte_SI(ir)*Ro(ir)/chi_GB(ir)
-             vti_GB(ir,:) = vti_SI(ir,:)*Ro(ir)/chi_GB(ir)
+             vte_GB(ir) = vte_SI(ir)*Rmin(ir)/chi_GB(ir)
+             vti_GB(ir,:) = vti_SI(ir,:)*Rmin(ir)/chi_GB(ir)
 
-             vce_GB(ir) = vce_SI(ir)*Ro(ir)/chi_GB(ir)
-             vci_GB(ir,:) = vci_SI(ir,:)*Ro(ir)/chi_GB(ir)
+             vce_GB(ir) = vce_SI(ir)*Rmin(ir)/chi_GB(ir)
+             vci_GB(ir,:) = vci_SI(ir,:)*Rmin(ir)/chi_GB(ir)
 
-             vri_GB(ir,:) = vri_SI(ir,:)*Ro(ir)/chi_GB(ir)
+             vri_GB(ir,:) = vri_SI(ir,:)*Rmin(ir)/chi_GB(ir)
 
              !! check on particle fluxes
              cke(ir) = 1d2* ( epf_SI(ir) - ( dffte(ir)*Ane(ir)*Nex(ir)*1d19/R0 + & 
@@ -983,21 +983,21 @@ CONTAINS
                 chiee_GB(ir) = chiee_SI(ir)/chi_GB(ir)
                 chiei_GB(ir,:) = chiei_SI(ir,:)/chi_GB(ir)
 
-                vene_GB(ir) = vene_SI(ir)*Ro(ir)/chi_GB(ir)
-                veni_GB(ir,:) = veni_SI(ir,:)*Ro(ir)/chi_GB(ir)
+                vene_GB(ir) = vene_SI(ir)*Rmin(ir)/chi_GB(ir)
+                veni_GB(ir,:) = veni_SI(ir,:)*Rmin(ir)/chi_GB(ir)
 
-                vece_GB(ir) = vece_SI(ir)*Ro(ir)/chi_GB(ir)
-                veci_GB(ir,:) = veci_SI(ir,:)*Ro(ir)/chi_GB(ir)
+                vece_GB(ir) = vece_SI(ir)*Rmin(ir)/chi_GB(ir)
+                veci_GB(ir,:) = veci_SI(ir,:)*Rmin(ir)/chi_GB(ir)
 
-                veri_GB(ir,:) = veri_SI(ir,:)*Ro(ir)/chi_GB(ir)
+                veri_GB(ir,:) = veri_SI(ir,:)*Rmin(ir)/chi_GB(ir)
 
                 IF (separateflux .EQV. .TRUE.) THEN
                    veneETG_SI(ir) = deffteETG(ir)
                    chieeETG_SI(ir) = vethteETG(ir)
                    veceETG_SI(ir) = vecpteETG(ir)
                    chieeETG_GB(ir) = chieeETG_SI(ir)/chi_GB(ir)
-                   veneETG_GB(ir) = veneETG_SI(ir)*Ro(ir)/chi_GB(ir)
-                   veceETG_GB(ir) = veceETG_SI(ir)*Ro(ir)/chi_GB(ir)
+                   veneETG_GB(ir) = veneETG_SI(ir)*Rmin(ir)/chi_GB(ir)
+                   veceETG_GB(ir) = veceETG_SI(ir)*Rmin(ir)/chi_GB(ir)
                 ENDIF
 
                 !! check on energy fluxes
