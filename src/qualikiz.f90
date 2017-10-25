@@ -391,7 +391,7 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
   ENDIF
 
   CALL saturation(0) !set 0 for including all modes, 1 for only ITG, 2 for only TEM
- 
+
   IF (myrank==0) THEN
      CALL SYSTEM_CLOCK(time2)
      CALL SYSTEM_CLOCK(count_rate=freq)
@@ -438,6 +438,7 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
   IF (myrank==0) CALL SYSTEM_CLOCK(time3)
 
   CALL reduceoutput() ! spread all output to all cores
+
   CALL setoutput() !set all standard output
 
   !messy setting separated flux output if they exist
@@ -931,7 +932,7 @@ CONTAINS
           IF (PRESENT(vene_SIout))     vene_SIout = vene_SI
           IF (PRESENT(chiee_SIout))    chiee_SIout = chiee_SI
           IF (PRESENT(vece_SIout))     vece_SIout = vece_SI
-          IF (PRESENT(ckeout))         cekeout = ceke
+          IF (PRESENT(cekeout))         cekeout = ceke
           IF (PRESENT(veni_SIout))     veni_SIout = veni_SI
           IF (PRESENT(chiei_SIout))    chiei_SIout = chiei_SI
           IF (PRESENT(veci_SIout))     veci_SIout = veci_SI

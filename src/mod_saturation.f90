@@ -42,7 +42,7 @@ CONTAINS
        ALLOCATE(vte_GB(dimx)); vte_GB=0
        ALLOCATE(vce_GB(dimx)); vce_GB=0
 
-       ALLOCATE(cke(dimx))
+       ALLOCATE(cke(dimx)); cke=0
        ALLOCATE(dfi_SI(dimx,nions)); dfi_SI=0
        ALLOCATE(vti_SI(dimx,nions)); vti_SI=0
        ALLOCATE(vci_SI(dimx,nions)); vci_SI=0
@@ -53,18 +53,18 @@ CONTAINS
        ALLOCATE(vci_GB(dimx,nions)); vci_GB=0
        ALLOCATE(vri_GB(dimx,nions)); vri_GB=0
 
-       ALLOCATE(cki(dimx,nions))
+       ALLOCATE(cki(dimx,nions)); cki=0
 !!!
        IF (phys_meth == 2) THEN
           ALLOCATE(vene_SI(dimx)); vene_SI=0
           ALLOCATE(chiee_SI(dimx)); chiee_SI=0
           ALLOCATE(vece_SI(dimx)); vece_SI=0
-          ALLOCATE(ceke(dimx))
+          ALLOCATE(ceke(dimx)); ceke=0
           ALLOCATE(veni_SI(dimx,nions)); veni_SI=0
           ALLOCATE(chiei_SI(dimx,nions)); chiei_SI=0
           ALLOCATE(veci_SI(dimx,nions)); veci_SI=0
           ALLOCATE(veri_SI(dimx,nions)); veri_SI=0
-          ALLOCATE(ceki(dimx,nions))
+          ALLOCATE(ceki(dimx,nions)); ceki=0
           ALLOCATE(vene_GB(dimx)); vene_GB=0
           ALLOCATE(chiee_GB(dimx)); chiee_GB=0
           ALLOCATE(vece_GB(dimx)); vece_GB=0
@@ -562,7 +562,7 @@ CONTAINS
              ENDDO  !END SUM OVER SOLUTIONS
              cmpfe(ir,j)=SUM(cmpfe_k(ir,j,:))
              cmefe(ir,j)=SUM(cmefe_k(ir,j,:))
-             
+
              DO ion = 1,nions
                 cmpfi(ir,j,ion)=SUM(cmpfi_k(ir,j,ion,:))
                 cmefi(ir,j,ion)=SUM(cmefi_k(ir,j,ion,:))
