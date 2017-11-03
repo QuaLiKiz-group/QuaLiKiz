@@ -120,22 +120,22 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
   REAL(KIND=DBL), DIMENSION(dimxin,nionsin), OPTIONAL, INTENT(OUT) :: iefITG_SIout,iefITG_GBout,ipfITG_SIout,ipfITG_GBout,ivfITG_SIout,ivfITG_GBout
   REAL(KIND=DBL), DIMENSION(dimxin,nionsin), OPTIONAL, INTENT(OUT) :: dfiITG_SIout,vtiITG_SIout,vciITG_SIout,vriITG_SIout,dfiITG_GBout,vtiITG_GBout,vciITG_GBout,vriITG_GBout
   REAL(KIND=DBL), DIMENSION(dimxin,nionsin), OPTIONAL, INTENT(OUT) :: chieiITG_SIout,veniITG_SIout,veciITG_SIout,veriITG_SIout,chieiITG_GBout,veniITG_GBout,veciITG_GBout,veriITG_GBout
-  REAL(KIND=DBL), DIMENSION(dimxin) :: eefETG_SIouttmp,eefETG_GBouttmp
-  REAL(KIND=DBL), DIMENSION(dimxin) :: chieeETG_SIouttmp,veneETG_SIouttmp,veceETG_SIouttmp,chieeETG_GBouttmp,veneETG_GBouttmp,veceETG_GBouttmp
-  REAL(KIND=DBL), DIMENSION(dimxin) :: eefTEM_SIouttmp,epfTEM_SIouttmp,eefTEM_GBouttmp,epfTEM_GBouttmp
-  REAL(KIND=DBL), DIMENSION(dimxin) :: dfeTEM_SIouttmp,vteTEM_SIouttmp,vceTEM_SIouttmp,dfeTEM_GBouttmp,vteTEM_GBouttmp,vceTEM_GBouttmp
-  REAL(KIND=DBL), DIMENSION(dimxin) :: chieeTEM_SIouttmp,veneTEM_SIouttmp,veceTEM_SIouttmp,chieeTEM_GBouttmp,veneTEM_GBouttmp,veceTEM_GBouttmp
-  REAL(KIND=DBL), DIMENSION(dimxin) :: eefITG_SIouttmp,epfITG_SIouttmp,eefITG_GBouttmp,epfITG_GBouttmp
-  REAL(KIND=DBL), DIMENSION(dimxin) :: dfeITG_SIouttmp,vteITG_SIouttmp,vceITG_SIouttmp,dfeITG_GBouttmp,vteITG_GBouttmp,vceITG_GBouttmp
-  REAL(KIND=DBL), DIMENSION(dimxin) :: chieeITG_SIouttmp,veneITG_SIouttmp,veceITG_SIouttmp,chieeITG_GBouttmp,veneITG_GBouttmp,veceITG_GBouttmp
+  REAL(KIND=DBL), ALLOCATABLE, DIMENSION(:) :: eefETG_SIouttmp,eefETG_GBouttmp
+  REAL(KIND=DBL), ALLOCATABLE, DIMENSION(:) :: chieeETG_SIouttmp,veneETG_SIouttmp,veceETG_SIouttmp,chieeETG_GBouttmp,veneETG_GBouttmp,veceETG_GBouttmp
+  REAL(KIND=DBL), ALLOCATABLE, DIMENSION(:) :: eefTEM_SIouttmp,epfTEM_SIouttmp,eefTEM_GBouttmp,epfTEM_GBouttmp
+  REAL(KIND=DBL), ALLOCATABLE, DIMENSION(:) :: dfeTEM_SIouttmp,vteTEM_SIouttmp,vceTEM_SIouttmp,dfeTEM_GBouttmp,vteTEM_GBouttmp,vceTEM_GBouttmp
+  REAL(KIND=DBL), ALLOCATABLE, DIMENSION(:) :: chieeTEM_SIouttmp,veneTEM_SIouttmp,veceTEM_SIouttmp,chieeTEM_GBouttmp,veneTEM_GBouttmp,veceTEM_GBouttmp
+  REAL(KIND=DBL), ALLOCATABLE, DIMENSION(:) :: eefITG_SIouttmp,epfITG_SIouttmp,eefITG_GBouttmp,epfITG_GBouttmp
+  REAL(KIND=DBL), ALLOCATABLE, DIMENSION(:) :: dfeITG_SIouttmp,vteITG_SIouttmp,vceITG_SIouttmp,dfeITG_GBouttmp,vteITG_GBouttmp,vceITG_GBouttmp
+  REAL(KIND=DBL), ALLOCATABLE, DIMENSION(:) :: chieeITG_SIouttmp,veneITG_SIouttmp,veceITG_SIouttmp,chieeITG_GBouttmp,veneITG_GBouttmp,veceITG_GBouttmp
 
-  REAL(KIND=DBL), DIMENSION(dimxin,nionsin) :: iefTEM_SIouttmp,iefTEM_GBouttmp,ipfTEM_SIouttmp,ipfTEM_GBouttmp,ivfTEM_SIouttmp,ivfTEM_GBouttmp
-  REAL(KIND=DBL), DIMENSION(dimxin,nionsin) :: dfiTEM_SIouttmp,vtiTEM_SIouttmp,vciTEM_SIouttmp,dfiTEM_GBouttmp,vtiTEM_GBouttmp,vciTEM_GBouttmp,vriTEM_SIouttmp,vriTEM_GBouttmp
-  REAL(KIND=DBL), DIMENSION(dimxin,nionsin) :: chieiTEM_SIouttmp,veniTEM_SIouttmp,veciTEM_SIouttmp,chieiTEM_GBouttmp,veniTEM_GBouttmp,veciTEM_GBouttmp,veriTEM_SIouttmp,veriTEM_GBouttmp
+  REAL(KIND=DBL), ALLOCATABLE, DIMENSION(:,:) :: iefTEM_SIouttmp,iefTEM_GBouttmp,ipfTEM_SIouttmp,ipfTEM_GBouttmp,ivfTEM_SIouttmp,ivfTEM_GBouttmp
+  REAL(KIND=DBL), ALLOCATABLE, DIMENSION(:,:) :: dfiTEM_SIouttmp,vtiTEM_SIouttmp,vciTEM_SIouttmp,dfiTEM_GBouttmp,vtiTEM_GBouttmp,vciTEM_GBouttmp,vriTEM_SIouttmp,vriTEM_GBouttmp
+  REAL(KIND=DBL), ALLOCATABLE, DIMENSION(:,:) :: chieiTEM_SIouttmp,veniTEM_SIouttmp,veciTEM_SIouttmp,chieiTEM_GBouttmp,veniTEM_GBouttmp,veciTEM_GBouttmp,veriTEM_SIouttmp,veriTEM_GBouttmp
 
-  REAL(KIND=DBL), DIMENSION(dimxin,nionsin) :: iefITG_SIouttmp,iefITG_GBouttmp,ipfITG_SIouttmp,ipfITG_GBouttmp,ivfITG_SIouttmp,ivfITG_GBouttmp
-  REAL(KIND=DBL), DIMENSION(dimxin,nionsin) :: dfiITG_SIouttmp,vtiITG_SIouttmp,vciITG_SIouttmp,vriITG_SIouttmp,dfiITG_GBouttmp,vtiITG_GBouttmp,vciITG_GBouttmp,vriITG_GBouttmp
-  REAL(KIND=DBL), DIMENSION(dimxin,nionsin) :: chieiITG_SIouttmp,veniITG_SIouttmp,veciITG_SIouttmp,chieiITG_GBouttmp,veniITG_GBouttmp,veciITG_GBouttmp,veriITG_SIouttmp,veriITG_GBouttmp
+  REAL(KIND=DBL), ALLOCATABLE, DIMENSION(:,:) :: iefITG_SIouttmp,iefITG_GBouttmp,ipfITG_SIouttmp,ipfITG_GBouttmp,ivfITG_SIouttmp,ivfITG_GBouttmp
+  REAL(KIND=DBL), ALLOCATABLE, DIMENSION(:,:) :: dfiITG_SIouttmp,vtiITG_SIouttmp,vciITG_SIouttmp,vriITG_SIouttmp,dfiITG_GBouttmp,vtiITG_GBouttmp,vciITG_GBouttmp,vriITG_GBouttmp
+  REAL(KIND=DBL), ALLOCATABLE, DIMENSION(:,:) :: chieiITG_SIouttmp,veniITG_SIouttmp,veciITG_SIouttmp,chieiITG_GBouttmp,veniITG_GBouttmp,veciITG_GBouttmp,veriITG_SIouttmp,veriITG_GBouttmp
 
   REAL(KIND=DBL), DIMENSION(dimxin), OPTIONAL, INTENT(OUT)  :: epf_GBout,eef_GBout, dfe_SIout, vte_SIout, vce_SIout, dfe_GBout, vte_GBout, vce_GBout, ckeout, modeflagout, Nustarout, Zeffxout
   REAL(KIND=DBL), DIMENSION(dimxin), OPTIONAL, INTENT(OUT)  :: vene_SIout, chiee_SIout, vece_SIout, vene_GBout, chiee_GBout, vece_GBout, cekeout
@@ -442,6 +442,103 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
   CALL setoutput() !set all standard output
 
   !messy setting separated flux output if they exist
+
+  IF (PRESENT(eefITG_SIout))   ALLOCATE(eefITG_SIouttmp(dimx))
+  IF (PRESENT(epfITG_SIout))  ALLOCATE(epfITG_SIouttmp(dimx))
+  IF (PRESENT(dfeITG_SIout))  ALLOCATE(dfeITG_SIouttmp(dimx))
+  IF (PRESENT(vteITG_SIout))  ALLOCATE(vteITG_SIouttmp(dimx))
+  IF (PRESENT(vceITG_SIout))  ALLOCATE(vceITG_SIouttmp(dimx))
+  IF (PRESENT(chieeITG_SIout)) ALLOCATE(chieeITG_SIouttmp(dimx))
+  IF (PRESENT(veneITG_SIout)) ALLOCATE(veneITG_SIouttmp(dimx))
+  IF (PRESENT(veceITG_SIout)) ALLOCATE(veceITG_SIouttmp(dimx))
+
+  IF (PRESENT(iefITG_SIout))  ALLOCATE(iefITG_SIouttmp(dimx,nions))
+  IF (PRESENT(ivfITG_SIout))  ALLOCATE(ivfITG_SIouttmp(dimx,nions))
+  IF (PRESENT(ipfITG_SIout))  ALLOCATE(ipfITG_SIouttmp(dimx,nions))
+  IF (PRESENT(dfiITG_SIout))  ALLOCATE(dfiITG_SIouttmp(dimx,nions))
+  IF (PRESENT(vtiITG_SIout))  ALLOCATE(vtiITG_SIouttmp(dimx,nions))
+  IF (PRESENT(vciITG_SIout))  ALLOCATE(vciITG_SIouttmp(dimx,nions))
+  IF (PRESENT(vriITG_SIout))  ALLOCATE(vriITG_SIouttmp(dimx,nions))
+  IF (PRESENT(chieiITG_SIout)) ALLOCATE(chieiITG_SIouttmp(dimx,nions))
+  IF (PRESENT(veniITG_SIout)) ALLOCATE(veniITG_SIouttmp(dimx,nions))
+  IF (PRESENT(veciITG_SIout)) ALLOCATE(veciITG_SIouttmp(dimx,nions))
+  IF (PRESENT(veriITG_SIout)) ALLOCATE(veriITG_SIouttmp(dimx,nions))
+
+  IF (PRESENT(eefTEM_SIout))   ALLOCATE(eefTEM_SIouttmp(dimx))
+  IF (PRESENT(epfTEM_SIout))  ALLOCATE(epfTEM_SIouttmp(dimx))
+  IF (PRESENT(dfeTEM_SIout))  ALLOCATE(dfeTEM_SIouttmp(dimx))
+  IF (PRESENT(vteTEM_SIout))  ALLOCATE(vteTEM_SIouttmp(dimx))
+  IF (PRESENT(vceTEM_SIout))  ALLOCATE(vceTEM_SIouttmp(dimx))
+  IF (PRESENT(chieeTEM_SIout)) ALLOCATE(chieeTEM_SIouttmp(dimx))
+  IF (PRESENT(veneTEM_SIout)) ALLOCATE(veneTEM_SIouttmp(dimx))
+  IF (PRESENT(veceTEM_SIout)) ALLOCATE(veceTEM_SIouttmp(dimx))
+
+  IF (PRESENT(iefTEM_SIout))  ALLOCATE(iefTEM_SIouttmp(dimx,nions))
+  IF (PRESENT(ivfTEM_SIout))  ALLOCATE(ivfTEM_SIouttmp(dimx,nions))
+  IF (PRESENT(ipfTEM_SIout))  ALLOCATE(ipfTEM_SIouttmp(dimx,nions))
+  IF (PRESENT(dfiTEM_SIout))  ALLOCATE(dfiTEM_SIouttmp(dimx,nions))
+  IF (PRESENT(vtiTEM_SIout))  ALLOCATE(vtiTEM_SIouttmp(dimx,nions))
+  IF (PRESENT(vciTEM_SIout))  ALLOCATE(vciTEM_SIouttmp(dimx,nions))
+  IF (PRESENT(vriTEM_SIout))  ALLOCATE(vriTEM_SIouttmp(dimx,nions))
+  IF (PRESENT(chieiTEM_SIout)) ALLOCATE(chieiTEM_SIouttmp(dimx,nions))
+  IF (PRESENT(veniTEM_SIout)) ALLOCATE(veniTEM_SIouttmp(dimx,nions))
+  IF (PRESENT(veciTEM_SIout)) ALLOCATE(veciTEM_SIouttmp(dimx,nions))
+  IF (PRESENT(veriTEM_SIout)) ALLOCATE(veriTEM_SIouttmp(dimx,nions))
+
+  IF (PRESENT(eefETG_SIout))  ALLOCATE(eefETG_SIouttmp(dimx))
+  IF (PRESENT(chieeETG_SIout)) ALLOCATE(chieeETG_SIouttmp(dimx))
+  IF (PRESENT(veneETG_SIout)) ALLOCATE(veneETG_SIouttmp(dimx))
+  IF (PRESENT(veceETG_SIout)) ALLOCATE(veceETG_SIouttmp(dimx))
+
+  !
+  IF (PRESENT(eefITG_GBout))   ALLOCATE(eefITG_GBouttmp(dimx))
+  IF (PRESENT(epfITG_GBout))  ALLOCATE(epfITG_GBouttmp(dimx))
+  IF (PRESENT(dfeITG_GBout))  ALLOCATE(dfeITG_GBouttmp(dimx))
+  IF (PRESENT(vteITG_GBout))  ALLOCATE(vteITG_GBouttmp(dimx))
+  IF (PRESENT(vceITG_GBout))  ALLOCATE(vceITG_GBouttmp(dimx))
+  IF (PRESENT(chieeITG_GBout)) ALLOCATE(chieeITG_GBouttmp(dimx))
+  IF (PRESENT(veneITG_GBout)) ALLOCATE(veneITG_GBouttmp(dimx))
+  IF (PRESENT(veceITG_GBout)) ALLOCATE(veceITG_GBouttmp(dimx))
+
+  IF (PRESENT(iefITG_GBout))  ALLOCATE(iefITG_GBouttmp(dimx,nions))
+  IF (PRESENT(ivfITG_GBout))  ALLOCATE(ivfITG_GBouttmp(dimx,nions))
+  IF (PRESENT(ipfITG_GBout))  ALLOCATE(ipfITG_GBouttmp(dimx,nions))
+  IF (PRESENT(dfiITG_GBout))  ALLOCATE(dfiITG_GBouttmp(dimx,nions))
+  IF (PRESENT(vtiITG_GBout))  ALLOCATE(vtiITG_GBouttmp(dimx,nions))
+  IF (PRESENT(vciITG_GBout))  ALLOCATE(vciITG_GBouttmp(dimx,nions))
+  IF (PRESENT(vriITG_GBout))  ALLOCATE(vriITG_GBouttmp(dimx,nions))
+  IF (PRESENT(chieiITG_GBout)) ALLOCATE(chieiITG_GBouttmp(dimx,nions))
+  IF (PRESENT(veniITG_GBout)) ALLOCATE(veniITG_GBouttmp(dimx,nions))
+  IF (PRESENT(veciITG_GBout)) ALLOCATE(veciITG_GBouttmp(dimx,nions))
+  IF (PRESENT(veriITG_GBout)) ALLOCATE(veriITG_GBouttmp(dimx,nions))
+
+  IF (PRESENT(eefTEM_GBout))   ALLOCATE(eefTEM_GBouttmp(dimx))
+  IF (PRESENT(epfTEM_GBout))  ALLOCATE(epfTEM_GBouttmp(dimx))
+  IF (PRESENT(dfeTEM_GBout))  ALLOCATE(dfeTEM_GBouttmp(dimx))
+  IF (PRESENT(vteTEM_GBout))  ALLOCATE(vteTEM_GBouttmp(dimx))
+  IF (PRESENT(vceTEM_GBout))  ALLOCATE(vceTEM_GBouttmp(dimx))
+  IF (PRESENT(chieeTEM_GBout)) ALLOCATE(chieeTEM_GBouttmp(dimx))
+  IF (PRESENT(veneTEM_GBout)) ALLOCATE(veneTEM_GBouttmp(dimx))
+  IF (PRESENT(veceTEM_GBout)) ALLOCATE(veceTEM_GBouttmp(dimx))
+
+  IF (PRESENT(iefTEM_GBout))  ALLOCATE(iefTEM_GBouttmp(dimx,nions))
+  IF (PRESENT(ivfTEM_GBout))  ALLOCATE(ivfTEM_GBouttmp(dimx,nions))
+  IF (PRESENT(ipfTEM_GBout))  ALLOCATE(ipfTEM_GBouttmp(dimx,nions))
+  IF (PRESENT(dfiTEM_GBout))  ALLOCATE(dfiTEM_GBouttmp(dimx,nions))
+  IF (PRESENT(vtiTEM_GBout))  ALLOCATE(vtiTEM_GBouttmp(dimx,nions))
+  IF (PRESENT(vciTEM_GBout))  ALLOCATE(vciTEM_GBouttmp(dimx,nions))
+  IF (PRESENT(vriTEM_GBout))  ALLOCATE(vriTEM_GBouttmp(dimx,nions))
+  IF (PRESENT(chieiTEM_GBout)) ALLOCATE(chieiTEM_GBouttmp(dimx,nions))
+  IF (PRESENT(veniTEM_GBout)) ALLOCATE(veniTEM_GBouttmp(dimx,nions))
+  IF (PRESENT(veciTEM_GBout)) ALLOCATE(veciTEM_GBouttmp(dimx,nions))
+  IF (PRESENT(veriTEM_GBout)) ALLOCATE(veriTEM_GBouttmp(dimx,nions))
+
+  IF (PRESENT(eefETG_GBout))  ALLOCATE(eefETG_GBouttmp(dimx))
+  IF (PRESENT(chieeETG_GBout)) ALLOCATE(chieeETG_GBouttmp(dimx))
+  IF (PRESENT(veneETG_GBout)) ALLOCATE(veneETG_GBouttmp(dimx))
+  IF (PRESENT(veceETG_GBout)) ALLOCATE(veceETG_GBouttmp(dimx))
+
+
   IF (PRESENT(eefITG_SIout))   CALL MPI_AllReduce(eefITG_SIout,eefITG_SIouttmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
   IF (PRESENT(epfITG_SIout))   CALL MPI_AllReduce(epfITG_SIout,epfITG_SIouttmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
   IF (PRESENT(dfeITG_SIout))   CALL MPI_AllReduce(dfeITG_SIout,dfeITG_SIouttmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
@@ -489,54 +586,6 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
   IF (PRESENT(veneETG_SIout))  CALL MPI_AllReduce(veneETG_SIout,veneETG_SIouttmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
   IF (PRESENT(veceETG_SIout))  CALL MPI_AllReduce(veceETG_SIout,veceETG_SIouttmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
 
-  IF (PRESENT(eefITG_SIout))   eefITG_SIout=eefITG_SIouttmp
-  IF (PRESENT(epfITG_SIout))   epfITG_SIout=epfITG_SIouttmp
-  IF (PRESENT(dfeITG_SIout))   dfeITG_SIout=dfeITG_SIouttmp
-  IF (PRESENT(vteITG_SIout))  vteITG_SIout=vteITG_SIouttmp
-  IF (PRESENT(vceITG_SIout))  vceITG_SIout=vceITG_SIouttmp
-  IF (PRESENT(chieeITG_SIout))   chieeITG_SIout=chieeITG_SIouttmp
-  IF (PRESENT(veneITG_SIout))  veneITG_SIout=veneITG_SIouttmp
-  IF (PRESENT(veceITG_SIout))  veceITG_SIout=veceITG_SIouttmp
-
-  IF (PRESENT(iefITG_SIout))  iefITG_SIout=iefITG_SIouttmp
-  IF (PRESENT(ivfITG_SIout))  ivfITG_SIout=ivfITG_SIouttmp
-  IF (PRESENT(ipfITG_SIout))  ipfITG_SIout=ipfITG_SIouttmp
-  IF (PRESENT(dfiITG_SIout))  dfiITG_SIout=dfiITG_SIouttmp
-  IF (PRESENT(vtiITG_SIout))  vtiITG_SIout=vtiITG_SIouttmp
-  IF (PRESENT(vciITG_SIout))  vciITG_SIout=vciITG_SIouttmp
-  IF (PRESENT(vriITG_SIout))  vriITG_SIout=vriITG_SIouttmp
-  IF (PRESENT(chieiITG_SIout))   chieiITG_SIout=chieiITG_SIouttmp
-  IF (PRESENT(veniITG_SIout))  veniITG_SIout=veniITG_SIouttmp
-  IF (PRESENT(veciITG_SIout))  veciITG_SIout=veciITG_SIouttmp
-  IF (PRESENT(veriITG_SIout))  veriITG_SIout=veriITG_SIouttmp
-
-  IF (PRESENT(eefTEM_SIout))  eefTEM_SIout=eefTEM_SIouttmp
-  IF (PRESENT(epfTEM_SIout))  epfTEM_SIout=epfTEM_SIouttmp
-  IF (PRESENT(dfeTEM_SIout))  dfeTEM_SIout=dfeTEM_SIouttmp
-  IF (PRESENT(vteTEM_SIout))  vteTEM_SIout=vteTEM_SIouttmp
-  IF (PRESENT(vceTEM_SIout))  vceTEM_SIout=vceTEM_SIouttmp
-  IF (PRESENT(chieeTEM_SIout))   chieeTEM_SIout=chieeTEM_SIouttmp
-  IF (PRESENT(veneTEM_SIout))  veneTEM_SIout=veneTEM_SIouttmp
-  IF (PRESENT(veceTEM_SIout))  veceTEM_SIout=veceTEM_SIouttmp
-
-  IF (PRESENT(iefTEM_SIout))  iefTEM_SIout=iefTEM_SIouttmp
-  IF (PRESENT(ipfTEM_SIout))  ipfTEM_SIout=ipfTEM_SIouttmp
-  IF (PRESENT(ivfTEM_SIout))  ivfTEM_SIout=ivfTEM_SIouttmp
-  IF (PRESENT(dfiTEM_SIout))  dfiTEM_SIout=dfiTEM_SIouttmp
-  IF (PRESENT(vtiTEM_SIout))  vtiTEM_SIout=vtiTEM_SIouttmp
-  IF (PRESENT(vciTEM_SIout))  vciTEM_SIout=vciTEM_SIouttmp
-  IF (PRESENT(vriTEM_SIout))  vriTEM_SIout=vriTEM_SIouttmp
-  IF (PRESENT(chieiTEM_SIout)) chieiTEM_SIout=chieiTEM_SIouttmp
-  IF (PRESENT(veniTEM_SIout))  veniTEM_SIout=veniTEM_SIouttmp
-  IF (PRESENT(veciTEM_SIout))  veciTEM_SIout=veciTEM_SIouttmp
-  IF (PRESENT(veriTEM_SIout))  veriTEM_SIout=veriTEM_SIouttmp
-
-  IF (PRESENT(eefETG_SIout))   eefETG_SIout=eefETG_SIouttmp
-  IF (PRESENT(chieeETG_SIout)) chieeETG_SIout=chieeETG_SIouttmp; 
-  IF (PRESENT(veneETG_SIout))  veneETG_SIout=veneETG_SIouttmp; 
-  IF (PRESENT(veceETG_SIout))  veceETG_SIout=veceETG_SIouttmp; 
-
-  !!
   IF (PRESENT(eefITG_GBout))   CALL MPI_AllReduce(eefITG_GBout,eefITG_GBouttmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
   IF (PRESENT(epfITG_GBout))   CALL MPI_AllReduce(epfITG_GBout,epfITG_GBouttmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
   IF (PRESENT(dfeITG_GBout))   CALL MPI_AllReduce(dfeITG_GBout,dfeITG_GBouttmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
@@ -584,6 +633,106 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
   IF (PRESENT(veneETG_GBout))  CALL MPI_AllReduce(veneETG_GBout,veneETG_GBouttmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
   IF (PRESENT(veceETG_GBout))  CALL MPI_AllReduce(veceETG_GBout,veceETG_GBouttmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierror)
 
+  IF (PRESENT(eefITG_SIout))  eefITG_SIout=eefITG_SIouttmp
+  IF (PRESENT(epfITG_SIout))  epfITG_SIout=epfITG_SIouttmp
+  IF (PRESENT(dfeITG_SIout))  dfeITG_SIout=dfeITG_SIouttmp
+  IF (PRESENT(vteITG_SIout))  vteITG_SIout=vteITG_SIouttmp
+  IF (PRESENT(vceITG_SIout))  vceITG_SIout=vceITG_SIouttmp
+  IF (PRESENT(chieeITG_SIout)) chieeITG_SIout=chieeITG_SIouttmp
+  IF (PRESENT(veneITG_SIout))  veneITG_SIout=veneITG_SIouttmp
+  IF (PRESENT(veceITG_SIout))  veceITG_SIout=veceITG_SIouttmp
+
+  IF (PRESENT(iefITG_SIout))  iefITG_SIout=iefITG_SIouttmp
+  IF (PRESENT(ipfITG_SIout))  ipfITG_SIout=ipfITG_SIouttmp
+  IF (PRESENT(ivfITG_SIout))  ivfITG_SIout=ivfITG_SIouttmp
+
+  IF (PRESENT(dfiITG_SIout))  dfiITG_SIout=dfiITG_SIouttmp
+  IF (PRESENT(vtiITG_SIout))  vtiITG_SIout=vtiITG_SIouttmp
+  IF (PRESENT(vciITG_SIout))  vciITG_SIout=vciITG_SIouttmp
+  IF (PRESENT(vriITG_SIout))  vriITG_SIout=vriITG_SIouttmp
+  IF (PRESENT(chieiITG_SIout))   chieiITG_SIout=chieiITG_SIouttmp
+  IF (PRESENT(veniITG_SIout))  veniITG_SIout=veniITG_SIouttmp
+  IF (PRESENT(veciITG_SIout))  veciITG_SIout=veciITG_SIouttmp
+  IF (PRESENT(veriITG_SIout))  veriITG_SIout=veriITG_SIouttmp
+
+  IF (PRESENT(eefTEM_SIout))  eefTEM_SIout=eefTEM_SIouttmp
+  IF (PRESENT(epfTEM_SIout))  epfTEM_SIout=epfTEM_SIouttmp
+  IF (PRESENT(dfeTEM_SIout))  dfeTEM_SIout=dfeTEM_SIouttmp
+  IF (PRESENT(vteTEM_SIout))  vteTEM_SIout=vteTEM_SIouttmp
+  IF (PRESENT(vceTEM_SIout))  vceTEM_SIout=vceTEM_SIouttmp
+  IF (PRESENT(chieeTEM_SIout))   chieeTEM_SIout=chieeTEM_SIouttmp
+  IF (PRESENT(veneTEM_SIout))  veneTEM_SIout=veneTEM_SIouttmp
+  IF (PRESENT(veceTEM_SIout))  veceTEM_SIout=veceTEM_SIouttmp
+
+  IF (PRESENT(iefTEM_SIout))  iefTEM_SIout=iefTEM_SIouttmp
+  IF (PRESENT(ipfTEM_SIout))  ipfTEM_SIout=ipfTEM_SIouttmp
+  IF (PRESENT(ivfTEM_SIout))  ivfTEM_SIout=ivfTEM_SIouttmp
+
+  IF (PRESENT(dfiTEM_SIout))  dfiTEM_SIout=dfiTEM_SIouttmp
+  IF (PRESENT(vtiTEM_SIout))  vtiTEM_SIout=vtiTEM_SIouttmp
+  IF (PRESENT(vciTEM_SIout))  vciTEM_SIout=vciTEM_SIouttmp
+  IF (PRESENT(vriTEM_SIout))  vriTEM_SIout=vriTEM_SIouttmp
+  IF (PRESENT(chieiTEM_SIout))   chieiTEM_SIout=chieiTEM_SIouttmp
+  IF (PRESENT(veniTEM_SIout))  veniTEM_SIout=veniTEM_SIouttmp
+  IF (PRESENT(veciTEM_SIout))  veciTEM_SIout=veciTEM_SIouttmp
+  IF (PRESENT(veriTEM_SIout))  veriTEM_SIout=veriTEM_SIouttmp
+
+  IF (PRESENT(eefETG_SIout))   eefETG_SIout=eefETG_SIouttmp
+  IF (PRESENT(chieeETG_SIout)) chieeETG_SIout=chieeETG_SIouttmp
+  IF (PRESENT(veneETG_SIout))  veneETG_SIout=veneETG_SIouttmp
+  IF (PRESENT(veceETG_SIout))  veceETG_SIout=veceETG_SIouttmp
+
+  IF (PRESENT(eefITG_SIout))   DEALLOCATE(eefITG_SIouttmp)
+  IF (PRESENT(epfITG_SIout))   DEALLOCATE(epfITG_SIouttmp)
+  IF (PRESENT(dfeITG_SIout))   DEALLOCATE(dfeITG_SIouttmp)
+  IF (PRESENT(vteITG_SIout))   DEALLOCATE(vteITG_SIouttmp)
+  IF (PRESENT(vceITG_SIout))   DEALLOCATE(vceITG_SIouttmp)
+  IF (PRESENT(chieeITG_SIout)) DEALLOCATE(chieeITG_SIouttmp)
+  IF (PRESENT(veneITG_SIout))  DEALLOCATE(veneITG_SIouttmp)
+  IF (PRESENT(veceITG_SIout))  DEALLOCATE(veceITG_SIouttmp)
+
+  IF (PRESENT(iefITG_SIout))   DEALLOCATE(iefITG_SIouttmp)
+  IF (PRESENT(ipfITG_SIout))   DEALLOCATE(ipfITG_SIouttmp)
+  IF (PRESENT(ivfITG_SIout))   DEALLOCATE(ivfITG_SIouttmp)
+
+  IF (PRESENT(dfiITG_SIout))   DEALLOCATE(dfiITG_SIouttmp)
+  IF (PRESENT(vtiITG_SIout))   DEALLOCATE(vtiITG_SIouttmp)
+  IF (PRESENT(vciITG_SIout))   DEALLOCATE(vciITG_SIouttmp)
+  IF (PRESENT(vriITG_SIout))   DEALLOCATE(vriITG_SIouttmp)
+  IF (PRESENT(chieiITG_SIout)) DEALLOCATE(chieiITG_SIouttmp)
+  IF (PRESENT(veniITG_SIout))  DEALLOCATE(veniITG_SIouttmp)
+  IF (PRESENT(veciITG_SIout))  DEALLOCATE(veciITG_SIouttmp)
+  IF (PRESENT(veriITG_SIout))  DEALLOCATE(veriITG_SIouttmp)
+
+  IF (PRESENT(eefTEM_SIout))   DEALLOCATE(eefTEM_SIouttmp)
+  IF (PRESENT(epfTEM_SIout))   DEALLOCATE(epfTEM_SIouttmp)
+  IF (PRESENT(dfeTEM_SIout))   DEALLOCATE(dfeTEM_SIouttmp)
+  IF (PRESENT(vteTEM_SIout))   DEALLOCATE(vteTEM_SIouttmp)
+  IF (PRESENT(vceTEM_SIout))   DEALLOCATE(vceTEM_SIouttmp)
+  IF (PRESENT(chieeTEM_SIout)) DEALLOCATE(chieeTEM_SIouttmp)
+  IF (PRESENT(veneTEM_SIout))  DEALLOCATE(veneTEM_SIouttmp)
+  IF (PRESENT(veceTEM_SIout))  DEALLOCATE(veceTEM_SIouttmp)
+
+  IF (PRESENT(iefTEM_SIout))   DEALLOCATE(iefTEM_SIouttmp)
+  IF (PRESENT(ipfTEM_SIout))   DEALLOCATE(ipfTEM_SIouttmp)
+  IF (PRESENT(ivfTEM_SIout))   DEALLOCATE(ivfTEM_SIouttmp)
+
+  IF (PRESENT(dfiTEM_SIout))   DEALLOCATE(dfiTEM_SIouttmp)
+  IF (PRESENT(vtiTEM_SIout))   DEALLOCATE(vtiTEM_SIouttmp)
+  IF (PRESENT(vciTEM_SIout))   DEALLOCATE(vciTEM_SIouttmp)
+  IF (PRESENT(vriTEM_SIout))   DEALLOCATE(vriTEM_SIouttmp)
+  IF (PRESENT(chieiTEM_SIout)) DEALLOCATE(chieiTEM_SIouttmp)
+  IF (PRESENT(veniTEM_SIout))  DEALLOCATE(veniTEM_SIouttmp)
+  IF (PRESENT(veciTEM_SIout))  DEALLOCATE(veciTEM_SIouttmp)
+  IF (PRESENT(veriTEM_SIout))  DEALLOCATE(veriTEM_SIouttmp)
+
+  IF (PRESENT(eefETG_SIout))   DEALLOCATE(eefETG_SIouttmp)
+  IF (PRESENT(chieeETG_SIout)) DEALLOCATE(chieeETG_SIouttmp)
+  IF (PRESENT(veneETG_SIout))  DEALLOCATE(veneETG_SIouttmp)
+  IF (PRESENT(veceETG_SIout))  DEALLOCATE(veceETG_SIouttmp)
+
+  !!
+
   IF (PRESENT(eefITG_GBout))  eefITG_GBout=eefITG_GBouttmp
   IF (PRESENT(epfITG_GBout))  epfITG_GBout=epfITG_GBouttmp
   IF (PRESENT(dfeITG_GBout))  dfeITG_GBout=dfeITG_GBouttmp
@@ -629,10 +778,58 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
   IF (PRESENT(veriTEM_GBout))  veriTEM_GBout=veriTEM_GBouttmp
 
   IF (PRESENT(eefETG_GBout))   eefETG_GBout=eefETG_GBouttmp
-  IF (PRESENT(chieeETG_GBout)) chieeETG_GBout=chieeETG_GBouttmp; 
-  IF (PRESENT(veneETG_GBout))  veneETG_GBout=veneETG_GBouttmp; 
-  IF (PRESENT(veceETG_GBout))  veceETG_GBout=veceETG_GBouttmp; 
+  IF (PRESENT(chieeETG_GBout)) chieeETG_GBout=chieeETG_GBouttmp
+  IF (PRESENT(veneETG_GBout))  veneETG_GBout=veneETG_GBouttmp
+  IF (PRESENT(veceETG_GBout))  veceETG_GBout=veceETG_GBouttmp
 
+  IF (PRESENT(eefITG_GBout))   DEALLOCATE(eefITG_GBouttmp)
+  IF (PRESENT(epfITG_GBout))   DEALLOCATE(epfITG_GBouttmp)
+  IF (PRESENT(dfeITG_GBout))   DEALLOCATE(dfeITG_GBouttmp)
+  IF (PRESENT(vteITG_GBout))   DEALLOCATE(vteITG_GBouttmp)
+  IF (PRESENT(vceITG_GBout))   DEALLOCATE(vceITG_GBouttmp)
+  IF (PRESENT(chieeITG_GBout)) DEALLOCATE(chieeITG_GBouttmp)
+  IF (PRESENT(veneITG_GBout))  DEALLOCATE(veneITG_GBouttmp)
+  IF (PRESENT(veceITG_GBout))  DEALLOCATE(veceITG_GBouttmp)
+
+  IF (PRESENT(iefITG_GBout))   DEALLOCATE(iefITG_GBouttmp)
+  IF (PRESENT(ipfITG_GBout))   DEALLOCATE(ipfITG_GBouttmp)
+  IF (PRESENT(ivfITG_GBout))   DEALLOCATE(ivfITG_GBouttmp)
+
+  IF (PRESENT(dfiITG_GBout))   DEALLOCATE(dfiITG_GBouttmp)
+  IF (PRESENT(vtiITG_GBout))   DEALLOCATE(vtiITG_GBouttmp)
+  IF (PRESENT(vciITG_GBout))   DEALLOCATE(vciITG_GBouttmp)
+  IF (PRESENT(vriITG_GBout))   DEALLOCATE(vriITG_GBouttmp)
+  IF (PRESENT(chieiITG_GBout)) DEALLOCATE(chieiITG_GBouttmp)
+  IF (PRESENT(veniITG_GBout))  DEALLOCATE(veniITG_GBouttmp)
+  IF (PRESENT(veciITG_GBout))  DEALLOCATE(veciITG_GBouttmp)
+  IF (PRESENT(veriITG_GBout))  DEALLOCATE(veriITG_GBouttmp)
+
+  IF (PRESENT(eefTEM_GBout))   DEALLOCATE(eefTEM_GBouttmp)
+  IF (PRESENT(epfTEM_GBout))   DEALLOCATE(epfTEM_GBouttmp)
+  IF (PRESENT(dfeTEM_GBout))   DEALLOCATE(dfeTEM_GBouttmp)
+  IF (PRESENT(vteTEM_GBout))   DEALLOCATE(vteTEM_GBouttmp)
+  IF (PRESENT(vceTEM_GBout))   DEALLOCATE(vceTEM_GBouttmp)
+  IF (PRESENT(chieeTEM_GBout)) DEALLOCATE(chieeTEM_GBouttmp)
+  IF (PRESENT(veneTEM_GBout))  DEALLOCATE(veneTEM_GBouttmp)
+  IF (PRESENT(veceTEM_GBout))  DEALLOCATE(veceTEM_GBouttmp)
+
+  IF (PRESENT(iefTEM_GBout))   DEALLOCATE(iefTEM_GBouttmp)
+  IF (PRESENT(ipfTEM_GBout))   DEALLOCATE(ipfTEM_GBouttmp)
+  IF (PRESENT(ivfTEM_GBout))   DEALLOCATE(ivfTEM_GBouttmp)
+
+  IF (PRESENT(dfiTEM_GBout))   DEALLOCATE(dfiTEM_GBouttmp)
+  IF (PRESENT(vtiTEM_GBout))   DEALLOCATE(vtiTEM_GBouttmp)
+  IF (PRESENT(vciTEM_GBout))   DEALLOCATE(vciTEM_GBouttmp)
+  IF (PRESENT(vriTEM_GBout))   DEALLOCATE(vriTEM_GBouttmp)
+  IF (PRESENT(chieiTEM_GBout)) DEALLOCATE(chieiTEM_GBouttmp)
+  IF (PRESENT(veniTEM_GBout))  DEALLOCATE(veniTEM_GBouttmp)
+  IF (PRESENT(veciTEM_GBout))  DEALLOCATE(veciTEM_GBouttmp)
+  IF (PRESENT(veriTEM_GBout))  DEALLOCATE(veriTEM_GBouttmp)
+
+  IF (PRESENT(eefETG_GBout))   DEALLOCATE(eefETG_GBouttmp)
+  IF (PRESENT(chieeETG_GBout)) DEALLOCATE(chieeETG_GBouttmp)
+  IF (PRESENT(veneETG_GBout))  DEALLOCATE(veneETG_GBouttmp)
+  IF (PRESENT(veceETG_GBout))  DEALLOCATE(veceETG_GBouttmp)
 
   IF (myrank==0) THEN 
      CALL SYSTEM_CLOCK(time4)
