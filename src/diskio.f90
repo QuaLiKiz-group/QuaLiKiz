@@ -50,19 +50,6 @@ CONTAINS
          iostat=rc)
   END SUBROUTINE open_file_out_txt
 
-  SUBROUTINE extract_filename(filename,dirname,basename,suffix)
-    CHARACTER(len=*), INTENT(IN) :: filename
-    CHARACTER(len=:), INTENT(OUT), ALLOCATABLE:: dirname,basename,suffix
-    INTEGER :: dirsep, sufsep
-
-    dirsep=index(filename, '/', BACK=.TRUE.)
-    sufsep=index(filename, '.', BACK=.TRUE.)
-
-    dirname=filename(1:dirsep)
-    basename=filename(dirsep+1:sufsep-1)
-    suffix=filename(sufsep+1:)
-  END SUBROUTINE extract_filename
-
   SUBROUTINE writevar_0d(filename, mold, varformat,myunit)
     CHARACTER(len=*), INTENT(IN) :: filename, varformat
     REAL, INTENT(IN) :: mold
@@ -134,8 +121,15 @@ CONTAINS
     REAL, DIMENSION(SIZE(mold)) :: mold_real, mold_imag
     CHARACTER(LEN=30) :: rowfmt
     CHARACTER(LEN=:), ALLOCATABLE :: dirname,basename,suffix
+    INTEGER :: dirsep, sufsep
 
-    CALL extract_filename(filename,dirname,basename,suffix)
+    dirsep=index(filename, '/', BACK=.TRUE.)
+    sufsep=index(filename, '.', BACK=.TRUE.)
+
+    dirname=filename(1:dirsep)
+    basename=filename(dirsep+1:sufsep-1)
+    suffix=filename(sufsep+1:)
+
     CALL writevar_2d(dirname // 'r' // basename // '.' // suffix, &
          REAL(mold),varformat,myunit)
     CALL writevar_2d(dirname // 'i' // basename // '.' // suffix, &
@@ -166,8 +160,15 @@ CONTAINS
     REAL, DIMENSION(SIZE(mold)) :: mold_real, mold_imag
     CHARACTER(LEN=30) :: rowfmt
     CHARACTER(LEN=:), ALLOCATABLE :: dirname,basename,suffix
+    INTEGER :: dirsep, sufsep
 
-    CALL extract_filename(filename,dirname,basename,suffix)
+    dirsep=index(filename, '/', BACK=.TRUE.)
+    sufsep=index(filename, '.', BACK=.TRUE.)
+
+    dirname=filename(1:dirsep)
+    basename=filename(dirsep+1:sufsep-1)
+    suffix=filename(sufsep+1:)
+
     CALL writevar_3d(dirname // 'r' // basename // '.' // suffix, &
          REAL(mold),varformat,myunit)
     CALL writevar_3d(dirname // 'i' // basename // '.' // suffix, &
@@ -200,8 +201,15 @@ CONTAINS
     REAL, DIMENSION(SIZE(mold)) :: mold_real, mold_imag
     CHARACTER(LEN=30) :: rowfmt
     CHARACTER(LEN=:), ALLOCATABLE :: dirname,basename,suffix
+    INTEGER :: dirsep, sufsep
 
-    CALL extract_filename(filename,dirname,basename,suffix)
+    dirsep=index(filename, '/', BACK=.TRUE.)
+    sufsep=index(filename, '.', BACK=.TRUE.)
+
+    dirname=filename(1:dirsep)
+    basename=filename(dirsep+1:sufsep-1)
+    suffix=filename(sufsep+1:)
+
     CALL writevar_4d(dirname // 'r' // basename // '.' // suffix, &
          REAL(mold),varformat,myunit)
     CALL writevar_4d(dirname // 'i' // basename // '.' // suffix, &
