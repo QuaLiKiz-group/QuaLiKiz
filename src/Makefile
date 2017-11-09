@@ -38,7 +38,7 @@ OBJS_QUALIKIZ=$(SRCS_QUALIKIZ:%f90=%o)
 MODS_QUALIKIZ=$(SRCS_QUALIKIZ:%f90=%mod)
 
 QUALIKIZ_SRCS_CORE=asymmetry.f90 callpassints.f90 calltrapints.f90 datcal.f90 datmat.f90 \
-		  dispfuncs.f90 FLRterms.f90 kind.f90 mod_contour.f90 mod_fluidsol.f90 \
+		  dispfuncs.f90 FLRterms.f90 integration_routines.f90 kind.f90 mod_contour.f90 mod_fluidsol.f90 \
 		  mod_make_io.f90 mod_saturation.f90 nanfilter.f90 \
 		  passints.f90 trapints.f90
 QUALIKIZ_OBJS_CORE=$(QUALIKIZ_SRCS_CORE:%f90=%o)
@@ -54,7 +54,8 @@ calltrapQLints.o: calltrapints.mod $(CUBPACK_DIR)/cui.mod
 QLflux.o: kind.mod datmat.mod datcal.mod callpassqlints.mod calltrapqlints.mod
 qlk_standalone.o: kind.mod
 calcroutines.o: mod_fonct.mod qlflux.mod flrterms.mod mod_fluidsol.mod mod_contour.mod mod_make_io.mod asymmetry.mod nanfilter.mod
-mod_fonct.o: callpassints.mod $(CUBPACK_DIR)/cui.mod calltrapints.mod
+integration_routines.o: kind.mod callpassints.mod calltrapints.mod
+mod_fonct.o: integration_routines.mod callpassints.mod $(CUBPACK_DIR)/cui.mod calltrapints.mod
 # Core objects
 flrterms.mod: FLRterms.mod
 callpassints.o: passints.mod 

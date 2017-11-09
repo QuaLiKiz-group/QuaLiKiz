@@ -7,6 +7,7 @@ MODULE mod_fonct
   USE calltrapints
   USE callpassints
   USE CUI
+  USE integration_routines
 
   IMPLICIT NONE
 
@@ -23,7 +24,7 @@ CONTAINS
 
     REAL(KIND=DBL)     :: acc, relerr, cc, dd
     REAL(KIND=DBL), DIMENSION(2) :: a,b
-    INTEGER            :: minpts, neval, npts  !output number of integrand evaluations
+    INTEGER            :: minpts, neval, npts, iffailloc  !output number of integrand evaluations
     REAL(KIND=DBL), DIMENSION(lenwrk) :: wrkstr
     INTEGER :: ifailloc
     REAL(KIND=DBL)    :: rfonctpe, ifonctpe, rfonctpiz, ifonctpiz
@@ -57,37 +58,8 @@ CONTAINS
     ALLOCATE(elist(limit))
     ALLOCATE(iord(limit))
 
-    IF (inttype == 1) THEN
-
-       CALL DQAGSE_QLK(rFFkiz,cc,dd,absacc1,relacc1,limit,rfonctpiz,relerr,npts,ifailloc,&
-            alist, blist, rlist, elist, iord, last)
-       IF (ifailloc /= 0) THEN
-          IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
-               & '. Abnormal termination of rFFkiz integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
-       ENDIF
-
-       CALL DQAGSE_QLK(iFFkiz,cc,dd,absacc1,relacc1,limit,ifonctpiz,relerr,npts,ifailloc,&
-            alist, blist, rlist, elist, iord, last)
-       IF (ifailloc /= 0) THEN
-          IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
-               &'. Abnormal termination of iFFkiz integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
-       ENDIF
-
-    ELSEIF (inttype == 2) THEN
-       ifailloc = 1
-       rfonctpiz = d01ahf(cc,dd,relacc1,npts,relerr,rFFkiz,lw,ifailloc)
-       IF (ifailloc /= 0) THEN
-          IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
-               &'. Abnormal termination of 1DNAG rFFkiz integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
-       ENDIF
-       ifailloc = 1
-       ifonctpiz = d01ahf(cc,dd,relacc1,npts,relerr,iFFkiz,lw,ifailloc)
-       IF (ifailloc /= 0) THEN
-          IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
-               &'. Abnormal termination of 1DNAG iFFkiz integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
-       ENDIF
-
-    ENDIF
+    rfonctpiz = integrate_1d(cc, dd, relacc1, npts, relerr, lw, rFFkiz, verbose, p, nu, omega, '1DNAG rFFkiz')
+    ifonctpiz = integrate_1d(cc, dd, relacc1, npts, relerr, lw, iFFkiz, verbose, p, nu, omega, '1DNAG iFFkiz')
 
     vertices1(1:ndim,0,1) = (/0. , 0. /)
     vertices1(1:ndim,1,1) = (/0. , vuplim /)
@@ -120,34 +92,8 @@ CONTAINS
              ENDIF
           ENDIF
        ELSE !Collisionless simulation, revert to faster single integral
-          IF (inttype == 1) THEN
-             CALL DQAGSE_QLK(rFFke_nocoll,cc,dd,absacc1,relacc1,limit,intout(1),relerr,npts,ifailloc,&
-                  alist, blist, rlist, elist, iord, last)
-             IF (ifailloc /= 0) THEN
-                IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
-                     &'. Abnormal termination of DQAGSE_QLK rFFke_nocoll integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
-             ENDIF
-             CALL DQAGSE_QLK(iFFke_nocoll,cc,dd,absacc1,relacc1,limit,intout(2),relerr,npts,ifailloc,&
-                  alist, blist, rlist, elist, iord, last)
-             IF (ifailloc /= 0) THEN
-                IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
-                     &'. Abnormal termination of DQAGSE_QLK iFFke_nocoll integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
-             ENDIF
-
-          ELSEIF (inttype == 2) THEN
-             ifailloc = 1
-             intout(1) = d01ahf(cc,dd,relacc1,npts,relerr,rFFke_nocoll,lw,ifailloc)
-             IF (ifailloc /= 0) THEN
-                IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
-                     &'. Abnormal termination of 1DNAG rFFke_nocoll integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
-             ENDIF
-             ifailloc = 1
-             intout(2) = d01ahf(cc,dd,relacc1,npts,relerr,iFFke_nocoll,lw,ifailloc)
-             IF (ifailloc /= 0) THEN
-                IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
-                     &'. Abnormal termination of 1DNAG iFFke_nocoll integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
-             ENDIF
-          ENDIF
+           intout(1) = integrate_1d(cc, dd, relacc1, npts, relerr, lw, rFFke_nocoll, verbose, p, nu, omega, '1DNAG rFFke_nocoll')
+           intout(2) = integrate_1d(cc, dd, relacc1, npts, relerr, lw, iFFke_nocoll, verbose, p, nu, omega, '1DNAG iFFke_nocoll')
        ENDIF
     ELSE
        intout(1)=0
@@ -321,37 +267,8 @@ CONTAINS
     ALLOCATE(elist(limit))
     ALLOCATE(iord(limit))
 
-    IF (inttype == 1) THEN
-
-       CALL DQAGSE_QLK(rFFkizrot,cc,dd,absacc1,relacc1,limit,rfonctpiz,relerr,npts,ifailloc,&
-            alist, blist, rlist, elist, iord, last)
-       IF (ifailloc /= 0) THEN
-          IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
-               & '. Abnormal termination of rFFkizrot integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
-       ENDIF
-
-       CALL DQAGSE_QLK(iFFkizrot,cc,dd,absacc1,relacc1,limit,ifonctpiz,relerr,npts,ifailloc,&
-            alist, blist, rlist, elist, iord, last)
-       IF (ifailloc /= 0) THEN
-          IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
-               &'. Abnormal termination of iFFkizrot integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
-       ENDIF
-
-    ELSEIF (inttype == 2) THEN
-       ifailloc = 1
-       rfonctpiz = d01ahf(cc,dd,relacc1,npts,relerr,rFFkizrot,lw,ifailloc)
-       IF (ifailloc /= 0) THEN
-          IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
-               &'. Abnormal termination of 1DNAG rFFkizrot integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
-       ENDIF
-       ifailloc = 1
-       ifonctpiz = d01ahf(cc,dd,relacc1,npts,relerr,iFFkizrot,lw,ifailloc)
-       IF (ifailloc /= 0) THEN
-          IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
-               &'. Abnormal termination of 1DNAG iFFkizrot integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
-       ENDIF
-
-    ENDIF
+    rfonctpiz = integrate_1d(cc, dd, relacc1, npts, relerr, lw, rFFkizrot, verbose, p, nu, omega, '1DNAG rFFkizrot')
+    ifonctpiz = integrate_1d(cc, dd, relacc1, npts, relerr, lw, iFFkizrot, verbose, p, nu, omega, '1DNAG rFFkizrot')
 
     vertices1(1:ndim,0,1) = (/0. , 0. /)
     vertices1(1:ndim,1,1) = (/0. , vuplim /)
@@ -383,34 +300,8 @@ CONTAINS
              ENDIF
           ENDIF
        ELSE !collisionless integral, do single integral
-          IF (inttype == 1) THEN
-             CALL DQAGSE_QLK(rFFke_nocollrot,cc,dd,absacc1,relacc1,limit,intout(1),relerr,npts,ifailloc,&
-                  alist, blist, rlist, elist, iord, last)
-             IF (ifailloc /= 0) THEN
-                IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
-                     &'. Abnormal termination of DQAGSE_QLK rFFke_nocollrot integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
-             ENDIF
-             CALL DQAGSE_QLK(iFFke_nocollrot,cc,dd,absacc1,relacc1,limit,intout(2),relerr,npts,ifailloc,&
-                  alist, blist, rlist, elist, iord, last)
-             IF (ifailloc /= 0) THEN
-                IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
-                     &'. Abnormal termination of DQAGSE_QLK iFFke_nocollrot integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
-             ENDIF
-
-          ELSEIF (inttype == 2) THEN
-             ifailloc = 1
-             intout(1) = d01ahf(cc,dd,relacc1,npts,relerr,rFFke_nocollrot,lw,ifailloc)
-             IF (ifailloc /= 0) THEN
-                IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
-                     &'. Abnormal termination of 1DNAG rFFke_nocollrot integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
-             ENDIF
-             ifailloc = 1
-             intout(2) = d01ahf(cc,dd,relacc1,npts,relerr,iFFke_nocollrot,lw,ifailloc)
-             IF (ifailloc /= 0) THEN
-                IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
-                     &'. Abnormal termination of 1DNAG iFFke_nocollrot integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
-             ENDIF
-          ENDIF
+         intout(1) = integrate_1d(cc, dd, relacc1, npts, relerr, lw, rFFke_nocollrot, verbose, p, nu, omega, '1DNAG rFFke_nocollrot')
+         intout(2) = integrate_1d(cc, dd, relacc1, npts, relerr, lw, iFFke_nocollrot, verbose, p, nu, omega, '1DNAG iFFke_nocollrot')
        ENDIF
     ELSE
        intout(1)=0
