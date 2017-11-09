@@ -1,7 +1,7 @@
 #!/bin/make -f
 QUALIKIZ?=../../..
-SRC?=$(QUALIKIZ)/src
-include $(SRC)/Makefile.inc
+QUALIKIZ_SRC?=$(QUALIKIZ)/src
+include $(QUALIKIZ_SRC)/Makefile.inc
 
 FFLAGS_SLATEC=-fdefault-real-8  
 

@@ -1,7 +1,7 @@
 #!/bin/make -f
 QUALIKIZ?=../../..
-SRC?=$(QUALIKIZ)/src
-include $(SRC)/Makefile.inc
+QUALIKIZ_SRC?=$(QUALIKIZ)/src
+include $(QUALIKIZ_SRC)/Makefile.inc
 
 SRCS_CUBPACK=buckley.f90 check.f90 cui.f90 divide.f90 ds_routines.f90 \
 			 error_handling.f90 global_all.f90 internal_types.f90 region_processor.f90 \

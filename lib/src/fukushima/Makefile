@@ -1,7 +1,7 @@
 #!/bin/make -f
 QUALIKIZ?=../../..
-SRC?=$(QUALIKIZ)/src
-include $(SRC)/Makefile.inc
+QUALIKIZ_SRC?=$(QUALIKIZ)/src
+include $(QUALIKIZ_SRC)/Makefile.inc
 
 # Fortran routine files
 SRCS_FUKUSHIMA_MAY=elbd.f90 relbd.f90 celbd.f90 rcelbd.f90

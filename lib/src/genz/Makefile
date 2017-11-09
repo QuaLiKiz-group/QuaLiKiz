@@ -1,7 +1,7 @@
 #!/bin/make -f
 QUALIKIZ?=../../..
-SRC?=$(QUALIKIZ)/src
-include $(SRC)/Makefile.inc
+QUALIKIZ_SRC?=$(QUALIKIZ)/src
+include $(QUALIKIZ_SRC)/Makefile.inc
 
 # Fortran routine files
 SRCS_GENZ=hrmsym.f
