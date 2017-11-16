@@ -1012,7 +1012,7 @@ CONTAINS
           CALL MPI_AllReduce(veni_GB,veni_GBtmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
           CALL MPI_AllReduce(veri_GB,veri_GBtmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
           CALL MPI_AllReduce(veci_GB,veci_GBtmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
-          IF (separateflux == 1) THEN
+          IF (separateflux .EQV. .TRUE.) THEN
              CALL MPI_AllReduce(chieeETG_SI,chieeETG_SItmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
              CALL MPI_AllReduce(veneETG_SI,veneETG_SItmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
              CALL MPI_AllReduce(veceETG_SI,veceETG_SItmp,dimx,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
@@ -1098,7 +1098,7 @@ CONTAINS
           veni_GB=veni_GBtmp
           veri_GB=veri_GBtmp
           veci_GB=veci_GBtmp
-          IF (separateflux == 1) THEN
+          IF (separateflux .EQV. .TRUE.) THEN
              chieeETG_SI=chieeETG_SItmp
              veneETG_SI=veneETG_SItmp
              veceETG_SI=veceETG_SItmp
