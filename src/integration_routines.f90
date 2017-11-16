@@ -5,12 +5,14 @@ MODULE integration_routines
   USE datmat
   USE calltrapints
   USE callpassints
+
+  IMPLICIT NONE
 INTERFACE integrate_1d
   MODULE PROCEDURE integrate_1d_nag
 END INTERFACE
 
 CONTAINS
-  FUNCTION integrate_1d_nag(cc, dd, relacc1, npts, relerr, lw, integrand, verbose, p, nu, omega, intname)
+  REAL(KIND=DBL) FUNCTION integrate_1d_nag(cc, dd, relacc1, npts, relerr, lw, integrand, verbose, p, nu, omega, intname)
 !     INPUT ARGUMENTS
 !     ----- ----------
 !     (A,B) cc,dd     -  LOWER AND UPPER INTEGRATION LIMITS.
@@ -36,16 +38,19 @@ CONTAINS
 
     LOGICAL, INTENT(IN) :: verbose
     INTEGER, INTENT(IN)  :: p, nu
-    CHARACTER, INTENT(IN) :: intname
+    CHARACTER(*), INTENT(IN) :: intname
     COMPLEX(KIND=DBL), INTENT(IN)  :: omega
 
     REAL(KIND=DBL) :: relerr
     INTEGER :: ifailloc
 
-    REAL(KIND=DBL) :: integrate_1d_nag
+    REAL(KIND=DBL), DIMENSION(8) :: K
 
+    !WRITE(stderr, "(A)") intname
     ifailloc = 1
-    integrate_1d_nag = d01ahf(cc, dd, relacc1, npts, relerr, integrand, lw, ifailloc)
+    !integrate_1d_nag = d01ahf(cc, dd, relacc1, npts, relerr, integrand, lw, ifailloc)
+    CALL QUAD(cc, dd, K, integrate_1d_nag, relacc1, npts, ifailloc, integrand)
+    !WRITE(stderr, "(G10.3)") K
     IF (ifailloc /= 0) THEN
        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,A,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of ', intname, ' integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
