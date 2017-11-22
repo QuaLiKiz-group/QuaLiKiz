@@ -87,7 +87,7 @@ $(MODS_QUALIKIZ) $(QUALIKIZ_MODS_CORE):%.mod:%.o
 
 
 clean:
-	rm -f *.o *.mod
+	rm -f *.o *.mod *__genmod.f90
 
 
 distclean: clean

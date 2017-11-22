@@ -32,7 +32,7 @@ $(OBJS_FUKUSHIMA_MAY) $(OBJS_FUKUSHIMA_FEB):%.o:%.f90
 
 
 clean:
-	/bin/rm -f *.o *.mod
+	/bin/rm -f *.o *.mod *__genmod.f90
 
 
 distclean: clean

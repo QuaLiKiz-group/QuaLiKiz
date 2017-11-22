@@ -19,7 +19,7 @@ $(OBJS_GENZ):%.o:%.f
 
 
 clean:
-	rm -f *.o
+	rm -f *.o *.mod *__genmod.f90
 
 
 distclean: clean

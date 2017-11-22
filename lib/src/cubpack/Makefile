@@ -63,7 +63,7 @@ distclean: clean
 
 
 clean:
-	/bin/rm -f *.o *.mod
+	/bin/rm -f *.o *.mod *__genmod.f90
 
 
 dump_variables:
