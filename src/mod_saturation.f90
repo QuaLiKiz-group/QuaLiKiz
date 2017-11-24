@@ -345,7 +345,7 @@ CONTAINS
           !here is calculated the ktheta max for the NL spectrum only on the most unstable mode if more than 1 is present
           !mu stands for "most unstable"
 
-          IF ( (kthr(ir,1) > ETGk) .OR. (kthr(ir,dimn) < ETGk) .OR. (dimn ==1) ) THEN  !single mode, pure ETG-scale, or pure ITG-scale
+          IF ( (kthr(ir,1) > ETGk) .OR. (kthr(ir,dimn) <= ETGk) .OR. (dimn ==1) ) THEN  !single mode, pure ETG-scale, or pure ITG-scale
              mdmlmu(ir) = MAXVAL(maxgmsp(ir,:)/kperp2(ir,:))
              maxloci=MAXLOC(maxgmsp(ir,:)/kperp2(ir,:))
              inddmlmu(ir)=maxloci(1)
@@ -356,7 +356,7 @@ CONTAINS
              ENDIF
              mdmlmu(ir)=mdmlmu(ir)/kteta(ir,inddmlmu(ir)) !Used to fit in quasilinear flux integral
              !          krmmu(ir) = kthr(ir,inddmlmu(ir))
-             IF (kthr(ir,1) < ETGk) THEN !ITG scales
+             IF (kthr(ir,1) <= ETGk) THEN !ITG scales
                 krmmuITG(ir) = kthetarhos(inddmlmu(ir))
                 krmmuETG(ir) = 0.
              ELSE !electron scales
