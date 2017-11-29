@@ -404,11 +404,11 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
      CLOSE(900)
 
 !!!DEBUGGING FOR FLUID SOLUTION
-     WRITE(fmtn,'(A,I0, A)') '(',dimn,'G15.7)'
-     OPEN(unit=900, file="output/primitive/rjonsolflu.dat", action="write", status="replace")
-     WRITE(900,fmtn) ((REAL(jon_solflu(i,j)),j=1,dimn),i=1,dimx) ; CLOSE(900)
-     OPEN(unit=900, file="output/primitive/ijonsolflu.dat", action="write", status="replace")
-     WRITE(900,fmtn) ((AIMAG(jon_solflu(i,j)),j=1,dimn),i=1,dimx) ; CLOSE(900)
+!!$     WRITE(fmtn,'(A,I0, A)') '(',dimn,'G15.7)'
+!!$     OPEN(unit=900, file="output/primitive/rjonsolflu.dat", action="write", status="replace")
+!!$     WRITE(900,fmtn) ((REAL(jon_solflu(i,j)),j=1,dimn),i=1,dimx) ; CLOSE(900)
+!!$     OPEN(unit=900, file="output/primitive/ijonsolflu.dat", action="write", status="replace")
+!!$     WRITE(900,fmtn) ((AIMAG(jon_solflu(i,j)),j=1,dimn),i=1,dimx) ; CLOSE(900)
   ENDIF
   !DEBUG
 !!$    OPEN(unit=900, file="FLRec.dat", action="write", status="replace")
