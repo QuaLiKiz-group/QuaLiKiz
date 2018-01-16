@@ -18,6 +18,9 @@ case $HOSTNAME in
   andromede*)
     ARCH=andromede
     ;;
+  r0*)
+    ARCH=marconi
+    ;;
 esac
 
 if [ "$ARCH" == "" ]
