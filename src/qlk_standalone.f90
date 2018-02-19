@@ -1022,7 +1022,8 @@ CONTAINS
     ENDIF
     doit=doit+1; IF (doit==nproc) doit=0 
 
-    WRITE(fmtn,'(A,I0, A)') '(',dimn,'G15.7)'
+    WRITE(fmtn,'(A,I0, A)') '(',dimn,'G16.7)'
+
     CALL MPI_Barrier(mpi_comm_world,ierror)
 
     !Now do MPIAllReduce to inputs. We need runcounter for potential next stage, so
