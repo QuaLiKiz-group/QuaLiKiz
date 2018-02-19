@@ -597,6 +597,10 @@ CONTAINS
        Ei = Zi(irad,ion)*qe*phi(irad,ix)-mi(irad,ion)/2.*omegator(irad)**2*(Rth**2-Rlfs**2)      
        e01d = tpernormi(irad,ix,ion)*EXP(-Ei/(Tix(irad,ion)*qe*1d3))/pi*(1+epsilon(irad)*COS(x))*EXP(-1./2.*(widthhat/distan(irad,inu)*x)**2)
     ENDIF
+    IF ((ix == 2) .AND. (e01d < epsS)) THEN
+       e01d = epsS
+    ENDIF
+
   END FUNCTION e01d
 
   REAL(KIND=DBL) FUNCTION  e11d(x)
@@ -616,6 +620,10 @@ CONTAINS
        Ei = Zi(irad,ion)*qe*phi(irad,ix)-mi(irad,ion)/2.*omegator(irad)**2*(Rth**2-Rlfs**2)
        e11d = tpernormi(irad,ix,ion)*EXP(-Ei/(Tix(irad,ion)*qe*1d3))*Zi(irad,ion)*qe/(Tix(irad,ion)*qe*1d3)*phi(irad,ix)/pi*(1+epsilon(irad)*COS(x))*EXP(-1./2.*(widthhat/distan(irad,inu)*x)**2)
     ENDIF
+    IF ((ix == 2) .AND. (e11d < epsS)) THEN
+       e11d = epsS
+    ENDIF
+
   END FUNCTION e11d
 
   REAL(KIND=DBL) FUNCTION e21d(x)
@@ -634,6 +642,10 @@ CONTAINS
        Ei = Zi(irad,ion)*qe*phi(irad,ix)-mi(irad,ion)/2.*omegator(irad)**2*(Rth**2-Rlfs**2)
        e21d = Ro(irad)*tpernormi(irad,ix,ion)*EXP(-Ei/(Tix(irad,ion)*qe*1d3))*Zi(irad,ion)*qe/(Tix(irad,ion)*qe*1d3)*dphidr(irad,ix)/pi*(1+epsilon(irad)*COS(x))*EXP(-1./2.*(widthhat/distan(irad,inu)*x)**2)
     ENDIF
+    IF ((ix == 2) .AND. (e21d < epsS)) THEN
+       e21d = epsS
+    ENDIF
+
   END FUNCTION e21d
 
   REAL(KIND=DBL) FUNCTION e31d(x)
@@ -652,6 +664,10 @@ CONTAINS
        Ei = Zi(irad,ion)*qe*phi(irad,ix)-mi(irad,ion)/2.*omegator(irad)**2*(Rth**2-Rlfs**2)
        e31d = 1/(Ro(irad)**2)*tpernormi(irad,ix,ion)*EXP(-Ei/(Tix(irad,ion)*qe*1d3))*(Rth**2-Rlfs**2)/pi*(1+epsilon(irad)*COS(x))*EXP(-1./2.*(widthhat/distan(irad,inu)*x)**2)
     ENDIF
+    IF ((ix == 2) .AND. (e31d < epsS)) THEN
+       e31d = epsS
+    ENDIF
+
   END FUNCTION e31d
 
   REAL(KIND=DBL) FUNCTION e41d(x)
@@ -673,6 +689,10 @@ CONTAINS
        Ei = Zi(irad,ion)*qe*phi(irad,ix)-mi(irad,ion)/2.*omegator(irad)**2*(Rth**2-Rlfs**2)
        e41d = 2/Ro(irad)*tpernormi(irad,ix,ion)*EXP(-Ei/(Tix(irad,ion)*qe*1d3))*(Rth*dRthdr-Rlfs*dRlfsdr)/pi*(1+epsilon(irad)*COS(x))*EXP(-1./2.*(widthhat/distan(irad,inu)*x)**2)
     ENDIF
+    IF ((ix == 2) .AND. (e41d < epsS)) THEN
+       e41d = epsS
+    ENDIF
+
   END FUNCTION e41d
 
   REAL(KIND=DBL) FUNCTION e61d(x)
@@ -696,6 +716,10 @@ CONTAINS
        Ei = Zi(irad,ion)*qe*phi(irad,ix)-mi(irad,ion)/2.*omegator(irad)**2*(Rth**2-Rlfs**2)
        e61d = Ro(irad)*dtpernormidr*EXP(-Ei/(Tix(irad,ion)*qe*1d3))/pi*(1+epsilon(irad)*COS(x))*EXP(-1./2.*(widthhat/distan(irad,inu)*x)**2)
     ENDIF
+    IF ((ix == 2) .AND. (e61d < epsS)) THEN
+       e61d = epsS
+    ENDIF
+
   END FUNCTION e61d
 
   REAL(KIND=DBL) FUNCTION e71d(x)
@@ -715,6 +739,10 @@ CONTAINS
        Ei = Zi(irad,ion)*qe*phi(irad,ix)-mi(irad,ion)/2.*omegator(irad)**2*(Rth**2-Rlfs**2)
        e71d = tpernormi(irad,ix,ion)*EXP(-Ei/(Tix(irad,ion)*qe*1d3))*Zi(irad,ion)*qe/(Tix(irad,ion)*qe*1d3)*smag(irad)/epsilon(irad)*x*dphidth(irad,ix)/pi*(1+epsilon(irad)*COS(x))*EXP(-1./2.*(widthhat/distan(irad,inu)*x)**2)
     ENDIF
+    IF ((ix == 2) .AND. (e71d < epsS)) THEN
+       e71d = epsS
+    ENDIF
+
   END FUNCTION e71d
 
   REAL(KIND=DBL) FUNCTION e81d(x)
@@ -734,6 +762,10 @@ CONTAINS
        Ei = Zi(irad,ion)*qe*phi(irad,ix)-mi(irad,ion)/2.*omegator(irad)**2*(Rth**2-Rlfs**2)
        e81d = tpernormi(irad,ix,ion)*EXP(-Ei/(Tix(irad,ion)*qe*1d3))*(1+epsilon(irad)*COS(x))*(COS(x)+smag(irad)*x*SIN(x))/pi*(1+epsilon(irad)*COS(x))*EXP(-1./2.*(widthhat/distan(irad,inu)*x)**2)
     ENDIF
+    IF ((ix == 2) .AND. (e81d < epsS)) THEN
+       e81d = epsS
+    ENDIF
+
   END FUNCTION e81d
 
   REAL(KIND=DBL) FUNCTION e91d(x)
@@ -755,13 +787,23 @@ CONTAINS
        Ei = Zi(irad,ion)*qe*phi(irad,ix)-mi(irad,ion)/2.*omegator(irad)**2*(Rth**2-Rlfs**2)
        e91d = 2/Ro(irad)*tpernormi(irad,ix,ion)*EXP(-Ei/(Tix(irad,ion)*qe*1d3))*(-Rlfs*dRlfsdr)/pi*(1+epsilon(irad)*COS(x))*EXP(-1./2.*(widthhat/distan(irad,inu)*x)**2)
     ENDIF
+    IF ((ix == 2) .AND. (e91d < epsS)) THEN
+       e91d = epsS
+    ENDIF
+
   END FUNCTION e91d
 
 REAL(KIND=DBL) FUNCTION FSAnorm(x)
   !Calculates the normalization coefficient for the wavefunction weighted FSA used in makeecoefsgau
   REAL(KIND=DBL), INTENT(IN) :: x
+  INTEGER :: ix
+
+  ix = NINT(x*(ntheta-1)/pi+1) 
 
   FSAnorm = 1./pi*(1+epsilon(irad)*COS(x))*EXP(-1./2.*(widthhat/distan(irad,inu)*x)**2)
+  IF ((ix == 2) .AND. (FSAnorm < epsS)) THEN
+      FSAnorm = epsS
+  ENDIF
 
 END FUNCTION FSAnorm
 
@@ -847,7 +889,6 @@ SUBROUTINE makeecoefsgau(p,nu)
 
   !Normalize all calculated quantities with the integration norm
   ecoefsgau(irad,inu,:,:)=ecoefsgau(irad,inu,:,:)/intnorm
-
 
 END SUBROUTINE makeecoefsgau
 
