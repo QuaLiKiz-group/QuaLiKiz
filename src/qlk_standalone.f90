@@ -662,6 +662,7 @@ CONTAINS
     REAL(kind=DBL), DIMENSION(:), ALLOCATABLE :: dummyn
     REAL(kind=DBL), DIMENSION(:), ALLOCATABLE :: dummyx
     REAL(kind=DBL), DIMENSION(:,:), ALLOCATABLE :: dummyxnions
+    REAL(kind=DBL), DIMENSION(:,:,:), ALLOCATABLE :: dummyxnnumsol
 
     INTEGER :: dimxtmp,dimntmp,nionstmp,phys_methtmp,coll_flagtmp,rot_flagtmp,verbosetmp
     INTEGER :: separatefluxtmp,numsolstmp,maxrunstmp,maxptstmp,el_typetmp,runcountertmp
@@ -723,6 +724,7 @@ CONTAINS
     ALLOCATE(dummyn(dimn))
     ALLOCATE(dummyx(dimx))
     ALLOCATE(dummyxnions(dimx,nions))
+    ALLOCATE(dummyxnnumsol(dimx,dimn,numsols))
 
     ALLOCATE(kthetarhostmp(dimn))
     ALLOCATE(xtmp(dimx))
@@ -1130,27 +1132,26 @@ CONTAINS
        ALLOCATE( oldsol (dimx, dimn, numsols) ); oldsol = 0
        ALLOCATE( oldfdsol (dimx, dimn, numsols) ); oldfdsol = 0
 
+       primitivedir = "output/primitive/"
+       myfmt = 'G16.7E3'
        IF (myrank == doit) THEN
-          OPEN(unit=myunit, file="output/primitive/rsol.dat", action="read", status="old")
-          READ(myunit,fmtn) (((oldrsol(i,j,k),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
+           oldrsol = readvar(primitivedir // 'rsol.dat', dummyxnnumsol, ktype, myunit)
+           CALL writevar(primitivedir // 'rsol_old.dat', oldrsol, myfmt, myunit)
        ENDIF
        doit=doit+1; IF (doit==nproc) doit=0 
 
        IF (myrank == doit) THEN
-          OPEN(unit=myunit, file="output/primitive/isol.dat", action="read", status="old")
-          READ(myunit,fmtn) (((oldisol(i,j,k),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
+           oldisol = readvar(primitivedir // 'isol.dat', dummyxnnumsol, ktype, myunit)
        ENDIF
        doit=doit+1; IF (doit==nproc) doit=0 
 
        IF (myrank == doit) THEN
-          OPEN(unit=myunit, file="output/primitive/rfdsol.dat", action="read", status="old")
-          READ(myunit,fmtn) (((oldrfdsol(i,j,k),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
+           oldrfdsol = readvar(primitivedir // 'rfdsol.dat', dummyxnnumsol, ktype, myunit)
        ENDIF
        doit=doit+1; IF (doit==nproc) doit=0 
 
        IF (myrank == doit) THEN
-          OPEN(unit=myunit, file="output/primitive/ifdsol.dat", action="read", status="old")
-          READ(myunit,fmtn) (((oldifdsol(i,j,k),j=1,dimn),i=1,dimx),k=1,numsols) ; CLOSE(myunit)
+           oldifdsol = readvar(primitivedir // 'ifdsol.dat', dummyxnnumsol, ktype, myunit)
        ENDIF
        doit=doit+1; IF (doit==nproc) doit=0 
 

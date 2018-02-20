@@ -20,15 +20,27 @@ MODULE diskio
      MODULE PROCEDURE &
           readvar_0d, &
           readvar_1d, &
-          readvar_2d
+          readvar_2d, &
+          readvar_3d_txt
   END INTERFACE
 
 
 CONTAINS
+  SUBROUTINE open_file_in(filename,lengthin,myunit)
+    CHARACTER(len=*), INTENT(IN) :: filename
+    INTEGER, INTENT(IN) :: myunit, lengthin
+
+    IF (INDEX(filename, '.dat') > 0) THEN
+        CALL open_file_in_txt(filename, lengthin, myunit)
+    ELSE
+        CALL open_file_in_bin(filename, lengthin, myunit)
+    ENDIF
+  END SUBROUTINE open_file_in
+
   SUBROUTINE open_file_in_bin(filename,lengthin,myunit)
     CHARACTER(len=*), INTENT(IN) :: filename
-    INTEGER:: lengthin
     INTEGER, INTENT(IN) :: myunit
+    INTEGER :: lengthin
 
     OPEN( unit=myunit, &
          file=filename, &
@@ -38,6 +50,18 @@ CONTAINS
          recl=lengthin)
   END SUBROUTINE open_file_in_bin
 
+  SUBROUTINE open_file_in_txt(filename,lengthin,myunit)
+    CHARACTER(len=*), INTENT(IN) :: filename
+    INTEGER, INTENT(IN) :: myunit, lengthin
+
+    OPEN( unit=myunit, &
+         file=filename, &
+         access='sequential', &
+         form='formatted', &
+         status='old', &
+         recl=lengthin)
+  END SUBROUTINE open_file_in_txt
+
   SUBROUTINE open_file_out_txt(filename,myunit)
     CHARACTER(len=*), INTENT(IN) :: filename
     INTEGER, INTENT(IN) :: myunit
@@ -45,6 +69,7 @@ CONTAINS
 
     OPEN(unit=myunit, &
          file=filename, &
+         access='sequential', &
          form='formatted', &
          status='replace', &
          iostat=rc)
@@ -267,4 +292,23 @@ CONTAINS
        !CALL mpi_abort(mpi_comm_world,-1)
     ENDIF
   END FUNCTION readvar_2d
+
+  FUNCTION readvar_3d_txt(filename,dummy,ktype,myunit)
+    CHARACTER(len=*), INTENT(IN) :: filename
+    CHARACTER(LEN=30) :: rowfmt
+    INTEGER, INTENT(IN) :: ktype, myunit
+    REAL(kind=DBL), DIMENSION(:,:,:), INTENT(IN) ::dummy
+    INTEGER :: lengthin,istat, i, j, k, numcols
+    REAL(KIND=DBL), DIMENSION(SIZE(dummy,1), SIZE(dummy,2), SIZE(dummy,3)) :: readvar_3d_txt
+    !numrows, numcols, numpages
+
+    INQUIRE(iolength=lengthin) dummy
+    CALL open_file_in_txt(filename,lengthin,myunit)
+    READ(unit=myunit, IOSTAT=istat, fmt=*) (((readvar_3d_txt(i,j,k),j=1, SIZE(dummy, 2)),i=1, SIZE(dummy, 1)),k=1,SIZE(dummy, 3))
+    IF ( istat /= 0) THEN
+       WRITE(stderr,100) filename, istat
+100    FORMAT('PROBLEM IN READING INPUT FILE ',A,'. IOSTAT = ',I6)
+       !CALL mpi_abort(mpi_comm_world,-1)
+    ENDIF
+  END FUNCTION readvar_3d_txt
 END MODULE diskio
