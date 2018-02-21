@@ -38,7 +38,7 @@ $(QUALIKIZ_LIBS_CLEAN):
 	-make -C $(@D) distclean
 
 
-clean: $(LIBS_CLEAN)
+clean: $(QUALIKIZ_LIBS_CLEAN)
 	make -C $(QUALIKIZ_SRC) distclean
 
 
@@ -48,7 +48,6 @@ distclean: clean
 
 dump_variables:
 	@echo QUALIKIZ_SRC=$(QUALIKIZ_SRC)
-	@echo LIB_SRC=$(QUALIKIZ_LIBSRC)
 	@echo QUALIKIZ_LIBS=$(QUALIKIZ_LIBS)
-	@echo LIBS_CLEAN=$(LIBS_CLEAN)
+	@echo QUALIKIZ_LIBS_CLEAN=$(QUALIKIZ_LIBS_CLEAN)
 	@echo QUALIKIZ=$(QUALIKIZ)
