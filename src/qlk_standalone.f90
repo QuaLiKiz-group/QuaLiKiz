@@ -664,7 +664,7 @@ CONTAINS
     REAL(kind=DBL), DIMENSION(:,:), ALLOCATABLE :: dummyxnions
     REAL(kind=DBL), DIMENSION(:,:,:), ALLOCATABLE :: dummyxnnumsol
 
-    INTEGER :: dimxtmp,dimntmp,nionstmp,phys_methtmp,coll_flagtmp,rot_flagtmp,verbosetmp
+    INTEGER :: dimxtmp,dimntmp,nionstmp,phys_methtmp,coll_flagtmp,rot_flagtmp,verbosetmp, write_primitmp
     INTEGER :: separatefluxtmp,numsolstmp,maxrunstmp,maxptstmp,el_typetmp,runcountertmp
     REAL(kind=DBL) :: relacc1tmp,relacc2tmp,timeouttmp,R0tmp,ETGmulttmp,collmulttmp
     REAL(kind=DBL), DIMENSION(:), ALLOCATABLE :: kthetarhostmp 
@@ -770,7 +770,7 @@ CONTAINS
     IF (myrank == doit) coll_flag = INT(readvar(inputdir // 'coll_flag.bin', dummy, ktype, myunit))
     doit=doit+1; IF (doit==nproc) doit=0 
 
-    write_primi = 1
+    write_primi = 0
     IF (myrank == doit) write_primi = INT(readvar(inputdir // 'write_primi.bin', dummy, ktype, myunit))
     doit=doit+1; IF (doit==nproc) doit=0 
 
@@ -1037,6 +1037,7 @@ CONTAINS
 
     CALL MPI_AllReduce(phys_meth,phys_methtmp,1,MPI_INTEGER,MPI_SUM,mpi_comm_world,ierr)
     CALL MPI_AllReduce(coll_flag,coll_flagtmp,1,MPI_INTEGER,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(write_primi,write_primitmp,1,MPI_INTEGER,MPI_SUM,mpi_comm_world,ierr)
     CALL MPI_AllReduce(rot_flag,rot_flagtmp,1,MPI_INTEGER,MPI_SUM,mpi_comm_world,ierr)
     CALL MPI_AllReduce(verbose,verbosetmp,1,MPI_INTEGER,MPI_SUM,mpi_comm_world,ierr)
     CALL MPI_AllReduce(separateflux,separatefluxtmp,1,MPI_INTEGER,MPI_SUM,mpi_comm_world,ierr)
@@ -1085,6 +1086,7 @@ CONTAINS
 
     phys_meth=phys_methtmp
     coll_flag=coll_flagtmp
+    write_primi=write_primitmp
     rot_flag=rot_flagtmp
     verbose=verbosetmp
     separateflux=separatefluxtmp
