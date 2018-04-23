@@ -1934,14 +1934,12 @@ CONTAINS
 
     outputdir = 'output/'
 
-    OPEN(unit=fileno, file="output/npol.dat", action="write", status="replace")
-    WRITE(fileno,fmtxrow) (((npol(i,j,k),i=1,dimx),j=1,ntheta),k=1,nions) ; CLOSE(fileno)
-
-    OPEN(unit=fileno, file="output/ecoefs.dat", action="write", status="replace")
-    WRITE(fileno,fmtecoef) (((ecoefs(i,j,k),k=1,numecoefs),i=1,dimx),j=0,nions) ; CLOSE(fileno)
-
-    OPEN(unit=fileno, file="output/cftrans.dat", action="write", status="replace")
-    WRITE(fileno,fmtcftrans) (((cftrans(i,j,k),k=1,7),i=1,dimx),j=1,nions) ; CLOSE(fileno)
+    CALL writevar(outputdir // 'npol.dat', npol, myfmt, fileno)
+    fileno=fileno+1
+    CALL writevar(outputdir // 'ecoefs.dat', ecoefs, myfmt, fileno)
+    fileno=fileno+1
+    CALL writevar(outputdir // 'cftrans.dat', cftrans, myfmt, fileno)
+    fileno=fileno+1
 
     CALL writevar(outputdir // 'gam_GB.dat', gam_GB, myfmt, fileno)
     fileno=fileno+1
