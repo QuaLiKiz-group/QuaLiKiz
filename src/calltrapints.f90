@@ -105,7 +105,7 @@ CONTAINS
     !Due to the 1D real integral, we have to separate the real and imaginary parts
     DO i = 1,nions
        IF ( (ion_type(pFFk,i) == 1) .AND. (ETG_flag(nuFFk) .EQV. .FALSE.) ) THEN !only include active ions
-          intsum = intsum+REAL ( FFki(kk,1,i) )
+          intsum = intsum+REAL ( FFki(kk,1,i) )*ninorm(pFFk,i) !unnormalise coefi here
        ENDIF
     ENDDO
     rFFkiz=intsum
@@ -122,7 +122,7 @@ CONTAINS
     !Due to the 1D real integral, we have to separate the real and imaginary parts
     DO i = 1,nions
        IF ( (ion_type(pFFk,i) == 1) .AND. (ETG_flag(nuFFk) .EQV. .FALSE.) ) THEN !only include active ions in dispersion relation nonadiabatic part
-          intsum = intsum+AIMAG ( FFki(kk,1,i) )
+          intsum = intsum+AIMAG ( FFki(kk,1,i) )*ninorm(pFFk,i) !unnormalise coefi here
        ENDIF
     ENDDO
     iFFkiz = intsum
@@ -700,7 +700,7 @@ CONTAINS
     !Due to the 1D real integral, we have to separate the real and imaginary parts
     DO i = 1,nions
        IF ( (ion_type(pFFk,i) == 1) .AND. (ETG_flag(nuFFk) .EQV. .FALSE.) ) THEN !only include active ions
-          intsum = intsum+REAL ( FFkirot(kk,1,i) )
+          intsum = intsum+REAL ( FFkirot(kk,1,i) )*ninorm(pFFk,i) !unnormalise coefi here
        ENDIF
     ENDDO
     rFFkizrot=intsum
@@ -717,7 +717,7 @@ CONTAINS
     !Due to the 1D real integral, we have to separate the real and imaginary parts
     DO i = 1,nions
        IF ( (ion_type(pFFk,i) == 1) .AND. (ETG_flag(nuFFk) .EQV. .FALSE.) ) THEN !only include active ions in dispersion relation nonadiabatic part
-          intsum = intsum+AIMAG ( FFkirot(kk,1,i) )
+          intsum = intsum+AIMAG ( FFkirot(kk,1,i) )*ninorm(pFFk,i) !unnormalise coefi here
        ENDIF
     ENDDO
     iFFkizrot = intsum

@@ -252,7 +252,7 @@ CONTAINS
 
     DO i = 1,nions
        Nix(:,i) = ninorm(:,i)*Nex(:) !Ion densities
-       coefi(:,i) = Zi(:,i)*Zi(:,i) * Nix(:,i) * tau(:,i) !Ion coefficients throughout equations
+       coefi(:,i) = Zi(:,i)*Zi(:,i) * Nix(:,i) * tau(:,i)/ninorm(:,i) !Ion coefficients throughout equations. Normalised by ninorm to avoid small numbers. Later unnormalised
        cthi(:,i) = SQRT(2._DBL*qe*Tix(:,i)*1.d3/mi(:,i)) !Thermal velocities
        Rhoi(:,i) = SQRT(2._DBL*qe*Tix(:,i)*1.d3*mi(:,i))/(qe*Zi(:,i)*Bo(:)) !Larmor radii
        di(:,i) = qx(:)/SQRT(2._DBL*(epsilon(:)+eps))*Rhoi(:,i) !Ion banana width

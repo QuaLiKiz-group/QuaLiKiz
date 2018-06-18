@@ -122,41 +122,41 @@ CONTAINS
 
     fonxcirce = fonctce
     fonxpiege = fonctpe
-    fonxcirci(:) = fonctci(:)
-    fonxpiegi(:) = fonctpi(:)
+    fonxcirci(:) = fonctci(:)*ninorm(p,:) !renormalise coefi
+    fonxpiegi(:) = fonctpi(:)*ninorm(p,:) !renormalise coefi
 
     !To save memory space, this condition is in place
     IF (phys_meth .NE. 0.0) THEN
        fonxcircgte = fonctcgte
        fonxpieggte = fonctpgte
-       fonxcircgti(:) = fonctcgti(:)
-       fonxpieggti(:) = fonctpgti(:)
+       fonxcircgti(:) = fonctcgti(:)*ninorm(p,:) !renormalise coefi
+       fonxpieggti(:) = fonctpgti(:)*ninorm(p,:) !renormalise coefi
        fonxcircgne = fonctcgne
        fonxpieggne = fonctpgne
-       fonxcircgni(:) = fonctcgni(:)
-       fonxpieggni(:) = fonctpgni(:)
-       fonxcircgui(:) = fonctcgui(:)
-       fonxpieggui(:) = fonctpgui(:)
+       fonxcircgni(:) = fonctcgni(:)*ninorm(p,:) !renormalise coefi
+       fonxpieggni(:) = fonctpgni(:)*ninorm(p,:) !renormalise coefi
+       fonxcircgui(:) = fonctcgui(:)*ninorm(p,:) !renormalise coefi
+       fonxpieggui(:) = fonctpgui(:)*ninorm(p,:) !renormalise coefi
        fonxcircce = fonctcce
        fonxpiegce = fonctpce
-       fonxcircci(:) = fonctcci(:)
-       fonxpiegci(:) = fonctpci(:)
+       fonxcircci(:) = fonctcci(:)*ninorm(p,:) !renormalise coefi
+       fonxpiegci(:) = fonctpci(:)*ninorm(p,:) !renormalise coefi
        !!
        IF (phys_meth == 2) THEN
           fonxecircgte = fonctecgte
           fonxepieggte = fonctepgte
-          fonxecircgti(:) = fonctecgti(:)
-          fonxepieggti(:) = fonctepgti(:)
+          fonxecircgti(:) = fonctecgti(:)*ninorm(p,:) !renormalise coefi
+          fonxepieggti(:) = fonctepgti(:)*ninorm(p,:) !renormalise coefi
           fonxecircgne = fonctecgne
           fonxepieggne = fonctepgne
-          fonxecircgni(:) = fonctecgni(:)
-          fonxepieggni(:) = fonctepgni(:)
-          fonxecircgui(:) = fonctecgui(:)
-          fonxepieggui(:) = fonctepgui(:)
+          fonxecircgni(:) = fonctecgni(:)*ninorm(p,:) !renormalise coefi
+          fonxepieggni(:) = fonctepgni(:)*ninorm(p,:) !renormalise coefi
+          fonxecircgui(:) = fonctecgui(:)*ninorm(p,:) !renormalise coefi
+          fonxepieggui(:) = fonctepgui(:)*ninorm(p,:) !renormalise coefi
           fonxecircce = fonctecce
           fonxepiegce = fonctepce
-          fonxecircci(:) = fonctecci(:)
-          fonxepiegci(:) = fonctepci(:)
+          fonxecircci(:) = fonctecci(:)*ninorm(p,:) !renormalise coefi
+          fonxepiegci(:) = fonctepci(:)*ninorm(p,:) !renormalise coefi
        ENDIF
     ENDIF
 
@@ -165,8 +165,8 @@ CONTAINS
     fonxecirci(:) = foncteci(:)
     fonxepiegi(:) = fonctepi(:)     
 
-    fonxvcirci(:) = fonctvci(:)
-    fonxvpiegi(:) = fonctvpi(:)     
+    fonxvcirci(:) = fonctvci(:)*ninorm(p,:) !renormalise coefi
+    fonxvpiegi(:) = fonctvpi(:)*ninorm(p,:) !renormalise coefi
 
   END SUBROUTINE make_QLflux
 

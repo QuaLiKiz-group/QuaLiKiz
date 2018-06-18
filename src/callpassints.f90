@@ -54,7 +54,7 @@ CONTAINS
 
     DO i = 1,nions
        IF ( (ion_type(pFkr,i) == 1) .AND. (ETG_flag(nuFkr) .EQV. .FALSE.) ) THEN !only include active ions
-          intsum = intsum + 4.*REAL ( Fkstarrstari(ndim,xy,1,i) )
+          intsum = intsum + 4.*REAL ( Fkstarrstari(ndim,xy,1,i) )*ninorm(pFkr,i) !unnormalise coefi here
        ENDIF
     ENDDO
     rFkstarrstar = intsum
@@ -80,7 +80,7 @@ CONTAINS
 
     DO i = 1,nions
        IF ( (ion_type(pFkr,i) == 1) .AND. (ETG_flag(nuFkr) .EQV. .FALSE.) ) THEN !only include active ions
-          intsum = intsum + 4.*AIMAG ( Fkstarrstari(ndim,xy,1,i) )
+          intsum = intsum + 4.*AIMAG ( Fkstarrstari(ndim,xy,1,i) )*ninorm(pFkr,i) !unnormalise coefi here
        ENDIF
     ENDDO
     iFkstarrstar = intsum
@@ -637,7 +637,7 @@ CONTAINS
 
     DO i = 1,nions
        IF ( (ion_type(pFkr,i) == 1) .AND. (ETG_flag(nuFkr) .EQV. .FALSE.) ) THEN !only include active ions
-          intsum = intsum + 1.*REAL ( Fkstarrstarirot(ndim,xy,1,i) )  
+          intsum = intsum + 1.*REAL ( Fkstarrstarirot(ndim,xy,1,i) )*ninorm(pFkr,i) !unnormalise coefi here  
        ENDIF
     ENDDO
     rFkstarrstarrot = intsum
@@ -663,7 +663,7 @@ CONTAINS
 
     DO i = 1,nions
        IF ( (ion_type(pFkr,i) == 1) .AND. (ETG_flag(nuFkr) .EQV. .FALSE.) ) THEN !only include active ions
-          intsum = intsum + 1.*AIMAG ( Fkstarrstarirot(ndim,xy,1,i) )
+          intsum = intsum + 1.*AIMAG ( Fkstarrstarirot(ndim,xy,1,i) )*ninorm(pFkr,i) !unnormalise coefi here
        ENDIF
     ENDDO
     iFkstarrstarrot = intsum
