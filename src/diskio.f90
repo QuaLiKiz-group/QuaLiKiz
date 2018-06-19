@@ -86,7 +86,7 @@ CONTAINS
     LOGICAL, OPTIONAL :: force_write
     LOGICAL :: force_write_local
 
-    IF (NOT(PRESENT(force_write))) THEN
+    IF (.NOT. PRESENT(force_write)) THEN
         force_write_local = .FALSE.
     ELSE
         force_write_local = force_write
@@ -114,7 +114,7 @@ CONTAINS
     LOGICAL, OPTIONAL :: force_write
     LOGICAL :: force_write_local
 
-    IF (NOT(PRESENT(force_write))) THEN
+    IF (.NOT. PRESENT(force_write)) THEN
         force_write_local = .FALSE.
     ELSE
         force_write_local = force_write
@@ -140,7 +140,7 @@ CONTAINS
     LOGICAL, OPTIONAL :: force_write
     LOGICAL :: force_write_local
 
-    IF (NOT(PRESENT(force_write))) THEN
+    IF (.NOT. PRESENT(force_write)) THEN
         force_write_local = .FALSE.
     ELSE
         force_write_local = force_write
@@ -168,7 +168,7 @@ CONTAINS
     LOGICAL, OPTIONAL :: force_write
     LOGICAL :: force_write_local
 
-    IF (NOT(PRESENT(force_write))) THEN
+    IF (.NOT. PRESENT(force_write)) THEN
         force_write_local = .FALSE.
     ELSE
         force_write_local = force_write
@@ -197,7 +197,7 @@ CONTAINS
     LOGICAL, OPTIONAL :: force_write
     LOGICAL :: force_write_local
 
-    IF (NOT(PRESENT(force_write))) THEN
+    IF (.NOT. PRESENT(force_write)) THEN
         force_write_local = .FALSE.
     ELSE
         force_write_local = force_write
@@ -230,7 +230,7 @@ CONTAINS
     LOGICAL, OPTIONAL :: force_write
     LOGICAL :: force_write_local
 
-    IF (NOT(PRESENT(force_write))) THEN
+    IF (.NOT. PRESENT(force_write)) THEN
         force_write_local = .FALSE.
     ELSE
         force_write_local = force_write
@@ -264,7 +264,7 @@ CONTAINS
     LOGICAL, OPTIONAL :: force_write
     LOGICAL :: force_write_local
 
-    IF (NOT(PRESENT(force_write))) THEN
+    IF (.NOT. PRESENT(force_write)) THEN
         force_write_local = .FALSE.
     ELSE
         force_write_local = force_write
@@ -297,7 +297,7 @@ CONTAINS
     LOGICAL, OPTIONAL :: force_write
     LOGICAL :: force_write_local
 
-    IF (NOT(PRESENT(force_write))) THEN
+    IF (.NOT. PRESENT(force_write)) THEN
         force_write_local = .FALSE.
     ELSE
         force_write_local = force_write
@@ -331,7 +331,7 @@ CONTAINS
     LOGICAL, OPTIONAL :: force_write
     LOGICAL :: force_write_local
 
-    IF (NOT(PRESENT(force_write))) THEN
+    IF (.NOT. PRESENT(force_write)) THEN
         force_write_local = .FALSE.
     ELSE
         force_write_local = force_write
@@ -366,7 +366,7 @@ CONTAINS
     LOGICAL, OPTIONAL :: force_write
     LOGICAL :: force_write_local
 
-    IF (NOT(PRESENT(force_write))) THEN
+    IF (.NOT. PRESENT(force_write)) THEN
         force_write_local = .FALSE.
     ELSE
         force_write_local = force_write
