@@ -162,8 +162,8 @@ CONTAINS
 
     fonxecirce = fonctece
     fonxepiege = fonctepe
-    fonxecirci(:) = foncteci(:)
-    fonxepiegi(:) = fonctepi(:)     
+    fonxecirci(:) = foncteci(:)*ninorm(p,:) !renormalise coefi
+    fonxepiegi(:) = fonctepi(:)*ninorm(p,:) !renormalise coefi
 
     fonxvcirci(:) = fonctvci(:)*ninorm(p,:) !renormalise coefi
     fonxvpiegi(:) = fonctvpi(:)*ninorm(p,:) !renormalise coefi
