@@ -77,6 +77,9 @@ mod_saturation.o: kind.mod datmat.mod datcal.mod
 QuaLiKiz: qlk_standalone.f90 $(QUALIKIZ_OBJS_CORE) $(OBJS_QUALIKIZ) 
 	$(FC_PREAMBLE) $(FC_WRAPPER) $(FFLAGS) $(MPI_FLAGS) $(OPENMP_FLAGS) $(QUALIKIZ_OBJS_CORE) $(OBJS_QUALIKIZ) $(QUALIKIZ_LIBS) qlk_standalone.f90 -o $@
 
+integration_driver: integration_driver.f90 kind.o datcal.o datmat.o callpassints.o calltrapints.o integration_routines.o
+	$(FC_PREAMBLE) $(FC_WRAPPER) $(FFLAGS) $(MPI_FLAGS) $(OPENMP_FLAGS) $(QUALIKIZ_OBJS_CORE) $(OBJS_QUALIKIZ) $(QUALIKIZ_LIBS) integration_driver.f90 -o $@
+
 
 objs_core: $(QUALIKIZ_OBJS_CORE)
 objs_qualikiz: $(OBJS_QUALIKIZ) objs_core
