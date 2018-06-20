@@ -38,11 +38,15 @@ OBJS_QUALIKIZ=$(SRCS_QUALIKIZ:%f90=%o)
 MODS_QUALIKIZ=$(SRCS_QUALIKIZ:%f90=%mod)
 
 QUALIKIZ_SRCS_CORE=asymmetry.f90 callpassints.f90 calltrapints.f90 datcal.f90 datmat.f90 \
-		  dispfuncs.f90 FLRterms.f90 integration_routines.f90 kind.f90 mod_contour.f90 mod_fluidsol.f90 \
+		  dispfuncs.f90 coleintegrals.f90 FLRterms.f90 integration_routines.f90 kind.f90 mod_contour.f90 mod_fluidsol.f90 \
 		  mod_make_io.f90 mod_saturation.f90 nanfilter.f90 \
 		  passints.f90 trapints.f90
 QUALIKIZ_OBJS_CORE=$(QUALIKIZ_SRCS_CORE:%f90=%o)
 QUALIKIZ_MODS_CORE=$(QUALIKIZ_SRCS_CORE:%f90=%mod)
+
+INT_DRIV_SRCS_CORE=kind.f90 diskio.f90 datcal.f90 datmat.f90 FLRterms.f90 mod_fluidsol.f90 mod_contour.f90 dispfuncs.f90 coleintegrals.f90
+INT_DRIV_OBJS_CORE=$(INT_DRIV_SRCS_CORE:%f90=%o)
+INT_DRIV_MODS_CORE=$(INT_DRIV_SRCS_CORE:%f90=%mod)
 
 # Qualikiz objects
 qlflux.mod: QLflux.mod
@@ -63,6 +67,7 @@ calltrapints.o: trapints.mod
 passints.o: dispfuncs.mod
 trapints.o: dispfuncs.mod
 dispfuncs.o: kind.mod datcal.mod datmat.mod
+coleintegrals.o: kind.mod
 FLRterms.o: kind.mod datcal.mod datmat.mod
 mod_fluidsol.o: kind.mod datcal.mod datmat.mod
 mod_contour.o: kind.mod datcal.mod
@@ -77,8 +82,8 @@ mod_saturation.o: kind.mod datmat.mod datcal.mod
 QuaLiKiz: qlk_standalone.f90 $(QUALIKIZ_OBJS_CORE) $(OBJS_QUALIKIZ) 
 	$(FC_PREAMBLE) $(FC_WRAPPER) $(FFLAGS) $(MPI_FLAGS) $(OPENMP_FLAGS) $(QUALIKIZ_OBJS_CORE) $(OBJS_QUALIKIZ) $(QUALIKIZ_LIBS) qlk_standalone.f90 -o $@
 
-integration_driver: integration_driver.f90 kind.o datcal.o datmat.o callpassints.o calltrapints.o integration_routines.o
-	$(FC_PREAMBLE) $(FC_WRAPPER) $(FFLAGS) $(MPI_FLAGS) $(OPENMP_FLAGS) $(QUALIKIZ_OBJS_CORE) $(OBJS_QUALIKIZ) $(QUALIKIZ_LIBS) integration_driver.f90 -o $@
+integration_driver: integration_driver.f90 $(INT_DRIV_OBJS_CORE) 
+	$(FC_PREAMBLE) $(FC_WRAPPER) $(FFLAGS) $(MPI_FLAGS) $(OPENMP_FLAGS) $(INT_DRIV_OBJS_CORE) $(QUALIKIZ_LIBS) integration_driver.f90 -o $@
 
 
 objs_core: $(QUALIKIZ_OBJS_CORE)

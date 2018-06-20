@@ -25,6 +25,9 @@ QualiKiz: $(QUALIKIZ_LIBS)
 	make -C $(QUALIKIZ_SRC) QuaLiKiz
 	cp -f $(QUALIKIZ_SRC)/QuaLiKiz .
 
+integration_driver: $(QUALIKIZ_LIBS)
+	make -C $(QUALIKIZ_SRC) integration_driver
+	cp -f $(QUALIKIZ_SRC)/integration_driver .
 
 libs: $(QUALIKIZ_LIBS)
 
