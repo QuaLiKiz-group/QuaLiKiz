@@ -6,7 +6,7 @@ MODULE integration_routines
   IMPLICIT NONE
 
 CONTAINS
-  REAL(KIND=DBL) FUNCTION integrate_1d(cc, dd, relacc, npts, relerr, lw, integrand, verbose, p, nu, omega, intname)
+  REAL(KIND=DBL) FUNCTION integrate_1d(cc, dd, relacc, npts, relerr, integrand, lw, verbose, p, nu, omega, intname)
 
     REAL(KIND=DBL), EXTERNAL        :: integrand
     REAL(KIND=DBL), EXTERNAL        :: d01ahf

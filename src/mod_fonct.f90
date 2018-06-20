@@ -58,8 +58,8 @@ CONTAINS
     ALLOCATE(elist(limit))
     ALLOCATE(iord(limit))
 
-    rfonctpiz = integrate_1d(cc, dd, relacc1, npts, relerr, lw, rFFkiz, verbose, p, nu, omega, '1DNAG rFFkiz')
-    ifonctpiz = integrate_1d(cc, dd, relacc1, npts, relerr, lw, iFFkiz, verbose, p, nu, omega, '1DNAG iFFkiz')
+    rfonctpiz = integrate_1d(cc, dd, relacc1, npts, relerr, rFFkiz, lw, verbose, p, nu, omega, '1DNAG rFFkiz')
+    ifonctpiz = integrate_1d(cc, dd, relacc1, npts, relerr, iFFkiz, lw, verbose, p, nu, omega, '1DNAG iFFkiz')
 
     vertices1(1:ndim,0,1) = (/0. , 0. /)
     vertices1(1:ndim,1,1) = (/0. , vuplim /)
@@ -92,8 +92,8 @@ CONTAINS
              ENDIF
           ENDIF
        ELSE !Collisionless simulation, revert to faster single integral
-           intout(1) = integrate_1d(cc, dd, relacc1, npts, relerr, lw, rFFke_nocoll, verbose, p, nu, omega, '1DNAG rFFke_nocoll')
-           intout(2) = integrate_1d(cc, dd, relacc1, npts, relerr, lw, iFFke_nocoll, verbose, p, nu, omega, '1DNAG iFFke_nocoll')
+           intout(1) = integrate_1d(cc, dd, relacc1, npts, relerr, rFFke_nocoll, lw, verbose, p, nu, omega, '1DNAG rFFke_nocoll')
+           intout(2) = integrate_1d(cc, dd, relacc1, npts, relerr, iFFke_nocoll, lw, verbose, p, nu, omega, '1DNAG iFFke_nocoll')
        ENDIF
     ELSE
        intout(1)=0
@@ -267,8 +267,8 @@ CONTAINS
     ALLOCATE(elist(limit))
     ALLOCATE(iord(limit))
 
-    rfonctpiz = integrate_1d(cc, dd, relacc1, npts, relerr, lw, rFFkizrot, verbose, p, nu, omega, '1DNAG rFFkizrot')
-    ifonctpiz = integrate_1d(cc, dd, relacc1, npts, relerr, lw, iFFkizrot, verbose, p, nu, omega, '1DNAG rFFkizrot')
+    rfonctpiz = integrate_1d(cc, dd, relacc1, npts, relerr, rFFkizrot, lw, verbose, p, nu, omega, '1DNAG rFFkizrot')
+    ifonctpiz = integrate_1d(cc, dd, relacc1, npts, relerr, iFFkizrot, lw, verbose, p, nu, omega, '1DNAG rFFkizrot')
 
     vertices1(1:ndim,0,1) = (/0. , 0. /)
     vertices1(1:ndim,1,1) = (/0. , vuplim /)
@@ -300,8 +300,8 @@ CONTAINS
              ENDIF
           ENDIF
        ELSE !collisionless integral, do single integral
-         intout(1) = integrate_1d(cc, dd, relacc1, npts, relerr, lw, rFFke_nocollrot, verbose, p, nu, omega, '1DNAG rFFke_nocollrot')
-         intout(2) = integrate_1d(cc, dd, relacc1, npts, relerr, lw, iFFke_nocollrot, verbose, p, nu, omega, '1DNAG iFFke_nocollrot')
+         intout(1) = integrate_1d(cc, dd, relacc1, npts, relerr, rFFke_nocollrot, lw, verbose, p, nu, omega, '1DNAG rFFke_nocollrot')
+         intout(2) = integrate_1d(cc, dd, relacc1, npts, relerr, iFFke_nocollrot, lw, verbose, p, nu, omega, '1DNAG iFFke_nocollrot')
        ENDIF
     ELSE
        intout(1)=0
