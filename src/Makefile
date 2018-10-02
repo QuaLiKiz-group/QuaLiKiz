@@ -19,7 +19,7 @@ SLATEC?=-L$(SLATEC_DIR) -lslatec
 SPECFUN?=-L$(SPECFUN_DIR) -lspecfun
 FUKUSHIMA?=-L$(FUKUSHIMA_DIR) -lfukushima
 
-QUALIKIZ_LIBS=$(CUBPACK) $(GENZ) $(NAG) $(SLATEC) $(SPECFUN) $(FUKUSHIMA)
+QUALIKIZ_LIBS=$(CUBPACK) $(GENZ) $(NAG) $(SLATEC) $(SPECFUN) $(FUKUSHIMA) $(CUBA)
 # Parallel or serial compilation
 ifneq ($(MPI_FLAGS),-DMPI)
       OBJS_QUALIKIZ += mpivoid.o
@@ -38,14 +38,14 @@ OBJS_QUALIKIZ=$(SRCS_QUALIKIZ:%f90=%o)
 MODS_QUALIKIZ=$(SRCS_QUALIKIZ:%f90=%mod)
 
 QUALIKIZ_SRCS_CORE=asymmetry.f90 callpassints.f90 calltrapints.f90 datcal.f90 datmat.f90 \
-		  dispfuncs.f90 coleintegrals.f90 FLRterms.f90 integration_routines.f90 kind.f90 mod_contour.f90 mod_fluidsol.f90 \
+		  dispfuncs.f90 coleintegrals.f90 hcub.f90 clencurt.f90 pcub.f90 FLRterms.f90 integration_routines.f90 kind.f90 mod_contour.f90 mod_fluidsol.f90 \
 		  mod_make_io.f90 mod_saturation.f90 nanfilter.f90 \
 		  passints.f90 trapints.f90
 QUALIKIZ_OBJS_CORE=$(QUALIKIZ_SRCS_CORE:%f90=%o)
 QUALIKIZ_MODS_CORE=$(QUALIKIZ_SRCS_CORE:%f90=%mod)
 
-INT_DRIV_SRCS_CORE=kind.f90 diskio.f90 datcal.f90 datmat.f90 FLRterms.f90 mod_fluidsol.f90 mod_contour.f90 dispfuncs.f90 coleintegrals.f90
-INT_DRIV_OBJS_CORE=$(INT_DRIV_SRCS_CORE:%f90=%o)
+INT_DRIV_SRCS_CORE=kind.f90 diskio.f90 datcal.f90 datmat.f90 FLRterms.f90 mod_fluidsol.f90 mod_contour.f90 dispfuncs.f90 hcub.f90 clencurt.f90 pcub.f90 coleintegrals.f90
+INT_DRIV_OBJS_CORE=$(INT_DRIV_SRCS_CORE:%f90=%o) 
 INT_DRIV_MODS_CORE=$(INT_DRIV_SRCS_CORE:%f90=%mod)
 
 # Qualikiz objects
@@ -67,6 +67,9 @@ calltrapints.o: trapints.mod
 passints.o: dispfuncs.mod
 trapints.o: dispfuncs.mod
 dispfuncs.o: kind.mod datcal.mod datmat.mod
+hcub.o: kind.mod
+clencurt.o : kind.mod
+pcub.o: kind.mod clencurt.mod
 coleintegrals.o: kind.mod
 FLRterms.o: kind.mod datcal.mod datmat.mod
 mod_fluidsol.o: kind.mod datcal.mod datmat.mod
@@ -85,6 +88,8 @@ QuaLiKiz: qlk_standalone.f90 $(QUALIKIZ_OBJS_CORE) $(OBJS_QUALIKIZ)
 integration_driver: integration_driver.f90 $(INT_DRIV_OBJS_CORE) 
 	$(FC_PREAMBLE) $(FC_WRAPPER) $(FFLAGS) $(MPI_FLAGS) $(OPENMP_FLAGS) $(INT_DRIV_OBJS_CORE) $(QUALIKIZ_LIBS) integration_driver.f90 -o $@
 
+integration_driver2: integration_driver2.f90 $(INT_DRIV_OBJS_CORE) 
+	$(FC_PREAMBLE) $(FC_WRAPPER) $(FFLAGS) $(MPI_FLAGS) $(OPENMP_FLAGS) $(INT_DRIV_OBJS_CORE) $(QUALIKIZ_LIBS) integration_driver2.f90 -o $@
 
 objs_core: $(QUALIKIZ_OBJS_CORE)
 objs_qualikiz: $(OBJS_QUALIKIZ) objs_core
@@ -112,6 +117,7 @@ dump_variables:
 	@echo
 	@echo QUALIKIZ=$(QUALIKIZ)
 	@echo QUALIKIZ_LIBS=$(QUALIKIZ_LIBS)
+	@echo NAG=$(NAG)
 	@echo
 	@echo QUALIKIZ_MODS_CORE=$(QUALIKIZ_MODS_CORE)
 	@echo MODS_QUALIKIZ=$(MODS_QUALIKIZ)

@@ -1,5 +1,3 @@
-
-
 PROGRAM integration_driver
 
   USE kind
@@ -11,47 +9,27 @@ PROGRAM integration_driver
   USE mod_contour !module which contains contour routines
   USE dispfuncs
   USE coleintegrals
-  USE HCUB
-  USE PCUB
-  
-  
+
   IMPLICIT NONE
 
-  INTEGER  :: p, nu, ifailloc, contour
-  COMPLEX(KIND=DBL) :: omega, omFkrtmp, out_
-  REAL(KIND=DBL) :: theta, scale_, L_
-  COMPLEX(KIND=DBL) :: varz, Co, Centre
+  INTEGER  :: p, nu, ifailloc
+  COMPLEX(KIND=DBL) :: omega
 
-  REAL(KIND=DBL), DIMENSION(ndim) :: aa, bb, cc, dd, xmin, xmax, IntegralValue, AbsErr
-  REAL(KIND=DBL) :: NAGresultR, NAGresultI, NAGtemp, COLEresultR, COLEresultI, realtmp, reqepsrel, reqepsabs
+  REAL(KIND=DBL), DIMENSION(ndim) :: aa, bb, cc, dd
+  REAL(KIND=DBL) :: NAGresult, COLEresult
   REAL(KIND=DBL), DIMENSION(:), ALLOCATABLE :: wrkstr
 
   REAL(KIND=DBL)     :: acc, relerr, NAGtime, COLEtime
-  INTEGER            :: minpts,npts, myunit, choice, error
+  INTEGER            :: minpts,npts, myunit
 
   INTEGER :: time1, time2, freq  
   LOGICAL :: exist1, exist2, exist3, exist4 !used for checking for existence of files
-  CHARACTER(len=20) :: myfmt, myint, fmtx,fmtn,fmtion,fmtintion,fmtxrow,fmt,coleformat
-  CHARACTER(len = 60) :: coleformat2
+  CHARACTER(len=20) :: myfmt, myint, fmtx,fmtn,fmtion,fmtintion,fmtxrow,fmt
   CHARACTER(len=:), ALLOCATABLE :: debugdir, outputdir, primitivedir, inputdir
   ! Old solution for non-reset runs
   REAL(KIND=DBL), DIMENSION(:,:,:), ALLOCATABLE :: oldrsol,oldisol,oldrfdsol,oldifdsol
   !MPI variables:
-  INTEGER :: ierror, nproc, myrank, i,j, write_primi,n, test, contour_loc, fast
-  REAL(KIND=DBL), DIMENSION(1) :: fdata, a1, a2
-  
-  
-    
-    xmin(1) = 0.
-    xmin(2) = 0.
-    xmax(1) = 5.
-    xmax(2) = 5.
-    reqepsrel = 0.001
-    reqepsabs = 0.0
-  
-  
-  coleformat = '(F15.8, 4X, F15.8, )'
-  coleformat2 = '(F15.8, 4X, F15.8, 4X, F15.8, )'
+  INTEGER :: ierror, nproc, myrank, i,j, write_primi
 
   CALL mpi_init(ierror)
   CALL mpi_comm_size(mpi_comm_world,nproc,ierror)
@@ -90,522 +68,124 @@ PROGRAM integration_driver
   dd(1) = 1.0d0 - barelyavoid
   dd(2) = vuplim
 
-  fast = 0 !set to one to do it faster
   omFkr = sol(p,nu,1) !omega in integrands
-  L_ = 1
-  contour_loc = 1
-  Co = MAX(AIMAG(solflu(p, nu)), 10.) * ci / 3.
-  rint = ABS(REAL(solflu(p,nu))) / 5.
-  Centre = Co + REAL(contour_loc) * (L_ * rint + 2. * (1 - 0.1))
-  
-  !Centre = Co
-  !rint = 3.
-
-  contour = 1
-
-
-  realtmp = REAL(omFkr)/100.
-  
-  
+  omFkr = omFkr - CMPLX(0, 1.8)
   ion = 1 !for integrand call
   call write_debug()
   ALLOCATE(wrkstr(lenwrk))
-  IF(contour.EQ.0) THEN
-  open(unit=1,file="Hcubature_results.txt",action="write",status="replace")
-  open(unit=2,file="Pcubature_results.txt",action="write",status="replace")
-  open(unit=3,file="Mixcubature_results_contour.txt",action="write",status="replace")
-  open(unit=4,file="Hcubature_results_split.txt",action="write",status="replace")
-  open(unit=5,file="Pcubature_results_split.txt",action="write",status="replace")
-  open(unit=9,file="omFkr.txt",action="write",status="replace")
-  open(unit=11,file="NAG_results.txt",action="write",status="replace")
-  open(unit=12,file="NAG_results_high.txt",action="write",status="replace")
-  
-  ELSE
-
-  open(unit=1,file="Hcubature_results_contour.txt",action="write",status="replace")
-  open(unit=2,file="Pcubature_results_contour.txt",action="write",status="replace")
-  open(unit=3,file="Mixcubature_results_contour.txt",action="write",status="replace")
- ! open(unit=4,file="Hcubature_results_split_contour.txt",action="write",status="replace")
- ! open(unit=5,file="Pcubature_results_split_contour.txt",action="write",status="replace")
-  open(unit=9,file="omFkr_contour.txt",action="write",status="replace")
-  open(unit=11,file="NAG_results_contour.txt",action="write",status="replace")
-  open(unit=12,file="NAG_results_high_contour.txt",action="write",status="replace")
-  
-  END IF
-
-  omFkr = CMPLX(REAL(omFkr)/50., AIMAG(omFkr)/50.)
-  omFkrtmp = omFkr
-  
-
 
   ! Begin time measurement
-  
-  IF(contour.EQ.0) THEN
-  DO choice = 1,2
-  omFkr = omFkrtmp
-  !Scan over omFkr with a rectangular mesh 
-  DO n = 1,50
-  DO j=1,50
-    out_ = Fkstarrstare(2, (/0., 0./), 1)
-    scale_ = ABS(out_)
-	  CALL SYSTEM_CLOCK(time1)
-      DO i=1,100
-        minpts=0; ifailloc = 1; error = 0
-       
-          
-          IF(choice.EQ.2) THEN
-            !Compute to high accuracy 
-            NAGresultR = 0.
-            NAGresultI = 0
-            aa(1) = 0.
-            bb(1) = 2.2
-            CALL d01fcf(ndim,aa,bb,minpts,maxpts,rFkstarrstare,0.001,acc,lenwrk,wrkstr,NAGtemp,ifailloc)
-            IF(ifailloc /= 0) error = ifailloc
-            ifailloc = 1
-            NAGresultR = NAGresultR + NAGtemp
-            CALL d01fcf(ndim,aa,bb,minpts,maxpts,iFkstarrstare,0.001,acc,lenwrk,wrkstr,NAGtemp,ifailloc)
-            IF(ifailloc /= 0) error = ifailloc
-            ifailloc = 1
-            NAGresultI = NAGresultI + NAGtemp
-            aa(1) = 2.2
-            bb(1) = 2.5
-            CALL d01fcf(ndim,aa,bb,minpts,maxpts,rFkstarrstare,0.001,acc,lenwrk,wrkstr,NAGtemp,ifailloc)
-            IF(ifailloc /= 0) error = ifailloc
-            ifailloc = 1
-            NAGresultR = NAGresultR + NAGtemp
-            CALL d01fcf(ndim,aa,bb,minpts,maxpts,iFkstarrstare,0.001,acc,lenwrk,wrkstr,NAGtemp,ifailloc)
-            IF(ifailloc /= 0) error = ifailloc
-            ifailloc = 1
-            NAGresultI = NAGresultI + NAGtemp
-            aa(1) = 2.5
-            bb(1) = 5.
-            CALL d01fcf(ndim,aa,bb,minpts,maxpts,rFkstarrstare,0.001,acc,lenwrk,wrkstr,NAGtemp,ifailloc)
-            IF(ifailloc /= 0) error = ifailloc
-            ifailloc = 1
-            NAGresultR = NAGresultR + NAGtemp
-            CALL d01fcf(ndim,aa,bb,minpts,maxpts,iFkstarrstare,0.001,acc,lenwrk,wrkstr,NAGtemp,ifailloc)
-            IF(ifailloc /= 0) error = ifailloc
-            ifailloc = 1
-            NAGresultI = NAGresultI + NAGtemp
-            NAGresultR=NAGresultR*4.; !multiply by 4 due to symmetry
-            NAGresultI=NAGresultI*4.
-            aa(1) = 0.
-            bb(:) = rkuplim
-            EXIT
-          ELSE
-            !Compute to regular accuracy 
-            aa(1) = 0
-            bb(1) = 5.
-            NAGresultR = 0.
-            NAGresultI = 0.
-            CALL d01fcf(ndim,aa,bb,minpts,maxpts,rFkstarrstare,relacc2,acc,lenwrk,wrkstr,NAGresultR,ifailloc)
-            IF(ifailloc /= 0) error = ifailloc
-            ifailloc = 1
-            CALL d01fcf(ndim,aa,bb,minpts,maxpts,iFkstarrstare,relacc2,acc,lenwrk,wrkstr,NAGresultI,ifailloc)
-            IF(ifailloc /= 0) error = ifailloc
-            ifailloc = 1
-            NAGresultR = NAGresultR * 4
-            NAGresultI = NAGresultI * 4
-          END IF
-     ENDDO
-     IF (error /= 0) THEN
-           IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I4,A,I4,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',error,&
-                &'. Abnormal termination of NAG integration for j = ',j,' and kinty = ',n,' and choice = ',choice
-           IF (ifailloc == -399) THEN
-              WRITE(stderr,"(A)") 'NAG license error! Exiting'
-              STOP
-           ENDIF
-        ENDIF
-     CALL SYSTEM_CLOCK(time2)
-     CALL SYSTEM_CLOCK(count_rate=freq)
-     NAGtime = REAL(time2-time1) / REAL(freq) * 1.
-    IF(choice.EQ.1) WRITE(9,coleformat) REAL(omFkr), AIMAG(omFkr)
-    WRITE(10+choice,coleformat2) NAGtime, NAGresultR, NAGresultI
-    omFkr = omFkr + CMPLX(0.,0.5)
-  ENDDO
-  omFkr = CMPLX(REAL(omFkr), AIMAG(omFkrtmp))
-  omFkr = omFkr + CMPLX(2., 0)
-  ENDDO
-  
-  IF(choice.eq.1) CLOSE(9)
-  CLOSE(10+choice)  
-  !WRITE(*,'(A,G14.7)') 'Adiabatic term = ',Ac
-  END DO 
-  
-  
-  
-  aa(1) = 0.
-  bb(1) = 5.
-  
-  DO choice = 1,2
-  !Choice here determines what method to use
-  omFkr = omFkrtmp
-  !Scan over omFkr with a rectangular mesh 
-  DO n = 1,50
-  DO j=1,50
-    
-    out_ = Fkstarrstare(2, (/0., 0./), 1)
-    scale_ = ABS(out_)
-	  CALL SYSTEM_CLOCK(time1)
-     DO i=1,100
-        SELECT CASE(choice)
-        CASE(1)
-          aa(1) = 0.
-          bb(1) = 5.
-          test = hcubature(2, Fkstarrstare_cubature, 2, aa, bb, maxpts, reqepsabs, reqepsrel, 2, IntegralValue, AbsErr)
-          COLEresultR = 4.*IntegralValue(1) * scale_
-          COLEresultI = 4.*IntegralValue(2) * scale_
-        
-        CASE(2)
-          aa(1) = 0.
-          bb(1) = 5. 
-          test = pcubature(2, Fkstarrstare_cubature, 2, aa, bb, maxpts, reqepsabs, reqepsrel, 2, IntegralValue, AbsErr)
-          COLEresultR = 4.*IntegralValue(1)*scale_
-          COLEresultI = 4.*IntegralValue(2)*scale_
-          
-        CASE(3)
-          aa(1) = 0.
-          bb(1) = 5.
-          IF(theta.LE.(3.*pi/2.)) THEN
-            test = pcubature(2, Fkstarrstare_cubature, 2, aa, bb, maxpts, reqepsabs, reqepsrel, 2, IntegralValue, AbsErr)
-          ELSE
-            test = hcubature(2, Fkstarrstare_cubature, 2, aa, bb, maxpts, reqepsabs, reqepsrel, 2, IntegralValue, AbsErr)
-          END IF
-          COLEresultR = 4.*IntegralValue(1)*scale_
-          COLEresultI = 4.*IntegralValue(2)*scale_
-          
-        CASE(4)
-          aa(1) = 0.
-          bb(1) = 2.2
-          
-          test = hcubature(2, Fkstarrstari_cubature, 2, aa, bb, maxpts, reqepsabs, reqepsrel, 2, IntegralValue, AbsErr)
-          COLEresultR = IntegralValue(1)
-          COLEresultI = IntegralValue(2)
-          
-          aa(1) = 2.2
-          bb(1) = 2.5
-          
-          test = hcubature(2, Fkstarrstari_cubature, 2, aa, bb, maxpts, reqepsabs, reqepsrel, 2, IntegralValue, AbsErr)
-          COLEresultR = COLEresultR + IntegralValue(1)
-          COLEresultI = COLEresultI + IntegralValue(2)
-          
-          aa(1) = 2.5
-          bb(1) = 5.
-          
-          test = hcubature(2, Fkstarrstari_cubature, 2, aa, bb, maxpts, reqepsabs, reqepsrel, 2, IntegralValue, AbsErr)
-          COLEresultR = COLEresultR + IntegralValue(1)
-          COLEresultI = COLEresultI + IntegralValue(2)
-          COLEresultR = COLEresultR * 4. * scale_
-          COLEresultI = COLEresultI * 4. * scale_
-       CASE(5)
-          aa(1) = 0.
-          bb(1) = 2.2
-          
-          test = pcubature(2, Fkstarrstari_cubature, 2, aa, bb, maxpts, reqepsabs, reqepsrel, 2, IntegralValue, AbsErr)
-          COLEresultR = IntegralValue(1)
-          COLEresultI = IntegralValue(2)
-          
-          aa(1) = 2.2
-          bb(1) = 2.5
-          
-          test = pcubature(2, Fkstarrstari_cubature, 2, aa, bb, maxpts, reqepsabs, reqepsrel, 2, IntegralValue, AbsErr)
-          COLEresultR = COLEresultR + IntegralValue(1)
-          COLEresultI = COLEresultI + IntegralValue(2)
-          
-          aa(1) = 2.5
-          bb(1) = 5.
-          
-          test = pcubature(2, Fkstarrstari_cubature, 2, aa, bb, maxpts, reqepsabs, reqepsrel, 2, IntegralValue, AbsErr)
-          COLEresultR = COLEresultR + IntegralValue(1)
-          COLEresultI = COLEresultI + IntegralValue(2)
-          COLEresultR = COLEresultR * 4. * scale_
-          COLEresultI = COLEresultI * 4. * scale_
-          
+  CALL SYSTEM_CLOCK(time1)
+  DO j=1,4
+     DO i=1,100   
+        minpts=0; ifailloc = 1
+        SELECT CASE (j)
+        CASE (1)
+            CALL d01fcf(ndim,aa,bb,minpts,maxpts,rFkstarrstari,relacc2,acc,lenwrk,wrkstr,NAGresult,ifailloc)
+            NAGresult=NAGresult*4.; !multiply by 4 due to symmetry           
+        CASE (2)
+            CALL d01fcf(ndim,aa,bb,minpts,maxpts,iFkstarrstari,relacc2,acc,lenwrk,wrkstr,NAGresult,ifailloc)
+            NAGresult=NAGresult*4.; !multiply by 4 due to symmetry           
+        CASE (3)
+            CALL d01fcf(ndim,aa,bb,minpts,maxpts,rFkstarrstare,relacc2,acc,lenwrk,wrkstr,NAGresult,ifailloc)
+            NAGresult=NAGresult*4.; !multiply by 4 due to symmetry
+        CASE (4)
+            CALL d01fcf(ndim,aa,bb,minpts,maxpts,iFkstarrstare,relacc2,acc,lenwrk,wrkstr,NAGresult,ifailloc)
+            NAGresult=NAGresult*4.; !multiply by 4 due to symmetry
+!!$        CASE (5)
+!!$           NAGresult = d01ahf(cc(1),dd(1),relacc1,npts,relerr,rFFki,lw,ifailloc)
+!!$        CASE (6)
+!!$           NAGresult = d01ahf(cc(1),dd(1),relacc1,npts,relerr,iFFki,lw,ifailloc)
+!!$        CASE (7)
+!!$           CALL d01fcf(ndim,cc,dd,minpts,maxpts,rFFke,relacc2,acc,lenwrk,wrkstr,NAGresult,ifailloc)
+!!$        CASE (8)
+!!$           CALL d01fcf(ndim,cc,dd,minpts,maxpts,iFFke,relacc2,acc,lenwrk,wrkstr,NAGresult,ifailloc)          
         END SELECT
-        !If choice = 1, compute to low accuracy, otherwise compute to high accuracy 
-        !minpts=0; ifailloc = 1; error = 0
-        !COLEresultR = 0.
-        !COLEresultI = 0.    
-        !CALL coleint(ndim,aa,bb,minpts,maxpts,Fkstarrstari,relacc2,acc,lenwrk,wrkstr,COLEresultR,COLEresultI,ifailloc,choice,error)
-        !COLEresultR = COLEresultR * 4.
-        !COLEresultI = COLEresultI * 4.
-        !END IF
-     END DO
-     IF (error /= 0) THEN
-           IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I4,A,I4,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',error,&
-                &'. Abnormal termination of CUBPACK integration for j = ',j,' and kinty = ',n,' and choice = ',choice
+        IF (ifailloc /= 0) THEN
+           IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+                &'. Abnormal termination of integration for j = ',j
            IF (ifailloc == -399) THEN
               WRITE(stderr,"(A)") 'NAG license error! Exiting'
               STOP
            ENDIF
         ENDIF
-     CALL SYSTEM_CLOCK(time2)
-     CALL SYSTEM_CLOCK(count_rate=freq)
-     COLEtime = REAL(time2-time1) / REAL(freq) * 1.
-        !WRITE(*,*)
-        !WRITE(*,'(A,G14.7,A)') 'COLEtime for 100 real passing ion integrations =',COLEtime,' s'
-        !WRITE(*,'(A,G14.7)') 'COLEresult for rLcirci =', COLEresult
-        !WRITE(*,*)
-        !IF (ifailloc /= 1) WRITE(*,*) 'ERROR, COLE FAILED TO CONVERGE'       
-     WRITE(choice,coleformat2) COLEtime, COLEresultR, COLEresultI
-     omFkr = omFkr + CMPLX(0.,0.5) 
-  ENDDO
-  omFkr = CMPLX(REAL(omFkr), AIMAG(omFkrtmp))
-  omFkr = omFkr + CMPLX(2., 0)
-  ENDDO
-  CLOSE(choice)
-  END DO
-  
-  ELSE
-  
-  DO choice = 1,2
-  !Scan over omFkr with a contour
-  DO n = 1,500
-    theta = 2.*pi*REAL(n-1)/REAL(500-1)
-    varz = EXP(ci*theta)
-    CALL squircle(Centre, varz, omFkr, rint)
-    omFFk = omFkr
-
-    out_ = Fkstarrstare(2, (/0., 0./), 1)
-    scale_ = ABS(out_)
-	  CALL SYSTEM_CLOCK(time1)
-      DO i=1,100 - 90*fast
-        minpts=0; ifailloc = 1; error = 0
-        a1 = 0._DBL
-        a2 = 1._DBL - barelyavoid
-          
-          IF(choice.EQ.2) THEN
-            !Compute to high accuracy 
-            NAGresultR = 0.
-            NAGresultI = 0.
-            !CALL d01fcf(ndim,cc,dd,minpts,maxpts,rFFke,0.001,acc,lenwrk,wrkstr,NAGtemp,ifailloc)
-            !NAGresultR = 4.* NAGtemp
-            !CALL d01fcf(ndim,cc,dd,minpts,maxpts,iFFke,0.001,acc,lenwrk,wrkstr,NAGtemp,ifailloc)
-            !NAGresultI = 4.*NAGtemp
-            NAGresultR = 4.* d01ahf(a1, a2, 0.0001, test, acc, rFFki, maxpts, ifailloc)
-            NAGresultI = 4.* d01ahf(a1, a2, 0.0001, test, acc, iFFki, maxpts, ifailloc)
-            EXIT
-          
-            
-            
-          ELSE IF(choice.EQ.3) THEN
-            !Compute to high accuracy 
-            NAGresultR = 0.
-            NAGresultI = 0
-            aa(1) = 0.
-            bb(1) = 2.2
-            CALL d01fcf(ndim,aa,bb,minpts,maxpts,rFkstarrstar,0.001,acc,lenwrk,wrkstr,NAGtemp,ifailloc)
-            IF(ifailloc /= 0) error = ifailloc
-            ifailloc = 1
-            NAGresultR = NAGresultR + NAGtemp
-            CALL d01fcf(ndim,aa,bb,minpts,maxpts,iFkstarrstar,0.001,acc,lenwrk,wrkstr,NAGtemp,ifailloc)
-            IF(ifailloc /= 0) error = ifailloc
-            ifailloc = 1
-            NAGresultI = NAGresultI + NAGtemp
-            aa(1) = 2.2
-            bb(1) = 2.5
-            CALL d01fcf(ndim,aa,bb,minpts,maxpts,rFkstarrstar,0.001,acc,lenwrk,wrkstr,NAGtemp,ifailloc)
-            IF(ifailloc /= 0) error = ifailloc
-            ifailloc = 1
-            NAGresultR = NAGresultR + NAGtemp
-            CALL d01fcf(ndim,aa,bb,minpts,maxpts,iFkstarrstar,0.001,acc,lenwrk,wrkstr,NAGtemp,ifailloc)
-            IF(ifailloc /= 0) error = ifailloc
-            ifailloc = 1
-            NAGresultI = NAGresultI + NAGtemp
-            aa(1) = 2.5
-            bb(1) = 5.
-            CALL d01fcf(ndim,aa,bb,minpts,maxpts,rFkstarrstar,0.001,acc,lenwrk,wrkstr,NAGtemp,ifailloc)
-            IF(ifailloc /= 0) error = ifailloc
-            ifailloc = 1
-            NAGresultR = NAGresultR + NAGtemp
-            CALL d01fcf(ndim,aa,bb,minpts,maxpts,iFkstarrstar,0.001,acc,lenwrk,wrkstr,NAGtemp,ifailloc)
-            IF(ifailloc /= 0) error = ifailloc
-            ifailloc = 1
-            NAGresultI = NAGresultI + NAGtemp
-            NAGresultR=NAGresultR*4.; !multiply by 4 due to symmetry
-            NAGresultI=NAGresultI*4.
-            aa(1) = 0.
-            bb(:) = rkuplim
-            EXIT
-          ELSE
-            !Compute to regular accuracy 
-            aa(1) = 0
-            bb(1) = 5.
-            NAGresultR = 0.
-            NAGresultI = 0.
-            !CALL d01fcf(ndim,cc,dd,minpts,maxpts,rFFke,relacc2,acc,lenwrk,wrkstr,NAGresultR,ifailloc)
-            NAGresultR = d01ahf(a1, a2, relacc1, test, acc, rFFki, maxpts, ifailloc)
-            NAGresultI = d01ahf(a1, a2, relacc1, test, acc, iFFki, maxpts, ifailloc)
-            IF(ifailloc /= 0) error = ifailloc
-            ifailloc = 1
-            !CALL d01fcf(ndim,cc,dd,minpts,maxpts,iFFke,relacc2,acc,lenwrk,wrkstr,NAGresultI,ifailloc)
-            IF(ifailloc /= 0) error = ifailloc
-            ifailloc = 1
-            NAGresultR = NAGresultR * 4
-            NAGresultI = NAGresultI * 4
-          END IF
      ENDDO
-     IF (error /= 0) THEN
-           IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I4,A,I4,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',error,&
-                &'. Abnormal termination of NAG integration for j = ',j,' and kinty = ',n,' and choice = ',choice
-           IF (ifailloc == -399) THEN
-              WRITE(stderr,"(A)") 'NAG license error! Exiting'
-              STOP
-           ENDIF
-        ENDIF
      CALL SYSTEM_CLOCK(time2)
      CALL SYSTEM_CLOCK(count_rate=freq)
-     NAGtime = REAL(time2-time1) / REAL(freq) * (1 + 9 * fast)
-    IF(choice.EQ.1) WRITE(9,coleformat) REAL(omFkr), AIMAG(omFkr)
-    WRITE(10+choice,coleformat2) NAGtime, NAGresultR, NAGresultI
+     NAGtime = REAL(time2-time1) / REAL(freq)
+     SELECT CASE (j)
+     CASE (1)
+        WRITE(*,*)
+        WRITE(*,'(A,G14.7,A)') 'NAGtime for 100 real passing ion integrations =',NAGtime,' s'
+        WRITE(*,'(A,G14.7)') 'NAGresult for rLcirci =', NAGresult
+        WRITE(*,*)       
+     CASE (2)
+        WRITE(*,*)  
+        WRITE(*,'(A,G14.7,A)') 'NAGtime for 100 imaginary passing ion integrations =',NAGtime,' s'
+        WRITE(*,'(A,G14.7)') 'NAGresult for iLcirci =', NAGresult
+        WRITE(*,*)  
+     CASE (3)
+        WRITE(*,*)  
+        WRITE(*,'(A,G14.7,A)') 'NAGtime for 100 real passing electron integrations =',NAGtime,' s'
+        WRITE(*,'(A,G14.7)') 'NAGresult for rLcirce =', NAGresult
+        WRITE(*,*)  
+     CASE (4)
+        WRITE(*,*)  
+        WRITE(*,'(A,G14.7,A)') 'NAGtime for 100 imaginary passing electron integrations =',NAGtime,' s'
+        WRITE(*,'(A,G14.7)') 'NAGresult for iLcirce =', NAGresult
+        WRITE(*,*)
+!!$     CASE (5)
+!!$        WRITE(*,*)  
+!!$        WRITE(*,'(A,G14.7,A)') 'NAGtime for 100 real trapped ion integrations (1D) =',NAGtime,' s'
+!!$        WRITE(*,'(A,G14.7)') 'NAGresult for rLpiegi =', NAGresult
+!!$        WRITE(*,*)  
+!!$     CASE (6)
+!!$        WRITE(*,*)  
+!!$        WRITE(*,'(A,G14.7,A)') 'NAGtime for 100 imaginary trapped ion integrations (1D) =',NAGtime,' s'
+!!$        WRITE(*,'(A,G14.7)') 'NAGresult for iLpiegi =', NAGresult
+!!$        WRITE(*,*)         
+!!$     CASE (7)
+!!$        WRITE(*,*)  
+!!$        WRITE(*,'(A,G14.7,A)') 'NAGtime for 100 real trapped electron integrations =',NAGtime,' s'
+!!$        WRITE(*,'(A,G14.7)') 'NAGresult for rLpiege =', NAGresult
+!!$        WRITE(*,*)  
+!!$     CASE (8)
+!!$        WRITE(*,*)  
+!!$        WRITE(*,'(A,G14.7,A)') 'NAGtime for 100 imaginary trapped electron integrations =',NAGtime,' s'
+!!$        WRITE(*,'(A,G14.7)') 'NAGresult for iLpiege =', NAGresult
+!!$        WRITE(*,*)         
+     END SELECT
   ENDDO
-  
-  IF(choice.eq.1) CLOSE(9)
-  CLOSE(10+choice)  
-  !WRITE(*,'(A,G14.7)') 'Adiabatic term = ',Ac
-  END DO 
-  
-  
-  
-  aa(1) = 0.
-  bb(1) = 5.
-  
-  DO choice = 1,2
-  !Choice here determines what method to use
-  omFkr = omFkrtmp
-  !Scan over omFkr with a contour
-  DO n = 1,500
-   theta = 2.*pi*REAL(n-1)/REAL(500-1)
-   varz = EXP(ci*theta)
-   CALL squircle(Centre, varz, omFkr, rint)
-   omFFk = omFkr
+  WRITE(*,'(A,G14.7)') 'Adiabatic term = ',Ac
 
-   out_ = Fkstarrstar(2, (/0., 0./))
-   out_ = 1._DBL
-   scale_ = ABS(out_)
-   fdata = (/scale_/)
-	 CALL SYSTEM_CLOCK(time1)
-     DO i=1,100 - 90 * fast
-        SELECT CASE(choice)
-        CASE(1)
-          aa(1) = 0.
-          bb(1) = 5.
-          COLEresultR = 0.
-          COLEresultI = 0.
-          test = hcubature(2, FFki_cubature, 1, cc, dd, maxpts, reqepsabs, reqepsrel, 2, IntegralValue, AbsErr, fdata = fdata)
-          COLEresultR = COLEresultR +  4.*IntegralValue(1) * scale_
-          COLEresultI = COLEresultI + 4.*IntegralValue(2) * scale_
-          
-        
-        CASE(2)
-          aa(1) = 0.
-          bb(1) = 5.
-          COLEresultR = 0.
-          COLEresultI = 0.
-          test = pcubature(2, FFki_cubature, 1, cc, dd, maxpts, reqepsabs, reqepsrel, 2, IntegralValue, AbsErr, fdata = fdata)
-          COLEresultR = COLEresultR +  4.*IntegralValue(1) * scale_
-          COLEresultI = COLEresultI + 4.*IntegralValue(2) * scale_
-          
-        CASE(3)
-          aa(1) = 0.
-          bb(1) = 5.
-          COLEresultR = 0.
-          COLEresultI = 0.
-          IF(((contour_loc.EQ.-1).AND.(theta.GE.(7.*pi/4.))).OR.((contour_loc.EQ.-1).AND. &
-            & ((theta.GE.(5.*pi/4.)).AND.(theta.LE.(3.*pi/2.))))) THEN
-            test = pcubature(2, FFke_cubature, 2, cc, dd, maxpts, reqepsabs, reqepsrel, 2, IntegralValue, AbsErr, fdata = fdata)
-          ELSE
-            test = hcubature(2, FFke_cubature, 2, cc, dd, maxpts, reqepsabs, reqepsrel, 2, IntegralValue, AbsErr, fdata = fdata)
-          END IF
-          COLEresultR = 4.*IntegralValue(1)*scale_
-          COLEresultI = 4.*IntegralValue(2)*scale_
-          
-        CASE(4)
-          aa(1) = 0.
-          bb(1) = 2.2
-          
-          test = hcubature(2, Fkstarrstare_cubature, 2, aa, bb, maxpts, reqepsabs, reqepsrel, 2, IntegralValue, AbsErr)
-          COLEresultR = IntegralValue(1)
-          COLEresultI = IntegralValue(2)
-          
-          aa(1) = 2.2
-          bb(1) = 2.5
-          
-          test = hcubature(2, Fkstarrstare_cubature, 2, aa, bb, maxpts, reqepsabs, reqepsrel, 2, IntegralValue, AbsErr)
-          COLEresultR = COLEresultR + IntegralValue(1)
-          COLEresultI = COLEresultI + IntegralValue(2)
-          
-          aa(1) = 2.5
-          bb(1) = 5.
-          
-          test = hcubature(2, Fkstarrstare_cubature, 2, aa, bb, maxpts, reqepsabs, reqepsrel, 2, IntegralValue, AbsErr)
-          COLEresultR = COLEresultR + IntegralValue(1)
-          COLEresultI = COLEresultI + IntegralValue(2)
-          COLEresultR = COLEresultR * 4. * scale_
-          COLEresultI = COLEresultI * 4. * scale_
-       CASE(5)
-          aa(1) = 0.
-          bb(1) = 2.2
-          
-          test = pcubature(2, Fkstarrstare_cubature, 2, aa, bb, maxpts, reqepsabs, reqepsrel, 2, IntegralValue, AbsErr)
-          COLEresultR = IntegralValue(1)
-          COLEresultI = IntegralValue(2)
-          
-          aa(1) = 2.2
-          bb(1) = 2.5
-          
-          test = pcubature(2, Fkstarrstare_cubature, 2, aa, bb, maxpts, reqepsabs, reqepsrel, 2, IntegralValue, AbsErr)
-          COLEresultR = COLEresultR + IntegralValue(1)
-          COLEresultI = COLEresultI + IntegralValue(2)
-          
-          aa(1) = 2.5
-          bb(1) = 5.
-          
-          test = pcubature(2, Fkstarrstare_cubature, 2, aa, bb, maxpts, reqepsabs, reqepsrel, 2, IntegralValue, AbsErr)
-          COLEresultR = COLEresultR + IntegralValue(1)
-          COLEresultI = COLEresultI + IntegralValue(2)
-          COLEresultR = COLEresultR * 4. * scale_
-          COLEresultI = COLEresultI * 4. * scale_
-          
+  CALL SYSTEM_CLOCK(time1)
+  DO j=1,1
+     DO i=1,100   
+        minpts=0; ifailloc = 1
+        SELECT CASE (j)
+        CASE (1)
+           CALL coleint(ndim,aa,bb,minpts,maxpts,rFkstarrstari,relacc2,acc,lenwrk,wrkstr,COLEresult,ifailloc)
+           COLEresult=COLEresult*4.; !multiply by 4 due to symmetry
         END SELECT
-        !If choice = 1, compute to low accuracy, otherwise compute to high accuracy 
-        !minpts=0; ifailloc = 1; error = 0
-        !COLEresultR = 0.
-        !COLEresultI = 0.    
-        !CALL coleint(ndim,aa,bb,minpts,maxpts,Fkstarrstari,relacc2,acc,lenwrk,wrkstr,COLEresultR,COLEresultI,ifailloc,choice,error)
-        !COLEresultR = COLEresultR * 4.
-        !COLEresultI = COLEresultI * 4.
-        !END IF
      END DO
-     ! IF (error /= 0) THEN
-           ! IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I4,A,I4,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',error,&
-                ! &'. Abnormal termination of CUBPACK integration for j = ',j,' and kinty = ',n,' and choice = ',choice
-           ! IF (ifailloc == -399) THEN
-              ! WRITE(stderr,"(A)") 'NAG license error! Exiting'
-              ! STOP
-           ! ENDIF
-        ! ENDIF
      CALL SYSTEM_CLOCK(time2)
      CALL SYSTEM_CLOCK(count_rate=freq)
-     COLEtime = REAL(time2-time1) / REAL(freq) * (1 + 9*fast)
-        !WRITE(*,*)
-        !WRITE(*,'(A,G14.7,A)') 'COLEtime for 100 real passing ion integrations =',COLEtime,' s'
-        !WRITE(*,'(A,G14.7)') 'COLEresult for rLcirci =', COLEresult
-        !WRITE(*,*)
-        !IF (ifailloc /= 1) WRITE(*,*) 'ERROR, COLE FAILED TO CONVERGE'       
-     WRITE(choice,coleformat2) COLEtime, COLEresultR, COLEresultI
+     COLEtime = REAL(time2-time1) / REAL(freq)
+     SELECT CASE (j)
+     CASE (1)
+        WRITE(*,*)
+        WRITE(*,'(A,G14.7,A)') 'COLEtime for 100 real passing ion integrations =',COLEtime,' s'
+        WRITE(*,'(A,G14.7)') 'COLEresult for rLcirci =', COLEresult
+        WRITE(*,*)
+        IF (ifailloc /= 1) WRITE(*,*) 'ERROR, COLE FAILED TO CONVERGE'       
+     END SELECT
   ENDDO
-  CLOSE(choice)
-  END DO
-  END IF
-  
  
   DEALLOCATE(wrkstr)
 
 
   !Deallocating all
   CALL deallocate_all()
-  
 
 CONTAINS 
 
@@ -962,7 +542,7 @@ CONTAINS
     CALL writevar(debugdir // 'ifdsol_old.dat', oldifdsol, myfmt, myunit)
     CALL writevar(debugdir // 'rmwidth.dat', REAL(mwidth), myfmt, fileno)
     CALL writevar(debugdir // 'imwidth.dat', AIMAG(mwidth), myfmt, fileno)
-    CALL writevar(debugdir // 'coefi.dat', coefi, myfmt, fileno)
+    !CALL writevar(debugdir // 'Rhoi.dat', Rhoi, myfmt, fileno)
     CALL writevar(debugdir // 'ktetaRhoi.dat', ktetaRhoi, myfmt, fileno)
     CALL writevar(debugdir // 'Athi.dat', Athi, myfmt, fileno)
     CALL writevar(debugdir // 'nwg.dat', nwg, myfmt, fileno)
@@ -1724,7 +1304,6 @@ CONTAINS
     REAL(KIND=DBL) :: rFkstarrstari
     rFkstarrstari = REAL  ( Fkstarrstari(ndim,xy,1,ion) )
   END FUNCTION rFkstarrstari
-  
 
   FUNCTION iFkstarrstari(nf, xy)
     !---------------------------------------------------------------------
@@ -1911,62 +1490,6 @@ CONTAINS
     IF (ABS(Fkstarrstari) < SQRT(epsD)) Fkstarrstari=0.
 
   END FUNCTION Fkstarrstari
-  
-  INTEGER FUNCTION Fkstarrstari_cubature(ndim, x, fdata, fdim, fval)
-    USE KIND
-    INTEGER, INTENT(IN) :: ndim, fdim
-    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
-    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
-    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
-      
-    REAL(KIND=DBL), DIMENSION(2) :: XY
-    COMPLEX(KIND=DBL) :: output
-    REAL(KIND=DBL) :: scale_
-    
-    scale_ = fdata(1)
-      
-    IF((ndim.NE.2.).OR.(fdim.NE.2)) THEN
-      Fkstarrstari_cubature = 1
-      RETURN
-    END IF
-    XY(1) = x(1)
-    XY(2) = x(2)
-    output = Fkstarrstari(2, XY, 1, 1)/scale_
-    fval(1) = REAL(output)
-    fval(2) = REAL(AIMAG(output))
-    Fkstarrstari_cubature = 0
-    
-    
-  END FUNCTION Fkstarrstari_cubature
-  
-  INTEGER FUNCTION Fkstarrstari2_cubature(ndim, x, fdata, fdim, fval)
-    USE KIND
-    INTEGER, INTENT(IN) :: ndim, fdim
-    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
-    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
-    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
-      
-    REAL(KIND=DBL), DIMENSION(2) :: XY
-    COMPLEX(KIND=DBL) :: output
-    REAL(KIND=DBL) :: scale_
-    
-    scale_ = fdata(1)
-      
-    IF((ndim.NE.2.).OR.(fdim.NE.2)) THEN
-      Fkstarrstari2_cubature = 1
-      RETURN
-    END IF
-    XY(1) = x(1)
-    XY(2) = x(2)
-    output = Fkstarrstari(2, XY, 1, 2)/scale_
-    fval(1) = REAL(output)
-    fval(2) = REAL(AIMAG(output))
-    Fkstarrstari2_cubature = 0
-    
-    
-  END FUNCTION Fkstarrstari2_cubature
-  
-  
 
   COMPLEX(KIND=DBL)  FUNCTION Fkstarrstare(ndim, xx, caseflag)
     !---------------------------------------------------------------------
@@ -2085,37 +1608,6 @@ CONTAINS
 
   END FUNCTION Fkstarrstare
 
-  
-  INTEGER FUNCTION Fkstarrstare_cubature(ndim, x, fdata, fdim, fval)
-    USE KIND
-    INTEGER, INTENT(IN) :: ndim, fdim
-    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
-    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
-    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
-      
-    REAL(KIND=DBL), DIMENSION(2) :: XY
-    COMPLEX(KIND=DBL) :: output
-    REAL(KIND=DBL) :: scale_
-    
-    scale_ = fdata(1)
-      
-    IF((ndim.NE.2.).OR.(fdim.NE.2)) THEN
-      Fkstarrstare_cubature = 1
-      RETURN
-    END IF
-    XY(1) = x(1)
-    XY(2) = x(2)
-    output = Fkstarrstare(2, XY, 1)/scale_
-    fval(1) = REAL(output)
-    fval(2) = REAL(AIMAG(output))
-    Fkstarrstare_cubature = 0
-    
-    
-  END FUNCTION Fkstarrstare_cubature
-  
-  
-
-
   COMPLEX(KIND=DBL) FUNCTION FFki(kk,caseflag,nion)
     !---------------------------------------------------------------------
     ! Integrand for trapped ions
@@ -2229,34 +1721,6 @@ CONTAINS
     IF (ABS(FFki) < SQRT(epsD)) FFki=0.
 
   END FUNCTION FFki
-  
-  INTEGER FUNCTION FFki_cubature(ndim, x, fdata, fdim, fval)
-    USE KIND
-    INTEGER, INTENT(IN) :: ndim, fdim
-    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
-    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
-    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
-      
-    REAL(KIND=DBL) :: XY
-    COMPLEX(KIND=DBL) :: output
-    REAL(KIND=DBL) :: scale_
-    
-    scale_ = fdata(1)
-      
-    IF((ndim.NE.1.).OR.(fdim.NE.2)) THEN
-      FFki_cubature = 1
-      RETURN
-    END IF
-    
-    
-    XY = x(1)
-    output = FFki(XY, 1, ion)/scale_
-    fval(1) = REAL(output)
-    fval(2) = REAL(AIMAG(output))
-    FFki_cubature = 0
-    
-    
-  END FUNCTION FFki_cubature
 
   COMPLEX(KIND=DBL) FUNCTION FFke(ndim, kv, caseflag)
     !---------------------------------------------------------------------
@@ -2344,149 +1808,5 @@ CONTAINS
     ENDIF
     IF (ABS(FFke) < SQRT(epsD)) FFke=0.
   END FUNCTION FFke
-
-
-  INTEGER FUNCTION FFke_cubature(ndim, x, fdata, fdim, fval)
-    USE KIND
-    INTEGER, INTENT(IN) :: ndim, fdim
-    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
-    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
-    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
-      
-    REAL(KIND=DBL), DIMENSION(2) :: XY
-    COMPLEX(KIND=DBL) :: output
-    REAL(KIND=DBL) :: scale_
-    
-    scale_ = fdata(1)
-      
-    IF((ndim.NE.2.).OR.(fdim.NE.2)) THEN
-      FFke_cubature = 1
-      RETURN
-    END IF
-    
-    
-    XY(1) = x(1)
-    XY(2) = x(2)
-    output = FFke(2, XY, 1)/scale_
-    fval(1) = REAL(output)
-    fval(2) = REAL(AIMAG(output))
-    FFke_cubature = 0
-    
-    
-  END FUNCTION FFke_cubature
-  
-  FUNCTION rFkstarrstar(ndim, xy)
-    INTEGER :: i
-    INTEGER, INTENT(IN) :: ndim
-    REAL(KIND=DBL), DIMENSION(ndim), INTENT(IN) :: xy
-    REAL(KIND=DBL) :: rFkstarrstar
-    REAL(KIND=DBL) :: intsum
-    
-    intsum = REAL(Fkstarrstare(ndim,xy,1))
-    DO i = 1,2
-      intsum = intsum + REAL(Fkstarrstari(ndim,xy,1,i))*ninorm(pFkr,i)
-    END DO
-    rFkstarrstar = intsum
-
-    
-  END FUNCTION
-  
-  FUNCTION iFkstarrstar(ndim, xy)
-    INTEGER :: i
-    INTEGER, INTENT(IN) :: ndim
-    REAL(KIND=DBL), DIMENSION(ndim), INTENT(IN) :: xy
-    REAL(KIND=DBL) :: iFkstarrstar
-    REAL(KIND=DBL) :: intsum
-    
-    intsum = AIMAG(Fkstarrstare(ndim,xy,1))
-    DO i = 1,2
-      intsum = intsum + AIMAG(Fkstarrstari(ndim,xy,1,i))*ninorm(pFkr,i)
-    END DO
-    iFkstarrstar = intsum
-
-    
-  END FUNCTION
-  
-  COMPLEX(KIND=DBL) FUNCTION Fkstarrstar(ndim, XY)
-    INTEGER :: i
-    INTEGER, INTENT(IN) :: ndim
-    REAL(KIND=DBL), DIMENSION(ndim), INTENT(IN) :: xy
-    COMPLEX(KIND=DBL) :: intsum
-    
-    intsum = Fkstarrstare(ndim,xy,1)
-    DO i = 1,2
-      intsum = intsum + Fkstarrstari(ndim,xy,1,i)*ninorm(pFkr,i)
-    END DO
-    Fkstarrstar = intsum
-
-    
-  END FUNCTION
-  
-  INTEGER FUNCTION Fkstarrstar_cubature(ndim, x, fdim, fdata, fval)
-    USE KIND
-    INTEGER, INTENT(IN) :: ndim, fdim
-    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
-    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
-    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
-      
-    REAL(KIND=DBL), DIMENSION(2) :: XY
-    COMPLEX(KIND=DBL) :: intsum
-    INTEGER :: i
-    REAL(KIND=DBL) :: scale_
-    
-    scale_ = fdata(1)
-      
-    IF((ndim.NE.2.).OR.(fdim.NE.2)) THEN
-      Fkstarrstar_cubature = 1
-      RETURN
-    END IF
-    XY(1) = x(1)
-    XY(2) = x(2)
-    intsum = Fkstarrstare(ndim, XY, 1)
-    DO i = 1,2
-      intsum = intsum + Fkstarrstari(ndim,xy,1,i)*ninorm(pFkr,i)
-    END DO
-    intsum = intsum/scale_
-    
-    fval(1) = REAL(intsum)
-    fval(2) = REAL(AIMAG(intsum))
-    Fkstarrstar_cubature = 0
-  
-  END FUNCTION
-  
-  INTEGER FUNCTION Fkstarrstaritot_cubature(ndim, x, fdata, fdim, fval)
-    USE KIND
-    INTEGER, INTENT(IN) :: ndim, fdim
-    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
-    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
-    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
-
-      
-    REAL(KIND=DBL), DIMENSION(2) :: XY
-    COMPLEX(KIND=DBL) :: intsum
-    INTEGER :: i
-    REAL(KIND=DBL) :: scale_
-    
-    scale_ = fdata(1)
-      
-    IF((ndim.NE.2.).OR.(fdim.NE.2)) THEN
-      Fkstarrstaritot_cubature = 1
-      RETURN
-    END IF
-    XY(1) = x(1)
-    XY(2) = x(2)
-    intsum = 0._DBL
-    DO i = 1,2
-      intsum = intsum + Fkstarrstari(ndim,xy,1,i)*ninorm(pFkr,i)
-    END DO
-    intsum = intsum/scale_
-    fval(1) = REAL(intsum)
-    fval(2) = REAL(AIMAG(intsum))
-    Fkstarrstaritot_cubature = 0
-  
-  END FUNCTION
-  
-  
-  
 
 END PROGRAM integration_driver
