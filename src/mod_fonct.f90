@@ -45,8 +45,8 @@ CONTAINS
     !Integration is over a square
     a(1) = 0._DBL
     a(2) = 0._DBL
-    b(1) = 0._DBL
-    b(2) = 0._DBL
+    b(1) = 1._DBL
+    b(2) = 1._DBL
     
     !Adiabatic term, also used as scale factor
     fdata(1) = Ac(p)
@@ -70,7 +70,7 @@ CONTAINS
     
     !set the requested accuracy
     reqabsacc = 0._DBL
-    reqrelacc = 0.08_DBL
+    reqrelacc = 0.20_DBL
     
     ifailloc = hcubature(fdim, total_cubature, ndim, a, b, maxpts, reqabsacc, reqrelacc, norm, intout, acc, fdata=fdata)
     
@@ -112,8 +112,8 @@ CONTAINS
     !Integration is over a square
     a(1) = 0._DBL
     a(2) = 0._DBL
-    b(1) = 0._DBL
-    b(2) = 0._DBL
+    b(1) = 1._DBL
+    b(2) = 1._DBL
     
     !Set scale factor inside fdata
     fdata(1) = Ac(p)
@@ -137,7 +137,7 @@ CONTAINS
     
     !set the requested accuracy
     reqabsacc = 0._DBL
-    reqrelacc = 0.08_DBL
+    reqrelacc = 0.15_DBL
     
     ifailloc = pcubature(fdim, total_cubature, ndim, a, b, maxpts, reqabsacc, reqrelacc, norm, intout, acc, fdata=fdata)
     
