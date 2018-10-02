@@ -991,42 +991,49 @@ CONTAINS
 
     COMPLEX(KIND=DBL) :: fonctc
     COMPLEX(KIND=DBL) :: fonctp
+    
+    IF(phys_meth.EQ.0) THEN !Use NAG
 
-    IF ( ( rotflagarray(p) == 1 ) .AND. ( ETG_flag(nu) .EQV. .FALSE. ) ) THEN
-       ! replace mwidth by real(mwidth) in such comparaisons since now mwidth is complex. Warning: is it correct or should take module?
-       IF ( ( fc(p)==0. ) .OR. ( REAL(mwidth)<d/4.) .OR. ( calccirc .EQV. .FALSE. ) ) THEN
-          fonctc = 0.
-          IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'Warning: REAL(mwidth)<d/4 for p/nu=',p,'/',nu
-       ELSE
-          CALL calcfonctrotc ( p, nu, omega, fonctc ) 
-       END IF
+      IF ( ( rotflagarray(p) == 1 ) .AND. ( ETG_flag(nu) .EQV. .FALSE. ) ) THEN
+         ! replace mwidth by real(mwidth) in such comparaisons since now mwidth is complex. Warning: is it correct or should take module?
+         IF ( ( fc(p)==0. ) .OR. ( REAL(mwidth)<d/4.) .OR. ( calccirc .EQV. .FALSE. ) ) THEN
+            fonctc = 0.
+            IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'Warning: REAL(mwidth)<d/4 for p/nu=',p,'/',nu
+         ELSE
+            CALL calcfonctrotc ( p, nu, omega, fonctc ) 
+         END IF
 
-       IF (ft(p)==0. .OR. (calctrap .EQV. .FALSE.) ) THEN
-          fonctp = 0.    
-       ELSE      
-          CALL calcfonctrotp ( p, nu, omega, fonctp )
-       END IF
+         IF (ft(p)==0. .OR. (calctrap .EQV. .FALSE.) ) THEN
+            fonctp = 0.    
+         ELSE      
+            CALL calcfonctrotp ( p, nu, omega, fonctp )
+         END IF
 
-       fonx = CMPLX(Ac(p),0.) - fonctc - fonctp
+         fonx = CMPLX(Ac(p),0.) - fonctc - fonctp
 
-    ELSE
+      ELSE
 
-       IF ( ( fc(p)==0. ) .OR. ( REAL(mwidth)<d/4.) .OR. ( calccirc .EQV. .FALSE. ) ) THEN
-          fonctc = 0.
-          IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'Warning: REAL(mwidth)<d/4 for p/nu=',p,'/',nu
-       ELSE
-          CALL calcfonctc ( p, nu, omega, fonctc ) 
-       END IF
+         IF ( ( fc(p)==0. ) .OR. ( REAL(mwidth)<d/4.) .OR. ( calccirc .EQV. .FALSE. ) ) THEN
+            fonctc = 0.
+            IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'Warning: REAL(mwidth)<d/4 for p/nu=',p,'/',nu
+         ELSE
+            CALL calcfonctc ( p, nu, omega, fonctc ) 
+         END IF
 
-       IF (ft(p)==0. .OR. (calctrap .EQV. .FALSE.) ) THEN
-          fonctp = 0.    
-       ELSE      
-          CALL calcfonctp ( p, nu, omega, fonctp )
-       END IF
+         IF (ft(p)==0. .OR. (calctrap .EQV. .FALSE.) ) THEN
+            fonctp = 0.    
+         ELSE      
+            CALL calcfonctp ( p, nu, omega, fonctp )
+         END IF
 
-       fonx = CMPLX(Ac(p),0.) - fonctc - fonctp
+         fonx = CMPLX(Ac(p),0.) - fonctc - fonctp
 
-    ENDIF
+      ENDIF
+    ELSE IF(phys_meth.EQ.1) THEN !Use hcubature
+      CALL calcfonct_hcubature(p, nu, omega, fonx)
+    ELSE IF(phys_meth.EQ.2) THEN !Use pcubature
+      CALL calcfonct_pcubature(p, nu, omega, fonx)
+    END IF
 
   END SUBROUTINE calcfonct
 
@@ -1052,72 +1059,81 @@ CONTAINS
     niter  = 0
     zo     = sol
     fzo    = fsol
-    err    = ABS(fzo)
+    IF(phys_meth.EQ.0) THEN
+      err    = ABS(fzo)
+    ELSE 
+      err = 1._DBL
+    END IF
 
     IF (runcounter /= 0) THEN
-       maxnerrint = maxnerr
+      maxnerrint = maxnerr
     ELSE
-       maxnerrint = maxnerr2
+      maxnerrint = maxnerr2
     ENDIF
 
     DO
-       IF ( (err < maxnerrint) .OR. (niter > maxiter) ) EXIT
+    IF ( (err < maxnerrint) .OR. (niter > maxiter) ) EXIT
 
-       zpd = zo+delom
-       zmd = zo-delom
+      zpd = zo+delom
+      zmd = zo-delom
 
-       CALL calcfonct (p, nu, zpd, fzpd)
-       CALL calcfonct (p, nu, zmd, fzmd)
+      CALL calcfonct (p, nu, zpd, fzpd)
+      CALL calcfonct (p, nu, zmd, fzmd)
 
-       dfsurdx = (fzpd-fzmd)/(2.*delom)
+      dfsurdx = (fzpd-fzmd)/(2.*delom)
 
-       zpid=zo+delomi
-       zmid=zo-delomi
+      zpid=zo+delomi
+      zmid=zo-delomi
 
-       CALL calcfonct (p, nu, zpid, fzpid)
-       CALL calcfonct (p, nu, zmid, fzmid)
+      CALL calcfonct (p, nu, zpid, fzpid)
+      CALL calcfonct (p, nu, zmid, fzmid)
 
-       dfsurdy = (fzpid-fzmid)/(2.*delom)
+      dfsurdy = (fzpid-fzmid)/(2.*delom)
 
-       Ma(1,1) = REAL(dfsurdx)
-       Ma(1,2) = REAL(dfsurdy)
-       Ma(2,1) = AIMAG(dfsurdx)
-       Ma(2,2) = AIMAG(dfsurdy)
+      Ma(1,1) = REAL(dfsurdx)
+      Ma(1,2) = REAL(dfsurdy)
+      Ma(2,1) = AIMAG(dfsurdx)
+      Ma(2,2) = AIMAG(dfsurdy)
 
-       uo(1,1) = -REAL(fzo)
-       uo(2,1) = -AIMAG(fzo)
-       detMa = Ma(1,1)*Ma(2,2)-Ma(1,2)*Ma(2,1)
-       !FOR DEBUGGING UNCOMMENT BELOW
-       !WRITE(stderr,*) detMa, niter, err
-       IF (ABS(detMa)<epsD) EXIT
-       invMa(1,1) =  Ma(2,2)/detMa
-       invMa(1,2) = -Ma(1,2)/detMa
-       invMa(2,1) = -Ma(2,1)/detMa
-       invMa(2,2) =  Ma(1,1)/detMa
+      uo(1,1) = -REAL(fzo)
+      uo(2,1) = -AIMAG(fzo)
+      detMa = Ma(1,1)*Ma(2,2)-Ma(1,2)*Ma(2,1)
+      !FOR DEBUGGING UNCOMMENT BELOW
+      !WRITE(stderr,*) detMa, niter, err
+      IF (ABS(detMa)<epsD) EXIT
+      invMa(1,1) =  Ma(2,2)/detMa
+      invMa(1,2) = -Ma(1,2)/detMa
+      invMa(2,1) = -Ma(2,1)/detMa
+      invMa(2,2) =  Ma(1,1)/detMa
 
-       deltau = MATMUL(invMa,uo)
+      deltau = MATMUL(invMa,uo)
 
-       zo = zo+CMPLX(deltau(1,1),deltau(2,1))
+      zo = zo+CMPLX(deltau(1,1),deltau(2,1))
 
-       IF ( (gkw_is_nan(AIMAG(zo))) .OR. (gkw_is_nan(REAL(zo)))) THEN
-          IF (verbose .EQV. .TRUE.) WRITE(stderr,'(A,I7,A,I2,A)') 'Newton: solution had a NaN! Skipping solution. (p,nu)=(',p,',',nu,')'
-          zo   = (0.,0.)
-          fzo  = (0.,0.)
-          EXIT
-       ENDIF
+      IF ( (gkw_is_nan(AIMAG(zo))) .OR. (gkw_is_nan(REAL(zo)))) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,'(A,I7,A,I2,A)') 'Newton: solution had a NaN! Skipping solution. (p,nu)=(',p,',',nu,')'
+        zo   = (0.,0.)
+        fzo  = (0.,0.)
+        EXIT
+      ENDIF
 
-       IF ( (AIMAG(zo) < 0. ) .OR. (ABS(AIMAG(zo)) > ABS(AIMAG(ommax(p,nu)))) .OR. (ABS(REAL(zo)) > ABS(REAL(ommax(p,nu))))  ) THEN 
-          IF (verbose .EQV. .TRUE.) WRITE(stderr,'(A,I7,A,I2,A)') 'Newton: solution outside of allowed contour range! Skipping solution. (p,nu)=(',p,',',nu,')'
-          zo   = (0.,0.)
-          fzo  = (0.,0.)
-          EXIT
-       ENDIF
+      IF ( (AIMAG(zo) < 0. ) .OR. (ABS(AIMAG(zo)) > ABS(AIMAG(ommax(p,nu)))) .OR. (ABS(REAL(zo)) > ABS(REAL(ommax(p,nu))))  ) THEN 
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,'(A,I7,A,I2,A)') 'Newton: solution outside of allowed contour range! Skipping solution. (p,nu)=(',p,',',nu,')'
+        zo   = (0.,0.)
+        fzo  = (0.,0.)
+        EXIT
+      ENDIF
 
-       CALL calcfonct (p, nu, zo, fzo)
+      CALL calcfonct (p, nu, zo, fzo)
 
-       err = ABS(fzo)
+      !Change Newton convergence test
+      IF(phys_meth.NE.5) THEN
+        err = ABS(fzo)
+      ELSE
+        err = ABS(CMPLX(deltau(1,1), deltau(2,1)))
+      END IF
 
-       niter = niter+1
+      niter = niter+1
     END DO
     !FOR DEBUGGING*************
     !WRITE(stdout,*) 'Number of iterations in Newton solver = ', niter
