@@ -1030,9 +1030,21 @@ CONTAINS
 
       ENDIF
     ELSE IF(int_method.EQ.1) THEN !Use hcubature
-      CALL calcfonct_hcubature(p, nu, omega, fonx)
+      IF(int_split.EQ.0) THEN
+        CALL calcfonct_hcubature(p, nu, omega, fonx)
+      ELSE IF(int_split.EQ.1) THEN
+        CALL calcfonct_hcubaturep(p, nu, omega, fonctp)
+        CALL calcfonct_hcubaturec(p, nu, omega, fonctc)
+        fonx = CMPLX(Ac(p), 0.) - fonctc - fonctp 
+      END IF
     ELSE IF(int_method.EQ.2) THEN !Use pcubature
-      CALL calcfonct_pcubature(p, nu, omega, fonx)
+      IF(int_split.EQ.0) THEN
+        CALL calcfonct_pcubature(p, nu, omega, fonx)
+      ELSE IF(int_split.EQ.1) THEN
+        CALL calcfonct_pcubaturep(p, nu, omega, fonctp)
+        CALL calcfonct_pcubaturec(p, nu, omega, fonctc)
+        fonx = CMPLX(Ac(p), 0.) - fonctc - fonctp 
+      END IF
     END IF
 
   END SUBROUTINE calcfonct
@@ -1091,9 +1103,21 @@ CONTAINS
 
       ENDIF
     ELSE IF(newt_method.EQ.1) THEN !Use hcubature
-      CALL calcfonct_hcubature(p, nu, omega, fonx)
+      IF(int_split.EQ.0) THEN
+        CALL calcfonct_hcubature(p, nu, omega, fonx)
+      ELSE IF(int_split.EQ.1) THEN
+        CALL calcfonct_hcubaturep(p, nu, omega, fonctp)
+        CALL calcfonct_hcubaturec(p, nu, omega, fonctc)
+        fonx = CMPLX(Ac(p), 0.) - fonctc - fonctp 
+      END IF
     ELSE IF(newt_method.EQ.2) THEN !Use pcubature
-      CALL calcfonct_pcubature(p, nu, omega, fonx)
+      IF(int_split.EQ.0) THEN
+        CALL calcfonct_pcubature(p, nu, omega, fonx)
+      ELSE IF(int_split.EQ.1) THEN
+        CALL calcfonct_pcubaturep(p, nu, omega, fonctp)
+        CALL calcfonct_pcubaturec(p, nu, omega, fonctc)
+        fonx = CMPLX(Ac(p), 0.) - fonctc - fonctp 
+      END IF
     END IF
 
   END SUBROUTINE calcfonct_newt

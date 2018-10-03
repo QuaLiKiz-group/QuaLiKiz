@@ -79,7 +79,6 @@ CONTAINS
     fonct_total = intout(1) + ci * intout(2)  
   
   END SUBROUTINE calcfonct_hcubature
-  
   SUBROUTINE calcfonct_pcubature(p, nu, omega, fonct_total)
     !-----------------------------------------------------------
     ! Calculate all particle integrals
@@ -142,6 +141,190 @@ CONTAINS
     fonct_total = intout(1) + ci * intout(2)  
   
   END SUBROUTINE calcfonct_pcubature
+  
+  SUBROUTINE calcfonct_hcubaturec(p, nu, omega, fonctc)
+    !-----------------------------------------------------------
+    ! Calculate passing particle integrals
+    ! 
+    !-----------------------------------------------------------   
+    INTEGER, INTENT(IN)  :: p, nu
+    COMPLEX(KIND=DBL), INTENT(IN)  :: omega
+    COMPLEX(KIND=DBL), INTENT(OUT) :: fonctc
+    
+    REAL(KIND=DBL), DIMENSION(2) :: a, b, acc
+    REAL(KIND=DBL), DIMENSION(9) :: fdata
+    INTEGER :: ifailloc, fdim, norm
+    
+    REAL(KIND=DBL), DIMENSION(nf) :: intout
+    
+    !set the omega and p to be seen by all integration subroutines
+    omFkr = omega
+    pFkr = p
+    nuFkr = nu
+    
+    !Set integration limits. (1) for kstar and (2) for rstar
+    a(1) = 0.0d0 
+    a(2) = 0.0d0 
+    b(:) = rkuplim
+    
+    !Set scale factor inside fdata
+    fdata(1) = Ac(p)
+    
+    !set the convergence criterion to be the L_2 norm
+    norm = 2 
+    fdim = ndim
+    
+    
+    ifailloc = hcubature(fdim, passing_cubature, ndim, a, b, maxpts, reqabsacc, reqrelacc, norm, intout, acc, fdata=fdata)
+    
+    IF (ifailloc /= 0) THEN
+      IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+        &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+    END IF
+    
+    intout = intout * ABS(Ac(p))
+    fonctc = intout(1) + ci * intout(2)  
+  
+  END SUBROUTINE calcfonct_hcubaturec
+  
+  SUBROUTINE calcfonct_pcubaturec(p, nu, omega, fonctc)
+    !-----------------------------------------------------------
+    ! Calculate passing particle integrals
+    ! 
+    !-----------------------------------------------------------   
+    INTEGER, INTENT(IN)  :: p, nu
+    COMPLEX(KIND=DBL), INTENT(IN)  :: omega
+    COMPLEX(KIND=DBL), INTENT(OUT) :: fonctc
+    
+    REAL(KIND=DBL), DIMENSION(2) :: a, b, acc
+    REAL(KIND=DBL), DIMENSION(9) :: fdata
+    INTEGER :: ifailloc, fdim, norm
+    
+    REAL(KIND=DBL), DIMENSION(nf) :: intout
+    
+    !set the omega and p to be seen by all integration subroutines
+    omFkr = omega
+    pFkr = p
+    nuFkr = nu
+    
+    !Set integration limits. (1) for kstar and (2) for rstar
+    a(1) = 0.0d0 
+    a(2) = 0.0d0 
+    b(:) = rkuplim
+    
+    !Set scale factor inside fdata
+    fdata(1) = Ac(p)
+    
+    !set the convergence criterion to be the L_2 norm
+    norm = 2 
+    fdim = ndim
+    
+    
+    ifailloc = pcubature(fdim, passing_cubature, ndim, a, b, maxpts, reqabsacc, reqrelacc, norm, intout, acc, fdata=fdata)
+    
+    IF (ifailloc /= 0) THEN
+      IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+        &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+    END IF
+    
+    intout = intout * ABS(Ac(p))
+    fonctc = intout(1) + ci * intout(2)  
+  
+  END SUBROUTINE calcfonct_pcubaturec
+  
+  SUBROUTINE calcfonct_hcubaturep(p, nu, omega, fonctp)
+    !-----------------------------------------------------------
+    ! Calculate trapped particle integrals
+    ! Includes collisions for the trapped electron terms
+    !-----------------------------------------------------------   
+    INTEGER, INTENT(IN)  :: p, nu
+    COMPLEX(KIND=DBL), INTENT(IN)  :: omega
+    COMPLEX(KIND=DBL), INTENT(OUT) :: fonctp
+    
+    REAL(KIND=DBL), DIMENSION(2) :: a, b, acc
+    REAL(KIND=DBL), DIMENSION(9) :: fdata
+    INTEGER :: ifailloc, fdim, norm
+    
+    REAL(KIND=DBL), DIMENSION(nf) :: intout
+    
+    !set the omega and p to be seen by all integration subroutines
+    omFFk = omega
+    pFFk = p
+    nuFFk = nu
+    
+    !Set integration limits. (1) for kappa and (2) for v (for the electrons)
+    a(1) = 0.0d0
+    b(1) = 1.0d0 - barelyavoid
+    a(2) = 0.0d0
+    b(2) = vuplim
+    
+    !Set scale factor inside fdata
+    fdata(1) = Ac(p)
+    fdata(2) = vuplim
+    
+    !set the convergence criterion to be the L_2 norm
+    norm = 2 
+    fdim = ndim
+    
+    
+    ifailloc = hcubature(fdim, trapped_cubature, ndim, a, b, maxpts, reqabsacc, reqrelacc, norm, intout, acc, fdata=fdata)
+    
+    IF (ifailloc /= 0) THEN
+      IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+        &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+    END IF
+    
+    intout = intout * ABS(Ac(p))
+    fonctp = intout(1) + ci * intout(2)  
+  
+  END SUBROUTINE calcfonct_hcubaturep
+  
+  SUBROUTINE calcfonct_pcubaturep(p, nu, omega, fonctp)
+    !-----------------------------------------------------------
+    ! Calculate trapped particle integrals
+    ! Includes collisions for the trapped electron terms
+    !-----------------------------------------------------------   
+    INTEGER, INTENT(IN)  :: p, nu
+    COMPLEX(KIND=DBL), INTENT(IN)  :: omega
+    COMPLEX(KIND=DBL), INTENT(OUT) :: fonctp
+    
+    REAL(KIND=DBL), DIMENSION(2) :: a, b, acc
+    REAL(KIND=DBL), DIMENSION(9) :: fdata
+    INTEGER :: ifailloc, fdim, norm
+    
+    REAL(KIND=DBL), DIMENSION(nf) :: intout
+    
+    !set the omega and p to be seen by all integration subroutines
+    omFFk = omega
+    pFFk = p
+    nuFFk = nu
+    
+    !Set integration limits. (1) for kappa and (2) for v (for the electrons)
+    a(1) = 0.0d0
+    b(1) = 1.0d0 - barelyavoid
+    a(2) = 0.0d0
+    b(2) = vuplim
+    
+    !Set scale factor inside fdata
+    fdata(1) = Ac(p)
+    fdata(2) = vuplim
+    
+    !set the convergence criterion to be the L_2 norm
+    norm = 2 
+    fdim = ndim
+    
+    
+    ifailloc = pcubature(fdim, trapped_cubature, ndim, a, b, maxpts, reqabsacc, reqrelacc, norm, intout, acc, fdata=fdata)
+    
+    IF (ifailloc /= 0) THEN
+      IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+        &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+    END IF
+    
+    intout = intout * ABS(Ac(p))
+    fonctp = intout(1) + ci * intout(2)  
+  
+  END SUBROUTINE calcfonct_pcubaturep
   
 
   SUBROUTINE calcfonctp( p, nu, omega, fonctp )

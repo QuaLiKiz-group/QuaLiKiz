@@ -6,6 +6,43 @@ MODULE callpassints
 
 CONTAINS
 
+  INTEGER FUNCTION passing_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL), DIMENSION(2) :: XY
+    COMPLEX(KIND=DBL) :: output
+    REAL(KIND=DBL) :: scale_, adiabatic
+    INTEGER :: i
+    
+    adiabatic = fdata(1)
+    scale_ = ABS(adiabatic) !scaling the integrand
+    
+    IF((ndim.NE.2.).OR.(fdim.NE.2)) THEN
+      passing_cubature = 1
+      RETURN
+    END IF
+    
+    XY(1) = x(1)
+    XY(2) = x(2)
+    
+    output = 4.*Fkstarrstare(ndim, XY, 1)
+    DO i = 1, nions
+      output = output + 4.* Fkstarrstari(ndim, XY, 1, i) * ninorm(pFkr, i)
+    END DO    
+        
+    output = output/scale_
+    
+    fval(1) = REAL(output)
+    fval(2) = AIMAG(output)
+    passing_cubature = 0
+    
+    
+  END FUNCTION passing_cubature
+
   FUNCTION Fkstarrstar_cub(nf, xy)
     !---------------------------------------------------------------------
     ! Returns the total passing particle integrand

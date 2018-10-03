@@ -49,7 +49,7 @@ PROGRAM qlk_standalone
           & veneTEM_SIout,chieeTEM_SIout,veceTEM_SIout,veneTEM_GBout,chieeTEM_GBout,veceTEM_GBout, &
           & veniITG_SIout,chieiITG_SIout,veriITG_SIout,veciITG_SIout,veniITG_GBout,chieiITG_GBout,veriITG_GBout,veciITG_GBout, &
           & veniTEM_SIout,chieiTEM_SIout,veriTEM_SIout,veciTEM_SIout,veniTEM_GBout,chieiTEM_GBout,veriTEM_GBout,veciTEM_GBout, &
-          & int_methodin, newt_methodin, newt_convin, reqrelaccin, reqabsaccin)
+          & int_methodin, newt_methodin, newt_convin, int_splitin, reqrelaccin, reqabsaccin)
 
 
        INTEGER, INTENT(IN) :: dimxin, dimnin, nionsin, numsolsin, phys_methin, coll_flagin, rot_flagin, verbosein, separatefluxin, el_typein
@@ -65,7 +65,7 @@ PROGRAM qlk_standalone
        REAL, OPTIONAL, INTENT(IN) :: rhominin,rhomaxin
        
        !integration parameters
-       INTEGER, INTENT(IN), OPTIONAL :: int_methodin, newt_methodin, newt_convin
+       INTEGER, INTENT(IN), OPTIONAL :: int_methodin, newt_methodin, newt_convin, int_splitin
        REAL, INTENT(IN), OPTIONAL :: reqrelaccin, reqabsaccin
 
        ! List of output variables: 
@@ -145,7 +145,7 @@ PROGRAM qlk_standalone
   REAL(KIND=DBL) :: relacc1, relacc2, ETGmult, collmult, timeout, R0
   INTEGER :: maxpts,maxruns
   !Integration testing variables
-  INTEGER :: int_method, newt_method, newt_conv
+  INTEGER :: int_method, newt_method, newt_conv, int_split
   REAL(KIND=DBL) :: reqrelacc, reqabsacc
 
   ! Output arrays. The 3 dimensions are 'radial grid', 'kthetarhos grid', 'number of modes'
@@ -258,7 +258,7 @@ PROGRAM qlk_standalone
                 & Lcirceout=Lcirce, Lpiegeout=Lpiege, Lecirceout=Lecirce, Lepiegeout=Lepiege, &
                 & Lcirciout=Lcirci, Lpiegiout=Lpiegi, Lecirciout=Lecirci, Lepiegiout=Lepiegi, Lvcirciout=Lvcirci, Lvpiegiout=Lvpiegi, &
                 & oldsolin=oldsol,oldfdsolin=oldfdsol,runcounterin=runcounter, & ! optional inputs for jumping straight to newton solver
-                & int_methodin = int_method, newt_convin = newt_conv, reqrelaccin = reqrelacc, reqabsaccin = reqabsacc) 
+                & int_methodin = int_method, newt_methodin = newt_method, newt_convin = newt_conv, int_splitin = int_split, reqrelaccin = reqrelacc, reqabsaccin = reqabsacc) 
         ENDIF
 
         IF (phys_meth == 1) THEN
@@ -284,7 +284,7 @@ PROGRAM qlk_standalone
                 & Lcirciout=Lcirci, Lpiegiout=Lpiegi, Lecirciout=Lecirci, Lepiegiout=Lepiegi, Lvcirciout=Lvcirci, Lvpiegiout=Lvpiegi, Lcircgtiout=Lcircgti, & 
                 & Lpieggtiout=Lpieggti, Lcircgniout=Lcircgni, Lpieggniout=Lpieggni, Lcircguiout=Lcircgui, Lpiegguiout=Lpieggui, Lcircciout=Lcircci, Lpiegciout=Lpiegci, &         
                 & oldsolin=oldsol,oldfdsolin=oldfdsol,runcounterin=runcounter, & ! optional inputs for jumping straight to newton solver
-                & int_methodin = int_method, newt_convin = newt_conv, reqrelaccin = reqrelacc, reqabsaccin = reqabsacc)
+                & int_methodin = int_method, newt_methodin = newt_method, newt_convin = newt_conv, int_splitin = int_split, reqrelaccin = reqrelacc, reqabsaccin = reqabsacc)
         ENDIF
 
         IF (phys_meth == 2) THEN
@@ -316,7 +316,7 @@ PROGRAM qlk_standalone
                 & Lpieggtiout=Lpieggti, Lcircgniout=Lcircgni, Lpieggniout=Lpieggni, Lcircguiout=Lcircgui, Lpiegguiout=Lpieggui, Lcircciout=Lcircci, Lpiegciout=Lpiegci, &
                 & Lecircgtiout=Lecircgti, Lepieggtiout=Lepieggti, Lecircgniout=Lecircgni, Lepieggniout=Lepieggni, Lecircguiout=Lecircgui, Lepiegguiout=Lepieggui, Lecircciout=Lecircci, Lepiegciout=Lepiegci, &
                 & oldsolin=oldsol,oldfdsolin=oldfdsol,runcounterin=runcounter, & ! optional inputs for jumping straight to newton solver)
-                & int_methodin = int_method, newt_convin = newt_conv, reqrelaccin = reqrelacc, reqabsaccin = reqabsacc)
+                & int_methodin = int_method, newt_methodin = newt_method, newt_convin = newt_conv, int_splitin = int_split, reqrelaccin = reqrelacc, reqabsaccin = reqabsacc)
         ENDIF
 
      ELSE !Don't call with optional old solution input
@@ -338,7 +338,7 @@ PROGRAM qlk_standalone
                 & kperp2out=kperp2, krmmuITGout=krmmuITG, krmmuETGout=krmmuETG, &
                 & Lcirceout=Lcirce, Lpiegeout=Lpiege, Lecirceout=Lecirce, Lepiegeout=Lepiege, &
                 & Lcirciout=Lcirci, Lpiegiout=Lpiegi, Lecirciout=Lecirci, Lepiegiout=Lepiegi, Lvcirciout=Lvcirci, Lvpiegiout=Lvpiegi, &
-                & int_methodin = int_method, newt_convin = newt_conv, reqrelaccin = reqrelacc, reqabsaccin = reqabsacc)
+                & int_methodin = int_method, newt_methodin = newt_method, newt_convin = newt_conv, int_splitin = int_split, reqrelaccin = reqrelacc, reqabsaccin = reqabsacc)
 	ENDIF
 
         IF (phys_meth == 1) THEN
@@ -362,7 +362,7 @@ PROGRAM qlk_standalone
                 & Lpieggteout=Lpieggte, Lcircgneout=Lcircgne, Lpieggneout=Lpieggne, Lcircceout=Lcircce, Lpiegceout=Lpiegce, & 
                 & Lcirciout=Lcirci, Lpiegiout=Lpiegi, Lecirciout=Lecirci, Lepiegiout=Lepiegi, Lvcirciout=Lvcirci, Lvpiegiout=Lvpiegi, Lcircgtiout=Lcircgti, & 
                 & Lpieggtiout=Lpieggti, Lcircgniout=Lcircgni, Lpieggniout=Lpieggni, Lcircguiout=Lcircgui, Lpiegguiout=Lpieggui, Lcircciout=Lcircci, Lpiegciout=Lpiegci, &
-                & int_methodin = int_method, newt_convin = newt_conv, reqrelaccin = reqrelacc, reqabsaccin = reqabsacc)
+                & int_methodin = int_method, newt_methodin = newt_method, newt_convin = newt_conv, int_splitin = int_split, reqrelaccin = reqrelacc, reqabsaccin = reqabsacc)
         ENDIF
 
         IF (phys_meth == 2) THEN
@@ -392,7 +392,7 @@ PROGRAM qlk_standalone
                 & Lcirciout=Lcirci, Lpiegiout=Lpiegi, Lecirciout=Lecirci, Lepiegiout=Lepiegi, Lvcirciout=Lvcirci, Lvpiegiout=Lvpiegi, Lcircgtiout=Lcircgti, & 
                 & Lpieggtiout=Lpieggti, Lcircgniout=Lcircgni, Lpieggniout=Lpieggni, Lcircguiout=Lcircgui, Lpiegguiout=Lpieggui, Lcircciout=Lcircci, Lpiegciout=Lpiegci, &
                 & Lecircgtiout=Lecircgti, Lepieggtiout=Lepieggti, Lecircgniout=Lecircgni, Lepieggniout=Lepieggni, Lecircguiout=Lecircgui, Lepiegguiout=Lepieggui, Lecircciout=Lecircci, Lepiegciout=Lepiegci, &
-                & int_methodin = int_method, newt_convin = newt_conv, reqrelaccin = reqrelacc, reqabsaccin = reqabsacc)
+                & int_methodin = int_method, newt_methodin = newt_method, newt_convin = newt_conv, int_splitin = int_split, reqrelaccin = reqrelacc, reqabsaccin = reqabsacc)
         ENDIF
      ENDIF
 
@@ -423,7 +423,7 @@ PROGRAM qlk_standalone
                 & eefITG_SIout=eefITG_SI,eefITG_GBout=eefITG_GB,epfITG_SIout=epfITG_SI,epfITG_GBout=epfITG_GB,&  
                 & iefTEM_SIout=iefTEM_SI,iefTEM_GBout=iefTEM_GB,ipfTEM_SIout=ipfTEM_SI,ipfTEM_GBout=ipfTEM_GB,ivfTEM_SIout=ivfTEM_SI,ivfTEM_GBout=ivfTEM_GB,&
                 & iefITG_SIout=iefITG_SI,iefITG_GBout=iefITG_GB,ipfITG_SIout=ipfITG_SI,ipfITG_GBout=ipfITG_GB,ivfITG_SIout=ivfITG_SI,ivfITG_GBout=ivfITG_GB, &
-                & int_methodin = int_method, newt_convin = newt_conv, reqrelaccin = reqrelacc, reqabsaccin = reqabsacc)
+                & int_methodin = int_method, newt_methodin = newt_method, newt_convin = newt_conv, int_splitin = int_split, reqrelaccin = reqrelacc, reqabsaccin = reqabsacc)
         ENDIF
 
         IF (phys_meth == 1) THEN
@@ -461,7 +461,7 @@ PROGRAM qlk_standalone
                 & iefITG_SIout=iefITG_SI,iefITG_GBout=iefITG_GB,ipfITG_SIout=ipfITG_SI,ipfITG_GBout=ipfITG_GB,ivfITG_SIout=ivfITG_SI,ivfITG_GBout=ivfITG_GB,&
                 & dfiITG_SIout=dfiITG_SI,vtiITG_SIout=vtiITG_SI,vciITG_SIout=vciITG_SI,vriITG_SIout=vriITG_SI,&
                 & dfiITG_GBout=dfiITG_GB,vtiITG_GBout=vtiITG_GB,vciITG_GBout=vciITG_GB,vriITG_GBout=vriITG_GB, &
-                & int_methodin = int_method, newt_convin = newt_conv, reqrelaccin = reqrelacc, reqabsaccin = reqabsacc)
+                & int_methodin = int_method, newt_methodin = newt_method, newt_convin = newt_conv, int_splitin = int_split, reqrelaccin = reqrelacc, reqabsaccin = reqabsacc)
         ENDIF
 
         IF (phys_meth == 2) THEN
@@ -515,7 +515,7 @@ PROGRAM qlk_standalone
                 & dfiITG_GBout=dfiITG_GB,vtiITG_GBout=vtiITG_GB,vciITG_GBout=vciITG_GB,vriITG_GBout=vriITG_GB,&
                 & chieiITG_SIout=chieiITG_SI,veniITG_SIout=veniITG_SI,veciITG_SIout=veciITG_SI,veriITG_SIout=veriITG_SI,&
                 & chieiITG_GBout=chieiITG_GB,veniITG_GBout=veniITG_GB,veciITG_GBout=veciITG_GB,veriITG_GBout=veriITG_GB, &
-                & int_methodin = int_method, newt_convin = newt_conv, reqrelaccin = reqrelacc, reqabsaccin = reqabsacc)
+                & int_methodin = int_method, newt_methodin = newt_method, newt_convin = newt_conv, int_splitin = int_split, reqrelaccin = reqrelacc, reqabsaccin = reqabsacc)
         ENDIF
 
 
@@ -542,7 +542,7 @@ PROGRAM qlk_standalone
                 & eefITG_SIout=eefITG_SI,eefITG_GBout=eefITG_GB,epfITG_SIout=epfITG_SI,epfITG_GBout=epfITG_GB,&  
                 & iefTEM_SIout=iefTEM_SI,iefTEM_GBout=iefTEM_GB,ipfTEM_SIout=ipfTEM_SI,ipfTEM_GBout=ipfTEM_GB,ivfTEM_SIout=ivfTEM_SI,ivfTEM_GBout=ivfTEM_GB,&
                 & iefITG_SIout=iefITG_SI,iefITG_GBout=iefITG_GB,ipfITG_SIout=ipfITG_SI,ipfITG_GBout=ipfITG_GB,ivfITG_SIout=ivfITG_SI,ivfITG_GBout=ivfITG_GB, &
-                & int_methodin = int_method, newt_convin = newt_conv, reqrelaccin = reqrelacc, reqabsaccin = reqabsacc)
+                & int_methodin = int_method, newt_methodin = newt_method, newt_convin = newt_conv, int_splitin = int_split, reqrelaccin = reqrelacc, reqabsaccin = reqabsacc)
 	ENDIF
 
         IF (phys_meth == 1) THEN
@@ -578,7 +578,7 @@ PROGRAM qlk_standalone
                 & iefITG_SIout=iefITG_SI,iefITG_GBout=iefITG_GB,ipfITG_SIout=ipfITG_SI,ipfITG_GBout=ipfITG_GB,ivfITG_SIout=ivfITG_SI,ivfITG_GBout=ivfITG_GB,&
                 & dfiITG_SIout=dfiITG_SI,vtiITG_SIout=vtiITG_SI,vciITG_SIout=vciITG_SI,vriITG_SIout=vriITG_SI,&
                 & dfiITG_GBout=dfiITG_GB,vtiITG_GBout=vtiITG_GB,vciITG_GBout=vciITG_GB,vriITG_GBout=vriITG_GB, &
-                & int_methodin = int_method, newt_convin = newt_conv, reqrelaccin = reqrelacc, reqabsaccin = reqabsacc)
+                & int_methodin = int_method, newt_methodin = newt_method, newt_convin = newt_conv, int_splitin = int_split, reqrelaccin = reqrelacc, reqabsaccin = reqabsacc)
         ENDIF
 
         IF (phys_meth == 2) THEN
@@ -630,7 +630,7 @@ PROGRAM qlk_standalone
                 & dfiITG_GBout=dfiITG_GB,vtiITG_GBout=vtiITG_GB,vciITG_GBout=vciITG_GB,vriITG_GBout=vriITG_GB,&
                 & chieiITG_SIout=chieiITG_SI,veniITG_SIout=veniITG_SI,veciITG_SIout=veciITG_SI,veriITG_SIout=veriITG_SI,&
                 & chieiITG_GBout=chieiITG_GB,veniITG_GBout=veniITG_GB,veciITG_GBout=veciITG_GB,veriITG_GBout=veriITG_GB, &
-                & int_methodin = int_method, newt_convin = newt_conv, reqrelaccin = reqrelacc, reqabsaccin = reqabsacc)
+                & int_methodin = int_method, newt_methodin = newt_method, newt_convin = newt_conv, int_splitin = int_split, reqrelaccin = reqrelacc, reqabsaccin = reqabsacc)
         ENDIF
      ENDIF
   ENDIF
@@ -722,6 +722,10 @@ CONTAINS
     
     newt_conv = 0
     IF (myrank == fileno) newt_conv = INT(readvar(inputdir // 'newt_conv.bin', dummy, ktype, myunit))
+    fileno=fileno+1; IF (fileno==nproc) fileno=0 
+    
+    int_split = 0
+    IF (myrank == fileno) int_split = INT(readvar(inputdir // 'int_split.bin', dummy, ktype, myunit))
     fileno=fileno+1; IF (fileno==nproc) fileno=0 
 
     ! p{1} Size of radial or scan arrays

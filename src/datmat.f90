@@ -16,7 +16,7 @@ MODULE datmat
   REAL(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: Machparorig, Auparorig, gammaEorig !backup arrays used in rotationless dispersion relation solver with rot_flag=2
 
   !integral testing parameters
-  INTEGER, SAVE :: int_method, newt_method, newt_conv
+  INTEGER, SAVE :: int_method, newt_method, newt_conv, int_split
   REAL(KIND=DBL), SAVE :: reqrelacc, reqabsacc
 
   !Parameters for deciding how often to jump to full solution searching in integrated modelling applications
