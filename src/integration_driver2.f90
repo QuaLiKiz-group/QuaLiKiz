@@ -99,8 +99,8 @@ PROGRAM integration_driver
 
   fast = 1 !set to one to do it faster
   omFkr = sol(p,nu,1) !omega in integrands
-  L_ = 2.5
-  contour_loc = 1
+  L_ = 1.
+  contour_loc = 0
   Co = MAX(AIMAG(solflu(p, nu)), 10.) * ci / 3.
   rint = ABS(REAL(solflu(p,nu))) / 5.
   Centre = Co + REAL(contour_loc) * (L_ * rint + 2. * (1 - 0.1))
@@ -111,7 +111,7 @@ PROGRAM integration_driver
   END IF
 
   contour = 1
-  do_NAG = 1
+  do_NAG = 0
 
   realtmp = REAL(omFkr)/100.
   

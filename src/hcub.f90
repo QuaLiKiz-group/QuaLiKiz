@@ -56,7 +56,7 @@ REAL(KIND=DBL) FUNCTION errMax(fdim, ee)
   
   INTEGER :: i
   
-  errMax = 0
+  errMax = 0._DBL
   DO i = 1, fdim
     IF(ee(i)%err_.GT.errMax) errMax = ee(i)%err_
   END DO
@@ -1113,10 +1113,8 @@ INTEGER FUNCTION rulecubature(r, fdim, fdata, h, maxEval, reqAbsError, reqRelErr
   
   INTEGER :: numEval, i, j, k, nR_alloc, nR_alloc_old, norm_new, nR, completed_once
   TYPE(HEAP) :: regions
-  TYPE(REGION), DIMENSION(:), POINTER :: Re, Re_tmp
-  TYPE(ESTERR), DIMENSION(:), POINTER :: ee
-  
-  NULLIFY(Re, Re_tmp, ee)
+  TYPE(REGION), DIMENSION(:), ALLOCATABLE :: Re, Re_tmp
+  TYPE(ESTERR), DIMENSION(:), ALLOCATABLE :: ee
   
   IF(.NOT.(PRESENT(f).XOR.PRESENT(fv))) THEN !should pass either f or fv
     rulecubature = 1
@@ -1124,7 +1122,6 @@ INTEGER FUNCTION rulecubature(r, fdim, fdata, h, maxEval, reqAbsError, reqRelErr
   END IF
   
   numEval = 0; nR_alloc = 0; completed_once = 0
-  NULLIFY(Re, ee)
   
   norm_new = norm
   IF(fdim.LE.1) norm_new = 1 !Norm is irrelevant
@@ -1135,18 +1132,18 @@ INTEGER FUNCTION rulecubature(r, fdim, fdata, h, maxEval, reqAbsError, reqRelErr
   
   regions = heap_alloc(1, fdim)
   IF((.NOT.ASSOCIATED(regions%ee)).OR.(.NOT.ASSOCIATED(regions%items))) THEN !failed
-    IF(ASSOCIATED(ee)) DEALLOCATE(ee)
+    IF(ALLOCATED(ee)) DEALLOCATE(ee)
     CALL heap_free(regions)
-    IF(ASSOCIATED(Re)) DEALLOCATE(Re)
+    IF(ALLOCATED(Re)) DEALLOCATE(Re)
     rulecubature = 1
     RETURN
   END IF  
   
   ALLOCATE(ee(fdim))
-  IF(.NOT.ASSOCIATED(ee)) THEN !failed
-    IF(ASSOCIATED(ee)) DEALLOCATE(ee)
+  IF(.NOT.ALLOCATED(ee)) THEN !failed
+    IF(ALLOCATED(ee)) DEALLOCATE(ee)
     CALL heap_free(regions)
-    IF(ASSOCIATED(Re)) DEALLOCATE(Re)
+    IF(ALLOCATED(Re)) DEALLOCATE(Re)
     rulecubature = 1
     RETURN
   END IF
@@ -1154,10 +1151,10 @@ INTEGER FUNCTION rulecubature(r, fdim, fdata, h, maxEval, reqAbsError, reqRelErr
   nR_alloc = 2
   ALLOCATE(Re(nR_alloc))
   nR_alloc_old = nR_alloc
-  IF(.NOT.ASSOCIATED(Re)) THEN !failed
-    IF(ASSOCIATED(ee)) DEALLOCATE(ee)
+  IF(.NOT.ALLOCATED(Re)) THEN !failed
+    IF(ALLOCATED(ee)) DEALLOCATE(ee)
     CALL heap_free(regions)
-    IF(ASSOCIATED(Re)) DEALLOCATE(Re)
+    IF(ALLOCATED(Re)) DEALLOCATE(Re)
     rulecubature = 1
     RETURN
   END IF
@@ -1167,38 +1164,38 @@ INTEGER FUNCTION rulecubature(r, fdim, fdata, h, maxEval, reqAbsError, reqRelErr
   !Fortran might not have short circuiting, so split it up
   IF(PRESENT(fv)) THEN
     IF(.NOT.ASSOCIATED(Re(1)%ee)) THEN !failed
-      IF(ASSOCIATED(ee)) DEALLOCATE(ee)
+      IF(ALLOCATED(ee)) DEALLOCATE(ee)
       CALL heap_free(regions)
-      IF(ASSOCIATED(Re)) DEALLOCATE(Re)
+      IF(ALLOCATED(Re)) DEALLOCATE(Re)
       rulecubature = 1
       RETURN
     ELSE IF(eval_regions(1, Re, fdata, r, fv = fv).NE.0) THEN
-      IF(ASSOCIATED(ee)) DEALLOCATE(ee)
+      IF(ALLOCATED(ee)) DEALLOCATE(ee)
       CALL heap_free(regions)
-      IF(ASSOCIATED(Re)) DEALLOCATE(Re)
+      IF(ALLOCATED(Re)) DEALLOCATE(Re)
       rulecubature = 1
     ELSE IF(heap_push(regions, Re(1)).NE.0) THEN
-      IF(ASSOCIATED(ee)) DEALLOCATE(ee)
+      IF(ALLOCATED(ee)) DEALLOCATE(ee)
       CALL heap_free(regions)
-      IF(ASSOCIATED(Re)) DEALLOCATE(Re)
+      IF(ALLOCATED(Re)) DEALLOCATE(Re)
       rulecubature = 1
     END IF
   ELSE IF(PRESENT(f)) THEN
     IF(.NOT.ASSOCIATED(Re(1)%ee)) THEN !failed
-      IF(ASSOCIATED(ee)) DEALLOCATE(ee)
+      IF(ALLOCATED(ee)) DEALLOCATE(ee)
       CALL heap_free(regions)
-      IF(ASSOCIATED(Re)) DEALLOCATE(Re)
+      IF(ALLOCATED(Re)) DEALLOCATE(Re)
       rulecubature = 1
       RETURN
     ELSE IF(eval_regions(1, Re, fdata, r, f = f).NE.0) THEN
-      IF(ASSOCIATED(ee)) DEALLOCATE(ee)
+      IF(ALLOCATED(ee)) DEALLOCATE(ee)
       CALL heap_free(regions)
-      IF(ASSOCIATED(Re)) DEALLOCATE(Re)
+      IF(ALLOCATED(Re)) DEALLOCATE(Re)
       rulecubature = 1
     ELSE IF(heap_push(regions, Re(1)).NE.0) THEN
-      IF(ASSOCIATED(ee)) DEALLOCATE(ee)
+      IF(ALLOCATED(ee)) DEALLOCATE(ee)
       CALL heap_free(regions)
-      IF(ASSOCIATED(Re)) DEALLOCATE(Re)
+      IF(ALLOCATED(Re)) DEALLOCATE(Re)
       rulecubature = 1
     END IF
   END IF
@@ -1254,14 +1251,15 @@ INTEGER FUNCTION rulecubature(r, fdim, fdata, h, maxEval, reqAbsError, reqRelErr
           DO k = 1, MIN(nR_alloc_old, nR_alloc) !makes sure that if we shrink the size we don't copy everything
             Re_tmp(k) = Re(k)
           END DO
-          IF(ASSOCIATED(Re)) DEALLOCATE(Re)  !CAREFUL, this does not destroy the hypercubes contained in regions
-          Re => Re_tmp
-          NULLIFY(Re_tmp)
+          IF(ALLOCATED(Re)) DEALLOCATE(Re)  !CAREFUL, this does not destroy the hypercubes contained in regions
+          ALLOCATE(Re(nR_alloc))
+          Re = Re_tmp
+          DEALLOCATE(Re_tmp)
           nR_alloc_old = nR_alloc
-          IF(.NOT.ASSOCIATED(RE)) THEN !failed
-            IF(ASSOCIATED(ee)) DEALLOCATE(ee)
+          IF(.NOT.ALLOCATED(Re)) THEN !failed
+            IF(ALLOCATED(ee)) DEALLOCATE(ee)
             CALL heap_free(regions)
-            IF(ASSOCIATED(Re)) DEALLOCATE(Re)
+            IF(ALLOCATED(Re)) DEALLOCATE(Re)
             rulecubature = 1
             RETURN
           END IF
@@ -1271,9 +1269,9 @@ INTEGER FUNCTION rulecubature(r, fdim, fdata, h, maxEval, reqAbsError, reqRelErr
           ee(j)%err_ = ee(j)%err_ - Re(nR+1)%ee(j)%err_
         END DO
         IF(cut_region(Re(nR+1), Re(nR+2)).NE.0) THEN !failed 
-          IF(ASSOCIATED(ee)) DEALLOCATE(ee)
+          IF(ALLOCATED(ee)) DEALLOCATE(ee)
           CALL heap_free(regions)
-          IF(ASSOCIATED(Re)) DEALLOCATE(Re)
+          IF(ALLOCATED(Re)) DEALLOCATE(Re)
           rulecubature = 1
           RETURN
         END IF
@@ -1287,28 +1285,28 @@ INTEGER FUNCTION rulecubature(r, fdim, fdata, h, maxEval, reqAbsError, reqRelErr
       !Fortran might not have short circuiting, so IF statements are broken up
       IF(PRESENT(fv)) THEN   
         IF(eval_regions(nR, Re, fdata, r, fv = fv).NE.0) THEN !failed
-          IF(ASSOCIATED(ee)) DEALLOCATE(ee)
+          IF(ALLOCATED(ee)) DEALLOCATE(ee)
           CALL heap_free(regions)
-          IF(ASSOCIATED(Re)) DEALLOCATE(Re)
+          IF(ALLOCATED(Re)) DEALLOCATE(Re)
           rulecubature = 1
           RETURN
         ELSE IF(heap_push_many(regions, nR, Re).NE.0) THEN !failed
-          IF(ASSOCIATED(ee)) DEALLOCATE(ee)
+          IF(ALLOCATED(ee)) DEALLOCATE(ee)
           CALL heap_free(regions)
-          IF(ASSOCIATED(Re)) DEALLOCATE(Re)
+          IF(ALLOCATED(Re)) DEALLOCATE(Re)
           rulecubature = 1
         END IF
       ELSE IF(PRESENT(f)) THEN
         IF(eval_regions(nR, Re, fdata, r, f = f).NE.0) THEN !failed
-          IF(ASSOCIATED(ee)) DEALLOCATE(ee)
+          IF(ALLOCATED(ee)) DEALLOCATE(ee)
           CALL heap_free(regions)
-          IF(ASSOCIATED(Re)) DEALLOCATE(Re)
+          IF(ALLOCATED(Re)) DEALLOCATE(Re)
           rulecubature = 1
           RETURN
         ELSE IF(heap_push_many(regions, nR, Re).NE.0) THEN !failed
-          IF(ASSOCIATED(ee)) DEALLOCATE(ee)
+          IF(ALLOCATED(ee)) DEALLOCATE(ee)
           CALL heap_free(regions)
-          IF(ASSOCIATED(Re)) DEALLOCATE(Re)
+          IF(ALLOCATED(Re)) DEALLOCATE(Re)
           rulecubature = 1
         END IF
       END IF
@@ -1319,38 +1317,38 @@ INTEGER FUNCTION rulecubature(r, fdim, fdata, h, maxEval, reqAbsError, reqRelErr
       !Fortran might not have short circuiting, so IF statements are broken up
       IF(PRESENT(fv)) THEN
         IF(cut_region(Re(1), Re(2)).NE.0) THEN !failed
-          IF(ASSOCIATED(ee)) DEALLOCATE(ee)
+          IF(ALLOCATED(ee)) DEALLOCATE(ee)
           CALL heap_free(regions)
-          IF(ASSOCIATED(Re)) DEALLOCATE(Re)
+          IF(ALLOCATED(Re)) DEALLOCATE(Re)
           rulecubature = 1
           RETURN
         ELSE IF(eval_regions(2, Re, fdata, r, fv = fv).NE.0) THEN !failed
-          IF(ASSOCIATED(ee)) DEALLOCATE(ee)
+          IF(ALLOCATED(ee)) DEALLOCATE(ee)
           CALL heap_free(regions)
-          IF(ASSOCIATED(Re)) DEALLOCATE(Re)
+          IF(ALLOCATED(Re)) DEALLOCATE(Re)
           rulecubature = 1
         ELSE IF(heap_push_many(regions, 2, Re).NE.0) THEN !failed
-          IF(ASSOCIATED(ee)) DEALLOCATE(ee)
+          IF(ALLOCATED(ee)) DEALLOCATE(ee)
           CALL heap_free(regions)
-          IF(ASSOCIATED(Re)) DEALLOCATE(Re)
+          IF(ALLOCATED(Re)) DEALLOCATE(Re)
           rulecubature = 1
         END IF
       ELSE IF(PRESENT(f)) THEN
         IF(cut_region(Re(1), Re(2)).NE.0) THEN !failed
-          IF(ASSOCIATED(ee)) DEALLOCATE(ee)
+          IF(ALLOCATED(ee)) DEALLOCATE(ee)
           CALL heap_free(regions)
-          IF(ASSOCIATED(Re)) DEALLOCATE(Re)
+          IF(ALLOCATED(Re)) DEALLOCATE(Re)
           rulecubature = 1
           RETURN
         ELSE IF(eval_regions(2, Re, fdata, r, f = f).NE.0) THEN !failed
-          IF(ASSOCIATED(ee)) DEALLOCATE(ee)
+          IF(ALLOCATED(ee)) DEALLOCATE(ee)
           CALL heap_free(regions)
-          IF(ASSOCIATED(Re)) DEALLOCATE(Re)
+          IF(ALLOCATED(Re)) DEALLOCATE(Re)
           rulecubature = 1
         ELSE IF(heap_push_many(regions, 2, Re).NE.0) THEN !failed
-          IF(ASSOCIATED(ee)) DEALLOCATE(ee)
+          IF(ALLOCATED(ee)) DEALLOCATE(ee)
           CALL heap_free(regions)
-          IF(ASSOCIATED(Re)) DEALLOCATE(Re)
+          IF(ALLOCATED(Re)) DEALLOCATE(Re)
           rulecubature = 1
         END IF
       END IF
@@ -1375,9 +1373,9 @@ INTEGER FUNCTION rulecubature(r, fdim, fdata, h, maxEval, reqAbsError, reqRelErr
   END DO
   
   !success
-  IF(ASSOCIATED(ee)) DEALLOCATE(ee)
+  IF(ALLOCATED(ee)) DEALLOCATE(ee)
   CALL heap_free(regions)
-  IF(ASSOCIATED(Re)) DEALLOCATE(Re)
+  IF(ALLOCATED(Re)) DEALLOCATE(Re)
   rulecubature = 0
   RETURN
 END FUNCTION

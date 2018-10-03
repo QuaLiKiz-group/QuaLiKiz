@@ -26,7 +26,6 @@ CONTAINS
     COMPLEX(KIND=DBL), INTENT(IN)  :: omega
     COMPLEX(KIND=DBL), INTENT(OUT) :: fonct_total
     
-    REAL(KIND=DBL) :: reqrelacc, reqabsacc
     REAL(KIND=DBL), DIMENSION(2) :: a, b, acc
     REAL(KIND=DBL), DIMENSION(9) :: fdata
     INTEGER :: ifailloc, fdim, norm
@@ -68,9 +67,6 @@ CONTAINS
     norm = 2 
     fdim = ndim
     
-    !set the requested accuracy
-    reqabsacc = 0._DBL
-    reqrelacc = 0.20_DBL
     
     ifailloc = hcubature(fdim, total_cubature, ndim, a, b, maxpts, reqabsacc, reqrelacc, norm, intout, acc, fdata=fdata)
     
@@ -93,7 +89,6 @@ CONTAINS
     COMPLEX(KIND=DBL), INTENT(IN)  :: omega
     COMPLEX(KIND=DBL), INTENT(OUT) :: fonct_total
     
-    REAL(KIND=DBL) :: reqrelacc, reqabsacc
     REAL(KIND=DBL), DIMENSION(2) :: a, b, acc
     REAL(KIND=DBL), DIMENSION(9) :: fdata
     INTEGER :: ifailloc, fdim, norm
@@ -135,9 +130,6 @@ CONTAINS
     norm = 2 
     fdim = ndim
     
-    !set the requested accuracy
-    reqabsacc = 0._DBL
-    reqrelacc = 0.15_DBL
     
     ifailloc = pcubature(fdim, total_cubature, ndim, a, b, maxpts, reqabsacc, reqrelacc, norm, intout, acc, fdata=fdata)
     

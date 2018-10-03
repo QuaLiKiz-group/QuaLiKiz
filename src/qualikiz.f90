@@ -46,7 +46,8 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
      & veneITG_SIout,chieeITG_SIout,veceITG_SIout,veneITG_GBout,chieeITG_GBout,veceITG_GBout, &
      & veneTEM_SIout,chieeTEM_SIout,veceTEM_SIout,veneTEM_GBout,chieeTEM_GBout,veceTEM_GBout, &
      & veniITG_SIout,chieiITG_SIout,veriITG_SIout,veciITG_SIout,veniITG_GBout,chieiITG_GBout,veriITG_GBout,veciITG_GBout, &
-     & veniTEM_SIout,chieiTEM_SIout,veriTEM_SIout,veciTEM_SIout,veniTEM_GBout,chieiTEM_GBout,veriTEM_GBout,veciTEM_GBout)
+     & veniTEM_SIout,chieiTEM_SIout,veriTEM_SIout,veciTEM_SIout,veniTEM_GBout,chieiTEM_GBout,veriTEM_GBout,veciTEM_GBout, &
+     & int_methodin, newt_methodin, newt_convin, reqrelaccin, reqabsaccin)
 
   !BRIEF EXPLANATION OF MODULES
   !
@@ -96,6 +97,13 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
   INTEGER, INTENT(IN) :: maxrunsin, maxptsin
   REAL(kind=DBL), INTENT(IN) :: relacc1in, relacc2in, timeoutin, ETGmultin, collmultin
   REAL(kind=DBL), OPTIONAL, INTENT(IN) :: rhominin,rhomaxin
+  
+  !integration parameters
+  INTEGER, INTENT(IN), OPTIONAL :: int_methodin, newt_methodin, newt_convin
+  REAL(KIND=DBL), INTENT(IN), OPTIONAL :: reqrelaccin, reqabsaccin
+  
+  INTEGER :: int_methodtmp, newt_methodtmp, newt_convtmp
+  REAL(KIND=DBL) :: reqrelacctmp, reqabsacctmp
 
   ! List of output variables: 
 
@@ -175,6 +183,37 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
   CALL mpi_comm_rank(mpi_comm_world,myrank,ierror)
 
   CALL SYSTEM_CLOCK(time1)
+  
+  IF(PRESENT(int_methodin)) THEN
+    int_methodtmp = int_methodin
+  ELSE
+    int_methodtmp = 0
+  END IF
+  
+  IF(PRESENT(newt_methodin)) THEN
+    newt_methodtmp = newt_methodin
+  ELSE
+    newt_methodtmp = 0
+  END IF
+  
+  IF(PRESENT(newt_convin)) THEN
+    newt_convtmp = newt_convin
+  ELSE
+    newt_convtmp = 0
+  END IF
+  
+  IF(PRESENT(reqrelaccin)) THEN
+    reqrelacctmp = reqrelaccin
+  ELSE
+    reqrelacctmp = 0.08_DBL
+  END IF
+  
+  IF(PRESENT(reqabsaccin)) THEN
+    reqabsacctmp = reqabsaccin
+  ELSE
+    reqabsacctmp = 0.02_DBL
+  END IF
+  
 
   ! Make the input (including derived quantities)
   CALL make_input(dimxin, dimnin, nionsin, numsolsin, phys_methin, coll_flagin, rot_flagin, verbosein, separatefluxin, kthetarhosin, & !general param
@@ -182,7 +221,8 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
        & el_typein, Texin, Nexin, Atein, Anein, anisein, danisedrin, & 
        & ion_typein, Aiin, Ziin, Tixin, ninormin, Atiin, Aniin, anisin, danisdrin, & 
        & Machtorin, Autorin, Machparin, Auparin, gammaEin, &
-       & maxrunsin, maxptsin, relacc1in, relacc2in, timeoutin,ETGmultin,collmultin)  !code specific inputs
+       & maxrunsin, maxptsin, relacc1in, relacc2in, timeoutin,ETGmultin,collmultin, &
+       & int_methodtmp, newt_methodtmp, newt_convtmp, reqrelacctmp, reqabsacctmp)  !code specific inputs
 
   ! set optional input
   IF (PRESENT(oldsolin)) THEN

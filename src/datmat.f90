@@ -15,6 +15,10 @@ MODULE datmat
   REAL(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: Machparmod, Auparmod, gammaEmod !backup arrays used in rotationless dispersion relation solver with rot_flag=2
   REAL(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: Machparorig, Auparorig, gammaEorig !backup arrays used in rotationless dispersion relation solver with rot_flag=2
 
+  !integral testing parameters
+  INTEGER, SAVE :: int_method, newt_method, newt_conv
+  REAL(KIND=DBL), SAVE :: reqrelacc, reqabsacc
+
   !Parameters for deciding how often to jump to full solution searching in integrated modelling applications
   INTEGER, SAVE :: maxruns !default is 50
   INTEGER, SAVE :: maxpts !Max number of integrand evaluations in 2D integrals. Default = 1.d5

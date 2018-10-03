@@ -992,7 +992,7 @@ CONTAINS
     COMPLEX(KIND=DBL) :: fonctc
     COMPLEX(KIND=DBL) :: fonctp
     
-    IF(phys_meth.EQ.0) THEN !Use NAG
+    IF(int_method.EQ.0) THEN !Use NAG
 
       IF ( ( rotflagarray(p) == 1 ) .AND. ( ETG_flag(nu) .EQV. .FALSE. ) ) THEN
          ! replace mwidth by real(mwidth) in such comparaisons since now mwidth is complex. Warning: is it correct or should take module?
@@ -1029,13 +1029,74 @@ CONTAINS
          fonx = CMPLX(Ac(p),0.) - fonctc - fonctp
 
       ENDIF
-    ELSE IF(phys_meth.EQ.1) THEN !Use hcubature
+    ELSE IF(int_method.EQ.1) THEN !Use hcubature
       CALL calcfonct_hcubature(p, nu, omega, fonx)
-    ELSE IF(phys_meth.EQ.2) THEN !Use pcubature
+    ELSE IF(int_method.EQ.2) THEN !Use pcubature
       CALL calcfonct_pcubature(p, nu, omega, fonx)
     END IF
 
   END SUBROUTINE calcfonct
+  
+  SUBROUTINE calcfonct_newt(p, nu, omega, fonx)
+    ! -------------------------------------------------------------------
+    ! Calculates the integral function for which we search the roots
+    ! This function is comprised of the adiabatic (Ac), passing (fonctc)
+    ! and trapped (fonctp) terms
+    ! Used only for the Newton method
+    ! -------------------------------------------------------------------
+    INTEGER, INTENT(in)  :: p, nu
+    COMPLEX(KIND=DBL), INTENT(IN)  :: omega
+    COMPLEX(KIND=DBL), INTENT(OUT) :: fonx
+
+    COMPLEX(KIND=DBL) :: fonctc
+    COMPLEX(KIND=DBL) :: fonctp
+    
+    
+
+    IF(newt_method.EQ.0) THEN !Use NAG
+
+      IF ( ( rotflagarray(p) == 1 ) .AND. ( ETG_flag(nu) .EQV. .FALSE. ) ) THEN
+         ! replace mwidth by real(mwidth) in such comparaisons since now mwidth is complex. Warning: is it correct or should take module?
+         IF ( ( fc(p)==0. ) .OR. ( REAL(mwidth)<d/4.) .OR. ( calccirc .EQV. .FALSE. ) ) THEN
+            fonctc = 0.
+            IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'Warning: REAL(mwidth)<d/4 for p/nu=',p,'/',nu
+         ELSE
+            CALL calcfonctrotc ( p, nu, omega, fonctc ) 
+         END IF
+
+         IF (ft(p)==0. .OR. (calctrap .EQV. .FALSE.) ) THEN
+            fonctp = 0.    
+         ELSE      
+            CALL calcfonctrotp ( p, nu, omega, fonctp )
+         END IF
+
+         fonx = CMPLX(Ac(p),0.) - fonctc - fonctp
+
+      ELSE
+
+         IF ( ( fc(p)==0. ) .OR. ( REAL(mwidth)<d/4.) .OR. ( calccirc .EQV. .FALSE. ) ) THEN
+            fonctc = 0.
+            IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'Warning: REAL(mwidth)<d/4 for p/nu=',p,'/',nu
+         ELSE
+            CALL calcfonctc ( p, nu, omega, fonctc ) 
+         END IF
+
+         IF (ft(p)==0. .OR. (calctrap .EQV. .FALSE.) ) THEN
+            fonctp = 0.    
+         ELSE      
+            CALL calcfonctp ( p, nu, omega, fonctp )
+         END IF
+
+         fonx = CMPLX(Ac(p),0.) - fonctc - fonctp
+
+      ENDIF
+    ELSE IF(newt_method.EQ.1) THEN !Use hcubature
+      CALL calcfonct_hcubature(p, nu, omega, fonx)
+    ELSE IF(newt_method.EQ.2) THEN !Use pcubature
+      CALL calcfonct_pcubature(p, nu, omega, fonx)
+    END IF
+
+  END SUBROUTINE calcfonct_newt
 
   SUBROUTINE newton( p, nu, sol, fsol, newsol, fnewsol)  
     !Newton method for refining the solutions found from the contour integrals
@@ -1077,16 +1138,16 @@ CONTAINS
       zpd = zo+delom
       zmd = zo-delom
 
-      CALL calcfonct (p, nu, zpd, fzpd)
-      CALL calcfonct (p, nu, zmd, fzmd)
+      CALL calcfonct_newt (p, nu, zpd, fzpd)
+      CALL calcfonct_newt (p, nu, zmd, fzmd)
 
       dfsurdx = (fzpd-fzmd)/(2.*delom)
 
       zpid=zo+delomi
       zmid=zo-delomi
 
-      CALL calcfonct (p, nu, zpid, fzpid)
-      CALL calcfonct (p, nu, zmid, fzmid)
+      CALL calcfonct_newt (p, nu, zpid, fzpid)
+      CALL calcfonct_newt (p, nu, zmid, fzmid)
 
       dfsurdy = (fzpid-fzmid)/(2.*delom)
 
@@ -1124,10 +1185,10 @@ CONTAINS
         EXIT
       ENDIF
 
-      CALL calcfonct (p, nu, zo, fzo)
+      CALL calcfonct_newt (p, nu, zo, fzo)
 
       !Change Newton convergence test
-      IF(phys_meth.NE.5) THEN
+      IF(newt_conv.EQ.0) THEN
         err = ABS(fzo)
       ELSE
         err = ABS(CMPLX(deltau(1,1), deltau(2,1)))

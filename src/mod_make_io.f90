@@ -17,7 +17,8 @@ CONTAINS
        & el_typein, Texin, Nexin, Atein, Anein, anisein, danisedrin, & !electrons
        & ion_typein, Aiin, Ziin, Tixin, ninormin, Atiin, Aniin, anisin, danisdrin, & !ions
        & Machtorin, Autorin, Machparin, Auparin, gammaEin, & !rotation
-       & maxrunsin, maxptsin, relacc1in, relacc2in, timeoutin, ETGmultin, collmultin)  !code specific inputs
+       & maxrunsin, maxptsin, relacc1in, relacc2in, timeoutin, ETGmultin, collmultin, &
+       & int_methodin, newt_methodin, newt_convin, reqrelaccin, reqabsaccin)  !code specific inputs
 
     ! List of input variables
     INTEGER, INTENT(IN) :: dimxin, dimnin, nionsin, numsolsin, phys_methin, coll_flagin, rot_flagin, el_typein,verbosein, separatefluxin
@@ -29,6 +30,10 @@ CONTAINS
     REAL(kind=DBL), DIMENSION(:), INTENT(IN) :: Machtorin, Autorin, Machparin, Auparin, gammaEin
     INTEGER, INTENT(IN) :: maxrunsin, maxptsin
     REAL(kind=DBL), INTENT(IN) :: relacc1in, relacc2in, timeoutin, ETGmultin, collmultin
+    
+    !Integration parameters
+    INTEGER, INTENT(IN) :: int_methodin, newt_methodin, newt_convin
+    REAL(KIND=DBL), INTENT(IN) :: reqrelaccin, reqabsaccin
 
     INTEGER:: p,nu !counter for loop over coordinates. p is radius (or general scan), nu is wavenumber
     INTEGER:: i,ilow,ihi !counter for loops
@@ -58,6 +63,12 @@ CONTAINS
     relaccQL2=relacc2in
     ETGmult=ETGmultin
     collmult=collmultin
+    
+    int_method = int_methodin
+    newt_method = newt_methodin
+    newt_conv = newt_convin
+    reqrelacc = reqrelaccin
+    reqabsacc = reqabsaccin
 
     R0=R0in
 
