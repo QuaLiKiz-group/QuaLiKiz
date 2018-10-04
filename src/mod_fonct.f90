@@ -28,7 +28,7 @@ CONTAINS
     
     REAL(KIND=DBL), DIMENSION(2) :: a, b, acc
     REAL(KIND=DBL), DIMENSION(9) :: fdata
-    INTEGER :: ifailloc, fdim, norm
+    INTEGER :: ifailloc, fdim
     
     REAL(KIND=DBL), DIMENSION(nf) :: intout
     
@@ -112,7 +112,7 @@ CONTAINS
     
     REAL(KIND=DBL), DIMENSION(2) :: a, b, acc
     REAL(KIND=DBL), DIMENSION(9) :: fdata
-    INTEGER :: ifailloc, fdim, norm
+    INTEGER :: ifailloc, fdim
     
     REAL(KIND=DBL), DIMENSION(nf) :: intout
     
@@ -196,7 +196,7 @@ CONTAINS
     
     REAL(KIND=DBL), DIMENSION(2) :: a, b, acc
     REAL(KIND=DBL), DIMENSION(9) :: fdata
-    INTEGER :: ifailloc, fdim, norm
+    INTEGER :: ifailloc, fdim
     
     REAL(KIND=DBL), DIMENSION(nf) :: intout
     
@@ -265,7 +265,7 @@ CONTAINS
     
     REAL(KIND=DBL), DIMENSION(2) :: a, b, acc
     REAL(KIND=DBL), DIMENSION(9) :: fdata
-    INTEGER :: ifailloc, fdim, norm
+    INTEGER :: ifailloc, fdim
     
     REAL(KIND=DBL), DIMENSION(nf) :: intout
     
@@ -335,7 +335,7 @@ CONTAINS
     
     REAL(KIND=DBL), DIMENSION(2) :: a, b, acc
     REAL(KIND=DBL), DIMENSION(9) :: fdata
-    INTEGER :: ifailloc, fdim, norm
+    INTEGER :: ifailloc, fdim
     
     REAL(KIND=DBL), DIMENSION(nf) :: intout
     
@@ -435,7 +435,7 @@ CONTAINS
     
     REAL(KIND=DBL), DIMENSION(2) :: a, b, acc
     REAL(KIND=DBL), DIMENSION(9) :: fdata
-    INTEGER :: ifailloc, fdim, norm
+    INTEGER :: ifailloc, fdim
     
     REAL(KIND=DBL), DIMENSION(nf) :: intout
     
@@ -536,7 +536,7 @@ CONTAINS
     
     REAL(KIND=DBL), DIMENSION(2) :: a, b, acc
     REAL(KIND=DBL), DIMENSION(9) :: fdata
-    INTEGER :: ifailloc, fdim, norm
+    INTEGER :: ifailloc, fdim
     
     REAL(KIND=DBL), DIMENSION(nf) :: intout
     
@@ -610,7 +610,7 @@ CONTAINS
     
     REAL(KIND=DBL), DIMENSION(2) :: a, b, acc
     REAL(KIND=DBL), DIMENSION(9) :: fdata
-    INTEGER :: ifailloc, fdim, norm
+    INTEGER :: ifailloc, fdim
     
     REAL(KIND=DBL), DIMENSION(nf) :: intout
     
@@ -685,7 +685,7 @@ CONTAINS
     
     REAL(KIND=DBL), DIMENSION(2) :: a, b, acc
     REAL(KIND=DBL), DIMENSION(9) :: fdata
-    INTEGER :: ifailloc, fdim, norm
+    INTEGER :: ifailloc, fdim
     
     REAL(KIND=DBL), DIMENSION(nf) :: intout
     
@@ -768,7 +768,7 @@ CONTAINS
     
     REAL(KIND=DBL), DIMENSION(2) :: a, b, acc
     REAL(KIND=DBL), DIMENSION(9) :: fdata
-    INTEGER :: ifailloc, fdim, norm
+    INTEGER :: ifailloc, fdim
     
     REAL(KIND=DBL), DIMENSION(nf) :: intout
     
@@ -852,7 +852,7 @@ CONTAINS
     
     REAL(KIND=DBL), DIMENSION(2) :: a, b, acc
     REAL(KIND=DBL), DIMENSION(9) :: fdata
-    INTEGER :: ifailloc, fdim, norm
+    INTEGER :: ifailloc, fdim
     
     REAL(KIND=DBL), DIMENSION(nf) :: intout
     
@@ -922,7 +922,7 @@ CONTAINS
     
     REAL(KIND=DBL), DIMENSION(2) :: a, b, acc
     REAL(KIND=DBL), DIMENSION(9) :: fdata
-    INTEGER :: ifailloc, fdim, norm
+    INTEGER :: ifailloc, fdim
     
     REAL(KIND=DBL), DIMENSION(nf) :: intout
     
@@ -992,7 +992,7 @@ CONTAINS
     
     REAL(KIND=DBL), DIMENSION(2) :: a, b, acc
     REAL(KIND=DBL), DIMENSION(9) :: fdata
-    INTEGER :: ifailloc, fdim, norm
+    INTEGER :: ifailloc, fdim
     
     REAL(KIND=DBL), DIMENSION(nf) :: intout
     
@@ -1093,7 +1093,7 @@ CONTAINS
     
     REAL(KIND=DBL), DIMENSION(2) :: a, b, acc
     REAL(KIND=DBL), DIMENSION(9) :: fdata
-    INTEGER :: ifailloc, fdim, norm
+    INTEGER :: ifailloc, fdim
     
     REAL(KIND=DBL), DIMENSION(nf) :: intout
     
@@ -1194,7 +1194,7 @@ CONTAINS
     
     REAL(KIND=DBL), DIMENSION(2) :: a, b, acc
     REAL(KIND=DBL), DIMENSION(9) :: fdata
-    INTEGER :: ifailloc, fdim, norm
+    INTEGER :: ifailloc, fdim
     
     REAL(KIND=DBL), DIMENSION(nf) :: intout
     
@@ -1269,7 +1269,7 @@ CONTAINS
     
     REAL(KIND=DBL), DIMENSION(2) :: a, b, acc
     REAL(KIND=DBL), DIMENSION(9) :: fdata
-    INTEGER :: ifailloc, fdim, norm
+    INTEGER :: ifailloc, fdim
     
     REAL(KIND=DBL), DIMENSION(nf) :: intout
     
