@@ -58,7 +58,7 @@ CONTAINS
     adiabatic = fdata(1)
     scale_ = ABS(adiabatic) !scaling the integrand
     
-    IF((ndim.NE.2.).OR.(fdim.NE.2)) THEN
+    IF((ndim.NE.2.).OR.(fdim.NE.1)) THEN
       rpassing_cubature = 1
       RETURN
     END IF
@@ -93,7 +93,7 @@ CONTAINS
     adiabatic = fdata(1)
     scale_ = ABS(adiabatic) !scaling the integrand
     
-    IF((ndim.NE.2.).OR.(fdim.NE.2)) THEN
+    IF((ndim.NE.2.).OR.(fdim.NE.1)) THEN
       ipassing_cubature = 1
       RETURN
     END IF
