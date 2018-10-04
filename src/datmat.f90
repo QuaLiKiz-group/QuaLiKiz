@@ -17,7 +17,7 @@ MODULE datmat
 
   !integral testing parameters
   INTEGER, SAVE :: int_method, newt_method, newt_conv, int_split
-  REAL(KIND=DBL), SAVE :: reqrelacc, reqabsacc
+  REAL(KIND=DBL), SAVE :: reqrelacc, reqabsacc, reqrelacc_newt, reqabsacc_newt
 
   !Parameters for deciding how often to jump to full solution searching in integrated modelling applications
   INTEGER, SAVE :: maxruns !default is 50

@@ -18,7 +18,7 @@ CONTAINS
        & ion_typein, Aiin, Ziin, Tixin, ninormin, Atiin, Aniin, anisin, danisdrin, & !ions
        & Machtorin, Autorin, Machparin, Auparin, gammaEin, & !rotation
        & maxrunsin, maxptsin, relacc1in, relacc2in, timeoutin, ETGmultin, collmultin, &
-       & int_methodin, newt_methodin, newt_convin, int_splitin, reqrelaccin, reqabsaccin)  !code specific inputs
+       & int_methodin, newt_methodin, newt_convin, int_splitin, reqrelaccin, reqabsaccin, reqrelacc_newtin, reqabsacc_newtin)  !code specific inputs
 
     ! List of input variables
     INTEGER, INTENT(IN) :: dimxin, dimnin, nionsin, numsolsin, phys_methin, coll_flagin, rot_flagin, el_typein,verbosein, separatefluxin
@@ -33,7 +33,7 @@ CONTAINS
     
     !Integration parameters
     INTEGER, INTENT(IN) :: int_methodin, newt_methodin, newt_convin, int_splitin
-    REAL(KIND=DBL), INTENT(IN) :: reqrelaccin, reqabsaccin
+    REAL(KIND=DBL), INTENT(IN) :: reqrelaccin, reqabsaccin, reqrelacc_newtin, reqabsacc_newtin
 
     INTEGER:: p,nu !counter for loop over coordinates. p is radius (or general scan), nu is wavenumber
     INTEGER:: i,ilow,ihi !counter for loops
@@ -70,6 +70,8 @@ CONTAINS
     int_split = int_splitin
     reqrelacc = reqrelaccin
     reqabsacc = reqabsaccin
+    reqrelacc_newt = reqrelacc_newtin
+    reqabsacc_newt = reqabsacc_newtin
 
     R0=R0in
 

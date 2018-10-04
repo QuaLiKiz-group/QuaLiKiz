@@ -1036,6 +1036,10 @@ CONTAINS
         CALL calcfonct_hcubaturep(p, nu, omega, fonctp)
         CALL calcfonct_hcubaturec(p, nu, omega, fonctc)
         fonx = CMPLX(Ac(p), 0.) - fonctc - fonctp 
+      ELSE IF(int_split.EQ.2) THEN
+        CALL calcfonct_hcubaturep(p, nu, omega, fonctp)
+        CALL calcfonct_hcubaturec2(p, nu, omega, fonctc)
+        fonx = CMPLX(Ac(p), 0.) - fonctc - fonctp 
       END IF
     ELSE IF(int_method.EQ.2) THEN !Use pcubature
       IF(int_split.EQ.0) THEN
@@ -1043,6 +1047,10 @@ CONTAINS
       ELSE IF(int_split.EQ.1) THEN
         CALL calcfonct_pcubaturep(p, nu, omega, fonctp)
         CALL calcfonct_pcubaturec(p, nu, omega, fonctc)
+        fonx = CMPLX(Ac(p), 0.) - fonctc - fonctp 
+      ELSE IF(int_split.EQ.2) THEN
+        CALL calcfonct_pcubaturep(p, nu, omega, fonctp)
+        CALL calcfonct_pcubaturec2(p, nu, omega, fonctc)
         fonx = CMPLX(Ac(p), 0.) - fonctc - fonctp 
       END IF
     END IF
@@ -1102,20 +1110,28 @@ CONTAINS
          fonx = CMPLX(Ac(p),0.) - fonctc - fonctp
 
       ENDIF
-    ELSE IF(newt_method.EQ.1) THEN !Use hcubature
+    ELSE IF(int_method.EQ.1) THEN !Use hcubature
       IF(int_split.EQ.0) THEN
-        CALL calcfonct_hcubature(p, nu, omega, fonx)
+        CALL calcfonct_hcubature_newt(p, nu, omega, fonx)
       ELSE IF(int_split.EQ.1) THEN
-        CALL calcfonct_hcubaturep(p, nu, omega, fonctp)
-        CALL calcfonct_hcubaturec(p, nu, omega, fonctc)
+        CALL calcfonct_hcubaturep_newt(p, nu, omega, fonctp)
+        CALL calcfonct_hcubaturec_newt(p, nu, omega, fonctc)
+        fonx = CMPLX(Ac(p), 0.) - fonctc - fonctp 
+      ELSE IF(int_split.EQ.2) THEN
+        CALL calcfonct_hcubaturep_newt(p, nu, omega, fonctp)
+        CALL calcfonct_hcubaturec2_newt(p, nu, omega, fonctc)
         fonx = CMPLX(Ac(p), 0.) - fonctc - fonctp 
       END IF
-    ELSE IF(newt_method.EQ.2) THEN !Use pcubature
+    ELSE IF(int_method.EQ.2) THEN !Use pcubature
       IF(int_split.EQ.0) THEN
-        CALL calcfonct_pcubature(p, nu, omega, fonx)
+        CALL calcfonct_pcubature_newt(p, nu, omega, fonx)
       ELSE IF(int_split.EQ.1) THEN
-        CALL calcfonct_pcubaturep(p, nu, omega, fonctp)
-        CALL calcfonct_pcubaturec(p, nu, omega, fonctc)
+        CALL calcfonct_pcubaturep_newt(p, nu, omega, fonctp)
+        CALL calcfonct_pcubaturec_newt(p, nu, omega, fonctc)
+        fonx = CMPLX(Ac(p), 0.) - fonctc - fonctp 
+      ELSE IF(int_split.EQ.2) THEN
+        CALL calcfonct_pcubaturep_newt(p, nu, omega, fonctp)
+        CALL calcfonct_pcubaturec2_newt(p, nu, omega, fonctc)
         fonx = CMPLX(Ac(p), 0.) - fonctc - fonctp 
       END IF
     END IF
@@ -1214,8 +1230,10 @@ CONTAINS
       !Change Newton convergence test
       IF(newt_conv.EQ.0) THEN
         err = ABS(fzo)
-      ELSE
+      ELSE IF(newt_conv.EQ.1) THEN
         err = ABS(CMPLX(deltau(1,1), deltau(2,1)))
+      ELSE IF(newt_conv.EQ.2) THEN
+        err = ABS(CMPLX(deltau(1,1), deltau(2,1))/zo)
       END IF
 
       niter = niter+1
