@@ -47,7 +47,7 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
      & veneTEM_SIout,chieeTEM_SIout,veceTEM_SIout,veneTEM_GBout,chieeTEM_GBout,veceTEM_GBout, &
      & veniITG_SIout,chieiITG_SIout,veriITG_SIout,veciITG_SIout,veniITG_GBout,chieiITG_GBout,veriITG_GBout,veciITG_GBout, &
      & veniTEM_SIout,chieiTEM_SIout,veriTEM_SIout,veciTEM_SIout,veniTEM_GBout,chieiTEM_GBout,veriTEM_GBout,veciTEM_GBout, &
-     & int_methodin, newt_methodin, newt_convin, int_splitin, reqrelaccin, reqabsaccin, reqrelacc_newtin, reqabsacc_newtin)
+     & int_methodin, newt_methodin, newt_convin, int_splitin, normin, reqrelaccin, reqabsaccin, reqrelacc_newtin, reqabsacc_newtin)
 
   !BRIEF EXPLANATION OF MODULES
   !
@@ -99,10 +99,10 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
   REAL(kind=DBL), OPTIONAL, INTENT(IN) :: rhominin,rhomaxin
   
   !integration parameters
-  INTEGER, INTENT(IN), OPTIONAL :: int_methodin, newt_methodin, newt_convin, int_splitin
+  INTEGER, INTENT(IN), OPTIONAL :: int_methodin, newt_methodin, newt_convin, int_splitin, normin
   REAL(KIND=DBL), INTENT(IN), OPTIONAL :: reqrelaccin, reqabsaccin, reqrelacc_newtin, reqabsacc_newtin
   
-  INTEGER :: int_methodtmp, newt_methodtmp, newt_convtmp, int_splittmp
+  INTEGER :: int_methodtmp, newt_methodtmp, newt_convtmp, int_splittmp, normintmp
   REAL(KIND=DBL) :: reqrelacctmp, reqabsacctmp, reqrelacc_newttmp, reqabsacc_newttmp
 
   ! List of output variables: 
@@ -208,6 +208,12 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
     int_splittmp = 0
   END IF
   
+  IF(PRESENT(normin)) THEN
+    normintmp = normin
+  ELSE
+    int_splittmp = 2
+  END IF
+  
   IF(PRESENT(reqrelaccin)) THEN
     reqrelacctmp = reqrelaccin
   ELSE
@@ -240,7 +246,7 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
        & ion_typein, Aiin, Ziin, Tixin, ninormin, Atiin, Aniin, anisin, danisdrin, & 
        & Machtorin, Autorin, Machparin, Auparin, gammaEin, &
        & maxrunsin, maxptsin, relacc1in, relacc2in, timeoutin,ETGmultin,collmultin, &
-       & int_methodtmp, newt_methodtmp, newt_convtmp, int_splittmp, reqrelacctmp, reqabsacctmp, reqrelacc_newttmp, reqabsacc_newttmp)  !code specific inputs
+       & int_methodtmp, newt_methodtmp, newt_convtmp, int_splittmp, normintmp, reqrelacctmp, reqabsacctmp, reqrelacc_newttmp, reqabsacc_newttmp)  !code specific inputs
 
   ! set optional input
   IF (PRESENT(oldsolin)) THEN

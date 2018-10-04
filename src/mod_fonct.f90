@@ -64,19 +64,41 @@ CONTAINS
     fdata(8:9) = rkuplim
     
     !set the convergence criterion to be the L_2 norm
-    norm = 2 
-    fdim = ndim
+    fdim = 1
     
+    IF(norm.EQ.2) fdim = ndim
     
-    ifailloc = hcubature(fdim, total_cubature, ndim, a, b, maxpts, reqabsacc, reqrelacc, norm, intout, acc, fdata=fdata)
-    
-    IF (ifailloc /= 0) THEN
-      IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
-        &'. Abnormal termination of hcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+    IF(norm.EQ.2) THEN
+      ifailloc = hcubature(fdim, total_cubature, ndim, a, b, maxpts, reqabsacc, reqrelacc, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of hcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      intout = intout * ABS(Ac(p))
+      fonct_total = intout(1) + ci * intout(2)  
+      
+    ELSE IF(norm.EQ.1) THEN
+      ifailloc = hcubature(fdim, rtotal_cubature, ndim, a, b, maxpts, reqabsacc, reqrelacc, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of hcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      intout = intout * ABS(Ac(p))
+      fonct_total = intout(1)
+      
+      ifailloc = hcubature(fdim, itotal_cubature, ndim, a, b, maxpts, reqabsacc, reqrelacc, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of hcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      intout = intout * ABS(Ac(p))
+      fonct_total = fonct_total + ci * intout(1)
     END IF
     
-    intout = intout * ABS(Ac(p))
-    fonct_total = intout(1) + ci * intout(2)  
+    
   
   END SUBROUTINE calcfonct_hcubature
   SUBROUTINE calcfonct_pcubature(p, nu, omega, fonct_total)
@@ -126,19 +148,40 @@ CONTAINS
     fdata(8:9) = rkuplim
     
     !set the convergence criterion to be the L_2 norm
-    norm = 2 
-    fdim = ndim
+    fdim = 1
+    
+    IF(norm.EQ.2) fdim = ndim
     
     
-    ifailloc = pcubature(fdim, total_cubature, ndim, a, b, maxpts, reqabsacc, reqrelacc, norm, intout, acc, fdata=fdata)
-    
-    IF (ifailloc /= 0) THEN
-      IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
-        &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+    IF(norm.EQ.2) THEN
+      ifailloc = pcubature(fdim, total_cubature, ndim, a, b, maxpts, reqabsacc, reqrelacc, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of hcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      intout = intout * ABS(Ac(p))
+      fonct_total = intout(1) + ci * intout(2)  
+      
+    ELSE IF(norm.EQ.1) THEN
+      ifailloc = pcubature(fdim, rtotal_cubature, ndim, a, b, maxpts, reqabsacc, reqrelacc, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of hcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      intout = intout * ABS(Ac(p))
+      fonct_total = intout(1)
+      
+      ifailloc = pcubature(fdim, itotal_cubature, ndim, a, b, maxpts, reqabsacc, reqrelacc, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of hcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      intout = intout * ABS(Ac(p))
+      fonct_total = fonct_total + ci * intout(1)
     END IF
-    
-    intout = intout * ABS(Ac(p))
-    fonct_total = intout(1) + ci * intout(2)  
   
   END SUBROUTINE calcfonct_pcubature
   
@@ -171,19 +214,43 @@ CONTAINS
     fdata(1) = Ac(p)
     
     !set the convergence criterion to be the L_2 norm
-    norm = 2 
-    fdim = ndim
+    fdim = 1
     
+    IF(norm.EQ.2) fdim = ndim
     
-    ifailloc = hcubature(fdim, passing_cubature, ndim, a, b, maxpts, reqabsacc, reqrelacc, norm, intout, acc, fdata=fdata)
-    
-    IF (ifailloc /= 0) THEN
-      IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
-        &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+    IF(norm.EQ.2) THEN
+      ifailloc = hcubature(fdim, passing_cubature, ndim, a, b, maxpts, reqabsacc, reqrelacc, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      
+      intout = intout * ABS(Ac(p))
+      fonctc = intout(1) + ci * intout(2)  
+      
+    ELSE IF(norm.EQ.1) THEN
+      ifailloc = hcubature(fdim, rpassing_cubature, ndim, a, b, maxpts, reqabsacc, reqrelacc, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      
+      intout = intout * ABS(Ac(p))
+      fonctc = intout(1) 
+      
+      ifailloc = hcubature(fdim, ipassing_cubature, ndim, a, b, maxpts, reqabsacc, reqrelacc, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      
+      intout = intout * ABS(Ac(p))
+      fonctc = fonctc + ci * intout(1)  
+      
     END IF
-    
-    intout = intout * ABS(Ac(p))
-    fonctc = intout(1) + ci * intout(2)  
   
   END SUBROUTINE calcfonct_hcubaturec
   
@@ -216,19 +283,44 @@ CONTAINS
     fdata(1) = Ac(p)
     
     !set the convergence criterion to be the L_2 norm
-    norm = 2 
-    fdim = ndim
+    fdim = 1
+    
+    IF(norm.EQ.2) fdim = ndim
     
     
-    ifailloc = pcubature(fdim, passing_cubature, ndim, a, b, maxpts, reqabsacc, reqrelacc, norm, intout, acc, fdata=fdata)
-    
-    IF (ifailloc /= 0) THEN
-      IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
-        &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+    IF(norm.EQ.2) THEN
+      ifailloc = pcubature(fdim, passing_cubature, ndim, a, b, maxpts, reqabsacc, reqrelacc, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      
+      intout = intout * ABS(Ac(p))
+      fonctc = intout(1) + ci * intout(2)  
+      
+    ELSE IF(norm.EQ.1) THEN
+      ifailloc = pcubature(fdim, rpassing_cubature, ndim, a, b, maxpts, reqabsacc, reqrelacc, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      
+      intout = intout * ABS(Ac(p))
+      fonctc = intout(1) 
+      
+      ifailloc = pcubature(fdim, ipassing_cubature, ndim, a, b, maxpts, reqabsacc, reqrelacc, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      
+      intout = intout * ABS(Ac(p))
+      fonctc = fonctc + ci * intout(1)  
+      
     END IF
-    
-    intout = intout * ABS(Ac(p))
-    fonctc = intout(1) + ci * intout(2)  
   
   END SUBROUTINE calcfonct_pcubaturec
   
@@ -261,29 +353,74 @@ CONTAINS
     fdata(1) = Ac(p)
     
     !set the convergence criterion to be the L_2 norm
-    norm = 2 
-    fdim = ndim
+    fdim = 1
     
+    IF(norm.EQ.2) fdim = ndim
     
-    ifailloc = hcubature(fdim, passing_ions_cubature, ndim, a, b, maxpts, reqabsacc, reqrelacc, norm, intout, acc, fdata=fdata)
+    IF(norm.EQ.2) THEN
     
-    IF (ifailloc /= 0) THEN
-      IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
-        &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      ifailloc = hcubature(fdim, passing_ions_cubature, ndim, a, b, maxpts, reqabsacc, reqrelacc, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      
+      intout = intout * ABS(Ac(p))
+      fonctc = intout(1) + ci * intout(2)  
+      
+      ifailloc = hcubature(fdim, passing_electrons_cubature, ndim, a, b, maxpts, reqabsacc, reqrelacc, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      
+      intout = intout * ABS(Ac(p))
+      fonctc = fonctc + intout(1) + ci * intout(2)  
+      
+    ELSE IF(norm.EQ.1) THEN
+      ifailloc = hcubature(fdim, rpassing_ions_cubature, ndim, a, b, maxpts, reqabsacc, reqrelacc, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      
+      intout = intout * ABS(Ac(p))
+      fonctc = intout(1)
+      
+      ifailloc = hcubature(fdim, rpassing_electrons_cubature, ndim, a, b, maxpts, reqabsacc, reqrelacc, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      
+      intout = intout * ABS(Ac(p))
+      fonctc = fonctc + intout(1)
+      
+      ifailloc = hcubature(fdim, ipassing_ions_cubature, ndim, a, b, maxpts, reqabsacc, reqrelacc, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      
+      intout = intout * ABS(Ac(p))
+      fonctc = fonctc + ci * intout(1)
+      
+      ifailloc = hcubature(fdim, ipassing_electrons_cubature, ndim, a, b, maxpts, reqabsacc, reqrelacc, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      
+      intout = intout * ABS(Ac(p))
+      fonctc = fonctc + ci * intout(1)
+      
     END IF
-    
-    intout = intout * ABS(Ac(p))
-    fonctc = intout(1) + ci * intout(2)  
-    
-    ifailloc = hcubature(fdim, passing_electrons_cubature, ndim, a, b, maxpts, reqabsacc, reqrelacc, norm, intout, acc, fdata=fdata)
-    
-    IF (ifailloc /= 0) THEN
-      IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
-        &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
-    END IF
-    
-    intout = intout * ABS(Ac(p))
-    fonctc = fonctc + intout(1) + ci * intout(2)  
   
   END SUBROUTINE calcfonct_hcubaturec2
   
@@ -316,29 +453,75 @@ CONTAINS
     fdata(1) = Ac(p)
     
     !set the convergence criterion to be the L_2 norm
-    norm = 2 
-    fdim = ndim
+    fdim = 1
+    
+    IF(norm.EQ.2) fdim = ndim
     
     
-    ifailloc = pcubature(fdim, passing_ions_cubature, ndim, a, b, maxpts, reqabsacc, reqrelacc, norm, intout, acc, fdata=fdata)
+    IF(norm.EQ.2) THEN
     
-    IF (ifailloc /= 0) THEN
-      IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
-        &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      ifailloc = pcubature(fdim, passing_ions_cubature, ndim, a, b, maxpts, reqabsacc, reqrelacc, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      
+      intout = intout * ABS(Ac(p))
+      fonctc = intout(1) + ci * intout(2)  
+      
+      ifailloc = pcubature(fdim, passing_electrons_cubature, ndim, a, b, maxpts, reqabsacc, reqrelacc, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      
+      intout = intout * ABS(Ac(p))
+      fonctc = fonctc + intout(1) + ci * intout(2)  
+      
+    ELSE IF(norm.EQ.1) THEN
+      ifailloc = pcubature(fdim, rpassing_ions_cubature, ndim, a, b, maxpts, reqabsacc, reqrelacc, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      
+      intout = intout * ABS(Ac(p))
+      fonctc = intout(1)
+      
+      ifailloc = pcubature(fdim, rpassing_electrons_cubature, ndim, a, b, maxpts, reqabsacc, reqrelacc, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      
+      intout = intout * ABS(Ac(p))
+      fonctc = fonctc + intout(1)
+      
+      ifailloc = pcubature(fdim, ipassing_ions_cubature, ndim, a, b, maxpts, reqabsacc, reqrelacc, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      
+      intout = intout * ABS(Ac(p))
+      fonctc = fonctc + ci * intout(1)
+      
+      ifailloc = pcubature(fdim, ipassing_electrons_cubature, ndim, a, b, maxpts, reqabsacc, reqrelacc, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      
+      intout = intout * ABS(Ac(p))
+      fonctc = fonctc + ci * intout(1)
+      
     END IF
-    
-    intout = intout * ABS(Ac(p))
-    fonctc = intout(1) + ci * intout(2)  
-    
-    ifailloc = pcubature(fdim, passing_electrons_cubature, ndim, a, b, maxpts, reqabsacc, reqrelacc, norm, intout, acc, fdata=fdata)
-    
-    IF (ifailloc /= 0) THEN
-      IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
-        &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
-    END IF
-    
-    intout = intout * ABS(Ac(p))
-    fonctc = fonctc + intout(1) + ci * intout(2)  
   
   END SUBROUTINE calcfonct_pcubaturec2
   
@@ -373,19 +556,46 @@ CONTAINS
     fdata(2) = vuplim
     
     !set the convergence criterion to be the L_2 norm
-    norm = 2 
-    fdim = ndim
+    fdim = 1
+    
+    IF(norm.EQ.2) fdim = ndim
+    
+    IF(norm.EQ.2) THEN
+    
+      ifailloc = hcubature(fdim, trapped_cubature, ndim, a, b, maxpts, reqabsacc, reqrelacc, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      
+      intout = intout * ABS(Ac(p))
+      fonctp = intout(1) + ci * intout(2)  
+      
+    ELSE IF(norm.EQ.1) THEN
+    
+      ifailloc = hcubature(fdim, rtrapped_cubature, ndim, a, b, maxpts, reqabsacc, reqrelacc, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      
+      intout = intout * ABS(Ac(p))
+      fonctp = intout(1)
+      
+      ifailloc = hcubature(fdim, itrapped_cubature, ndim, a, b, maxpts, reqabsacc, reqrelacc, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      
+      intout = intout * ABS(Ac(p))
+      fonctp = fonctp + ci * intout(1)
     
     
-    ifailloc = hcubature(fdim, trapped_cubature, ndim, a, b, maxpts, reqabsacc, reqrelacc, norm, intout, acc, fdata=fdata)
-    
-    IF (ifailloc /= 0) THEN
-      IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
-        &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
     END IF
-    
-    intout = intout * ABS(Ac(p))
-    fonctp = intout(1) + ci * intout(2)  
   
   END SUBROUTINE calcfonct_hcubaturep
   
@@ -420,19 +630,47 @@ CONTAINS
     fdata(2) = vuplim
     
     !set the convergence criterion to be the L_2 norm
-    norm = 2 
-    fdim = ndim
+    fdim = 1
+    
+    IF(norm.EQ.2) fdim = ndim
     
     
-    ifailloc = pcubature(fdim, trapped_cubature, ndim, a, b, maxpts, reqabsacc, reqrelacc, norm, intout, acc, fdata=fdata)
+    IF(norm.EQ.2) THEN
     
-    IF (ifailloc /= 0) THEN
-      IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
-        &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      ifailloc = pcubature(fdim, trapped_cubature, ndim, a, b, maxpts, reqabsacc, reqrelacc, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      
+      intout = intout * ABS(Ac(p))
+      fonctp = intout(1) + ci * intout(2)  
+      
+    ELSE IF(norm.EQ.1) THEN
+    
+      ifailloc = pcubature(fdim, rtrapped_cubature, ndim, a, b, maxpts, reqabsacc, reqrelacc, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      
+      intout = intout * ABS(Ac(p))
+      fonctp = intout(1)
+      
+      ifailloc = pcubature(fdim, itrapped_cubature, ndim, a, b, maxpts, reqabsacc, reqrelacc, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      
+      intout = intout * ABS(Ac(p))
+      fonctp = fonctp + ci * intout(1)
+    
+    
     END IF
-    
-    intout = intout * ABS(Ac(p))
-    fonctp = intout(1) + ci * intout(2)  
   
   END SUBROUTINE calcfonct_pcubaturep
   
@@ -483,19 +721,40 @@ CONTAINS
     fdata(8:9) = rkuplim
     
     !set the convergence criterion to be the L_2 norm
-    norm = 2 
-    fdim = ndim
+    fdim = 1
+    
+    IF(norm.EQ.2) fdim = ndim
     
     
-    ifailloc = hcubature(fdim, total_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc, fdata=fdata)
-    
-    IF (ifailloc /= 0) THEN
-      IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
-        &'. Abnormal termination of hcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+    IF(norm.EQ.2) THEN
+      ifailloc = hcubature(fdim, total_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of hcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      intout = intout * ABS(Ac(p))
+      fonct_total = intout(1) + ci * intout(2)  
+      
+    ELSE IF(norm.EQ.1) THEN
+      ifailloc = hcubature(fdim, rtotal_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of hcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      intout = intout * ABS(Ac(p))
+      fonct_total = intout(1)
+      
+      ifailloc = hcubature(fdim, itotal_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of hcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      intout = intout * ABS(Ac(p))
+      fonct_total = fonct_total + ci * intout(1)
     END IF
-    
-    intout = intout * ABS(Ac(p))
-    fonct_total = intout(1) + ci * intout(2)  
   
   END SUBROUTINE calcfonct_hcubature_newt
   SUBROUTINE calcfonct_pcubature_newt(p, nu, omega, fonct_total)
@@ -545,19 +804,40 @@ CONTAINS
     fdata(8:9) = rkuplim
     
     !set the convergence criterion to be the L_2 norm
-    norm = 2 
-    fdim = ndim
+    fdim = 1
+    
+    IF(norm.EQ.2) fdim = ndim
     
     
-    ifailloc = pcubature(fdim, total_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc, fdata=fdata)
-    
-    IF (ifailloc /= 0) THEN
-      IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
-        &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+    IF(norm.EQ.2) THEN
+      ifailloc = pcubature(fdim, total_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of hcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      intout = intout * ABS(Ac(p))
+      fonct_total = intout(1) + ci * intout(2)  
+      
+    ELSE IF(norm.EQ.1) THEN
+      ifailloc = pcubature(fdim, rtotal_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of hcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      intout = intout * ABS(Ac(p))
+      fonct_total = intout(1)
+      
+      ifailloc = pcubature(fdim, itotal_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of hcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      intout = intout * ABS(Ac(p))
+      fonct_total = fonct_total + ci * intout(1)
     END IF
-    
-    intout = intout * ABS(Ac(p))
-    fonct_total = intout(1) + ci * intout(2)  
   
   END SUBROUTINE calcfonct_pcubature_newt
   
@@ -590,19 +870,44 @@ CONTAINS
     fdata(1) = Ac(p)
     
     !set the convergence criterion to be the L_2 norm
-    norm = 2 
-    fdim = ndim
+    fdim = 1
+    
+    IF(norm.EQ.2) fdim = ndim
     
     
-    ifailloc = hcubature(fdim, passing_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc, fdata=fdata)
-    
-    IF (ifailloc /= 0) THEN
-      IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
-        &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+    IF(norm.EQ.2) THEN
+      ifailloc = hcubature(fdim, passing_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      
+      intout = intout * ABS(Ac(p))
+      fonctc = intout(1) + ci * intout(2)  
+      
+    ELSE IF(norm.EQ.1) THEN
+      ifailloc = hcubature(fdim, rpassing_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      
+      intout = intout * ABS(Ac(p))
+      fonctc = intout(1) 
+      
+      ifailloc = hcubature(fdim, ipassing_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      
+      intout = intout * ABS(Ac(p))
+      fonctc = fonctc + ci * intout(1)  
+      
     END IF
-    
-    intout = intout * ABS(Ac(p))
-    fonctc = intout(1) + ci * intout(2)  
   
   END SUBROUTINE calcfonct_hcubaturec_newt
   
@@ -635,19 +940,44 @@ CONTAINS
     fdata(1) = Ac(p)
     
     !set the convergence criterion to be the L_2 norm
-    norm = 2 
-    fdim = ndim
+    fdim = 1
+    
+    IF(norm.EQ.2) fdim = ndim
     
     
-    ifailloc = pcubature(fdim, passing_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc, fdata=fdata)
-    
-    IF (ifailloc /= 0) THEN
-      IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
-        &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+    IF(norm.EQ.2) THEN
+      ifailloc = pcubature(fdim, passing_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      
+      intout = intout * ABS(Ac(p))
+      fonctc = intout(1) + ci * intout(2)  
+      
+    ELSE IF(norm.EQ.1) THEN
+      ifailloc = pcubature(fdim, rpassing_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      
+      intout = intout * ABS(Ac(p))
+      fonctc = intout(1) 
+      
+      ifailloc = pcubature(fdim, ipassing_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      
+      intout = intout * ABS(Ac(p))
+      fonctc = fonctc + ci * intout(1)  
+      
     END IF
-    
-    intout = intout * ABS(Ac(p))
-    fonctc = intout(1) + ci * intout(2)  
   
   END SUBROUTINE calcfonct_pcubaturec_newt
   
@@ -680,29 +1010,75 @@ CONTAINS
     fdata(1) = Ac(p)
     
     !set the convergence criterion to be the L_2 norm
-    norm = 2 
-    fdim = ndim
+    fdim = 1
+    
+    IF(norm.EQ.2) fdim = ndim
     
     
-    ifailloc = hcubature(fdim, passing_ions_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc, fdata=fdata)
+    IF(norm.EQ.2) THEN
     
-    IF (ifailloc /= 0) THEN
-      IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
-        &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      ifailloc = hcubature(fdim, passing_ions_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      
+      intout = intout * ABS(Ac(p))
+      fonctc = intout(1) + ci * intout(2)  
+      
+      ifailloc = hcubature(fdim, passing_electrons_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      
+      intout = intout * ABS(Ac(p))
+      fonctc = fonctc + intout(1) + ci * intout(2)  
+      
+    ELSE IF(norm.EQ.1) THEN
+      ifailloc = hcubature(fdim, rpassing_ions_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      
+      intout = intout * ABS(Ac(p))
+      fonctc = intout(1)
+      
+      ifailloc = hcubature(fdim, rpassing_electrons_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      
+      intout = intout * ABS(Ac(p))
+      fonctc = fonctc + intout(1)
+      
+      ifailloc = hcubature(fdim, ipassing_ions_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      
+      intout = intout * ABS(Ac(p))
+      fonctc = fonctc + ci * intout(1)
+      
+      ifailloc = hcubature(fdim, ipassing_electrons_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      
+      intout = intout * ABS(Ac(p))
+      fonctc = fonctc + ci * intout(1)
+      
     END IF
-    
-    intout = intout * ABS(Ac(p))
-    fonctc = intout(1) + ci * intout(2)  
-    
-    ifailloc = hcubature(fdim, passing_electrons_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc, fdata=fdata)
-    
-    IF (ifailloc /= 0) THEN
-      IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
-        &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
-    END IF
-    
-    intout = intout * ABS(Ac(p))
-    fonctc = fonctc + intout(1) + ci * intout(2)  
   
   END SUBROUTINE calcfonct_hcubaturec2_newt
   
@@ -735,29 +1111,75 @@ CONTAINS
     fdata(1) = Ac(p)
     
     !set the convergence criterion to be the L_2 norm
-    norm = 2 
-    fdim = ndim
+    fdim = 1
+    
+    IF(norm.EQ.2) fdim = ndim
     
     
-    ifailloc = pcubature(fdim, passing_ions_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc, fdata=fdata)
+    IF(norm.EQ.2) THEN
     
-    IF (ifailloc /= 0) THEN
-      IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
-        &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
-    END IF
-    
-    intout = intout * ABS(Ac(p))
-    fonctc = intout(1) + ci * intout(2)  
-    
-    ifailloc = pcubature(fdim, passing_electrons_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc, fdata=fdata)
-    
-    IF (ifailloc /= 0) THEN
-      IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
-        &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
-    END IF
-    
-    intout = intout * ABS(Ac(p))
-    fonctc = fonctc + intout(1) + ci * intout(2)  
+      ifailloc = pcubature(fdim, passing_ions_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      
+      intout = intout * ABS(Ac(p))
+      fonctc = intout(1) + ci * intout(2)  
+      
+      ifailloc = pcubature(fdim, passing_electrons_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      
+      intout = intout * ABS(Ac(p))
+      fonctc = fonctc + intout(1) + ci * intout(2)  
+      
+    ELSE IF(norm.EQ.1) THEN
+      ifailloc = pcubature(fdim, rpassing_ions_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      
+      intout = intout * ABS(Ac(p))
+      fonctc = intout(1)
+      
+      ifailloc = pcubature(fdim, rpassing_electrons_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      
+      intout = intout * ABS(Ac(p))
+      fonctc = fonctc + intout(1)
+      
+      ifailloc = pcubature(fdim, ipassing_ions_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      
+      intout = intout * ABS(Ac(p))
+      fonctc = fonctc + ci * intout(1)
+      
+      ifailloc = pcubature(fdim, ipassing_electrons_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      
+      intout = intout * ABS(Ac(p))
+      fonctc = fonctc + ci * intout(1)
+      
+    END IF 
   
   END SUBROUTINE calcfonct_pcubaturec2_newt
   
@@ -792,19 +1214,47 @@ CONTAINS
     fdata(2) = vuplim
     
     !set the convergence criterion to be the L_2 norm
-    norm = 2 
-    fdim = ndim
+    fdim = 1
+    
+    IF(norm.EQ.2) fdim = ndim
     
     
-    ifailloc = hcubature(fdim, trapped_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc, fdata=fdata)
+    IF(norm.EQ.2) THEN
     
-    IF (ifailloc /= 0) THEN
-      IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
-        &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      ifailloc = hcubature(fdim, trapped_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      
+      intout = intout * ABS(Ac(p))
+      fonctp = intout(1) + ci * intout(2)  
+      
+    ELSE IF(norm.EQ.1) THEN
+    
+      ifailloc = hcubature(fdim, rtrapped_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      
+      intout = intout * ABS(Ac(p))
+      fonctp = intout(1)
+      
+      ifailloc = hcubature(fdim, itrapped_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      
+      intout = intout * ABS(Ac(p))
+      fonctp = fonctp + ci * intout(1)
+    
+    
     END IF
-    
-    intout = intout * ABS(Ac(p))
-    fonctp = intout(1) + ci * intout(2)  
   
   END SUBROUTINE calcfonct_hcubaturep_newt
   
@@ -839,19 +1289,47 @@ CONTAINS
     fdata(2) = vuplim
     
     !set the convergence criterion to be the L_2 norm
-    norm = 2 
-    fdim = ndim
+    fdim = 1
+    
+    IF(norm.EQ.2) fdim = ndim
     
     
-    ifailloc = pcubature(fdim, trapped_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc, fdata=fdata)
+   IF(norm.EQ.2) THEN
     
-    IF (ifailloc /= 0) THEN
-      IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
-        &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      ifailloc = pcubature(fdim, trapped_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      
+      intout = intout * ABS(Ac(p))
+      fonctp = intout(1) + ci * intout(2)  
+      
+    ELSE IF(norm.EQ.1) THEN
+    
+      ifailloc = pcubature(fdim, rtrapped_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      
+      intout = intout * ABS(Ac(p))
+      fonctp = intout(1)
+      
+      ifailloc = pcubature(fdim, itrapped_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc, fdata=fdata)
+      
+      IF (ifailloc /= 0) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
+          &'. Abnormal termination of pcubature integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
+      END IF
+      
+      intout = intout * ABS(Ac(p))
+      fonctp = fonctp + ci * intout(1)
+    
+    
     END IF
-    
-    intout = intout * ABS(Ac(p))
-    fonctp = intout(1) + ci * intout(2)  
   
   END SUBROUTINE calcfonct_pcubaturep_newt
   
