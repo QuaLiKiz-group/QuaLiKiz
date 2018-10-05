@@ -1,0 +1,18 @@
+#!/bin/make -f
+QUALIKIZ=
+# Underlying compiler
+FC=ifort
+# Wrapper/command used to compile with Open MPI
+FC_WRAPPER=mpiifort
+# String of text that will be put in from of the $(FC) compile option
+FC_PREAMBLE=
+DEBUG=
+FFLAGS_GFORTRAN=$(DEBUG) -O3 -fdefault-double-8 -fdefault-real-8 -ffree-line-length-none
+FFLAGS_IFORT=$(DEBUG) -O2 -real-size 64
+FFLAGS=$(FFLAGS_IFORT)
+OPENMP_FLAGS=-qopenmp
+MPI_FLAGS=-DMPI
+
+NAG=-L$(shell echo $$NAGFLIB_HOME)/lib -lnag_nag
+NAG_DIR=$(shell echo $$NAGFLIB_HOME)/lib
+NAG_LIB=$(NAG_DIR)/libnag_nag.a

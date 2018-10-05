@@ -21,6 +21,9 @@ case $HOSTNAME in
   r0*)
     ARCH=marconi
     ;;
+  cobra*)
+    ARCH=cobra
+    ;;
 esac
 
 if [ "$ARCH" == "" ]
