@@ -24,7 +24,7 @@ CONTAINS
     scale_2 = fdata(2) !scale_2 is vuplim 
     scale_ = ABS(adiabatic) !scaling the integrand
     
-    IF((ndim.NE.2.).OR.(fdim.NE.2)) THEN
+    IF((ndim.NE.2).OR.(fdim.NE.2)) THEN
       trapped_cubature = 1
       RETURN
     END IF
@@ -64,7 +64,7 @@ CONTAINS
     scale_2 = fdata(2) !scale_2 is vuplim 
     scale_ = ABS(adiabatic) !scaling the integrand
     
-    IF((ndim.NE.2.).OR.(fdim.NE.1)) THEN
+    IF((ndim.NE.2).OR.(fdim.NE.1)) THEN
       rtrapped_cubature = 1
       RETURN
     END IF
@@ -103,7 +103,7 @@ CONTAINS
     scale_2 = fdata(2) !scale_2 is vuplim 
     scale_ = ABS(adiabatic) !scaling the integrand
     
-    IF((ndim.NE.2.).OR.(fdim.NE.1)) THEN
+    IF((ndim.NE.2).OR.(fdim.NE.1)) THEN
       itrapped_cubature = 1
       RETURN
     END IF
@@ -124,6 +124,112 @@ CONTAINS
     
     
   END FUNCTION itrapped_cubature
+  
+  INTEGER FUNCTION trapped_nocoll_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: xx
+    COMPLEX(KIND=DBL) :: output
+    REAL(KIND=DBL) :: scale_, adiabatic, scale_2
+    INTEGER :: i
+    
+    adiabatic = fdata(1)
+    scale_ = ABS(adiabatic) !scaling the integrand
+    
+    IF((ndim.NE.1).OR.(fdim.NE.2)) THEN
+      trapped_nocoll_cubature = 1
+      RETURN
+    END IF
+    
+    xx = x(1) 
+    
+    output = FFke_nocoll(xx, 1)
+    DO i = 1, nions
+      output = output + FFki(xx, 1, i) * ninorm(pFFk, i)
+    END DO    
+        
+    output = output/scale_
+    
+    fval(1) = REAL(output)
+    fval(2) = AIMAG(output)
+    trapped_nocoll_cubature = 0
+    
+    
+  END FUNCTION trapped_nocoll_cubature
+  
+  INTEGER FUNCTION rtrapped_nocoll_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: xx
+    COMPLEX(KIND=DBL) :: output
+    REAL(KIND=DBL) :: scale_, adiabatic, scale_2
+    INTEGER :: i
+    
+    adiabatic = fdata(1)
+    scale_ = ABS(adiabatic) !scaling the integrand
+    
+    IF((ndim.NE.1).OR.(fdim.NE.2)) THEN
+      rtrapped_nocoll_cubature = 1
+      RETURN
+    END IF
+    
+    xx = x(1) 
+    
+    output = FFke_nocoll(xx, 1)
+    DO i = 1, nions
+      output = output + FFki(xx, 1, i) * ninorm(pFFk, i)
+    END DO    
+        
+    output = output/scale_
+    
+    fval(1) = REAL(output)
+    rtrapped_nocoll_cubature = 0
+    
+    
+  END FUNCTION rtrapped_nocoll_cubature
+  
+  INTEGER FUNCTION itrapped_nocoll_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: xx
+    COMPLEX(KIND=DBL) :: output
+    REAL(KIND=DBL) :: scale_, adiabatic, scale_2
+    INTEGER :: i
+    
+    adiabatic = fdata(1)
+    scale_ = ABS(adiabatic) !scaling the integrand
+    
+    IF((ndim.NE.1).OR.(fdim.NE.1)) THEN
+      itrapped_nocoll_cubature = 1
+      RETURN
+    END IF
+    
+    xx = x(1) 
+    
+    output = FFke_nocoll(xx, 1)
+    DO i = 1, nions
+      output = output + FFki(xx, 1, i) * ninorm(pFFk, i)
+    END DO    
+        
+    output = output/scale_
+    
+    fval(1) = AIMAG(output)
+    itrapped_nocoll_cubature = 0
+    
+    
+  END FUNCTION itrapped_nocoll_cubature
 
   FUNCTION FFke_cub(nf, kv)
     !---------------------------------------------------------------------
