@@ -53,8 +53,8 @@ qlflux.mod: QLflux.mod
 callpassqlints.mod: callpassQLints.mod
 calltrapqlints.mod: calltrapQLints.mod
 qualikiz.o: mod_make_io.mod calcroutines.mod mod_saturation.mod
-callpassQLints.o: callpassints.mod $(CUBPACK_DIR)/cui.mod
-calltrapQLints.o: calltrapints.mod $(CUBPACK_DIR)/cui.mod
+callpassQLints.o: callpassints.mod $(CUBPACK_DIR)/cui.mod hcub.mod pcub.mod
+calltrapQLints.o: calltrapints.mod $(CUBPACK_DIR)/cui.mod hcub.mod pcub.mod
 QLflux.o: kind.mod datmat.mod datcal.mod callpassqlints.mod calltrapqlints.mod
 qlk_standalone.o: kind.mod
 calcroutines.o: mod_fonct.mod qlflux.mod flrterms.mod mod_fluidsol.mod mod_contour.mod mod_make_io.mod asymmetry.mod nanfilter.mod
