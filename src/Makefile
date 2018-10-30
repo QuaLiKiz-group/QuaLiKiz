@@ -73,7 +73,7 @@ clencurt.o : kind.mod
 pcub.o: kind.mod clencurt.mod
 coleintegrals.o: kind.mod
 FLRterms.o: kind.mod datcal.mod datmat.mod
-mod_fluidsol.o: kind.mod datcal.mod datmat.mod
+mod_fluidsol.o: kind.mod datcal.mod datmat.mod hcub.mod pcub.mod
 mod_contour.o: kind.mod datcal.mod
 # Makeflux objects
 asymmetry.o: kind.mod datmat.mod datcal.mod
