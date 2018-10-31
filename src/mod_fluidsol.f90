@@ -41,7 +41,7 @@ CONTAINS
 
     !Set integration limits
     a=  0.0d0
-    b = 1.0d0 !- barelyavoid
+    b = 1.0d0 - barelyavoid
     c = 1.-2.*epsilon(p)
     
     a_cub(1) = a
@@ -455,7 +455,7 @@ CONTAINS
 
     !Set integration limits
     a=  0.0d0
-    b = 1.0d0 !- barelyavoid
+    b = 1.0d0 - barelyavoid
     c = 1-2.*epsilon(p)
     
     a_cub(1) = a
@@ -689,7 +689,7 @@ CONTAINS
 
     !Set integration limits
     a=  0.0d0
-    b = 1.0d0 !- barelyavoid
+    b = 1.0d0 - barelyavoid
     c = 1-2.*epsilon(p)
     
     a_cub(1) = a
@@ -1341,7 +1341,7 @@ CONTAINS
     END IF
     
     xx = x(1)
-    fval(1) = V1int(xx)
+    fval(1) = V3int(xx)
     V3int_cub = 0     
   END FUNCTION
   
@@ -1384,7 +1384,7 @@ CONTAINS
     END IF
     
     xx = x(1)
-    fval(1) = V1int(xx)
+    fval(1) = V4int(xx)
     V4int_cub = 0     
   END FUNCTION
   
@@ -1426,7 +1426,7 @@ CONTAINS
     END IF
     
     xx = x(1)
-    fval(1) = V1int(xx)
+    fval(1) = Wv3int(xx)
     Wv3int_cub = 0     
   END FUNCTION
   
@@ -1470,7 +1470,7 @@ CONTAINS
     END IF
     
     xx = x(1)
-    fval(1) = V1int(xx)
+    fval(1) = Wv4int(xx)
     Wv4int_cub = 0     
   END FUNCTION
   
@@ -1512,7 +1512,7 @@ CONTAINS
     END IF
     
     xx = x(1)
-    fval(1) = V1int(xx)
+    fval(1) = Wv5int(xx)
     Wv5int_cub = 0     
   END FUNCTION
   
@@ -1555,7 +1555,7 @@ CONTAINS
     END IF
     
     xx = x(1)
-    fval(1) = V1int(xx)
+    fval(1) = Wv6int(xx)
     Wv6int_cub = 0     
   END FUNCTION
   
