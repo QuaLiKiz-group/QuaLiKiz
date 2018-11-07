@@ -239,7 +239,7 @@ INTEGER FUNCTION eval_regions(nR, Re, fdata, r, f, fv) !fdata is discarded, f is
     eval_regions = 0
     RETURN !nothing to evaluate
   END IF
-  IF(.NOT.(PRESENT(f).XOR.PRESENT(fv))) THEN !pass either f or fv
+  IF(PRESENT(f).EQV.PRESENT(fv)) THEN !pass either f or fv
     eval_regions = 1 
     RETURN
   END IF
@@ -468,7 +468,7 @@ INTEGER FUNCTION rule75genzmalik_evalError(r, fdim, fdata, nR, Re, f, fv)
   v_loc = 0
   NULLIFY(diff, pts, vals, center, halfwidth, v)
   
-  IF(.NOT.(PRESENT(f).XOR.PRESENT(fv))) THEN !pass either f or fv
+  IF(PRESENT(f).EQV.PRESENT(fv)) THEN !pass either f or fv
     rule75genzmalik_evalError = 1
     RETURN
   END IF
@@ -668,7 +668,7 @@ INTEGER FUNCTION rule15gauss_evalError(r, fdim, fdata, nR, Re, f, fv)
   vk_loc = 0
   NULLIFY(pts, vals, vk)
   
-  IF(.NOT.(PRESENT(f).XOR.PRESENT(fv))) THEN !pass either f or fv
+  IF(PRESENT(f).EQV.PRESENT(fv)) THEN !pass either f or fv
     rule15gauss_evalError = 1
     RETURN
   END IF
@@ -1118,7 +1118,7 @@ INTEGER FUNCTION rulecubature(r, fdim, fdata, h, maxEval, reqAbsError, reqRelErr
   
   NULLIFY(Re, Re_tmp, ee)
   
-  IF(.NOT.(PRESENT(f).XOR.PRESENT(fv))) THEN !should pass either f or fv
+  IF(PRESENT(f).EQV.PRESENT(fv)) THEN !should pass either f or fv
     rulecubature = 1
     RETURN
   END IF
@@ -1415,7 +1415,7 @@ INTEGER FUNCTION cubature(fdim, fdata, ndim, xmin, xmax, maxEval, reqAbsError, r
     RETURN
   END IF
   
-  IF(.NOT.(PRESENT(f).XOR.PRESENT(fv))) THEN !should either f or fv
+  IF(PRESENT(f).EQV.PRESENT(fv)) THEN !should either f or fv
     cubature = 1
     RETURN
   END IF

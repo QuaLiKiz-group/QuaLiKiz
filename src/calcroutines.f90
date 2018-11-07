@@ -1029,29 +1029,147 @@ CONTAINS
          fonx = CMPLX(Ac(p),0.) - fonctc - fonctp
 
       ENDIF
+    
     ELSE IF(int_method.EQ.1) THEN !Use hcubature
-      IF(int_split.EQ.0) THEN
-        CALL calcfonct_hcubature(p, nu, omega, fonx)
-      ELSE IF(int_split.EQ.1) THEN
-        CALL calcfonct_hcubaturep(p, nu, omega, fonctp)
-        CALL calcfonct_hcubaturec(p, nu, omega, fonctc)
-        fonx = CMPLX(Ac(p), 0.) - fonctc - fonctp 
-      ELSE IF(int_split.EQ.2) THEN
-        CALL calcfonct_hcubaturep(p, nu, omega, fonctp)
-        CALL calcfonct_hcubaturec2(p, nu, omega, fonctc)
-        fonx = CMPLX(Ac(p), 0.) - fonctc - fonctp 
+      IF((rotflagarray(p) == 1).AND.(ETG_flag(nu).EQV. .FALSE.)) THEN !rotations
+        IF(int_split.EQ.0) THEN
+          CALL calcfonctrot_hcubature(p, nu, omega, fonx)
+          
+        ELSE IF(int_split.EQ.1) THEN
+        
+          IF (ft(p)==0. .OR. (calctrap .EQV. .FALSE.) ) THEN
+            fonctp = 0.    
+          ELSE    
+            CALL calcfonctrot_hcubaturep(p, nu, omega, fonctp)
+          END IF
+          
+          IF ( ( fc(p)==0. ) .OR. ( REAL(mwidth)<d/4.) .OR. ( calccirc .EQV. .FALSE. ) ) THEN
+            fonctc = 0.
+          ELSE
+            CALL calcfonctrot_hcubaturec(p, nu, omega, fonctc)
+          END IF
+          
+          fonx = CMPLX(Ac(p), 0.) - fonctc - fonctp 
+          
+        ELSE IF(int_split.EQ.2) THEN
+          IF (ft(p)==0. .OR. (calctrap .EQV. .FALSE.) ) THEN
+            fonctp = 0.    
+          ELSE    
+            CALL calcfonctrot_hcubaturep(p, nu, omega, fonctp)
+          END IF
+          
+          IF ( ( fc(p)==0. ) .OR. ( REAL(mwidth)<d/4.) .OR. ( calccirc .EQV. .FALSE. ) ) THEN
+            fonctc = 0.
+          ELSE
+            CALL calcfonctrot_hcubaturec2(p, nu, omega, fonctc)
+          END IF
+          fonx = CMPLX(Ac(p), 0.) - fonctc - fonctp 
+        END IF
+      ELSE !no rotations
+        IF(int_split.EQ.0) THEN
+          CALL calcfonct_hcubature(p, nu, omega, fonx)
+          
+        ELSE IF(int_split.EQ.1) THEN
+        
+          IF (ft(p)==0. .OR. (calctrap .EQV. .FALSE.) ) THEN
+            fonctp = 0.    
+          ELSE    
+            CALL calcfonct_hcubaturep(p, nu, omega, fonctp)
+          END IF
+          
+          IF ( ( fc(p)==0. ) .OR. ( REAL(mwidth)<d/4.) .OR. ( calccirc .EQV. .FALSE. ) ) THEN
+            fonctc = 0.
+          ELSE
+            CALL calcfonct_hcubaturec(p, nu, omega, fonctc)
+          END IF
+          
+          fonx = CMPLX(Ac(p), 0.) - fonctc - fonctp 
+          
+        ELSE IF(int_split.EQ.2) THEN
+          IF (ft(p)==0. .OR. (calctrap .EQV. .FALSE.) ) THEN
+            fonctp = 0.    
+          ELSE    
+            CALL calcfonct_hcubaturep(p, nu, omega, fonctp)
+          END IF
+          
+          IF ( ( fc(p)==0. ) .OR. ( REAL(mwidth)<d/4.) .OR. ( calccirc .EQV. .FALSE. ) ) THEN
+            fonctc = 0.
+          ELSE
+            CALL calcfonct_hcubaturec2(p, nu, omega, fonctc)
+          END IF
+          fonx = CMPLX(Ac(p), 0.) - fonctc - fonctp 
+        END IF
       END IF
     ELSE IF(int_method.EQ.2) THEN !Use pcubature
-      IF(int_split.EQ.0) THEN
-        CALL calcfonct_pcubature(p, nu, omega, fonx)
-      ELSE IF(int_split.EQ.1) THEN
-        CALL calcfonct_pcubaturep(p, nu, omega, fonctp)
-        CALL calcfonct_pcubaturec(p, nu, omega, fonctc)
-        fonx = CMPLX(Ac(p), 0.) - fonctc - fonctp 
-      ELSE IF(int_split.EQ.2) THEN
-        CALL calcfonct_pcubaturep(p, nu, omega, fonctp)
-        CALL calcfonct_pcubaturec2(p, nu, omega, fonctc)
-        fonx = CMPLX(Ac(p), 0.) - fonctc - fonctp 
+      IF((rotflagarray(p) == 1).AND.(ETG_flag(nu).EQV. .FALSE.)) THEN !rotations
+    
+        IF(int_split.EQ.0) THEN
+          CALL calcfonctrot_pcubature(p, nu, omega, fonx)
+          
+        ELSE IF(int_split.EQ.1) THEN
+        
+          IF (ft(p)==0. .OR. (calctrap .EQV. .FALSE.) ) THEN
+            fonctp = 0.    
+          ELSE    
+            CALL calcfonctrot_pcubaturep(p, nu, omega, fonctp)
+          END IF
+          
+          IF ( ( fc(p)==0. ) .OR. ( REAL(mwidth)<d/4.) .OR. ( calccirc .EQV. .FALSE. ) ) THEN
+            fonctc = 0.
+          ELSE
+            CALL calcfonctrot_pcubaturec(p, nu, omega, fonctc)
+          END IF
+          
+          fonx = CMPLX(Ac(p), 0.) - fonctc - fonctp 
+          
+        ELSE IF(int_split.EQ.2) THEN
+          IF (ft(p)==0. .OR. (calctrap .EQV. .FALSE.) ) THEN
+            fonctp = 0.    
+          ELSE    
+            CALL calcfonctrot_pcubaturep(p, nu, omega, fonctp)
+          END IF
+          
+          IF ( ( fc(p)==0. ) .OR. ( REAL(mwidth)<d/4.) .OR. ( calccirc .EQV. .FALSE. ) ) THEN
+            fonctc = 0.
+          ELSE
+            CALL calcfonctrot_pcubaturec2(p, nu, omega, fonctc)
+          END IF
+          fonx = CMPLX(Ac(p), 0.) - fonctc - fonctp 
+        END IF
+      ELSE !no rotations
+        IF(int_split.EQ.0) THEN
+          CALL calcfonct_pcubature(p, nu, omega, fonx)
+          
+        ELSE IF(int_split.EQ.1) THEN
+        
+          IF (ft(p)==0. .OR. (calctrap .EQV. .FALSE.) ) THEN
+            fonctp = 0.    
+          ELSE    
+            CALL calcfonctrot_pcubaturep(p, nu, omega, fonctp)
+          END IF
+          
+          IF ( ( fc(p)==0. ) .OR. ( REAL(mwidth)<d/4.) .OR. ( calccirc .EQV. .FALSE. ) ) THEN
+            fonctc = 0.
+          ELSE
+            CALL calcfonctrot_pcubaturec(p, nu, omega, fonctc)
+          END IF
+          
+          fonx = CMPLX(Ac(p), 0.) - fonctc - fonctp 
+          
+        ELSE IF(int_split.EQ.2) THEN
+          IF (ft(p)==0. .OR. (calctrap .EQV. .FALSE.) ) THEN
+            fonctp = 0.    
+          ELSE    
+            CALL calcfonctrot_pcubaturep(p, nu, omega, fonctp)
+          END IF
+          
+          IF ( ( fc(p)==0. ) .OR. ( REAL(mwidth)<d/4.) .OR. ( calccirc .EQV. .FALSE. ) ) THEN
+            fonctc = 0.
+          ELSE
+            CALL calcfonctrot_pcubaturec2(p, nu, omega, fonctc)
+          END IF
+          fonx = CMPLX(Ac(p), 0.) - fonctc - fonctp 
+        END IF
       END IF
     END IF
 
@@ -1110,29 +1228,148 @@ CONTAINS
          fonx = CMPLX(Ac(p),0.) - fonctc - fonctp
 
       ENDIF
-    ELSE IF(int_method.EQ.1) THEN !Use hcubature
-      IF(int_split.EQ.0) THEN
-        CALL calcfonct_hcubature_newt(p, nu, omega, fonx)
-      ELSE IF(int_split.EQ.1) THEN
-        CALL calcfonct_hcubaturep_newt(p, nu, omega, fonctp)
-        CALL calcfonct_hcubaturec_newt(p, nu, omega, fonctc)
-        fonx = CMPLX(Ac(p), 0.) - fonctc - fonctp 
-      ELSE IF(int_split.EQ.2) THEN
-        CALL calcfonct_hcubaturep_newt(p, nu, omega, fonctp)
-        CALL calcfonct_hcubaturec2_newt(p, nu, omega, fonctc)
-        fonx = CMPLX(Ac(p), 0.) - fonctc - fonctp 
+    
+    
+    ELSE IF(newt_method.EQ.1) THEN !Use hcubature
+      IF((rotflagarray(p) == 1).AND.(ETG_flag(nu).EQV. .FALSE.)) THEN !rotations
+        IF(int_split.EQ.0) THEN
+          CALL calcfonctrot_hcubature(p, nu, omega, fonx)
+          
+        ELSE IF(int_split.EQ.1) THEN
+        
+          IF (ft(p)==0. .OR. (calctrap .EQV. .FALSE.) ) THEN
+            fonctp = 0.    
+          ELSE    
+            CALL calcfonctrot_hcubaturep_newt(p, nu, omega, fonctp)
+          END IF
+          
+          IF ( ( fc(p)==0. ) .OR. ( REAL(mwidth)<d/4.) .OR. ( calccirc .EQV. .FALSE. ) ) THEN
+            fonctc = 0.
+          ELSE
+            CALL calcfonctrot_hcubaturec_newt(p, nu, omega, fonctc)
+          END IF
+          
+          fonx = CMPLX(Ac(p), 0.) - fonctc - fonctp 
+          
+        ELSE IF(int_split.EQ.2) THEN
+          IF (ft(p)==0. .OR. (calctrap .EQV. .FALSE.) ) THEN
+            fonctp = 0.    
+          ELSE    
+            CALL calcfonctrot_hcubaturep_newt(p, nu, omega, fonctp)
+          END IF
+          
+          IF ( ( fc(p)==0. ) .OR. ( REAL(mwidth)<d/4.) .OR. ( calccirc .EQV. .FALSE. ) ) THEN
+            fonctc = 0.
+          ELSE
+            CALL calcfonctrot_hcubaturec2_newt(p, nu, omega, fonctc)
+          END IF
+          fonx = CMPLX(Ac(p), 0.) - fonctc - fonctp 
+        END IF
+      ELSE !no rotations
+        IF(int_split.EQ.0) THEN
+          CALL calcfonct_hcubature_newt(p, nu, omega, fonx)
+          
+        ELSE IF(int_split.EQ.1) THEN
+        
+          IF (ft(p)==0. .OR. (calctrap .EQV. .FALSE.) ) THEN
+            fonctp = 0.    
+          ELSE    
+            CALL calcfonct_hcubaturep_newt(p, nu, omega, fonctp)
+          END IF
+          
+          IF ( ( fc(p)==0. ) .OR. ( REAL(mwidth)<d/4.) .OR. ( calccirc .EQV. .FALSE. ) ) THEN
+            fonctc = 0.
+          ELSE
+            CALL calcfonct_hcubaturec_newt(p, nu, omega, fonctc)
+          END IF
+          
+          fonx = CMPLX(Ac(p), 0.) - fonctc - fonctp 
+          
+        ELSE IF(int_split.EQ.2) THEN
+          IF (ft(p)==0. .OR. (calctrap .EQV. .FALSE.) ) THEN
+            fonctp = 0.    
+          ELSE    
+            CALL calcfonct_hcubaturep_newt(p, nu, omega, fonctp)
+          END IF
+          
+          IF ( ( fc(p)==0. ) .OR. ( REAL(mwidth)<d/4.) .OR. ( calccirc .EQV. .FALSE. ) ) THEN
+            fonctc = 0.
+          ELSE
+            CALL calcfonct_hcubaturec2_newt(p, nu, omega, fonctc)
+          END IF
+          fonx = CMPLX(Ac(p), 0.) - fonctc - fonctp 
+        END IF
       END IF
-    ELSE IF(int_method.EQ.2) THEN !Use pcubature
-      IF(int_split.EQ.0) THEN
-        CALL calcfonct_pcubature_newt(p, nu, omega, fonx)
-      ELSE IF(int_split.EQ.1) THEN
-        CALL calcfonct_pcubaturep_newt(p, nu, omega, fonctp)
-        CALL calcfonct_pcubaturec_newt(p, nu, omega, fonctc)
-        fonx = CMPLX(Ac(p), 0.) - fonctc - fonctp 
-      ELSE IF(int_split.EQ.2) THEN
-        CALL calcfonct_pcubaturep_newt(p, nu, omega, fonctp)
-        CALL calcfonct_pcubaturec2_newt(p, nu, omega, fonctc)
-        fonx = CMPLX(Ac(p), 0.) - fonctc - fonctp 
+    ELSE IF(newt_method.EQ.2) THEN !Use pcubature
+      IF((rotflagarray(p) == 1).AND.(ETG_flag(nu).EQV. .FALSE.)) THEN !rotations
+    
+        IF(int_split.EQ.0) THEN
+          CALL calcfonctrot_pcubature_newt(p, nu, omega, fonx)
+          
+        ELSE IF(int_split.EQ.1) THEN
+        
+          IF (ft(p)==0. .OR. (calctrap .EQV. .FALSE.) ) THEN
+            fonctp = 0.    
+          ELSE    
+            CALL calcfonctrot_pcubaturep_newt(p, nu, omega, fonctp)
+          END IF
+          
+          IF ( ( fc(p)==0. ) .OR. ( REAL(mwidth)<d/4.) .OR. ( calccirc .EQV. .FALSE. ) ) THEN
+            fonctc = 0.
+          ELSE
+            CALL calcfonctrot_pcubaturec_newt(p, nu, omega, fonctc)
+          END IF
+          
+          fonx = CMPLX(Ac(p), 0.) - fonctc - fonctp 
+          
+        ELSE IF(int_split.EQ.2) THEN
+          IF (ft(p)==0. .OR. (calctrap .EQV. .FALSE.) ) THEN
+            fonctp = 0.    
+          ELSE    
+            CALL calcfonctrot_pcubaturep_newt(p, nu, omega, fonctp)
+          END IF
+          
+          IF ( ( fc(p)==0. ) .OR. ( REAL(mwidth)<d/4.) .OR. ( calccirc .EQV. .FALSE. ) ) THEN
+            fonctc = 0.
+          ELSE
+            CALL calcfonctrot_pcubaturec2_newt(p, nu, omega, fonctc)
+          END IF
+          fonx = CMPLX(Ac(p), 0.) - fonctc - fonctp 
+        END IF
+      ELSE !no rotations
+        IF(int_split.EQ.0) THEN
+          CALL calcfonct_pcubature_newt(p, nu, omega, fonx)
+          
+        ELSE IF(int_split.EQ.1) THEN
+        
+          IF (ft(p)==0. .OR. (calctrap .EQV. .FALSE.) ) THEN
+            fonctp = 0.    
+          ELSE    
+            CALL calcfonctrot_pcubaturep_newt(p, nu, omega, fonctp)
+          END IF
+          
+          IF ( ( fc(p)==0. ) .OR. ( REAL(mwidth)<d/4.) .OR. ( calccirc .EQV. .FALSE. ) ) THEN
+            fonctc = 0.
+          ELSE
+            CALL calcfonctrot_pcubaturec_newt(p, nu, omega, fonctc)
+          END IF
+          
+          fonx = CMPLX(Ac(p), 0.) - fonctc - fonctp 
+          
+        ELSE IF(int_split.EQ.2) THEN
+          IF (ft(p)==0. .OR. (calctrap .EQV. .FALSE.) ) THEN
+            fonctp = 0.    
+          ELSE    
+            CALL calcfonctrot_pcubaturep_newt(p, nu, omega, fonctp)
+          END IF
+          
+          IF ( ( fc(p)==0. ) .OR. ( REAL(mwidth)<d/4.) .OR. ( calccirc .EQV. .FALSE. ) ) THEN
+            fonctc = 0.
+          ELSE
+            CALL calcfonctrot_pcubaturec2_newt(p, nu, omega, fonctc)
+          END IF
+          fonx = CMPLX(Ac(p), 0.) - fonctc - fonctp 
+        END IF
       END IF
     END IF
 

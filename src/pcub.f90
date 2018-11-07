@@ -103,7 +103,7 @@ INTEGER RECURSIVE FUNCTION compute_cacheval(m, mi, val_, vali, fdim, fdata, &
   INTEGER :: x_loc
   INTEGER :: i, nx
   
-  IF(.NOT.(PRESENT(f).XOR.PRESENT(fv))) THEN  !pass either f or fv
+  IF(PRESENT(f).EQV.PRESENT(fv)) THEN  !pass either f or fv
     ret = 1
     RETURN
   END IF
@@ -256,7 +256,7 @@ INTEGER FUNCTION add_cacheval(vc, m, mi, fdim, fdata, ndim, xmin, xmax, buf, nbu
   REAL(KIND=DBL), DIMENSION(MAXDIM) :: p
   TYPE(CACHEVAL), DIMENSION(:), POINTER :: c_tmp
   
-  IF(.NOT.(PRESENT(f).XOR.PRESENT(fv))) THEN !pass either f or fv
+  IF(PRESENT(f).EQV.PRESENT(fv)) THEN !pass either f or fv
     add_cacheval = 1
     RETURN
   END IF
@@ -331,7 +331,8 @@ END FUNCTION
 INTEGER RECURSIVE FUNCTION eval(cm, cmi, cval, m, md, fdim, ndim, id_, weight, val_) RESULT(ret)
   INTEGER, DIMENSION(:), INTENT(IN) :: cm, m
   INTEGER, INTENT(IN) :: cmi, md, fdim, ndim, id_
-  REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: cval, val_
+  REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: cval
+  REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: val_
   REAL(KIND=DBL), INTENT(IN) :: weight
   
   INTEGER :: voff, i, mid, cnx, nx
@@ -660,7 +661,7 @@ INTEGER FUNCTION pcubature_v_buf(fdim, fdata, ndim, xmin, xmax, maxEval, reqAbsE
   ret = 1; V = 1._DBL; numEval = 0; norm_new = norm; max_nbuf_new = max_nbuf; vc%ncache = 0; use_new_buf = 1
   NULLIFY(val1, vc%c, buf_new)
   
-  IF(.NOT.(PRESENT(f).XOR.PRESENT(fv))) THEN !pass either f or fv
+  IF(PRESENT(f).EQV.PRESENT(fv)) THEN !pass either f or fv
     ret = 1
     RETURN
   END IF

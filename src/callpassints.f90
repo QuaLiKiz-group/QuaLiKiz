@@ -313,7 +313,7 @@ CONTAINS
     XY(1) = x(1)
     XY(2) = x(2)
     
-    output = 4.*Fkstarrstare(ndim, XY, 1)  
+    output = Fkstarrstare(ndim, XY, 1)  
         
     output = output/scale_
     
@@ -322,6 +322,323 @@ CONTAINS
     
     
   END FUNCTION ipassing_electrons_cubature
+  
+  INTEGER FUNCTION passingrot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL), DIMENSION(2) :: XY
+    COMPLEX(KIND=DBL) :: output
+    REAL(KIND=DBL) :: scale_, adiabatic
+    INTEGER :: i
+    
+    adiabatic = fdata(1)
+    scale_ = ABS(adiabatic) !scaling the integrand
+    
+    IF((ndim.NE.2.).OR.(fdim.NE.2)) THEN
+      passingrot_cubature = 1
+      RETURN
+    END IF
+    
+    XY(1) = x(1)
+    XY(2) = x(2)
+    
+    output = Fkstarrstarerot(ndim, XY, 1)
+    DO i = 1, nions
+      output = output +  Fkstarrstarirot(ndim, XY, 1, i) * ninorm(pFkr, i)
+    END DO    
+        
+    output = output/scale_
+    
+    fval(1) = REAL(output)
+    fval(2) = AIMAG(output)
+    passingrot_cubature = 0
+    
+    
+  END FUNCTION passingrot_cubature
+  
+  INTEGER FUNCTION rpassingrot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL), DIMENSION(2) :: XY
+    COMPLEX(KIND=DBL) :: output
+    REAL(KIND=DBL) :: scale_, adiabatic
+    INTEGER :: i
+    
+    adiabatic = fdata(1)
+    scale_ = ABS(adiabatic) !scaling the integrand
+    
+    IF((ndim.NE.2.).OR.(fdim.NE.1)) THEN
+      rpassingrot_cubature = 1
+      RETURN
+    END IF
+    
+    XY(1) = x(1)
+    XY(2) = x(2)
+    
+    output = Fkstarrstarerot(ndim, XY, 1)
+    DO i = 1, nions
+      output = output +  Fkstarrstarirot(ndim, XY, 1, i) * ninorm(pFkr, i)
+    END DO    
+        
+    output = output/scale_
+    
+    fval(1) = REAL(output)
+    rpassingrot_cubature = 0
+    
+    
+  END FUNCTION rpassingrot_cubature
+  INTEGER FUNCTION ipassingrot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL), DIMENSION(2) :: XY
+    COMPLEX(KIND=DBL) :: output
+    REAL(KIND=DBL) :: scale_, adiabatic
+    INTEGER :: i
+    
+    adiabatic = fdata(1)
+    scale_ = ABS(adiabatic) !scaling the integrand
+    
+    IF((ndim.NE.2.).OR.(fdim.NE.1)) THEN
+      ipassingrot_cubature = 1
+      RETURN
+    END IF
+    
+    XY(1) = x(1)
+    XY(2) = x(2)
+    
+    output = Fkstarrstarerot(ndim, XY, 1)
+    DO i = 1, nions
+      output = output +  Fkstarrstarirot(ndim, XY, 1, i) * ninorm(pFkr, i)
+    END DO    
+        
+    output = output/scale_
+    
+    fval(1) = AIMAG(output)
+    ipassingrot_cubature = 0
+    
+    
+  END FUNCTION ipassingrot_cubature
+  
+  INTEGER FUNCTION passing_ionsrot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL), DIMENSION(2) :: XY
+    COMPLEX(KIND=DBL) :: output
+    REAL(KIND=DBL) :: scale_, adiabatic
+    INTEGER :: i
+    
+    adiabatic = fdata(1)
+    scale_ = ABS(adiabatic) !scaling the integrand
+    
+    IF((ndim.NE.2.).OR.(fdim.NE.2)) THEN
+      passing_ionsrot_cubature = 1
+      RETURN
+    END IF
+    
+    XY(1) = x(1)
+    XY(2) = x(2)
+    output = CMPLX(0., 0.)
+    
+    DO i = 1, nions
+      output = output +  Fkstarrstarirot(ndim, XY, 1, i) * ninorm(pFkr, i)
+    END DO    
+        
+    output = output/scale_
+    
+    fval(1) = REAL(output)
+    fval(2) = AIMAG(output)
+    passing_ionsrot_cubature = 0
+    
+    
+  END FUNCTION passing_ionsrot_cubature
+  
+  INTEGER FUNCTION rpassing_ionsrot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL), DIMENSION(2) :: XY
+    COMPLEX(KIND=DBL) :: output
+    REAL(KIND=DBL) :: scale_, adiabatic
+    INTEGER :: i
+    
+    adiabatic = fdata(1)
+    scale_ = ABS(adiabatic) !scaling the integrand
+    
+    IF((ndim.NE.2.).OR.(fdim.NE.1)) THEN
+      rpassing_ionsrot_cubature = 1
+      RETURN
+    END IF
+    
+    XY(1) = x(1)
+    XY(2) = x(2)
+    output = CMPLX(0., 0.)
+    
+    DO i = 1, nions
+      output = output +  Fkstarrstarirot(ndim, XY, 1, i) * ninorm(pFkr, i)
+    END DO    
+        
+    output = output/scale_
+    
+    fval(1) = REAL(output)
+    rpassing_ionsrot_cubature = 0
+    
+    
+  END FUNCTION rpassing_ionsrot_cubature
+  
+  INTEGER FUNCTION ipassing_ionsrot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL), DIMENSION(2) :: XY
+    COMPLEX(KIND=DBL) :: output
+    REAL(KIND=DBL) :: scale_, adiabatic
+    INTEGER :: i
+    
+    adiabatic = fdata(1)
+    scale_ = ABS(adiabatic) !scaling the integrand
+    
+    IF((ndim.NE.2.).OR.(fdim.NE.1)) THEN
+      ipassing_ionsrot_cubature = 1
+      RETURN
+    END IF
+    
+    XY(1) = x(1)
+    XY(2) = x(2)
+    output = CMPLX(0., 0.)
+    
+    DO i = 1, nions
+      output = output +  Fkstarrstarirot(ndim, XY, 1, i) * ninorm(pFkr, i)
+    END DO    
+        
+    output = output/scale_
+    
+    fval(1) = AIMAG(output)
+    ipassing_ionsrot_cubature = 0
+    
+    
+  END FUNCTION ipassing_ionsrot_cubature
+  
+  INTEGER FUNCTION passing_electronsrot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL), DIMENSION(2) :: XY
+    COMPLEX(KIND=DBL) :: output
+    REAL(KIND=DBL) :: scale_, adiabatic
+    INTEGER :: i
+    
+    adiabatic = fdata(1)
+    scale_ = ABS(adiabatic) !scaling the integrand
+    
+    IF((ndim.NE.2.).OR.(fdim.NE.2)) THEN
+      passing_electronsrot_cubature = 1
+      RETURN
+    END IF
+    
+    XY(1) = x(1)
+    XY(2) = x(2)
+    
+    output = Fkstarrstarerot(ndim, XY, 1)  
+        
+    output = output/scale_
+    
+    fval(1) = REAL(output)
+    fval(2) = AIMAG(output)
+    passing_electronsrot_cubature = 0
+    
+    
+  END FUNCTION passing_electronsrot_cubature
+  
+  INTEGER FUNCTION rpassing_electronsrot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL), DIMENSION(2) :: XY
+    COMPLEX(KIND=DBL) :: output
+    REAL(KIND=DBL) :: scale_, adiabatic
+    INTEGER :: i
+    
+    adiabatic = fdata(1)
+    scale_ = ABS(adiabatic) !scaling the integrand
+    
+    IF((ndim.NE.2.).OR.(fdim.NE.2)) THEN
+      rpassing_electronsrot_cubature = 1
+      RETURN
+    END IF
+    
+    XY(1) = x(1)
+    XY(2) = x(2)
+    
+    output = Fkstarrstarerot(ndim, XY, 1)  
+        
+    output = output/scale_
+    
+    fval(1) = REAL(output)
+    rpassing_electronsrot_cubature = 0
+    
+    
+  END FUNCTION rpassing_electronsrot_cubature
+    
+  INTEGER FUNCTION ipassing_electronsrot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL), DIMENSION(2) :: XY
+    COMPLEX(KIND=DBL) :: output
+    REAL(KIND=DBL) :: scale_, adiabatic
+    INTEGER :: i
+    
+    adiabatic = fdata(1)
+    scale_ = ABS(adiabatic) !scaling the integrand
+    
+    IF((ndim.NE.2.).OR.(fdim.NE.2)) THEN
+      ipassing_electronsrot_cubature = 1
+      RETURN
+    END IF
+    
+    XY(1) = x(1)
+    XY(2) = x(2)
+    
+    output = Fkstarrstarerot(ndim, XY, 1)  
+        
+    output = output/scale_
+    
+    fval(1) = AIMAG(output)
+    ipassing_electronsrot_cubature = 0
+    
+    
+  END FUNCTION ipassing_electronsrot_cubature
 
   FUNCTION Fkstarrstar_cub(nf, xy)
     !---------------------------------------------------------------------
