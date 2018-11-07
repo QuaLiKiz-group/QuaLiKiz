@@ -1145,13 +1145,13 @@ CONTAINS
           IF (ft(p)==0. .OR. (calctrap .EQV. .FALSE.) ) THEN
             fonctp = 0.    
           ELSE    
-            CALL calcfonctrot_pcubaturep(p, nu, omega, fonctp)
+            CALL calcfonct_pcubaturep(p, nu, omega, fonctp)
           END IF
           
           IF ( ( fc(p)==0. ) .OR. ( REAL(mwidth)<d/4.) .OR. ( calccirc .EQV. .FALSE. ) ) THEN
             fonctc = 0.
           ELSE
-            CALL calcfonctrot_pcubaturec(p, nu, omega, fonctc)
+            CALL calcfonct_pcubaturec(p, nu, omega, fonctc)
           END IF
           
           fonx = CMPLX(Ac(p), 0.) - fonctc - fonctp 
@@ -1160,13 +1160,13 @@ CONTAINS
           IF (ft(p)==0. .OR. (calctrap .EQV. .FALSE.) ) THEN
             fonctp = 0.    
           ELSE    
-            CALL calcfonctrot_pcubaturep(p, nu, omega, fonctp)
+            CALL calcfonct_pcubaturep(p, nu, omega, fonctp)
           END IF
           
           IF ( ( fc(p)==0. ) .OR. ( REAL(mwidth)<d/4.) .OR. ( calccirc .EQV. .FALSE. ) ) THEN
             fonctc = 0.
           ELSE
-            CALL calcfonctrot_pcubaturec2(p, nu, omega, fonctc)
+            CALL calcfonct_pcubaturec2(p, nu, omega, fonctc)
           END IF
           fonx = CMPLX(Ac(p), 0.) - fonctc - fonctp 
         END IF
@@ -1345,13 +1345,13 @@ CONTAINS
           IF (ft(p)==0. .OR. (calctrap .EQV. .FALSE.) ) THEN
             fonctp = 0.    
           ELSE    
-            CALL calcfonctrot_pcubaturep_newt(p, nu, omega, fonctp)
+            CALL calcfonct_pcubaturep_newt(p, nu, omega, fonctp)
           END IF
           
           IF ( ( fc(p)==0. ) .OR. ( REAL(mwidth)<d/4.) .OR. ( calccirc .EQV. .FALSE. ) ) THEN
             fonctc = 0.
           ELSE
-            CALL calcfonctrot_pcubaturec_newt(p, nu, omega, fonctc)
+            CALL calcfonct_pcubaturec_newt(p, nu, omega, fonctc)
           END IF
           
           fonx = CMPLX(Ac(p), 0.) - fonctc - fonctp 
@@ -1360,13 +1360,13 @@ CONTAINS
           IF (ft(p)==0. .OR. (calctrap .EQV. .FALSE.) ) THEN
             fonctp = 0.    
           ELSE    
-            CALL calcfonctrot_pcubaturep_newt(p, nu, omega, fonctp)
+            CALL calcfonct_pcubaturep_newt(p, nu, omega, fonctp)
           END IF
           
           IF ( ( fc(p)==0. ) .OR. ( REAL(mwidth)<d/4.) .OR. ( calccirc .EQV. .FALSE. ) ) THEN
             fonctc = 0.
           ELSE
-            CALL calcfonctrot_pcubaturec2_newt(p, nu, omega, fonctc)
+            CALL calcfonct_pcubaturec2_newt(p, nu, omega, fonctc)
           END IF
           fonx = CMPLX(Ac(p), 0.) - fonctc - fonctp 
         END IF
