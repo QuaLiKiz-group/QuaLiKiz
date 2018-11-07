@@ -1671,6 +1671,8 @@ CONTAINS
     iFkstarrstarrot = intsum
    
   END FUNCTION iFkstarrstarrot
+  
+  
 
   FUNCTION Fkstarrstarerot_cub(nf, xy)
     !---------------------------------------------------------------------
@@ -1702,6 +1704,29 @@ CONTAINS
     REAL(KIND=DBL) :: iFkstarrstarerot
     iFkstarrstarerot = AIMAG (  Fkstarrstarerot(ndim,xy,1) )
   END FUNCTION iFkstarrstarerot
+  
+  INTEGER FUNCTION iFkstarrstarerot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL), DIMENSION(2) :: XY
+    
+    IF((ndim.NE.2.).OR.(fdim.NE.1)) THEN
+      iFkstarrstarerot_cubature = 1
+      RETURN
+    END IF
+    
+    XY(1) = x(1)
+    XY(2) = x(2)
+    
+    fval(1) = AIMAG(Fkstarrstarerot(ndim,XY,1))
+    
+    iFkstarrstarerot_cubature = 0
+    
+  END FUNCTION iFkstarrstarerot_cubature
 
   FUNCTION Fkstarrstargterot_cub(nf, xy)
     !---------------------------------------------------------------------
@@ -1733,6 +1758,29 @@ CONTAINS
     REAL(KIND=DBL) :: iFkstarrstargterot
     iFkstarrstargterot = AIMAG (  Fkstarrstarerot(ndim,xy,2) )
   END FUNCTION iFkstarrstargterot
+  
+  INTEGER FUNCTION iFkstarrstargterot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL), DIMENSION(2) :: XY
+    
+    IF((ndim.NE.2.).OR.(fdim.NE.1)) THEN
+      iFkstarrstargterot_cubature = 1
+      RETURN
+    END IF
+    
+    XY(1) = x(1)
+    XY(2) = x(2)
+    
+    fval(1) = AIMAG(Fkstarrstarerot(ndim,XY,2))
+    
+    iFkstarrstargterot_cubature = 0
+    
+  END FUNCTION iFkstarrstargterot_cubature
 
   FUNCTION Fkstarrstargnerot_cub(nf, xy)
     !---------------------------------------------------------------------
@@ -1764,6 +1812,29 @@ CONTAINS
     REAL(KIND=DBL) :: iFkstarrstargnerot
     iFkstarrstargnerot = AIMAG (  Fkstarrstarerot(ndim,xy,3) )
   END FUNCTION iFkstarrstargnerot
+  
+  INTEGER FUNCTION iFkstarrstargnerot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL), DIMENSION(2) :: XY
+    
+    IF((ndim.NE.2.).OR.(fdim.NE.1)) THEN
+      iFkstarrstargnerot_cubature = 1
+      RETURN
+    END IF
+    
+    XY(1) = x(1)
+    XY(2) = x(2)
+    
+    fval(1) = AIMAG(Fkstarrstarerot(ndim,XY,3))
+    
+    iFkstarrstargnerot_cubature = 0
+    
+  END FUNCTION iFkstarrstargnerot_cubature
 
   FUNCTION Fkstarrstarcerot_cub(nf, xy)
     !---------------------------------------------------------------------
@@ -1795,6 +1866,29 @@ CONTAINS
     REAL(KIND=DBL) :: iFkstarrstarcerot
     iFkstarrstarcerot = AIMAG (  Fkstarrstarerot(ndim,xy,4) )
   END FUNCTION iFkstarrstarcerot
+  
+  INTEGER FUNCTION iFkstarrstarcerot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL), DIMENSION(2) :: XY
+    
+    IF((ndim.NE.2.).OR.(fdim.NE.1)) THEN
+      iFkstarrstarcerot_cubature = 1
+      RETURN
+    END IF
+    
+    XY(1) = x(1)
+    XY(2) = x(2)
+    
+    fval(1) = AIMAG(Fkstarrstarerot(ndim,XY,4))
+    
+    iFkstarrstarcerot_cubature = 0
+    
+  END FUNCTION iFkstarrstarcerot_cubature
 
   FUNCTION Fekstarrstarerot_cub(nf, xy)
     !---------------------------------------------------------------------
@@ -1826,6 +1920,29 @@ CONTAINS
     REAL(KIND=DBL) :: iFekstarrstarerot
     iFekstarrstarerot = AIMAG (  Fkstarrstarerot(ndim,xy,5) )
   END FUNCTION iFekstarrstarerot
+  
+  INTEGER FUNCTION iFekstarrstarerot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL), DIMENSION(2) :: XY
+    
+    IF((ndim.NE.2.).OR.(fdim.NE.1)) THEN
+      iFekstarrstarerot_cubature = 1
+      RETURN
+    END IF
+    
+    XY(1) = x(1)
+    XY(2) = x(2)
+    
+    fval(1) = AIMAG(Fkstarrstarerot(ndim,XY,5))
+    
+    iFekstarrstarerot_cubature = 0
+    
+  END FUNCTION iFekstarrstarerot_cubature
 
   FUNCTION Fekstarrstargterot_cub(nf, xy)
     !---------------------------------------------------------------------
@@ -1857,6 +1974,29 @@ CONTAINS
     REAL(KIND=DBL) :: iFekstarrstargterot
     iFekstarrstargterot = AIMAG (  Fkstarrstarerot(ndim,xy,6) )
   END FUNCTION iFekstarrstargterot
+  
+  INTEGER FUNCTION iFekstarrstargterot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL), DIMENSION(2) :: XY
+    
+    IF((ndim.NE.2.).OR.(fdim.NE.1)) THEN
+      iFekstarrstargterot_cubature = 1
+      RETURN
+    END IF
+    
+    XY(1) = x(1)
+    XY(2) = x(2)
+    
+    fval(1) = AIMAG(Fkstarrstarerot(ndim,XY,6))
+    
+    iFekstarrstargterot_cubature = 0
+    
+  END FUNCTION iFekstarrstargterot_cubature
 
   FUNCTION Fekstarrstargnerot_cub(nf, xy)
     !---------------------------------------------------------------------
@@ -1888,6 +2028,29 @@ CONTAINS
     REAL(KIND=DBL) :: iFekstarrstargnerot
     iFekstarrstargnerot = AIMAG (  Fkstarrstarerot(ndim,xy,7) )
   END FUNCTION iFekstarrstargnerot
+  
+  INTEGER FUNCTION iFekstarrstargnerot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL), DIMENSION(2) :: XY
+    
+    IF((ndim.NE.2.).OR.(fdim.NE.1)) THEN
+      iFekstarrstargnerot_cubature = 1
+      RETURN
+    END IF
+    
+    XY(1) = x(1)
+    XY(2) = x(2)
+    
+    fval(1) = AIMAG(Fkstarrstarerot(ndim,XY,7))
+    
+    iFekstarrstargnerot_cubature = 0
+    
+  END FUNCTION iFekstarrstargnerot_cubature
 
   FUNCTION Fekstarrstarcerot_cub(nf, xy)
     !---------------------------------------------------------------------
@@ -1919,6 +2082,29 @@ CONTAINS
     REAL(KIND=DBL) :: iFekstarrstarcerot
     iFekstarrstarcerot = AIMAG (  Fkstarrstarerot(ndim,xy,8) )
   END FUNCTION iFekstarrstarcerot
+  
+  INTEGER FUNCTION iFekstarrstarcerot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL), DIMENSION(2) :: XY
+    
+    IF((ndim.NE.2.).OR.(fdim.NE.1)) THEN
+      iFekstarrstarcerot_cubature = 1
+      RETURN
+    END IF
+    
+    XY(1) = x(1)
+    XY(2) = x(2)
+    
+    fval(1) = AIMAG(Fkstarrstarerot(ndim,XY,8))
+    
+    iFekstarrstarcerot_cubature = 0
+    
+  END FUNCTION iFekstarrstarcerot_cubature
 
   FUNCTION Fkstarrstarirot_cub(nf, xy)
     !---------------------------------------------------------------------
@@ -1950,6 +2136,29 @@ CONTAINS
     REAL(KIND=DBL) :: iFkstarrstarirot
     iFkstarrstarirot = AIMAG ( Fkstarrstarirot(ndim,xy,1,ion) )
   END FUNCTION iFkstarrstarirot
+  
+  INTEGER FUNCTION iFkstarrstarirot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL), DIMENSION(2) :: XY
+    
+    IF((ndim.NE.2.).OR.(fdim.NE.1)) THEN
+      iFkstarrstarirot_cubature = 1
+      RETURN
+    END IF
+    
+    XY(1) = x(1)
+    XY(2) = x(2)
+    
+    fval(1) = AIMAG(Fkstarrstarirot(ndim,XY,1, ion))
+    
+    iFkstarrstarirot_cubature = 0
+    
+  END FUNCTION iFkstarrstarirot_cubature
 
   FUNCTION Fkstarrstargtirot_cub(nf, xy)
     !---------------------------------------------------------------------
@@ -1981,6 +2190,29 @@ CONTAINS
     REAL(KIND=DBL) :: iFkstarrstargtirot
     iFkstarrstargtirot = AIMAG ( Fkstarrstarirot(ndim,xy,2,ion) )
   END FUNCTION iFkstarrstargtirot
+  
+  INTEGER FUNCTION iFkstarrstargtirot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL), DIMENSION(2) :: XY
+    
+    IF((ndim.NE.2.).OR.(fdim.NE.1)) THEN
+      iFkstarrstargtirot_cubature = 1
+      RETURN
+    END IF
+    
+    XY(1) = x(1)
+    XY(2) = x(2)
+    
+    fval(1) = AIMAG(Fkstarrstarirot(ndim,XY,2,ion))
+    
+    iFkstarrstargtirot_cubature = 0
+    
+  END FUNCTION iFkstarrstargtirot_cubature
 
   FUNCTION Fkstarrstargnirot_cub(nf, xy)
     !---------------------------------------------------------------------
@@ -2012,6 +2244,29 @@ CONTAINS
     REAL(KIND=DBL) :: iFkstarrstargnirot
     iFkstarrstargnirot = AIMAG ( Fkstarrstarirot(ndim,xy,3,ion) )
   END FUNCTION iFkstarrstargnirot
+  
+  INTEGER FUNCTION iFkstarrstargnirot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL), DIMENSION(2) :: XY
+    
+    IF((ndim.NE.2.).OR.(fdim.NE.1)) THEN
+      iFkstarrstargnirot_cubature = 1
+      RETURN
+    END IF
+    
+    XY(1) = x(1)
+    XY(2) = x(2)
+    
+    fval(1) = AIMAG(Fkstarrstarirot(ndim,XY,3,ion))
+    
+    iFkstarrstargnirot_cubature = 0
+    
+  END FUNCTION iFkstarrstargnirot_cubature
 
   FUNCTION Fkstarrstarcirot_cub(nf, xy)
     !---------------------------------------------------------------------
@@ -2043,6 +2298,29 @@ CONTAINS
     REAL(KIND=DBL) :: iFkstarrstarcirot
     iFkstarrstarcirot = AIMAG ( Fkstarrstarirot(ndim,xy,4,ion) )
   END FUNCTION iFkstarrstarcirot
+  
+  INTEGER FUNCTION iFkstarrstarcirot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL), DIMENSION(2) :: XY
+    
+    IF((ndim.NE.2.).OR.(fdim.NE.1)) THEN
+      iFkstarrstarcirot_cubature = 1
+      RETURN
+    END IF
+    
+    XY(1) = x(1)
+    XY(2) = x(2)
+    
+    fval(1) = AIMAG(Fkstarrstarirot(ndim,XY,4,ion))
+    
+    iFkstarrstarcirot_cubature = 0
+    
+  END FUNCTION iFkstarrstarcirot_cubature
 
   FUNCTION Fekstarrstarirot_cub(nf, xy)
     !---------------------------------------------------------------------
@@ -2074,6 +2352,29 @@ CONTAINS
     REAL(KIND=DBL) :: iFekstarrstarirot
     iFekstarrstarirot = AIMAG ( Fkstarrstarirot(ndim,xy,5,ion) )
   END FUNCTION iFekstarrstarirot
+  
+  INTEGER FUNCTION iFekstarrstarirot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL), DIMENSION(2) :: XY
+    
+    IF((ndim.NE.2.).OR.(fdim.NE.1)) THEN
+      iFekstarrstarirot_cubature = 1
+      RETURN
+    END IF
+    
+    XY(1) = x(1)
+    XY(2) = x(2)
+    
+    fval(1) = AIMAG(Fkstarrstarirot(ndim,XY,5,ion))
+    
+    iFekstarrstarirot_cubature = 0
+    
+  END FUNCTION iFekstarrstarirot_cubature
 
   FUNCTION Fekstarrstargtirot_cub(nf, xy)
     !---------------------------------------------------------------------
@@ -2105,6 +2406,29 @@ CONTAINS
     REAL(KIND=DBL) :: iFekstarrstargtirot
     iFekstarrstargtirot = AIMAG ( Fkstarrstarirot(ndim,xy,6,ion) )
   END FUNCTION iFekstarrstargtirot
+  
+  INTEGER FUNCTION iFekstarrstargtirot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL), DIMENSION(2) :: XY
+    
+    IF((ndim.NE.2.).OR.(fdim.NE.1)) THEN
+      iFekstarrstargtirot_cubature = 1
+      RETURN
+    END IF
+    
+    XY(1) = x(1)
+    XY(2) = x(2)
+    
+    fval(1) = AIMAG(Fkstarrstarirot(ndim,XY,6,ion))
+    
+    iFekstarrstargtirot_cubature = 0
+    
+  END FUNCTION iFekstarrstargtirot_cubature
 
   FUNCTION Fekstarrstargnirot_cub(nf, xy)
     !---------------------------------------------------------------------
@@ -2136,6 +2460,29 @@ CONTAINS
     REAL(KIND=DBL) :: iFekstarrstargnirot
     iFekstarrstargnirot = AIMAG ( Fkstarrstarirot(ndim,xy,7,ion) )
   END FUNCTION iFekstarrstargnirot
+  
+  INTEGER FUNCTION iFekstarrstargnirot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL), DIMENSION(2) :: XY
+    
+    IF((ndim.NE.2.).OR.(fdim.NE.1)) THEN
+      iFekstarrstargnirot_cubature = 1
+      RETURN
+    END IF
+    
+    XY(1) = x(1)
+    XY(2) = x(2)
+    
+    fval(1) = AIMAG(Fkstarrstarirot(ndim,XY,7,ion))
+    
+    iFekstarrstargnirot_cubature = 0
+    
+  END FUNCTION iFekstarrstargnirot_cubature
 
   FUNCTION Fekstarrstarcirot_cub(nf, xy)
     !---------------------------------------------------------------------
@@ -2167,6 +2514,29 @@ CONTAINS
     REAL(KIND=DBL) :: iFekstarrstarcirot
     iFekstarrstarcirot = AIMAG ( Fkstarrstarirot(ndim,xy,8,ion) )
   END FUNCTION iFekstarrstarcirot
+  
+  INTEGER FUNCTION iFekstarrstarcirot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL), DIMENSION(2) :: XY
+    
+    IF((ndim.NE.2.).OR.(fdim.NE.1)) THEN
+      iFekstarrstarcirot_cubature = 1
+      RETURN
+    END IF
+    
+    XY(1) = x(1)
+    XY(2) = x(2)
+    
+    fval(1) = AIMAG(Fkstarrstarirot(ndim,XY,8,ion))
+    
+    iFekstarrstarcirot_cubature = 0
+    
+  END FUNCTION iFekstarrstarcirot_cubature
 
 
   FUNCTION Fkstarrstarguirot_cub(nf, xy)
@@ -2199,6 +2569,29 @@ CONTAINS
     REAL(KIND=DBL) :: iFkstarrstarguirot
     iFkstarrstarguirot = AIMAG ( Fkstarrstarirot(ndim,xy,9,ion) )
   END FUNCTION iFkstarrstarguirot
+  
+  INTEGER FUNCTION iFkstarrstarguirot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL), DIMENSION(2) :: XY
+    
+    IF((ndim.NE.2.).OR.(fdim.NE.1)) THEN
+      iFkstarrstarguirot_cubature = 1
+      RETURN
+    END IF
+    
+    XY(1) = x(1)
+    XY(2) = x(2)
+    
+    fval(1) = AIMAG(Fkstarrstarirot(ndim,XY,9,ion))
+    
+    iFkstarrstarguirot_cubature = 0
+    
+  END FUNCTION iFkstarrstarguirot_cubature
 
   FUNCTION Fekstarrstarguirot_cub(nf, xy)
     !---------------------------------------------------------------------
@@ -2230,6 +2623,29 @@ CONTAINS
     REAL(KIND=DBL) :: iFekstarrstarguirot
     iFekstarrstarguirot = AIMAG ( Fkstarrstarirot(ndim,xy,10,ion) )
   END FUNCTION iFekstarrstarguirot
+  
+  INTEGER FUNCTION iFekstarrstarguirot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL), DIMENSION(2) :: XY
+    
+    IF((ndim.NE.2.).OR.(fdim.NE.1)) THEN
+      iFekstarrstarguirot_cubature = 1
+      RETURN
+    END IF
+    
+    XY(1) = x(1)
+    XY(2) = x(2)
+    
+    fval(1) = AIMAG(Fkstarrstarirot(ndim,XY,10,ion))
+    
+    iFekstarrstarguirot_cubature = 0
+    
+  END FUNCTION iFekstarrstarguirot_cubature
 
   FUNCTION Fvkstarrstarirot_cub(nf, xy)
     !---------------------------------------------------------------------
@@ -2261,5 +2677,28 @@ CONTAINS
     REAL(KIND=DBL) :: iFvkstarrstarirot
     iFvkstarrstarirot = AIMAG ( Fkstarrstarirot(ndim,xy,11,ion) )
   END FUNCTION iFvkstarrstarirot
+  
+  INTEGER FUNCTION iFvkstarrstarirot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL), DIMENSION(2) :: XY
+    
+    IF((ndim.NE.2.).OR.(fdim.NE.1)) THEN
+      iFvkstarrstarirot_cubature = 1
+      RETURN
+    END IF
+    
+    XY(1) = x(1)
+    XY(2) = x(2)
+    
+    fval(1) = AIMAG(Fkstarrstarirot(ndim,XY,11,ion))
+    
+    iFvkstarrstarirot_cubature = 0
+    
+  END FUNCTION iFvkstarrstarirot_cubature
 
 END MODULE callpassints
