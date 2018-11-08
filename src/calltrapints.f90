@@ -576,6 +576,7 @@ CONTAINS
     ENDDO
     iFFkiz = intsum
   END FUNCTION iFFkiz
+  
 
   REAL(KIND=DBL) FUNCTION rFFki(kk)
     !-------------------------------------------------------------
@@ -1785,6 +1786,30 @@ CONTAINS
 !!$    WRITE(*,*) 'Old iFFki',iFFkirot
 
   END FUNCTION iFFkirot
+  
+  INTEGER FUNCTION iFFkirot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: XY
+    
+    IF((ndim.NE.1.).OR.(fdim.NE.1)) THEN
+      iFFkirot_cubature = 1
+      RETURN
+    END IF
+    
+    XY = x(1)
+    
+    fval(1) = AIMAG(FFkirot(XY,1,ion))
+    
+    iFFkirot_cubature = 0
+    
+  END FUNCTION iFFkirot_cubature
+  
+  
 
   REAL(KIND=DBL) FUNCTION rFFkgtirot(kk)
     !-------------------------------------------------------------
@@ -1805,6 +1830,28 @@ CONTAINS
     !Due to the 1D real integral, we have to separate the real and imaginary parts
     iFFkgtirot = AIMAG ( FFkirot(kk,2,ion) )
   END FUNCTION iFFkgtirot
+  
+  INTEGER FUNCTION iFFkgtirot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: XY
+    
+    IF((ndim.NE.1.).OR.(fdim.NE.1)) THEN
+      iFFkgtirot_cubature = 1
+      RETURN
+    END IF
+    
+    XY = x(1)
+    
+    fval(1) = AIMAG(FFkirot(XY,2,ion))
+    
+    iFFkgtirot_cubature = 0
+    
+  END FUNCTION iFFkgtirot_cubature
 
   REAL(KIND=DBL) FUNCTION rFFkgnirot(kk)
     !-------------------------------------------------------------
@@ -1825,6 +1872,28 @@ CONTAINS
     !Due to the 1D real integral, we have to separate the real and imaginary parts
     iFFkgnirot = AIMAG ( FFkirot(kk,3,ion) )
   END FUNCTION iFFkgnirot
+  
+  INTEGER FUNCTION iFFkgnirot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: XY
+    
+    IF((ndim.NE.1.).OR.(fdim.NE.1)) THEN
+      iFFkgnirot_cubature = 1
+      RETURN
+    END IF
+    
+    XY = x(1)
+    
+    fval(1) = AIMAG(FFkirot(XY,3,ion))
+    
+    iFFkgnirot_cubature = 0
+    
+  END FUNCTION iFFkgnirot_cubature
 
   REAL(KIND=DBL) FUNCTION rFFkcirot(kk)
     !-------------------------------------------------------------
@@ -1845,6 +1914,28 @@ CONTAINS
     !Due to the 1D real integral, we have to separate the real and imaginary parts
     iFFkcirot = AIMAG ( FFkirot(kk,4,ion) )
   END FUNCTION iFFkcirot
+  
+  INTEGER FUNCTION iFFkcirot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: XY
+    
+    IF((ndim.NE.1.).OR.(fdim.NE.1)) THEN
+      iFFkcirot_cubature = 1
+      RETURN
+    END IF
+    
+    XY = x(1)
+    
+    fval(1) = AIMAG(FFkirot(XY,4,ion))
+    
+    iFFkcirot_cubature = 0
+    
+  END FUNCTION iFFkcirot_cubature
 
   REAL(KIND=DBL) FUNCTION rFFekirot(kk)
     !-------------------------------------------------------------
@@ -1865,6 +1956,28 @@ CONTAINS
     !Due to the 1D real integral, we have to separate the real and imaginary parts
     iFFekirot = AIMAG ( FFkirot(kk,5,ion) )
   END FUNCTION iFFekirot
+  
+  INTEGER FUNCTION iFFekirot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: XY
+    
+    IF((ndim.NE.1.).OR.(fdim.NE.1)) THEN
+      iFFekirot_cubature = 1
+      RETURN
+    END IF
+    
+    XY = x(1)
+    
+    fval(1) = AIMAG(FFkirot(XY,5,ion))
+    
+    iFFekirot_cubature = 0
+    
+  END FUNCTION iFFekirot_cubature
 
   REAL(KIND=DBL) FUNCTION rFFekgtirot(kk)
     !-------------------------------------------------------------
@@ -1885,6 +1998,28 @@ CONTAINS
     !Due to the 1D real integral, we have to separate the real and imaginary parts
     iFFekgtirot = AIMAG ( FFkirot(kk,6,ion) )
   END FUNCTION iFFekgtirot
+  
+  INTEGER FUNCTION iFFekgtirot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: XY
+    
+    IF((ndim.NE.1.).OR.(fdim.NE.1)) THEN
+      iFFekgtirot_cubature = 1
+      RETURN
+    END IF
+    
+    XY = x(1)
+    
+    fval(1) = AIMAG(FFkirot(XY,6,ion))
+    
+    iFFekgtirot_cubature = 0
+    
+  END FUNCTION iFFekgtirot_cubature
 
   REAL(KIND=DBL) FUNCTION rFFekgnirot(kk)
     !-------------------------------------------------------------
@@ -1905,6 +2040,28 @@ CONTAINS
     !Due to the 1D real integral, we have to separate the real and imaginary parts
     iFFekgnirot = AIMAG ( FFkirot(kk,7,ion) )
   END FUNCTION iFFekgnirot
+  
+  INTEGER FUNCTION iFFekgnirot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: XY
+    
+    IF((ndim.NE.1.).OR.(fdim.NE.1)) THEN
+      iFFekgnirot_cubature = 1
+      RETURN
+    END IF
+    
+    XY = x(1)
+    
+    fval(1) = AIMAG(FFkirot(XY,7,ion))
+    
+    iFFekgnirot_cubature = 0
+    
+  END FUNCTION iFFekgnirot_cubature
 
   REAL(KIND=DBL) FUNCTION rFFekcirot(kk)
     !-------------------------------------------------------------
@@ -1925,6 +2082,28 @@ CONTAINS
     !Due to the 1D real integral, we have to separate the real and imaginary parts
     iFFekcirot = AIMAG ( FFkirot(kk,8,ion) )
   END FUNCTION iFFekcirot
+  
+  INTEGER FUNCTION iFFekcirot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: XY
+    
+    IF((ndim.NE.1.).OR.(fdim.NE.1)) THEN
+      iFFekcirot_cubature = 1
+      RETURN
+    END IF
+    
+    XY = x(1)
+    
+    fval(1) = AIMAG(FFkirot(XY,8,ion))
+    
+    iFFekcirot_cubature = 0
+    
+  END FUNCTION iFFekcirot_cubature
 
 
   REAL(KIND=DBL) FUNCTION rFFkguirot(kk)
@@ -1946,6 +2125,28 @@ CONTAINS
     !Due to the 1D real integral, we have to separate the real and imaginary parts
     iFFkguirot = AIMAG ( FFkirot(kk,9,ion) )
   END FUNCTION iFFkguirot
+  
+  INTEGER FUNCTION iFFkguirot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: XY
+    
+    IF((ndim.NE.1.).OR.(fdim.NE.1)) THEN
+      iFFkguirot_cubature = 1
+      RETURN
+    END IF
+    
+    XY = x(1)
+    
+    fval(1) = AIMAG(FFkirot(XY,9,ion))
+    
+    iFFkguirot_cubature = 0
+    
+  END FUNCTION iFFkguirot_cubature
 
   REAL(KIND=DBL) FUNCTION rFFekguirot(kk)
     !-------------------------------------------------------------
@@ -1966,6 +2167,28 @@ CONTAINS
     !Due to the 1D real integral, we have to separate the real and imaginary parts
     iFFekguirot = AIMAG ( FFkirot(kk,10,ion) )
   END FUNCTION iFFekguirot
+  
+  INTEGER FUNCTION iFFekguirot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: XY
+    
+    IF((ndim.NE.1.).OR.(fdim.NE.1)) THEN
+      iFFekguirot_cubature = 1
+      RETURN
+    END IF
+    
+    XY = x(1)
+    
+    fval(1) = AIMAG(FFkirot(XY,10,ion))
+    
+    iFFekguirot_cubature = 0
+    
+  END FUNCTION iFFekguirot_cubature
 
   REAL(KIND=DBL) FUNCTION rFFvkirot(kk)
     !-------------------------------------------------------------
@@ -1986,6 +2209,28 @@ CONTAINS
     !Due to the 1D real integral, we have to separate the real and imaginary parts
     iFFvkirot = AIMAG ( FFkirot(kk,11,ion) )
   END FUNCTION iFFvkirot
+  
+  INTEGER FUNCTION iFFvkirot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: XY
+    
+    IF((ndim.NE.1.).OR.(fdim.NE.1)) THEN
+      iFFvkirot_cubature = 1
+      RETURN
+    END IF
+    
+    XY = x(1)
+    
+    fval(1) = AIMAG(FFkirot(XY,11,ion))
+    
+    iFFvkirot_cubature = 0
+    
+  END FUNCTION iFFvkirot_cubature
 
 
   REAL(KIND=DBL) FUNCTION rFFkerot(nf, kv)
@@ -2015,6 +2260,32 @@ CONTAINS
 
 
   END FUNCTION iFFkerot
+  
+  INTEGER FUNCTION FFkerot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL), DIMENSION(2) :: XY
+    COMPLEX(KIND=DBL) :: output
+    
+    IF((ndim.NE.2.).OR.(fdim.NE.2)) THEN
+      FFkerot_cubature = 1
+      RETURN
+    END IF
+    
+    XY(1) = x(1)
+    XY(2) = x(2)
+    output = FFkerot(ndim,XY,1)
+    
+    fval(1) = REAL(output)
+    fval(2) = AIMAG(output)
+    
+    FFkerot_cubature = 0
+    
+  END FUNCTION FFkerot_cubature
 
   REAL(KIND=DBL) FUNCTION rFFkgterot(nf, kv)
     !---------------------------------------------------------------------
@@ -2033,6 +2304,32 @@ CONTAINS
     REAL(KIND=DBL), DIMENSION(nf), INTENT(IN) :: kv
     iFFkgterot = AIMAG ( FFkerot(nf, kv, 2) )
   END FUNCTION iFFkgterot
+  
+  INTEGER FUNCTION FFkgterot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL), DIMENSION(2) :: XY
+    COMPLEX(KIND=DBL) :: output
+    
+    IF((ndim.NE.2.).OR.(fdim.NE.2)) THEN
+      FFkgterot_cubature = 1
+      RETURN
+    END IF
+    
+    XY(1) = x(1)
+    XY(2) = x(2)
+    output = FFkerot(ndim,XY,1)
+    
+    fval(1) = REAL(output)
+    fval(2) = AIMAG(output)
+    
+    FFkgterot_cubature = 0
+    
+  END FUNCTION FFkgterot_cubature
 
   REAL(KIND=DBL) FUNCTION rFFkgnerot(nf, kv)
     !---------------------------------------------------------------------
@@ -2051,6 +2348,32 @@ CONTAINS
     REAL(KIND=DBL), DIMENSION(nf), INTENT(IN) :: kv
     iFFkgnerot = AIMAG ( FFkerot(nf, kv, 3) )
   END FUNCTION iFFkgnerot
+  
+  INTEGER FUNCTION FFkgnerot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL), DIMENSION(2) :: XY
+    COMPLEX(KIND=DBL) :: output
+    
+    IF((ndim.NE.2.).OR.(fdim.NE.2)) THEN
+      FFkgnerot_cubature = 1
+      RETURN
+    END IF
+    
+    XY(1) = x(1)
+    XY(2) = x(2)
+    output = FFkerot(ndim,XY,2)
+    
+    fval(1) = REAL(output)
+    fval(2) = AIMAG(output)
+    
+    FFkgnerot_cubature = 0
+    
+  END FUNCTION FFkgnerot_cubature
 
   REAL(KIND=DBL) FUNCTION rFFkcerot(nf, kv)
     !---------------------------------------------------------------------
@@ -2070,6 +2393,33 @@ CONTAINS
     iFFkcerot = AIMAG ( FFkerot(nf, kv, 4) )
   END FUNCTION iFFkcerot
 
+  
+  INTEGER FUNCTION FFkcerot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL), DIMENSION(2) :: XY
+    COMPLEX(KIND=DBL) :: output
+    
+    IF((ndim.NE.2.).OR.(fdim.NE.2)) THEN
+      FFkcerot_cubature = 1
+      RETURN
+    END IF
+    
+    XY(1) = x(1)
+    XY(2) = x(2)
+    output = FFkerot(ndim,XY,4)
+    
+    fval(1) = REAL(output)
+    fval(2) = AIMAG(output)
+    
+    FFkcerot_cubature = 0
+    
+  END FUNCTION FFkcerot_cubature
+  
   REAL(KIND=DBL) FUNCTION rFFekerot(nf, kv)
     !---------------------------------------------------------------------
     ! Calculates the real part of the trapped electron energy integrand 
@@ -2087,6 +2437,32 @@ CONTAINS
     REAL(KIND=DBL), DIMENSION(nf), INTENT(IN) :: kv
     iFFekerot = AIMAG ( FFkerot(nf, kv, 5) )
   END FUNCTION iFFekerot
+  
+  INTEGER FUNCTION FFekerot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL), DIMENSION(2) :: XY
+    COMPLEX(KIND=DBL) :: output
+    
+    IF((ndim.NE.2.).OR.(fdim.NE.2)) THEN
+      FFekerot_cubature = 1
+      RETURN
+    END IF
+    
+    XY(1) = x(1)
+    XY(2) = x(2)
+    output = FFkerot(ndim,XY,5)
+    
+    fval(1) = REAL(output)
+    fval(2) = AIMAG(output)
+    
+    FFekerot_cubature = 0
+    
+  END FUNCTION FFekerot_cubature
 
   REAL(KIND=DBL) FUNCTION rFFekgterot(nf, kv)
     !---------------------------------------------------------------------
@@ -2105,6 +2481,32 @@ CONTAINS
     REAL(KIND=DBL), DIMENSION(nf), INTENT(IN) :: kv
     iFFekgterot = AIMAG ( FFkerot(nf, kv, 6) )
   END FUNCTION iFFekgterot
+  
+  INTEGER FUNCTION FFekgterot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL), DIMENSION(2) :: XY
+    COMPLEX(KIND=DBL) :: output
+    
+    IF((ndim.NE.2.).OR.(fdim.NE.2)) THEN
+      FFekgterot_cubature = 1
+      RETURN
+    END IF
+    
+    XY(1) = x(1)
+    XY(2) = x(2)
+    output = FFkerot(ndim,XY,6)
+    
+    fval(1) = REAL(output)
+    fval(2) = AIMAG(output)
+    
+    FFekgterot_cubature = 0
+    
+  END FUNCTION FFekgterot_cubature
 
   REAL(KIND=DBL) FUNCTION rFFekgnerot(nf, kv)
     !---------------------------------------------------------------------
@@ -2123,6 +2525,32 @@ CONTAINS
     REAL(KIND=DBL), DIMENSION(nf), INTENT(IN) :: kv
     iFFekgnerot = AIMAG ( FFkerot(nf, kv, 7) )
   END FUNCTION iFFekgnerot
+  
+  INTEGER FUNCTION FFekgnerot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL), DIMENSION(2) :: XY
+    COMPLEX(KIND=DBL) :: output
+    
+    IF((ndim.NE.2.).OR.(fdim.NE.2)) THEN
+      FFekgnerot_cubature = 1
+      RETURN
+    END IF
+    
+    XY(1) = x(1)
+    XY(2) = x(2)
+    output = FFkerot(ndim,XY,7)
+    
+    fval(1) = REAL(output)
+    fval(2) = AIMAG(output)
+    
+    FFekgnerot_cubature = 0
+    
+  END FUNCTION FFekgnerot_cubature
 
   REAL(KIND=DBL) FUNCTION rFFekcerot(nf, kv)
     !---------------------------------------------------------------------
@@ -2141,6 +2569,32 @@ CONTAINS
     REAL(KIND=DBL), DIMENSION(nf), INTENT(IN) :: kv
     iFFekcerot = AIMAG ( FFkerot(nf, kv, 8) )
   END FUNCTION iFFekcerot
+  
+  INTEGER FUNCTION FFekcerot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL), DIMENSION(2) :: XY
+    COMPLEX(KIND=DBL) :: output
+    
+    IF((ndim.NE.2.).OR.(fdim.NE.2)) THEN
+      FFekcerot_cubature = 1
+      RETURN
+    END IF
+    
+    XY(1) = x(1)
+    XY(2) = x(2)
+    output = FFkerot(ndim,XY,8)
+    
+    fval(1) = REAL(output)
+    fval(2) = AIMAG(output)
+    
+    FFekcerot_cubature = 0
+    
+  END FUNCTION FFekcerot_cubature
 
   REAL(KIND=DBL) FUNCTION rFFke_nocollrot(kk)
     !---------------------------------------------------------------------
@@ -2157,6 +2611,31 @@ CONTAINS
     REAL(KIND=DBL), INTENT(IN) :: kk
     iFFke_nocollrot = AIMAG ( FFke_nocollrot(kk, 1) )
   END FUNCTION iFFke_nocollrot
+  
+  INTEGER FUNCTION FFke_nocollrot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: XY
+    COMPLEX(KIND=DBL) :: output
+    
+    IF((ndim.NE.1).OR.(fdim.NE.2)) THEN
+      FFke_nocollrot_cubature = 1
+      RETURN
+    END IF
+    
+    XY = x(1)
+    output = FFke_nocollrot(XY,1)
+    
+    fval(1) = REAL(output)
+    fval(2) = AIMAG(output)
+    
+    FFke_nocollrot_cubature = 0
+    
+  END FUNCTION FFke_nocollrot_cubature
 
   REAL(KIND=DBL) FUNCTION rFFkgte_nocollrot(kk)
     !---------------------------------------------------------------------
@@ -2173,6 +2652,31 @@ CONTAINS
     REAL(KIND=DBL), INTENT(IN) :: kk
     iFFkgte_nocollrot = AIMAG ( FFke_nocollrot(kk, 2) )
   END FUNCTION iFFkgte_nocollrot
+  
+  INTEGER FUNCTION FFkgte_nocollrot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: XY
+    COMPLEX(KIND=DBL) :: output
+    
+    IF((ndim.NE.1).OR.(fdim.NE.2)) THEN
+      FFkgte_nocollrot_cubature = 1
+      RETURN
+    END IF
+    
+    XY = x(1)
+    output = FFke_nocollrot(XY,2)
+    
+    fval(1) = REAL(output)
+    fval(2) = AIMAG(output)
+    
+    FFkgte_nocollrot_cubature = 0
+    
+  END FUNCTION FFkgte_nocollrot_cubature
 
   REAL(KIND=DBL) FUNCTION rFFkgne_nocollrot(kk)
     !---------------------------------------------------------------------
@@ -2189,6 +2693,31 @@ CONTAINS
     REAL(KIND=DBL), INTENT(IN) :: kk
     iFFkgne_nocollrot = AIMAG ( FFke_nocollrot(kk, 3) )
   END FUNCTION iFFkgne_nocollrot
+  
+  INTEGER FUNCTION FFkgne_nocollrot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: XY
+    COMPLEX(KIND=DBL) :: output
+    
+    IF((ndim.NE.1).OR.(fdim.NE.2)) THEN
+      FFkgne_nocollrot_cubature = 1
+      RETURN
+    END IF
+    
+    XY = x(1)
+    output = FFke_nocollrot(XY,3)
+    
+    fval(1) = REAL(output)
+    fval(2) = AIMAG(output)
+    
+    FFkgne_nocollrot_cubature = 0
+    
+  END FUNCTION FFkgne_nocollrot_cubature
 
   REAL(KIND=DBL) FUNCTION rFFkce_nocollrot(kk)
     !---------------------------------------------------------------------
@@ -2205,6 +2734,31 @@ CONTAINS
     REAL(KIND=DBL), INTENT(IN) :: kk
     iFFkce_nocollrot = AIMAG ( FFke_nocollrot(kk, 4) )
   END FUNCTION iFFkce_nocollrot
+  
+  INTEGER FUNCTION FFkce_nocollrot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: XY
+    COMPLEX(KIND=DBL) :: output
+    
+    IF((ndim.NE.1).OR.(fdim.NE.2)) THEN
+      FFkce_nocollrot_cubature = 1
+      RETURN
+    END IF
+    
+    XY = x(1)
+    output = FFke_nocollrot(XY,4)
+    
+    fval(1) = REAL(output)
+    fval(2) = AIMAG(output)
+    
+    FFkce_nocollrot_cubature = 0
+    
+  END FUNCTION FFkce_nocollrot_cubature
 
   REAL(KIND=DBL) FUNCTION rFFeke_nocollrot(kk)
     !---------------------------------------------------------------------
@@ -2221,6 +2775,31 @@ CONTAINS
     REAL(KIND=DBL), INTENT(IN) :: kk
     iFFeke_nocollrot = AIMAG ( FFke_nocollrot(kk, 5) )
   END FUNCTION iFFeke_nocollrot
+  
+  INTEGER FUNCTION FFeke_nocollrot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: XY
+    COMPLEX(KIND=DBL) :: output
+    
+    IF((ndim.NE.1).OR.(fdim.NE.2)) THEN
+      FFeke_nocollrot_cubature = 1
+      RETURN
+    END IF
+    
+    XY = x(1)
+    output = FFke_nocollrot(XY,5)
+    
+    fval(1) = REAL(output)
+    fval(2) = AIMAG(output)
+    
+    FFeke_nocollrot_cubature = 0
+    
+  END FUNCTION FFeke_nocollrot_cubature
 
   REAL(KIND=DBL) FUNCTION rFFekgte_nocollrot(kk)
     !---------------------------------------------------------------------
@@ -2237,6 +2816,31 @@ CONTAINS
      REAL(KIND=DBL), INTENT(IN) :: kk
     iFFekgte_nocollrot = AIMAG ( FFke_nocollrot(kk, 6) )
   END FUNCTION iFFekgte_nocollrot
+  
+  INTEGER FUNCTION FFekgte_nocollrot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: XY
+    COMPLEX(KIND=DBL) :: output
+    
+    IF((ndim.NE.1).OR.(fdim.NE.2)) THEN
+      FFekgte_nocollrot_cubature = 1
+      RETURN
+    END IF
+    
+    XY = x(1)
+    output = FFke_nocollrot(XY,6)
+    
+    fval(1) = REAL(output)
+    fval(2) = AIMAG(output)
+    
+    FFekgte_nocollrot_cubature = 0
+    
+  END FUNCTION FFekgte_nocollrot_cubature
 
   REAL(KIND=DBL) FUNCTION rFFekgne_nocollrot(kk)
     !---------------------------------------------------------------------
@@ -2253,6 +2857,31 @@ CONTAINS
       REAL(KIND=DBL), INTENT(IN) :: kk
     iFFekgne_nocollrot = AIMAG ( FFke_nocollrot(kk, 7) )
   END FUNCTION iFFekgne_nocollrot
+  
+  INTEGER FUNCTION FFekgne_nocollrot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: XY
+    COMPLEX(KIND=DBL) :: output
+    
+    IF((ndim.NE.1).OR.(fdim.NE.2)) THEN
+      FFekgne_nocollrot_cubature = 1
+      RETURN
+    END IF
+    
+    XY = x(1)
+    output = FFke_nocollrot(XY,7)
+    
+    fval(1) = REAL(output)
+    fval(2) = AIMAG(output)
+    
+    FFekgne_nocollrot_cubature = 0
+    
+  END FUNCTION FFekgne_nocollrot_cubature
 
   REAL(KIND=DBL) FUNCTION rFFekce_nocollrot(kk)
     !---------------------------------------------------------------------
@@ -2269,6 +2898,31 @@ CONTAINS
       REAL(KIND=DBL), INTENT(IN) :: kk
     iFFekce_nocollrot = AIMAG ( FFke_nocollrot(kk, 8) )
   END FUNCTION iFFekce_nocollrot
+  
+  INTEGER FUNCTION FFekce_nocollrot_cubature(ndim, x, fdata, fdim, fval)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: XY
+    COMPLEX(KIND=DBL) :: output
+    
+    IF((ndim.NE.1).OR.(fdim.NE.2)) THEN
+      FFekce_nocollrot_cubature = 1
+      RETURN
+    END IF
+    
+    XY = x(1)
+    output = FFke_nocollrot(XY,8)
+    
+    fval(1) = REAL(output)
+    fval(2) = AIMAG(output)
+    
+    FFekce_nocollrot_cubature = 0
+    
+  END FUNCTION FFekce_nocollrot_cubature
 
     
 END MODULE calltrapints
