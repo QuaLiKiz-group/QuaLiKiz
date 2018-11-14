@@ -2300,7 +2300,7 @@ CONTAINS
     nuFFk = nu
     
     !Set integration limits. (1) for kappa and (2) for v (for the electrons)
-    a(1) = 0.0d0
+    a(1) = 0.0d0 + barelyavoid
     b(1) = 1.0d0 - barelyavoid
     a(2) = 0.0d0
     b(2) = vuplim
@@ -3089,7 +3089,7 @@ CONTAINS
     nuFFk = nu
     
     !Set integration limits. (1) for kappa and (2) for v (for the electrons)
-    a(1) = 0.0d0
+    a(1) = 0.0d0 + barelyavoid
     b(1) = 1.0d0 - barelyavoid
     a(2) = 0.0d0
     b(2) = vuplim
@@ -3115,6 +3115,7 @@ CONTAINS
         
         intout = intout * ABS(Ac(p))
         fonctp = intout(1) + ci * intout(2)  
+        
         
       ELSE IF(norm.EQ.1) THEN
       

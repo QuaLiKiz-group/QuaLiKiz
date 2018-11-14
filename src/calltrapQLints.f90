@@ -65,7 +65,7 @@ CONTAINS
 
     !! Integration bounds
     !! a,b are for the 1D ions. Vertices 1 is for the 2D electrons
-    a(1) = 0.0d0
+    a(1) = 0.0d0 + barelyavoid
     b(1) = 1.0d0 - barelyavoid
     a(2) = 0.0d0
     b(2) = vuplim
@@ -1419,7 +1419,7 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
 
   !! Integration bounds
   !! a,b are for the 1D ions. Vertices 1 is for the 2D electrons
-  a(1) = 0.0d0
+  a(1) = 0.0d0 + barelyavoid
   b(1) = 1.0d0 - barelyavoid
   a(2) = 0.0d0
   b(2) = vuplim
