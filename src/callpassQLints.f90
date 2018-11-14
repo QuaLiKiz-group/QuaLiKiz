@@ -55,9 +55,7 @@ CONTAINS
 
     INTEGER :: ifailloc
     
-    INTEGER :: temp_flag !delete after adding to parameter list
-
-    temp_flag = 1
+    
     omFkr = omega
     pFkr = p
 
@@ -90,7 +88,7 @@ CONTAINS
     !ELECTRON PARTICLE FLUX INTEGRALS
     
     
-    IF (temp_flag.EQ.0) THEN
+    IF (int_method.EQ.0) THEN
       IF (inttype == 1) THEN
 
          minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
@@ -663,7 +661,7 @@ CONTAINS
 
          ENDDO
       ENDIF
-    ELSE IF(temp_flag.EQ.1) THEN
+    ELSE
       minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
        IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
           intout(1)=0
@@ -1020,9 +1018,7 @@ CONTAINS
     REAL(KIND=DBL), DIMENSION(2) :: acc_cub
 
     
-    INTEGER :: temp_flag !delete after adding to parameter list
-
-    temp_flag = 1
+    
 
     omFkr = omega
     pFkr = p
@@ -1056,7 +1052,7 @@ CONTAINS
     !ELECTRON PARTICLE FLUX INTEGRALS
 
     
-    IF(temp_flag.EQ.0) THEN
+    IF(int_method.EQ.0) THEN
       
       IF (inttype == 1) THEN
 
@@ -1722,7 +1718,7 @@ CONTAINS
         
       ENDIF
 
-    ELSE IF(temp_flag.EQ.1) THEN
+    ELSE
 
      minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
      IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
@@ -2206,9 +2202,6 @@ CONTAINS
     REAL(KIND=DBL), DIMENSION(2) :: acc_cub
 
     
-    INTEGER :: temp_flag !delete after adding to parameter list
-
-    temp_flag = 1
 
     omFkr = omega
     pFkr = p
@@ -2241,7 +2234,7 @@ CONTAINS
 
     !ELECTRON PARTICLE FLUX INTEGRALS
     
-    IF(temp_flag.EQ.0) THEN
+    IF(int_method.EQ.0) THEN
 
       IF (inttype == 1) THEN
 
@@ -2283,7 +2276,7 @@ CONTAINS
             rfonctvci(ion) = intmult*intout(1); ifonctvci(ion)=intmult*intout(2)
          ENDDO
       ENDIF
-    ELSE IF(temp_flag.EQ.1) THEN
+    ELSE
       DO ion=1,nions
 
         !ION ang mom INTEGRALS

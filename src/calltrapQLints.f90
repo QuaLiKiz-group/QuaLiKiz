@@ -56,9 +56,6 @@ CONTAINS
     REAL(KIND=DBL), DIMENSION(1) :: intout_cub
     REAL(KIND=DBL), DIMENSION(2) :: acc_cub
     
-    INTEGER :: temp_flag !delete after adding to parameter list
-    
-    temp_flag = 1
 
     omFFk = omega
     pFFk = p
@@ -86,7 +83,7 @@ CONTAINS
     ALLOCATE(elist(limit))
     ALLOCATE(iord(limit))
     
-    IF(temp_flag.EQ.0) THEN
+    IF(int_method.EQ.0) THEN
       IF (inttype == 1) THEN
 
          DO ion=1,nions
@@ -951,7 +948,7 @@ CONTAINS
        ifonctepe = intout(2)
 
       ENDIF
-    ELSE IF(temp_flag.EQ.1) THEN
+    ELSE
       DO ion=1,nions
 
         
@@ -1410,9 +1407,6 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
   REAL(KIND=DBL), DIMENSION(1) :: intout_cub
   REAL(KIND=DBL), DIMENSION(2) :: acc_cub
     
-  INTEGER :: temp_flag !delete after adding to parameter list
-    
-  temp_flag = 1
 
   omFFk = omega
   pFFk = p
@@ -1440,7 +1434,7 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
   ALLOCATE(elist(limit))
   ALLOCATE(iord(limit))
   
-  IF(temp_flag.EQ.0) THEN
+  IF(int_method.EQ.0) THEN
   
     IF (inttype == 1) THEN
 
@@ -2418,7 +2412,7 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
 
     ENDIF
 
-  ELSE IF(temp_flag.EQ.2) THEN
+  ELSE
   
     DO ion=1,nions
 
@@ -2958,9 +2952,7 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
     REAL(KIND=DBL), DIMENSION(1) :: intout_cub
     REAL(KIND=DBL), DIMENSION(2) :: acc_cub
     
-    INTEGER :: temp_flag !delete after adding to parameter list
     
-    temp_flag = 1
 
     omFFk = omega
     pFFk = p
@@ -2988,7 +2980,7 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
     ALLOCATE(elist(limit))
     ALLOCATE(iord(limit))
 
-    IF(temp_flag.EQ.0) THEN
+    IF(int_method.EQ.0) THEN
     
       IF (inttype == 1) THEN
 
@@ -3035,7 +3027,7 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
          ENDDO
       ENDIF
 
-    ELSE IF(temp_flag.EQ.1) THEN
+    ELSE
       DO ion=1,nions
 
             ! ION ang mom FLUX

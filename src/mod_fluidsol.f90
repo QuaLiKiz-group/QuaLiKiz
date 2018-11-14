@@ -33,7 +33,6 @@ CONTAINS
     REAL(KIND=DBL) :: V1,V2,V3,V4, cputime1, cputime2,gamEunnorm
     INTEGER, DIMENSION(1) :: iloc  
     INTEGER :: ifailloc
-    INTEGER :: temp_flag
     REAL(KIND=DBL), DIMENSION(1) :: a_cubature, b_cubature, c_cubature, acc_cubature, output_cubature
     
 
@@ -48,7 +47,6 @@ CONTAINS
     b_cubature(1) = b
     c_cubature(1) = c
     
-    temp_flag = 1 !temporary, need to add parameter later
 
     ktheta = ntor(p,nu)*qx(p)/(Rmin(p)*x(p))
 
@@ -59,7 +57,7 @@ CONTAINS
     pFFk=p !to pass radial coordinate into integrand functions which can only have one argument
 
     
-    IF(temp_flag.EQ.0) THEN
+    IF(int_method.EQ.0) THEN
       ifailloc = 1
       fk = d01ahf(a,b,relacc1,npts,relerr,fkint,lw,ifailloc)
       IF (ifailloc /= 0) THEN
@@ -157,7 +155,7 @@ CONTAINS
          IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I7,A,I0)") 'ifailloc = ',ifailloc,&
               &'. Abnormal termination of fluid solution Wv6 integration at p=',p,', nu=',nu
       ENDIF
-    ELSE IF(temp_flag.EQ.1) THEN
+    ELSE
       ifailloc = 1
       ifailloc = pcubature(1, fkint_cubature, 1, a_cubature, b_cubature, maxpts, reqabsacc_newt, reqrelacc_newt, 1, output_cubature, acc_cubature)
       fk = output_cubature(1)
@@ -450,7 +448,6 @@ CONTAINS
     REAL(KIND=DBL) :: V1,V2,V3,V4, cputime1, cputime2,gamEunnorm
     INTEGER, DIMENSION(1) :: iloc  
     INTEGER :: ifailloc
-    INTEGER :: temp_flag
     REAL(KIND=DBL), DIMENSION(1) :: a_cubature, b_cubature, c_cubature, acc_cubature, output_cubature
 
     !Set integration limits
@@ -462,7 +459,6 @@ CONTAINS
     b_cubature(1) = b
     c_cubature(1) = c
     
-    temp_flag = 1 !temporary, need to add parameter later
 
     ktheta = ntor(p,nu)*qx(p)/(Rmin(p)*x(p))
 
@@ -471,7 +467,7 @@ CONTAINS
 
     pFFk=p !to pass rdadial coordinate into integrand functions which can only have one argument
 
-    IF(temp_flag.EQ.0) THEN
+    IF(int_method.EQ.0) THEN
     
       fk = d01ahf(a,b,relacc1,npts,relerr,fkint,lw,ifailloc)
       IF (ifailloc /= 0) THEN
@@ -518,7 +514,7 @@ CONTAINS
          IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I7,A,I0)") 'ifailloc = ',ifailloc,&
               &'. Abnormal termination of ele fluid solution Wv6 integration at p=',p,', nu=',nu
       ENDIF
-    ELSE IF(temp_flag.EQ.1) THEN
+    ELSE
       ifailloc = pcubature(1, fkint_cubature, 1, a_cubature, b_cubature, maxpts, reqabsacc_newt, reqrelacc_newt, 1, output_cubature, acc_cubature)
       fk = output_cubature(1)
       IF (ifailloc /= 0) THEN
@@ -673,7 +669,6 @@ CONTAINS
     REAL(KIND=DBL) :: V1,V2,V3,V4, cputime1, cputime2
     INTEGER, DIMENSION(1) :: iloc    
     INTEGER :: ifailloc
-    INTEGER :: temp_flag
     REAL(KIND=DBL), DIMENSION(1) :: a_cubature, b_cubature, c_cubature, acc_cubature, output_cubature
 
     !!    For testing and debugging
@@ -696,7 +691,6 @@ CONTAINS
     b_cubature(1) = b
     c_cubature(1) = c
     
-    temp_flag = 1 !temporary, need to add parameter later
 
     ktheta = ntor(p,nu)*qx(p)/(Rmin(p)*x(p))
 
@@ -708,7 +702,7 @@ CONTAINS
 
 !!$    fk = ft2*d01ahf(a,b,relacc1,npts,relerr,fkint,lw,ifailloc)
 
-    IF(temp_flag.EQ.0) THEN
+    IF(int_method.EQ.0) THEN
       ifailloc=1
       fk = d01ahf(a,b,relacc1,npts,relerr,fkint,lw,ifailloc)
       IF (ifailloc /= 0) THEN
@@ -803,7 +797,7 @@ CONTAINS
          IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I7,A,I0)") 'ifailloc = ',ifailloc,&
               &'. Abnormal termination of fluid solution Wv6 integration at p=',p,', nu=',nu
       ENDIF
-    ELSE IF(temp_flag.EQ.1) THEN
+    ELSE
       ifailloc=1
       ifailloc = pcubature(1, fkint_cubature, 1, a_cubature, b_cubature, maxpts, reqabsacc_newt, reqrelacc_newt, 1, output_cubature, acc_cubature)
       fk = output_cubature(1)
