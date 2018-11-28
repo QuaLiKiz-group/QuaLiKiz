@@ -991,9 +991,6 @@ CONTAINS
 
     COMPLEX(KIND=DBL) :: fonctc
     COMPLEX(KIND=DBL) :: fonctp
-    INTEGER :: temp_flag
-    
-    temp_flag = 1
         
     IF(int_method.EQ.0) THEN !Use NAG
 
@@ -1035,10 +1032,10 @@ CONTAINS
     
     ELSE IF(int_method.EQ.1) THEN !Use hcubature
       IF((rotflagarray(p) == 1).AND.(ETG_flag(nu).EQV. .FALSE.)) THEN !rotations
-        IF(temp_flag.EQ.0) THEN
+        IF(int_split.EQ.0) THEN
           CALL calcfonctrot_hcubature(p, nu, omega, fonx)
           
-        ELSE IF(temp_flag.EQ.1) THEN
+        ELSE IF(int_split.EQ.1) THEN
         
           IF (ft(p)==0. .OR. (calctrap .EQV. .FALSE.) ) THEN
             fonctp = 0.    
@@ -1054,7 +1051,7 @@ CONTAINS
           
           fonx = CMPLX(Ac(p), 0.) - fonctc - fonctp 
           
-        ELSE IF(temp_flag.EQ.2) THEN
+        ELSE IF(int_split.EQ.2) THEN
           IF (ft(p)==0. .OR. (calctrap .EQV. .FALSE.) ) THEN
             fonctp = 0.    
           ELSE    
@@ -1069,10 +1066,10 @@ CONTAINS
           fonx = CMPLX(Ac(p), 0.) - fonctc - fonctp 
         END IF
       ELSE !no rotations
-        IF(temp_flag.EQ.0) THEN
+        IF(int_split.EQ.0) THEN
           CALL calcfonct_hcubature(p, nu, omega, fonx)
           
-        ELSE IF(temp_flag.EQ.1) THEN
+        ELSE IF(int_split.EQ.1) THEN
         
           IF (ft(p)==0. .OR. (calctrap .EQV. .FALSE.) ) THEN
             fonctp = 0.    
@@ -1088,7 +1085,7 @@ CONTAINS
           
           fonx = CMPLX(Ac(p), 0.) - fonctc - fonctp 
           
-        ELSE IF(temp_flag.EQ.2) THEN
+        ELSE IF(int_split.EQ.2) THEN
           IF (ft(p)==0. .OR. (calctrap .EQV. .FALSE.) ) THEN
             fonctp = 0.    
           ELSE    
@@ -1106,10 +1103,10 @@ CONTAINS
     ELSE IF(int_method.EQ.2) THEN !Use pcubature
       IF ( ( rotflagarray(p) == 1 ) .AND. ( ETG_flag(nu) .EQV. .FALSE. ) ) THEN !rotations
     
-        IF(temp_flag.EQ.0) THEN
+        IF(int_split.EQ.0) THEN
           CALL calcfonctrot_pcubature(p, nu, omega, fonx)
           
-        ELSE IF(temp_flag.EQ.1) THEN
+        ELSE IF(int_split.EQ.1) THEN
         
           ! replace mwidth by real(mwidth) in such comparaisons since now mwidth is complex. Warning: is it correct or should take module?
           IF ( ( fc(p)==0. ) .OR. ( REAL(mwidth)<d/4.) .OR. ( calccirc .EQV. .FALSE. ) ) THEN
@@ -1127,7 +1124,7 @@ CONTAINS
 
           fonx = CMPLX(Ac(p),0.) - fonctc - fonctp
           
-        ELSE IF(temp_flag.EQ.2) THEN
+        ELSE IF(int_split.EQ.2) THEN
           IF (ft(p)==0. .OR. (calctrap .EQV. .FALSE.) ) THEN
             fonctp = 0.    
           ELSE    
@@ -1142,10 +1139,10 @@ CONTAINS
           fonx = CMPLX(Ac(p), 0.) - fonctc - fonctp 
         END IF
       ELSE !no rotations
-        IF(temp_flag.EQ.0) THEN
+        IF(int_split.EQ.0) THEN
           CALL calcfonct_pcubature(p, nu, omega, fonx)
           
-        ELSE IF(temp_flag.EQ.1) THEN
+        ELSE IF(int_split.EQ.1) THEN
         
           IF ( ( fc(p)==0. ) .OR. ( REAL(mwidth)<d/4.) .OR. ( calccirc .EQV. .FALSE. ) ) THEN
             fonctc = 0.
@@ -1162,7 +1159,7 @@ CONTAINS
 
           fonx = CMPLX(Ac(p),0.) - fonctc - fonctp
           
-        ELSE IF(temp_flag.EQ.2) THEN
+        ELSE IF(int_split.EQ.2) THEN
           IF (ft(p)==0. .OR. (calctrap .EQV. .FALSE.) ) THEN
             fonctp = 0.    
           ELSE    
@@ -1195,9 +1192,6 @@ CONTAINS
     COMPLEX(KIND=DBL) :: fonctc
     COMPLEX(KIND=DBL) :: fonctp
     
-    INTEGER :: temp_flag
-    
-    temp_flag = 1
     
     
 
@@ -1242,10 +1236,10 @@ CONTAINS
     
     ELSE IF(newt_method.EQ.1) THEN !Use hcubature
       IF((rotflagarray(p) == 1).AND.(ETG_flag(nu).EQV. .FALSE.)) THEN !rotations
-        IF(temp_flag.EQ.0) THEN
+        IF(int_split.EQ.0) THEN
           CALL calcfonctrot_hcubature(p, nu, omega, fonx)
           
-        ELSE IF(temp_flag.EQ.1) THEN
+        ELSE IF(int_split.EQ.1) THEN
         
           IF (ft(p)==0. .OR. (calctrap .EQV. .FALSE.) ) THEN
             fonctp = 0.    
@@ -1261,7 +1255,7 @@ CONTAINS
           
           fonx = CMPLX(Ac(p), 0.) - fonctc - fonctp 
           
-        ELSE IF(temp_flag.EQ.2) THEN
+        ELSE IF(int_split.EQ.2) THEN
           IF (ft(p)==0. .OR. (calctrap .EQV. .FALSE.) ) THEN
             fonctp = 0.    
           ELSE    
@@ -1276,10 +1270,10 @@ CONTAINS
           fonx = CMPLX(Ac(p), 0.) - fonctc - fonctp 
         END IF
       ELSE !no rotations
-        IF(temp_flag.EQ.0) THEN
+        IF(int_split.EQ.0) THEN
           CALL calcfonct_hcubature_newt(p, nu, omega, fonx)
           
-        ELSE IF(temp_flag.EQ.1) THEN
+        ELSE IF(int_split.EQ.1) THEN
         
           IF (ft(p)==0. .OR. (calctrap .EQV. .FALSE.) ) THEN
             fonctp = 0.    
@@ -1295,7 +1289,7 @@ CONTAINS
           
           fonx = CMPLX(Ac(p), 0.) - fonctc - fonctp 
           
-        ELSE IF(temp_flag.EQ.2) THEN
+        ELSE IF(int_split.EQ.2) THEN
           IF (ft(p)==0. .OR. (calctrap .EQV. .FALSE.) ) THEN
             fonctp = 0.    
           ELSE    
@@ -1313,10 +1307,10 @@ CONTAINS
     ELSE IF(newt_method.EQ.2) THEN !Use pcubature
       IF((rotflagarray(p) == 1).AND.(ETG_flag(nu).EQV. .FALSE.)) THEN !rotations
     
-        IF(temp_flag.EQ.0) THEN
+        IF(int_split.EQ.0) THEN
           CALL calcfonctrot_pcubature_newt(p, nu, omega, fonx)
           
-        ELSE IF(temp_flag.EQ.1) THEN
+        ELSE IF(int_split.EQ.1) THEN
         
           IF (ft(p)==0. .OR. (calctrap .EQV. .FALSE.) ) THEN
             fonctp = 0.    
@@ -1332,7 +1326,7 @@ CONTAINS
           
           fonx = CMPLX(Ac(p), 0.) - fonctc - fonctp 
           
-        ELSE IF(temp_flag.EQ.2) THEN
+        ELSE IF(int_split.EQ.2) THEN
           IF (ft(p)==0. .OR. (calctrap .EQV. .FALSE.) ) THEN
             fonctp = 0.    
           ELSE    
@@ -1347,10 +1341,10 @@ CONTAINS
           fonx = CMPLX(Ac(p), 0.) - fonctc - fonctp 
         END IF
       ELSE !no rotations
-        IF(temp_flag.EQ.0) THEN
+        IF(int_split.EQ.0) THEN
           CALL calcfonct_pcubature_newt(p, nu, omega, fonx)
           
-        ELSE IF(temp_flag.EQ.1) THEN
+        ELSE IF(int_split.EQ.1) THEN
         
           IF (ft(p)==0. .OR. (calctrap .EQV. .FALSE.) ) THEN
             fonctp = 0.    
@@ -1366,7 +1360,7 @@ CONTAINS
           
           fonx = CMPLX(Ac(p), 0.) - fonctc - fonctp 
           
-        ELSE IF(temp_flag.EQ.2) THEN
+        ELSE IF(int_split.EQ.2) THEN
           IF (ft(p)==0. .OR. (calctrap .EQV. .FALSE.) ) THEN
             fonctp = 0.    
           ELSE    
