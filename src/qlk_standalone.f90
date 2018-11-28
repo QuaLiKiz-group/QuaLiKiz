@@ -18,6 +18,7 @@ PROGRAM qlk_standalone
           & Machtorin, Autorin, Machparin, Auparin, gammaEin, & !rotation input
           & maxrunsin, maxptsin, relacc1in, relacc2in, timeoutin, ETGmultin, collmultin, & !code specific input
           & epf_SIout,eef_SIout,ipf_SIout,ief_SIout,ivf_SIout, & ! Non optional outputs
+          & int_methodin, newt_methodin, newt_convin, int_splitin, normin, reqrelaccin, reqabsaccin, reqrelacc_newtin, reqabsacc_newtin, & !integration inputs
           & solflu_SIout, solflu_GBout, gam_SIout,gam_GBout,ome_SIout,ome_GBout, & !growth rate and frequency output
           & epf_GBout,eef_GBout, dfe_SIout,vte_SIout,vce_SIout,epf_cmout,eef_cmout,ckeout, & !electron flux outputs
           & ipf_GBout,ief_GBout, ivf_GBout, dfi_SIout,vti_SIout,vri_SIout,vci_SIout,ipf_cmout,ief_cmout,ivf_cmout,ckiout, & !ion flux outputs
@@ -48,8 +49,7 @@ PROGRAM qlk_standalone
           & veneITG_SIout,chieeITG_SIout,veceITG_SIout,veneITG_GBout,chieeITG_GBout,veceITG_GBout, &
           & veneTEM_SIout,chieeTEM_SIout,veceTEM_SIout,veneTEM_GBout,chieeTEM_GBout,veceTEM_GBout, &
           & veniITG_SIout,chieiITG_SIout,veriITG_SIout,veciITG_SIout,veniITG_GBout,chieiITG_GBout,veriITG_GBout,veciITG_GBout, &
-          & veniTEM_SIout,chieiTEM_SIout,veriTEM_SIout,veciTEM_SIout,veniTEM_GBout,chieiTEM_GBout,veriTEM_GBout,veciTEM_GBout, &
-          & int_methodin, newt_methodin, newt_convin, int_splitin, normin, reqrelaccin, reqabsaccin, reqrelacc_newtin, reqabsacc_newtin)
+          & veniTEM_SIout,chieiTEM_SIout,veriTEM_SIout,veciTEM_SIout,veniTEM_GBout,chieiTEM_GBout,veriTEM_GBout,veciTEM_GBout)
 
 
        INTEGER, INTENT(IN) :: dimxin, dimnin, nionsin, numsolsin, phys_methin, coll_flagin, rot_flagin, verbosein, separatefluxin, el_typein
@@ -65,8 +65,8 @@ PROGRAM qlk_standalone
        REAL, OPTIONAL, INTENT(IN) :: rhominin,rhomaxin
        
        !Integration testing variables
-       INTEGER, INTENT(IN), OPTIONAL :: int_methodin, newt_methodin, newt_convin, int_splitin, normin
-       REAL, INTENT(IN), OPTIONAL :: reqrelaccin, reqabsaccin, reqrelacc_newtin, reqabsacc_newtin
+       INTEGER, INTENT(IN) :: int_methodin, newt_methodin, newt_convin, int_splitin, normin
+       REAL, INTENT(IN) :: reqrelaccin, reqabsaccin, reqrelacc_newtin, reqabsacc_newtin
 
        ! List of output variables: 
        INTEGER, PARAMETER :: ntheta = 64
@@ -247,6 +247,7 @@ PROGRAM qlk_standalone
                 & Machtor, Autor, Machpar, Aupar, gammaE, & !rotation input
                 & maxruns, maxpts, relacc1, relacc2, timeout, ETGmult, collmult, & !code specific inputs
                 & epf_SI,eef_SI,ipf_SI,ief_SI, ivf_SI, & ! Non optional outputs
+                & int_method, newt_method, newt_conv, int_split, norm, reqrelacc, reqabsacc, reqrelacc_newt, reqabsacc_newt, & !integration inputs
                 & solflu_SIout=solflu_SI, solflu_GBout=solflu_GB, gam_SIout=gam_SI,gam_GBout=gam_GB,ome_SIout=ome_SI,ome_GBout=ome_GB, & !optional growth rate and frequency output
                 & epf_GBout=epf_GB,eef_GBout=eef_GB, epf_cmout=epf_cm,eef_cmout=eef_cm, & !optional electron flux outputs
                 & ipf_GBout=ipf_GB,ief_GBout=ief_GB, ivf_GBout=ivf_GB, ipf_cmout=ipf_cm,ief_cmout=ief_cm, ivf_cmout=ivf_cm, & !optional ion flux outputs
@@ -257,8 +258,8 @@ PROGRAM qlk_standalone
                 & kperp2out=kperp2, krmmuITGout=krmmuITG, krmmuETGout=krmmuETG, &
                 & Lcirceout=Lcirce, Lpiegeout=Lpiege, Lecirceout=Lecirce, Lepiegeout=Lepiege, &
                 & Lcirciout=Lcirci, Lpiegiout=Lpiegi, Lecirciout=Lecirci, Lepiegiout=Lepiegi, Lvcirciout=Lvcirci, Lvpiegiout=Lvpiegi, &
-                & oldsolin=oldsol,oldfdsolin=oldfdsol,runcounterin=runcounter, & ! optional inputs for jumping straight to newton solver
-                & int_methodin = int_method, newt_methodin = newt_method, newt_convin = newt_conv, int_splitin = int_split, normin = norm, reqrelaccin = reqrelacc, reqabsaccin = reqabsacc, reqrelacc_newtin = reqrelacc_newt, reqabsacc_newtin = reqabsacc_newt) 
+                & oldsolin=oldsol,oldfdsolin=oldfdsol,runcounterin=runcounter) ! optional inputs for jumping straight to newton solver
+                
         ENDIF
 
         IF (phys_meth == 1) THEN
@@ -270,6 +271,7 @@ PROGRAM qlk_standalone
                 & Machtor, Autor, Machpar, Aupar, gammaE, & !rotation input
                 & maxruns, maxpts, relacc1, relacc2, timeout, ETGmult, collmult,  & !code specific inputs
                 & epf_SI,eef_SI,ipf_SI,ief_SI, ivf_SI, & ! Non optional outputs
+                & int_method, newt_method, newt_conv, int_split, norm, reqrelacc, reqabsacc, reqrelacc_newt, reqabsacc_newt, & !integration inputs
                 & solflu_SIout=solflu_SI, solflu_GBout=solflu_GB, gam_SIout=gam_SI,gam_GBout=gam_GB,ome_SIout=ome_SI,ome_GBout=ome_GB, & !optional growth rate and frequency output
                 & epf_GBout=epf_GB,eef_GBout=eef_GB, dfe_SIout=dfe_SI,vte_SIout=vte_SI,vce_SIout=vce_SI,epf_cmout=epf_cm,eef_cmout=eef_cm, ckeout=cke, & !optional electron flux outputs
                 & ipf_GBout=ipf_GB,ief_GBout=ief_GB, ivf_GBout=ivf_GB, dfi_SIout=dfi_SI,vti_SIout=vti_SI,vri_SIout=vri_SI, vci_SIout=vci_SI,ipf_cmout=ipf_cm,ief_cmout=ief_cm,ivf_cmout=ivf_cm, ckiout=cki, & !optional ion flux outputs
@@ -283,8 +285,7 @@ PROGRAM qlk_standalone
                 & Lpieggteout=Lpieggte, Lcircgneout=Lcircgne, Lpieggneout=Lpieggne, Lcircceout=Lcircce, Lpiegceout=Lpiegce, & 
                 & Lcirciout=Lcirci, Lpiegiout=Lpiegi, Lecirciout=Lecirci, Lepiegiout=Lepiegi, Lvcirciout=Lvcirci, Lvpiegiout=Lvpiegi, Lcircgtiout=Lcircgti, & 
                 & Lpieggtiout=Lpieggti, Lcircgniout=Lcircgni, Lpieggniout=Lpieggni, Lcircguiout=Lcircgui, Lpiegguiout=Lpieggui, Lcircciout=Lcircci, Lpiegciout=Lpiegci, &         
-                & oldsolin=oldsol,oldfdsolin=oldfdsol,runcounterin=runcounter, & ! optional inputs for jumping straight to newton solver
-                & int_methodin = int_method, newt_methodin = newt_method, newt_convin = newt_conv, int_splitin = int_split, normin = norm, reqrelaccin = reqrelacc, reqabsaccin = reqabsacc, reqrelacc_newtin = reqrelacc_newt, reqabsacc_newtin = reqabsacc_newt)
+                & oldsolin=oldsol,oldfdsolin=oldfdsol,runcounterin=runcounter) ! optional inputs for jumping straight to newton solver
         ENDIF
 
         IF (phys_meth == 2) THEN
@@ -296,6 +297,7 @@ PROGRAM qlk_standalone
                 & Machtor, Autor, Machpar, Aupar, gammaE, & !rotation input
                 & maxruns, maxpts, relacc1, relacc2, timeout, ETGmult, collmult,  & !code specific inputs
                 & epf_SI,eef_SI,ipf_SI,ief_SI, ivf_SI, & ! Non optional outputs
+                & int_method, newt_method, newt_conv, int_split, norm, reqrelacc, reqabsacc, reqrelacc_newt, reqabsacc_newt, & !integration inputs
                 & solflu_SIout=solflu_SI, solflu_GBout=solflu_GB, gam_SIout=gam_SI,gam_GBout=gam_GB,ome_SIout=ome_SI,ome_GBout=ome_GB, & !optional growth rate and frequency output
                 & epf_GBout=epf_GB,eef_GBout=eef_GB, dfe_SIout=dfe_SI,vte_SIout=vte_SI,vce_SIout=vce_SI,epf_cmout=epf_cm,eef_cmout=eef_cm, ckeout=cke, & !optional electron flux outputs
                 & ipf_GBout=ipf_GB,ief_GBout=ief_GB, ivf_GBout=ivf_GB, dfi_SIout=dfi_SI,vti_SIout=vti_SI,vri_SIout=vri_SI, vci_SIout=vci_SI,ipf_cmout=ipf_cm,ief_cmout=ief_cm,ivf_cmout=ivf_cm, ckiout=cki, & !optional ion flux outputs
@@ -315,8 +317,7 @@ PROGRAM qlk_standalone
                 & Lcirciout=Lcirci, Lpiegiout=Lpiegi, Lecirciout=Lecirci, Lepiegiout=Lepiegi, Lvcirciout=Lvcirci, Lvpiegiout=Lvpiegi, Lcircgtiout=Lcircgti, & 
                 & Lpieggtiout=Lpieggti, Lcircgniout=Lcircgni, Lpieggniout=Lpieggni, Lcircguiout=Lcircgui, Lpiegguiout=Lpieggui, Lcircciout=Lcircci, Lpiegciout=Lpiegci, &
                 & Lecircgtiout=Lecircgti, Lepieggtiout=Lepieggti, Lecircgniout=Lecircgni, Lepieggniout=Lepieggni, Lecircguiout=Lecircgui, Lepiegguiout=Lepieggui, Lecircciout=Lecircci, Lepiegciout=Lepiegci, &
-                & oldsolin=oldsol,oldfdsolin=oldfdsol,runcounterin=runcounter, & ! optional inputs for jumping straight to newton solver)
-                & int_methodin = int_method, newt_methodin = newt_method, newt_convin = newt_conv, int_splitin = int_split, normin = norm, reqrelaccin = reqrelacc, reqabsaccin = reqabsacc, reqrelacc_newtin = reqrelacc_newt, reqabsacc_newtin = reqabsacc_newt)
+                & oldsolin=oldsol,oldfdsolin=oldfdsol,runcounterin=runcounter) ! optional inputs for jumping straight to newton solver)
         ENDIF
 
      ELSE !Don't call with optional old solution input
@@ -328,6 +329,7 @@ PROGRAM qlk_standalone
                 & Machtor, Autor, Machpar, Aupar, gammaE, & !rotation input
                 & maxruns, maxpts, relacc1, relacc2, timeout, ETGmult, collmult,  & !code specific inputs
                 & epf_SI,eef_SI,ipf_SI,ief_SI, ivf_SI, & ! Non optional outputs
+                & int_method, newt_method, newt_conv, int_split, norm, reqrelacc, reqabsacc, reqrelacc_newt, reqabsacc_newt, & !integration inputs
                 & solflu_SIout=solflu_SI, solflu_GBout=solflu_GB, gam_SIout=gam_SI,gam_GBout=gam_GB,ome_SIout=ome_SI,ome_GBout=ome_GB, & !optional growth rate and frequency output
                 & epf_GBout=epf_GB,eef_GBout=eef_GB, epf_cmout=epf_cm,eef_cmout=eef_cm, & !optional electron flux outputs
                 & ipf_GBout=ipf_GB,ief_GBout=ief_GB, ivf_GBout=ivf_GB, ipf_cmout=ipf_cm,ief_cmout=ief_cm, ivf_cmout=ivf_cm, & !optional ion flux outputs
@@ -337,8 +339,7 @@ PROGRAM qlk_standalone
                 & solfluout=solflu, modewidthout=modewidth, modeshiftout=modeshift, distanout=distan, ntorout=ntor, solout=sol, fdsolout=fdsol,&  !optional 'primitive' outputs from dispersion relation solver needed to build QL flux. Useful for standalone
                 & kperp2out=kperp2, krmmuITGout=krmmuITG, krmmuETGout=krmmuETG, &
                 & Lcirceout=Lcirce, Lpiegeout=Lpiege, Lecirceout=Lecirce, Lepiegeout=Lepiege, &
-                & Lcirciout=Lcirci, Lpiegiout=Lpiegi, Lecirciout=Lecirci, Lepiegiout=Lepiegi, Lvcirciout=Lvcirci, Lvpiegiout=Lvpiegi, &
-                & int_methodin = int_method, newt_methodin = newt_method, newt_convin = newt_conv, int_splitin = int_split, normin = norm, reqrelaccin = reqrelacc, reqabsaccin = reqabsacc, reqrelacc_newtin = reqrelacc_newt, reqabsacc_newtin = reqabsacc_newt)
+                & Lcirciout=Lcirci, Lpiegiout=Lpiegi, Lecirciout=Lecirci, Lepiegiout=Lepiegi, Lvcirciout=Lvcirci, Lvpiegiout=Lvpiegi)
 	ENDIF
 
         IF (phys_meth == 1) THEN
@@ -349,6 +350,7 @@ PROGRAM qlk_standalone
                 & Machtor, Autor, Machpar, Aupar, gammaE, & !rotation input
                 & maxruns, maxpts, relacc1, relacc2, timeout, ETGmult, collmult,  & !code specific inputs
                 & epf_SI,eef_SI,ipf_SI,ief_SI, ivf_SI, & ! Non optional outputs
+                & int_method, newt_method, newt_conv, int_split, norm, reqrelacc, reqabsacc, reqrelacc_newt, reqabsacc_newt, & !integration inputs
                 & solflu_SIout=solflu_SI, solflu_GBout=solflu_GB, gam_SIout=gam_SI,gam_GBout=gam_GB,ome_SIout=ome_SI,ome_GBout=ome_GB, & !optional growth rate and frequency output
                 & epf_GBout=epf_GB,eef_GBout=eef_GB, dfe_SIout=dfe_SI,vte_SIout=vte_SI,vce_SIout=vce_SI,epf_cmout=epf_cm,eef_cmout=eef_cm, ckeout=cke, & !optional electron flux outputs
                 & ipf_GBout=ipf_GB,ief_GBout=ief_GB, ivf_GBout=ivf_GB, dfi_SIout=dfi_SI,vti_SIout=vti_SI,vri_SIout=vri_SI, vci_SIout=vci_SI,ipf_cmout=ipf_cm,ief_cmout=ief_cm,ivf_cmout=ivf_cm, ckiout=cki, & !optional ion flux outputs
@@ -361,8 +363,7 @@ PROGRAM qlk_standalone
                 & Lcirceout=Lcirce, Lpiegeout=Lpiege, Lecirceout=Lecirce, Lepiegeout=Lepiege, Lcircgteout=Lcircgte, &
                 & Lpieggteout=Lpieggte, Lcircgneout=Lcircgne, Lpieggneout=Lpieggne, Lcircceout=Lcircce, Lpiegceout=Lpiegce, & 
                 & Lcirciout=Lcirci, Lpiegiout=Lpiegi, Lecirciout=Lecirci, Lepiegiout=Lepiegi, Lvcirciout=Lvcirci, Lvpiegiout=Lvpiegi, Lcircgtiout=Lcircgti, & 
-                & Lpieggtiout=Lpieggti, Lcircgniout=Lcircgni, Lpieggniout=Lpieggni, Lcircguiout=Lcircgui, Lpiegguiout=Lpieggui, Lcircciout=Lcircci, Lpiegciout=Lpiegci, &
-                & int_methodin = int_method, newt_methodin = newt_method, newt_convin = newt_conv, int_splitin = int_split, normin = norm, reqrelaccin = reqrelacc, reqabsaccin = reqabsacc, reqrelacc_newtin = reqrelacc_newt, reqabsacc_newtin = reqabsacc_newt)
+                & Lpieggtiout=Lpieggti, Lcircgniout=Lcircgni, Lpieggniout=Lpieggni, Lcircguiout=Lcircgui, Lpiegguiout=Lpieggui, Lcircciout=Lcircci, Lpiegciout=Lpiegci)
         ENDIF
 
         IF (phys_meth == 2) THEN
@@ -373,6 +374,7 @@ PROGRAM qlk_standalone
                 & Machtor, Autor, Machpar, Aupar, gammaE, & !rotation input
                 & maxruns, maxpts, relacc1, relacc2, timeout, ETGmult, collmult, & !code specific inputs
                 & epf_SI,eef_SI,ipf_SI,ief_SI, ivf_SI, & ! Non optional outputs
+                & int_method, newt_method, newt_conv, int_split, norm, reqrelacc, reqabsacc, reqrelacc_newt, reqabsacc_newt, & !integration inputs
                 & solflu_SIout=solflu_SI, solflu_GBout=solflu_GB, gam_SIout=gam_SI,gam_GBout=gam_GB,ome_SIout=ome_SI,ome_GBout=ome_GB, & !optional growth rate and frequency output
                 & epf_GBout=epf_GB,eef_GBout=eef_GB, dfe_SIout=dfe_SI,vte_SIout=vte_SI,vce_SIout=vce_SI,epf_cmout=epf_cm,eef_cmout=eef_cm, ckeout=cke, & !optional electron flux outputs
                 & ipf_GBout=ipf_GB,ief_GBout=ief_GB, ivf_GBout=ivf_GB, dfi_SIout=dfi_SI,vti_SIout=vti_SI,vri_SIout=vri_SI, vci_SIout=vci_SI,ipf_cmout=ipf_cm,ief_cmout=ief_cm,ivf_cmout=ivf_cm, ckiout=cki, & !optional ion flux outputs
@@ -391,8 +393,7 @@ PROGRAM qlk_standalone
                 & Lecircgteout=Lecircgte, Lepieggteout=Lepieggte, Lecircgneout=Lecircgne, Lepieggneout=Lepieggne, Lecircceout=Lecircce, Lepiegceout=Lepiegce, & 
                 & Lcirciout=Lcirci, Lpiegiout=Lpiegi, Lecirciout=Lecirci, Lepiegiout=Lepiegi, Lvcirciout=Lvcirci, Lvpiegiout=Lvpiegi, Lcircgtiout=Lcircgti, & 
                 & Lpieggtiout=Lpieggti, Lcircgniout=Lcircgni, Lpieggniout=Lpieggni, Lcircguiout=Lcircgui, Lpiegguiout=Lpieggui, Lcircciout=Lcircci, Lpiegciout=Lpiegci, &
-                & Lecircgtiout=Lecircgti, Lepieggtiout=Lepieggti, Lecircgniout=Lecircgni, Lepieggniout=Lepieggni, Lecircguiout=Lecircgui, Lepiegguiout=Lepieggui, Lecircciout=Lecircci, Lepiegciout=Lepiegci, &
-                & int_methodin = int_method, newt_methodin = newt_method, newt_convin = newt_conv, int_splitin = int_split, normin = norm, reqrelaccin = reqrelacc, reqabsaccin = reqabsacc, reqrelacc_newtin = reqrelacc_newt, reqabsacc_newtin = reqabsacc_newt)
+                & Lecircgtiout=Lecircgti, Lepieggtiout=Lepieggti, Lecircgniout=Lecircgni, Lepieggniout=Lepieggni, Lecircguiout=Lecircgui, Lepiegguiout=Lepieggui, Lecircciout=Lecircci, Lepiegciout=Lepiegci)
         ENDIF
      ENDIF
 
@@ -408,6 +409,7 @@ PROGRAM qlk_standalone
                 & Machtor, Autor, Machpar, Aupar, gammaE, & !rotation input
                 & maxruns, maxpts, relacc1, relacc2, timeout, ETGmult, collmult, & !code specific inputs
                 & epf_SI,eef_SI,ipf_SI,ief_SI, ivf_SI, & ! Non optional outputs
+                & int_method, newt_method, newt_conv, int_split, norm, reqrelacc, reqabsacc, reqrelacc_newt, reqabsacc_newt, & !integration inputs
                 & solflu_SIout=solflu_SI, solflu_GBout=solflu_GB, gam_SIout=gam_SI,gam_GBout=gam_GB,ome_SIout=ome_SI,ome_GBout=ome_GB, & !optional growth rate and frequency output
                 & epf_GBout=epf_GB,eef_GBout=eef_GB, epf_cmout=epf_cm,eef_cmout=eef_cm, & !optional electron flux outputs
                 & ipf_GBout=ipf_GB,ief_GBout=ief_GB, ivf_GBout=ivf_GB, ipf_cmout=ipf_cm,ief_cmout=ief_cm, ivf_cmout=ivf_cm, & !optional ion flux outputs
@@ -422,8 +424,7 @@ PROGRAM qlk_standalone
                 & eefTEM_SIout=eefTEM_SI,eefTEM_GBout=eefTEM_GB,epfTEM_SIout=epfTEM_SI,epfTEM_GBout=epfTEM_GB,& !optional outputs from separation of fluxes
                 & eefITG_SIout=eefITG_SI,eefITG_GBout=eefITG_GB,epfITG_SIout=epfITG_SI,epfITG_GBout=epfITG_GB,&  
                 & iefTEM_SIout=iefTEM_SI,iefTEM_GBout=iefTEM_GB,ipfTEM_SIout=ipfTEM_SI,ipfTEM_GBout=ipfTEM_GB,ivfTEM_SIout=ivfTEM_SI,ivfTEM_GBout=ivfTEM_GB,&
-                & iefITG_SIout=iefITG_SI,iefITG_GBout=iefITG_GB,ipfITG_SIout=ipfITG_SI,ipfITG_GBout=ipfITG_GB,ivfITG_SIout=ivfITG_SI,ivfITG_GBout=ivfITG_GB, &
-                & int_methodin = int_method, newt_methodin = newt_method, newt_convin = newt_conv, int_splitin = int_split, normin = norm, reqrelaccin = reqrelacc, reqabsaccin = reqabsacc, reqrelacc_newtin = reqrelacc_newt, reqabsacc_newtin = reqabsacc_newt)
+                & iefITG_SIout=iefITG_SI,iefITG_GBout=iefITG_GB,ipfITG_SIout=ipfITG_SI,ipfITG_GBout=ipfITG_GB,ivfITG_SIout=ivfITG_SI,ivfITG_GBout=ivfITG_GB)
         ENDIF
 
         IF (phys_meth == 1) THEN
@@ -435,6 +436,7 @@ PROGRAM qlk_standalone
                 & Machtor, Autor, Machpar, Aupar, gammaE, & !rotation input
                 & maxruns, maxpts, relacc1, relacc2, timeout, ETGmult, collmult,  & !code specific inputs
                 & epf_SI,eef_SI,ipf_SI,ief_SI, ivf_SI, & ! Non optional outputs
+                & int_method, newt_method, newt_conv, int_split, norm, reqrelacc, reqabsacc, reqrelacc_newt, reqabsacc_newt, & !integration inputs
                 & solflu_SIout=solflu_SI, solflu_GBout=solflu_GB, gam_SIout=gam_SI,gam_GBout=gam_GB,ome_SIout=ome_SI,ome_GBout=ome_GB, & !optional growth rate and frequency output
                 & epf_GBout=epf_GB,eef_GBout=eef_GB, dfe_SIout=dfe_SI,vte_SIout=vte_SI,vce_SIout=vce_SI,epf_cmout=epf_cm,eef_cmout=eef_cm, ckeout=cke, & !optional electron flux outputs
                 & ipf_GBout=ipf_GB,ief_GBout=ief_GB, ivf_GBout=ivf_GB, dfi_SIout=dfi_SI,vti_SIout=vti_SI,vri_SIout=vri_SI, vci_SIout=vci_SI,ipf_cmout=ipf_cm,ief_cmout=ief_cm,ivf_cmout=ivf_cm, ckiout=cki, & !optional ion flux outputs
@@ -460,8 +462,7 @@ PROGRAM qlk_standalone
                 & dfiTEM_GBout=dfiTEM_GB,vtiTEM_GBout=vtiTEM_GB,vciTEM_GBout=vciTEM_GB,vriTEM_GBout=vriTEM_GB,&
                 & iefITG_SIout=iefITG_SI,iefITG_GBout=iefITG_GB,ipfITG_SIout=ipfITG_SI,ipfITG_GBout=ipfITG_GB,ivfITG_SIout=ivfITG_SI,ivfITG_GBout=ivfITG_GB,&
                 & dfiITG_SIout=dfiITG_SI,vtiITG_SIout=vtiITG_SI,vciITG_SIout=vciITG_SI,vriITG_SIout=vriITG_SI,&
-                & dfiITG_GBout=dfiITG_GB,vtiITG_GBout=vtiITG_GB,vciITG_GBout=vciITG_GB,vriITG_GBout=vriITG_GB, &
-                & int_methodin = int_method, newt_methodin = newt_method, newt_convin = newt_conv, int_splitin = int_split, normin = norm, reqrelaccin = reqrelacc, reqabsaccin = reqabsacc, reqrelacc_newtin = reqrelacc_newt, reqabsacc_newtin = reqabsacc_newt)
+                & dfiITG_GBout=dfiITG_GB,vtiITG_GBout=vtiITG_GB,vciITG_GBout=vciITG_GB,vriITG_GBout=vriITG_GB)
         ENDIF
 
         IF (phys_meth == 2) THEN
@@ -473,6 +474,7 @@ PROGRAM qlk_standalone
                 & Machtor, Autor, Machpar, Aupar, gammaE, & !rotation input
                 & maxruns, maxpts, relacc1, relacc2, timeout, ETGmult, collmult,  & !code specific inputs
                 & epf_SI,eef_SI,ipf_SI,ief_SI, ivf_SI, & ! Non optional outputs
+                & int_method, newt_method, newt_conv, int_split, norm, reqrelacc, reqabsacc, reqrelacc_newt, reqabsacc_newt, & !integration inputs
                 & solflu_SIout=solflu_SI, solflu_GBout=solflu_GB, gam_SIout=gam_SI,gam_GBout=gam_GB,ome_SIout=ome_SI,ome_GBout=ome_GB, & !optional growth rate and frequency output
                 & epf_GBout=epf_GB,eef_GBout=eef_GB, dfe_SIout=dfe_SI,vte_SIout=vte_SI,vce_SIout=vce_SI,epf_cmout=epf_cm,eef_cmout=eef_cm, ckeout=cke, & !optional electron flux outputs
                 & ipf_GBout=ipf_GB,ief_GBout=ief_GB, ivf_GBout=ivf_GB, dfi_SIout=dfi_SI,vti_SIout=vti_SI,vri_SIout=vri_SI, vci_SIout=vci_SI,ipf_cmout=ipf_cm,ief_cmout=ief_cm,ivf_cmout=ivf_cm, ckiout=cki, & !optional ion flux outputs
@@ -514,8 +516,7 @@ PROGRAM qlk_standalone
                 & dfiITG_SIout=dfiITG_SI,vtiITG_SIout=vtiITG_SI,vciITG_SIout=vciITG_SI,vriITG_SIout=vriITG_SI,&
                 & dfiITG_GBout=dfiITG_GB,vtiITG_GBout=vtiITG_GB,vciITG_GBout=vciITG_GB,vriITG_GBout=vriITG_GB,&
                 & chieiITG_SIout=chieiITG_SI,veniITG_SIout=veniITG_SI,veciITG_SIout=veciITG_SI,veriITG_SIout=veriITG_SI,&
-                & chieiITG_GBout=chieiITG_GB,veniITG_GBout=veniITG_GB,veciITG_GBout=veciITG_GB,veriITG_GBout=veriITG_GB, &
-                & int_methodin = int_method, newt_methodin = newt_method, newt_convin = newt_conv, int_splitin = int_split, normin = norm, reqrelaccin = reqrelacc, reqabsaccin = reqabsacc, reqrelacc_newtin = reqrelacc_newt, reqabsacc_newtin = reqabsacc_newt)
+                & chieiITG_GBout=chieiITG_GB,veniITG_GBout=veniITG_GB,veciITG_GBout=veciITG_GB,veriITG_GBout=veriITG_GB)
         ENDIF
 
 
@@ -528,6 +529,7 @@ PROGRAM qlk_standalone
                 & Machtor, Autor, Machpar, Aupar, gammaE, & !rotation input
                 & maxruns, maxpts, relacc1, relacc2, timeout, ETGmult, collmult,  & !code specific inputs
                 & epf_SI,eef_SI,ipf_SI,ief_SI, ivf_SI, & ! Non optional outputs
+                & int_method, newt_method, newt_conv, int_split, norm, reqrelacc, reqabsacc, reqrelacc_newt, reqabsacc_newt, & !integration inputs
                 & solflu_SIout=solflu_SI, solflu_GBout=solflu_GB, gam_SIout=gam_SI,gam_GBout=gam_GB,ome_SIout=ome_SI,ome_GBout=ome_GB, & !optional growth rate and frequency output
                 & epf_GBout=epf_GB,eef_GBout=eef_GB, epf_cmout=epf_cm,eef_cmout=eef_cm, & !optional electron flux outputs
                 & ipf_GBout=ipf_GB,ief_GBout=ief_GB, ivf_GBout=ivf_GB, ipf_cmout=ipf_cm,ief_cmout=ief_cm, ivf_cmout=ivf_cm, & !optional ion flux outputs
@@ -541,8 +543,7 @@ PROGRAM qlk_standalone
                 & eefTEM_SIout=eefTEM_SI,eefTEM_GBout=eefTEM_GB,epfTEM_SIout=epfTEM_SI,epfTEM_GBout=epfTEM_GB,& !optional outputs from separation of fluxes
                 & eefITG_SIout=eefITG_SI,eefITG_GBout=eefITG_GB,epfITG_SIout=epfITG_SI,epfITG_GBout=epfITG_GB,&  
                 & iefTEM_SIout=iefTEM_SI,iefTEM_GBout=iefTEM_GB,ipfTEM_SIout=ipfTEM_SI,ipfTEM_GBout=ipfTEM_GB,ivfTEM_SIout=ivfTEM_SI,ivfTEM_GBout=ivfTEM_GB,&
-                & iefITG_SIout=iefITG_SI,iefITG_GBout=iefITG_GB,ipfITG_SIout=ipfITG_SI,ipfITG_GBout=ipfITG_GB,ivfITG_SIout=ivfITG_SI,ivfITG_GBout=ivfITG_GB, &
-                & int_methodin = int_method, newt_methodin = newt_method, newt_convin = newt_conv, int_splitin = int_split, normin = norm, reqrelaccin = reqrelacc, reqabsaccin = reqabsacc, reqrelacc_newtin = reqrelacc_newt, reqabsacc_newtin = reqabsacc_newt)
+                & iefITG_SIout=iefITG_SI,iefITG_GBout=iefITG_GB,ipfITG_SIout=ipfITG_SI,ipfITG_GBout=ipfITG_GB,ivfITG_SIout=ivfITG_SI,ivfITG_GBout=ivfITG_GB)
 	ENDIF
 
         IF (phys_meth == 1) THEN
@@ -553,6 +554,7 @@ PROGRAM qlk_standalone
                 & Machtor, Autor, Machpar, Aupar, gammaE, & !rotation input
                 & maxruns, maxpts, relacc1, relacc2, timeout, ETGmult, collmult,  & !code specific inputs
                 & epf_SI,eef_SI,ipf_SI,ief_SI, ivf_SI, & ! Non optional outputs
+                & int_method, newt_method, newt_conv, int_split, norm, reqrelacc, reqabsacc, reqrelacc_newt, reqabsacc_newt, & !integration inputs
                 & solflu_SIout=solflu_SI, solflu_GBout=solflu_GB, gam_SIout=gam_SI,gam_GBout=gam_GB,ome_SIout=ome_SI,ome_GBout=ome_GB, & !optional growth rate and frequency output
                 & epf_GBout=epf_GB,eef_GBout=eef_GB, dfe_SIout=dfe_SI,vte_SIout=vte_SI,vce_SIout=vce_SI,epf_cmout=epf_cm,eef_cmout=eef_cm, ckeout=cke, & !optional electron flux outputs
                 & ipf_GBout=ipf_GB,ief_GBout=ief_GB, ivf_GBout=ivf_GB, dfi_SIout=dfi_SI,vti_SIout=vti_SI,vri_SIout=vri_SI, vci_SIout=vci_SI,ipf_cmout=ipf_cm,ief_cmout=ief_cm,ivf_cmout=ivf_cm, ckiout=cki, & !optional ion flux outputs
@@ -577,8 +579,7 @@ PROGRAM qlk_standalone
                 & dfiTEM_GBout=dfiTEM_GB,vtiTEM_GBout=vtiTEM_GB,vciTEM_GBout=vciTEM_GB,vriTEM_GBout=vriTEM_GB,&
                 & iefITG_SIout=iefITG_SI,iefITG_GBout=iefITG_GB,ipfITG_SIout=ipfITG_SI,ipfITG_GBout=ipfITG_GB,ivfITG_SIout=ivfITG_SI,ivfITG_GBout=ivfITG_GB,&
                 & dfiITG_SIout=dfiITG_SI,vtiITG_SIout=vtiITG_SI,vciITG_SIout=vciITG_SI,vriITG_SIout=vriITG_SI,&
-                & dfiITG_GBout=dfiITG_GB,vtiITG_GBout=vtiITG_GB,vciITG_GBout=vciITG_GB,vriITG_GBout=vriITG_GB, &
-                & int_methodin = int_method, newt_methodin = newt_method, newt_convin = newt_conv, int_splitin = int_split, normin = norm, reqrelaccin = reqrelacc, reqabsaccin = reqabsacc, reqrelacc_newtin = reqrelacc_newt, reqabsacc_newtin = reqabsacc_newt)
+                & dfiITG_GBout=dfiITG_GB,vtiITG_GBout=vtiITG_GB,vciITG_GBout=vciITG_GB,vriITG_GBout=vriITG_GB)
         ENDIF
 
         IF (phys_meth == 2) THEN
@@ -589,6 +590,7 @@ PROGRAM qlk_standalone
                 & Machtor, Autor, Machpar, Aupar, gammaE, & !rotation input
                 & maxruns, maxpts, relacc1, relacc2, timeout, ETGmult, collmult, & !code specific inputs
                 & epf_SI,eef_SI,ipf_SI,ief_SI, ivf_SI, & ! Non optional outputs
+                & int_method, newt_method, newt_conv, int_split, norm, reqrelacc, reqabsacc, reqrelacc_newt, reqabsacc_newt, & !integration inputs
                 & solflu_SIout=solflu_SI, solflu_GBout=solflu_GB, gam_SIout=gam_SI,gam_GBout=gam_GB,ome_SIout=ome_SI,ome_GBout=ome_GB, & !optional growth rate and frequency output
                 & epf_GBout=epf_GB,eef_GBout=eef_GB, dfe_SIout=dfe_SI,vte_SIout=vte_SI,vce_SIout=vce_SI,epf_cmout=epf_cm,eef_cmout=eef_cm, ckeout=cke, & !optional electron flux outputs
                 & ipf_GBout=ipf_GB,ief_GBout=ief_GB, ivf_GBout=ivf_GB, dfi_SIout=dfi_SI,vti_SIout=vti_SI,vri_SIout=vri_SI, vci_SIout=vci_SI,ipf_cmout=ipf_cm,ief_cmout=ief_cm,ivf_cmout=ivf_cm, ckiout=cki, & !optional ion flux outputs
@@ -629,8 +631,7 @@ PROGRAM qlk_standalone
                 & dfiITG_SIout=dfiITG_SI,vtiITG_SIout=vtiITG_SI,vciITG_SIout=vciITG_SI,vriITG_SIout=vriITG_SI,&
                 & dfiITG_GBout=dfiITG_GB,vtiITG_GBout=vtiITG_GB,vciITG_GBout=vciITG_GB,vriITG_GBout=vriITG_GB,&
                 & chieiITG_SIout=chieiITG_SI,veniITG_SIout=veniITG_SI,veciITG_SIout=veciITG_SI,veriITG_SIout=veriITG_SI,&
-                & chieiITG_GBout=chieiITG_GB,veniITG_GBout=veniITG_GB,veciITG_GBout=veciITG_GB,veriITG_GBout=veriITG_GB, &
-                & int_methodin = int_method, newt_methodin = newt_method, newt_convin = newt_conv, int_splitin = int_split, normin = norm, reqrelaccin = reqrelacc, reqabsaccin = reqabsacc, reqrelacc_newtin = reqrelacc_newt, reqabsacc_newtin = reqabsacc_newt)
+                & chieiITG_GBout=chieiITG_GB,veniITG_GBout=veniITG_GB,veciITG_GBout=veciITG_GB,veriITG_GBout=veriITG_GB)
         ENDIF
      ENDIF
   ENDIF
@@ -696,6 +697,8 @@ CONTAINS
     REAL(kind=DBL), DIMENSION(:,:), ALLOCATABLE :: Tixtmp,ninormtmp,Atitmp,Anitmp,anistmp,danisdrtmp, Aitmp, Zitmp
     INTEGER, DIMENSION(:,:), ALLOCATABLE :: ion_typetmp
     COMPLEX(kind=DBL), DIMENSION(:,:,:), ALLOCATABLE :: oldsoltmp, oldfdsoltmp
+    INTEGER :: int_methodtmp, newt_methodtmp, int_splittmp, normtmp, newt_convtmp
+    REAL(KIND=DBL) :: reqrelacctmp, reqabsacctmp, reqrelacc_newttmp, reqabsacc_newttmp
 
     ! READING INPUT ARRAYS FROM BINARY FILES
 
@@ -703,42 +706,7 @@ CONTAINS
 
     fileno = 0
     
-    ! integration parameters
-    reqrelacc = 0.08
-    IF (myrank == fileno) reqrelacc = readvar(inputdir // 'reqrelacc.bin', dummy, ktype, myunit)
-    fileno=fileno+1; IF (fileno==nproc) fileno=0 
     
-    reqabsacc = 0.02
-    IF (myrank == fileno) reqabsacc = readvar(inputdir // 'reqabsacc.bin', dummy, ktype, myunit)
-    fileno=fileno+1; IF (fileno==nproc) fileno=0 
-    
-    reqrelacc_newt = 0.01
-    IF (myrank == fileno) reqrelacc_newt = readvar(inputdir // 'reqrelacc_newt.bin', dummy, ktype, myunit)
-    fileno=fileno+1; IF (fileno==nproc) fileno=0 
-    
-    reqabsacc_newt = 0.00
-    IF (myrank == fileno) reqabsacc_newt = readvar(inputdir // 'reqabsacc_newt.bin', dummy, ktype, myunit)
-    fileno=fileno+1; IF (fileno==nproc) fileno=0 
-    
-    int_method = 0
-    IF (myrank == fileno) int_method = INT(readvar(inputdir // 'int_method.bin', dummy, ktype, myunit))
-    fileno=fileno+1; IF (fileno==nproc) fileno=0 
-    
-    newt_method = 0
-    IF (myrank == fileno) newt_method = INT(readvar(inputdir // 'newt_method.bin', dummy, ktype, myunit))
-    fileno=fileno+1; IF (fileno==nproc) fileno=0 
-    
-    newt_conv = 0
-    IF (myrank == fileno) newt_conv = INT(readvar(inputdir // 'newt_conv.bin', dummy, ktype, myunit))
-    fileno=fileno+1; IF (fileno==nproc) fileno=0 
-    
-    int_split = 0
-    IF (myrank == fileno) int_split = INT(readvar(inputdir // 'int_split.bin', dummy, ktype, myunit))
-    fileno=fileno+1; IF (fileno==nproc) fileno=0 
-    
-    norm = 2
-    IF (myrank == fileno) norm = INT(readvar(inputdir // 'norm.bin', dummy, ktype, myunit))
-    fileno=fileno+1; IF (fileno==nproc) fileno=0 
 
     ! p{1} Size of radial or scan arrays
     dimx = 0
@@ -818,12 +786,52 @@ CONTAINS
 
     ALLOCATE(oldsoltmp(dimx,dimn,numsols))
     ALLOCATE(oldfdsoltmp(dimx,dimn,numsols))
-
+    
+    ! integration parameters
+    reqrelacc = 0
+    IF (myrank == fileno) reqrelacc = readvar(inputdir // 'reqrelacc.bin', dummy, ktype, myunit)
+    fileno=fileno+1; IF (fileno==nproc) fileno=0 
+    
+    reqabsacc = 0
+    IF (myrank == fileno) reqabsacc = readvar(inputdir // 'reqabsacc.bin', dummy, ktype, myunit)
+    fileno=fileno+1; IF (fileno==nproc) fileno=0 
+    
+    
+    reqrelacc_newt = 0
+    IF (myrank == fileno) reqrelacc_newt = readvar(inputdir // 'reqrelacc_newt.bin', dummy, ktype, myunit)
+    fileno=fileno+1; IF (fileno==nproc) fileno=0 
+    
+    reqabsacc_newt = 0
+    IF (myrank == fileno) reqabsacc_newt = readvar(inputdir // 'reqabsacc_newt.bin', dummy, ktype, myunit)
+    fileno=fileno+1; IF (fileno==nproc) fileno=0 
+    
+    int_method = 0
+    IF (myrank == fileno) int_method = INT(readvar(inputdir // 'int_method.bin', dummy, ktype, myunit))
+    fileno=fileno+1; IF (fileno==nproc) fileno=0 
+    
+    newt_method = 0
+    IF (myrank == fileno) newt_method = INT(readvar(inputdir // 'newt_method.bin', dummy, ktype, myunit))
+    fileno=fileno+1; IF (fileno==nproc) fileno=0 
+    
+    newt_conv = 0
+    IF (myrank == fileno) newt_conv = INT(readvar(inputdir // 'newt_conv.bin', dummy, ktype, myunit))
+    fileno=fileno+1; IF (fileno==nproc) fileno=0 
+    
+    int_split = 0
+    IF (myrank == fileno) int_split = INT(readvar(inputdir // 'int_split.bin', dummy, ktype, myunit))
+    fileno=fileno+1; IF (fileno==nproc) fileno=0 
+    
+    norm = 0
+    IF (myrank == fileno) norm = INT(readvar(inputdir // 'norm.bin', dummy, ktype, myunit))
+    fileno=fileno+1; IF (fileno==nproc) fileno=0 
+    
+    
     ! p{4} Flag for calculating decomposition of particle and heat transport into diffusive and convective components
     phys_meth = 0
     IF (myrank == fileno) phys_meth = INT(readvar(inputdir // 'phys_meth.bin', dummy, ktype, myunit))
     fileno=fileno+1; IF (fileno==nproc) fileno=0 
 
+    
     ! p{5} Flag for including collisions
     coll_flag = 0
     IF (myrank == fileno) coll_flag = INT(readvar(inputdir // 'coll_flag.bin', dummy, ktype, myunit))
@@ -1093,7 +1101,6 @@ CONTAINS
 
     !Now do MPIAllReduce to inputs. We need runcounter for potential next stage, so
     !the reduce operations are split
-
     CALL MPI_AllReduce(phys_meth,phys_methtmp,1,MPI_INTEGER,MPI_SUM,mpi_comm_world,ierr)
     CALL MPI_AllReduce(coll_flag,coll_flagtmp,1,MPI_INTEGER,MPI_SUM,mpi_comm_world,ierr)
     CALL MPI_AllReduce(write_primi,write_primitmp,1,MPI_INTEGER,MPI_SUM,mpi_comm_world,ierr)
@@ -1104,7 +1111,16 @@ CONTAINS
     CALL MPI_AllReduce(maxpts,maxptstmp,1,MPI_INTEGER,MPI_SUM,mpi_comm_world,ierr)
     CALL MPI_AllReduce(el_type,el_typetmp,1,MPI_INTEGER,MPI_SUM,mpi_comm_world,ierr)
     CALL MPI_AllReduce(runcounter,runcountertmp,1,MPI_INTEGER,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(int_method,int_methodtmp,1,MPI_INTEGER,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(newt_method,newt_methodtmp,1,MPI_INTEGER,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(newt_conv, newt_convtmp, 1, MPI_INTEGER, MPI_SUM, mpi_comm_world, ierr)
+    CALL MPI_AllReduce(int_split,int_splittmp,1,MPI_INTEGER,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(norm,normtmp,1,MPI_INTEGER,MPI_SUM,mpi_comm_world,ierr)
 
+    CALL MPI_AllReduce(reqrelacc,reqrelacctmp,1,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(reqabsacc,reqabsacctmp,1,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(reqrelacc_newt,reqrelacc_newttmp,1,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    CALL MPI_AllReduce(reqabsacc_newt,reqabsacc_newttmp,1,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
     CALL MPI_AllReduce(relacc1,relacc1tmp,1,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
     CALL MPI_AllReduce(relacc2,relacc2tmp,1,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
     CALL MPI_AllReduce(timeout,timeouttmp,1,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
@@ -1140,15 +1156,27 @@ CONTAINS
     CALL MPI_AllReduce(ion_type,ion_typetmp,dimx*nions,MPI_INTEGER,MPI_SUM,mpi_comm_world,ierr)
     CALL MPI_AllReduce(Ai,Aitmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
     CALL MPI_AllReduce(Zi,Zitmp,dimx*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
+    
 
     CALL MPI_Barrier(mpi_comm_world,ierror)
 
+    
     phys_meth=phys_methtmp
     coll_flag=coll_flagtmp
     write_primi=write_primitmp
     rot_flag=rot_flagtmp
     verbose=verbosetmp
     separateflux=separatefluxtmp
+    
+    int_method = int_methodtmp
+    newt_method = newt_methodtmp
+    int_split = int_splittmp
+    norm = normtmp
+    newt_conv = newt_convtmp
+    reqrelacc = reqrelacctmp
+    reqabsacc = reqabsacctmp
+    reqrelacc_newt = reqrelacc_newttmp
+    reqabsacc_newt = reqabsacc_newttmp
 
     maxpts=maxptstmp
     runcounter=runcountertmp
@@ -1338,6 +1366,24 @@ CONTAINS
     fileno=fileno+1
     CALL writevar(debugdir // 'collmult.dat', collmult, myfmt, fileno)
     fileno=fileno+1
+    CALL writevar(debugdir // 'reqrelacc.dat', reqrelacc, myfmt, fileno)
+    fileno = fileno+1
+    CALL writevar(debugdir // 'reqabsacc.dat', reqabsacc, myfmt, fileno)
+    fileno = fileno+1
+    CALL writevar(debugdir // 'reqrelacc_newt.dat', reqrelacc_newt, myfmt, fileno)
+    fileno = fileno+1
+    CALL writevar(debugdir // 'reqabsacc_newt.dat', reqabsacc_newt, myfmt, fileno)
+    fileno = fileno+1
+    CALL writevar(debugdir // 'int_method.dat', int_method, myint, fileno)
+    fileno = fileno+1
+    CALL writevar(debugdir // 'newt_method.dat', newt_method, myint, fileno)
+    fileno = fileno+1
+    CALL writevar(debugdir // 'int_split.dat', int_split, myint, fileno)
+    fileno = fileno+1
+    CALL writevar(debugdir // 'norm.dat', norm, myint, fileno)
+    fileno = fileno+1
+    CALL writevar(debugdir // 'newt_conv.dat', newt_conv, myint, fileno)
+    fileno = fileno+1
 
     !Allocate output
     ALLOCATE(solflu_SI(dimx,dimn))

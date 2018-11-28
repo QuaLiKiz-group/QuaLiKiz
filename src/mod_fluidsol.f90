@@ -11,6 +11,8 @@ MODULE mod_fluidsol
   USE HCUB
   USE PCUB
   IMPLICIT NONE
+  
+  INTEGER, PARAMETER :: temp_flag = 1
 
 CONTAINS
 

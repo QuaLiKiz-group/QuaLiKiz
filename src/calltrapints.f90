@@ -2322,7 +2322,7 @@ CONTAINS
     
     XY(1) = x(1)
     XY(2) = x(2)
-    output = FFkerot(ndim,XY,1)
+    output = FFkerot(ndim,XY,2)
     
     fval(1) = REAL(output)
     fval(2) = AIMAG(output)
@@ -2366,7 +2366,7 @@ CONTAINS
     
     XY(1) = x(1)
     XY(2) = x(2)
-    output = FFkerot(ndim,XY,2)
+    output = FFkerot(ndim,XY,3)
     
     fval(1) = REAL(output)
     fval(2) = AIMAG(output)

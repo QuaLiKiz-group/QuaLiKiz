@@ -169,7 +169,7 @@ CONTAINS
     !Set integration limits inside fdata
     
     !trapped
-    fdata(2) = 0._DBL
+    fdata(2) = 0._DBL + barelyavoid
     fdata(3) = 0._DBL
     fdata(4) = 1._DBL - barelyavoid
     fdata(5) = vuplim
@@ -720,7 +720,7 @@ CONTAINS
     nuFFk = nu
     
     !Set integration limits. (1) for kappa and (2) for v (for the electrons)
-    a(1) = 0.0d0
+    a(1) = 0.0d0 + barelyavoid
     b(1) = 1.0d0 - barelyavoid
     a(2) = 0.0d0
     b(2) = vuplim

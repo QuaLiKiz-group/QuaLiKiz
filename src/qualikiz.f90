@@ -15,6 +15,7 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
      & Machtorin, Autorin, Machparin, Auparin, gammaEin, & !rotation input
      & maxrunsin, maxptsin, relacc1in, relacc2in, timeoutin, ETGmultin, collmultin, & !code specific input
      & epf_SIout,eef_SIout,ipf_SIout,ief_SIout,ivf_SIout, & ! Non optional outputs
+     & int_methodin, newt_methodin, newt_convin, int_splitin, normin, reqrelaccin, reqabsaccin, reqrelacc_newtin, reqabsacc_newtin, & !integration inputs
      & solflu_SIout, solflu_GBout, gam_SIout,gam_GBout,ome_SIout,ome_GBout, & !growth rate and frequency output
      & epf_GBout,eef_GBout, dfe_SIout,vte_SIout,vce_SIout,epf_cmout,eef_cmout,ckeout, & !electron flux outputs
      & ipf_GBout,ief_GBout, ivf_GBout, dfi_SIout,vti_SIout,vri_SIout,vci_SIout,ipf_cmout,ief_cmout,ivf_cmout,ckiout, & !ion flux outputs
@@ -46,9 +47,7 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
      & veneITG_SIout,chieeITG_SIout,veceITG_SIout,veneITG_GBout,chieeITG_GBout,veceITG_GBout, &
      & veneTEM_SIout,chieeTEM_SIout,veceTEM_SIout,veneTEM_GBout,chieeTEM_GBout,veceTEM_GBout, &
      & veniITG_SIout,chieiITG_SIout,veriITG_SIout,veciITG_SIout,veniITG_GBout,chieiITG_GBout,veriITG_GBout,veciITG_GBout, &
-     & veniTEM_SIout,chieiTEM_SIout,veriTEM_SIout,veciTEM_SIout,veniTEM_GBout,chieiTEM_GBout,veriTEM_GBout,veciTEM_GBout, &
-     & int_methodin, newt_methodin, newt_convin, int_splitin, normin, reqrelaccin, reqabsaccin, reqrelacc_newtin, reqabsacc_newtin)
-
+     & veniTEM_SIout,chieiTEM_SIout,veriTEM_SIout,veciTEM_SIout,veniTEM_GBout,chieiTEM_GBout,veriTEM_GBout,veciTEM_GBout)
   !BRIEF EXPLANATION OF MODULES
   !
   !kind defines the kind numbers and output/error units
@@ -99,8 +98,8 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
   REAL(kind=DBL), OPTIONAL, INTENT(IN) :: rhominin,rhomaxin
   
   !integration parameters
-  INTEGER, INTENT(IN), OPTIONAL :: int_methodin, newt_methodin, newt_convin, int_splitin, normin
-  REAL(KIND=DBL), INTENT(IN), OPTIONAL :: reqrelaccin, reqabsaccin, reqrelacc_newtin, reqabsacc_newtin
+  INTEGER, INTENT(IN) :: int_methodin, newt_methodin, newt_convin, int_splitin, normin
+  REAL(KIND=DBL), INTENT(IN) :: reqrelaccin, reqabsaccin, reqrelacc_newtin, reqabsacc_newtin
   
   INTEGER :: int_methodtmp, newt_methodtmp, newt_convtmp, int_splittmp, normintmp
   REAL(KIND=DBL) :: reqrelacctmp, reqabsacctmp, reqrelacc_newttmp, reqabsacc_newttmp
@@ -184,59 +183,59 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
 
   CALL SYSTEM_CLOCK(time1)
   
-  IF(PRESENT(int_methodin)) THEN
-    int_methodtmp = int_methodin
-  ELSE
-    int_methodtmp = 0
-  END IF
+  ! IF(PRESENT(int_methodin)) THEN
+    ! int_methodtmp = int_methodin
+  ! ELSE
+    ! int_methodtmp = 0
+  ! END IF
   
-  IF(PRESENT(newt_methodin)) THEN
-    newt_methodtmp = newt_methodin
-  ELSE
-    newt_methodtmp = 0
-  END IF
+  ! IF(PRESENT(newt_methodin)) THEN
+    ! newt_methodtmp = newt_methodin
+  ! ELSE
+    ! newt_methodtmp = 0
+  ! END IF
   
-  IF(PRESENT(newt_convin)) THEN
-    newt_convtmp = newt_convin
-  ELSE
-    newt_convtmp = 0
-  END IF
+  ! IF(PRESENT(newt_convin)) THEN
+    ! newt_convtmp = newt_convin
+  ! ELSE
+    ! newt_convtmp = 0
+  ! END IF
   
-  IF(PRESENT(int_splitin)) THEN
-    int_splittmp = int_splitin
-  ELSE
-    int_splittmp = 0
-  END IF
+  ! IF(PRESENT(int_splitin)) THEN
+    ! int_splittmp = int_splitin
+  ! ELSE
+    ! int_splittmp = 0
+  ! END IF
   
-  IF(PRESENT(normin)) THEN
-    normintmp = normin
-  ELSE
-    int_splittmp = 2
-  END IF
+  ! IF(PRESENT(normin)) THEN
+    ! normintmp = normin
+  ! ELSE
+    ! normintmp = 2
+  ! END IF
   
-  IF(PRESENT(reqrelaccin)) THEN
-    reqrelacctmp = reqrelaccin
-  ELSE
-    reqrelacctmp = 0.08_DBL
-  END IF
+  ! IF(PRESENT(reqrelaccin)) THEN
+    ! reqrelacctmp = reqrelaccin
+  ! ELSE
+    ! reqrelacctmp = 0.08_DBL
+  ! END IF
   
-  IF(PRESENT(reqabsaccin)) THEN
-    reqabsacctmp = reqabsaccin
-  ELSE
-    reqabsacctmp = 0.02_DBL
-  END IF
+  ! IF(PRESENT(reqabsaccin)) THEN
+    ! reqabsacctmp = reqabsaccin
+  ! ELSE
+    ! reqabsacctmp = 0.02_DBL
+  ! END IF
   
-  IF(PRESENT(reqrelacc_newtin)) THEN
-    reqrelacc_newttmp = reqrelacc_newtin
-  ELSE
-    reqrelacc_newttmp = 0.01_DBL
-  END IF
+  ! IF(PRESENT(reqrelacc_newtin)) THEN
+    ! reqrelacc_newttmp = reqrelacc_newtin
+  ! ELSE
+    ! reqrelacc_newttmp = 0.01_DBL
+  ! END IF
   
-  IF(PRESENT(reqabsacc_newtin)) THEN
-    reqabsacc_newttmp = reqabsacc_newtin
-  ELSE
-    reqabsacc_newttmp = 0._DBL
-  END IF
+  ! IF(PRESENT(reqabsacc_newtin)) THEN
+    ! reqabsacc_newttmp = reqabsacc_newtin
+  ! ELSE
+    ! reqabsacc_newttmp = 0._DBL
+  ! END IF
   
 
   ! Make the input (including derived quantities)
@@ -246,7 +245,7 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
        & ion_typein, Aiin, Ziin, Tixin, ninormin, Atiin, Aniin, anisin, danisdrin, & 
        & Machtorin, Autorin, Machparin, Auparin, gammaEin, &
        & maxrunsin, maxptsin, relacc1in, relacc2in, timeoutin,ETGmultin,collmultin, &
-       & int_methodtmp, newt_methodtmp, newt_convtmp, int_splittmp, normintmp, reqrelacctmp, reqabsacctmp, reqrelacc_newttmp, reqabsacc_newttmp)  !code specific inputs
+       & int_methodin, newt_methodin, newt_convin, int_splitin, normin, reqrelaccin, reqabsaccin, reqrelacc_newtin, reqabsacc_newtin)  !code specific inputs
 
   ! set optional input
   IF (PRESENT(oldsolin)) THEN
