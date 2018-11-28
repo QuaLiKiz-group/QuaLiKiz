@@ -83,7 +83,7 @@ CONTAINS
     ALLOCATE(elist(limit))
     ALLOCATE(iord(limit))
     
-    IF(QL_method.EQ.0) THEN
+    IF(int_method.EQ.0) THEN
       IF (inttype == 1) THEN
 
          DO ion=1,nions
@@ -948,12 +948,13 @@ CONTAINS
        ifonctepe = intout(2)
 
       ENDIF
+    
     ELSE IF(QL_method.EQ.1) THEN
       DO ion=1,nions
 
         
         ifailloc=1     
-        ifailloc = hcubature(1, iFFki_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+        ifailloc = hcubature(1, iFFki_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
         ifonctpi(ion) = intout_cub(1)
         IF (ifailloc /= 0) THEN
            IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFki integration at p=',p,', nu=',nu,', ion=',ion
@@ -964,7 +965,7 @@ CONTAINS
         IF (phys_meth .NE. 0.0) THEN
 
            ifailloc=1
-           ifailloc = hcubature(1, iFFkgti_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+           ifailloc = hcubature(1, iFFkgti_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
            ifonctpgti(ion) = intout_cub(1)
            IF (ifailloc /= 0) THEN
               IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFkgti integration at p=',p,', nu=',nu,', ion=',ion
@@ -973,7 +974,7 @@ CONTAINS
 
 
            ifailloc=1
-           ifailloc = hcubature(1, iFFkgni_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+           ifailloc = hcubature(1, iFFkgni_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
            ifonctpgni(ion) = intout_cub(1)
            IF (ifailloc /= 0) THEN
               IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFkgni integration at p=',p,', nu=',nu,', ion=',ion
@@ -982,7 +983,7 @@ CONTAINS
 
 
            ifailloc=1
-           ifailloc = hcubature(1, iFFkci_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+           ifailloc = hcubature(1, iFFkci_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
            ifonctpci(ion) = intout_cub(1)
            IF (ifailloc /= 0) THEN
               IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFkci integration at p=',p,', nu=',nu,', ion=',ion
@@ -993,7 +994,7 @@ CONTAINS
 
               ifailloc=1
               IF (ninorm(p,ion) > min_ninorm) THEN
-                 ifailloc = hcubature(1, iFFekgti_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+                 ifailloc = hcubature(1, iFFekgti_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
                  ifonctepgti(ion) = intout_cub(1)
                  IF (ifailloc /= 0) THEN
                     IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFekgti integration at p=',p,', nu=',nu,', ion=',ion
@@ -1006,7 +1007,7 @@ CONTAINS
 
               ifailloc=1
               IF (ninorm(p,ion) > min_ninorm) THEN
-                 ifailloc = hcubature(1, iFFekgni_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+                 ifailloc = hcubature(1, iFFekgni_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
                  ifonctepgni(ion) = intout_cub(1)
                  IF (ifailloc /= 0) THEN
                     IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFekgni integration at p=',p,', nu=',nu,', ion=',ion
@@ -1019,7 +1020,7 @@ CONTAINS
 
               ifailloc=1
               IF (ninorm(p,ion) > min_ninorm) THEN
-                 ifailloc = hcubature(1, iFFekci_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+                 ifailloc = hcubature(1, iFFekci_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
                  ifonctepci(ion) = intout_cub(1)
                  IF (ifailloc /= 0) THEN
                     IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFekci integration at p=',p,', nu=',nu,', ion=',ion
@@ -1057,7 +1058,7 @@ CONTAINS
 
         ifailloc=1
         IF (ninorm(p,ion) > min_ninorm) THEN
-           ifailloc = hcubature(1, iFFeki_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+           ifailloc = hcubature(1, iFFeki_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
            ifonctepi(ion) = intout_cub(1)
            IF (ifailloc /= 0) THEN
               IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFeki integration at p=',p,', nu=',nu,', ion=',ion
@@ -1077,13 +1078,13 @@ CONTAINS
 
         IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral
            minpts=0; ifailloc=1
-           ifailloc = hcubature(2, FFke_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+           ifailloc = hcubature(2, FFke_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
            IF (ifailloc /= 0) THEN
               IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL FFke integration at p=',p,' nu=',nu
            ENDIF
 
         ELSE ! Collisionless simulation, revert to faster single integral
-           ifailloc = hcubature(2, FFke_nocoll_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+           ifailloc = hcubature(2, FFke_nocoll_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
            IF (ifailloc /= 0) THEN
               IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL FFke_nocoll integration at p=',p,' nu=',nu
            ENDIF
@@ -1105,14 +1106,14 @@ CONTAINS
         IF (el_type == 1) THEN 
            IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral
               minpts=0; ifailloc=1
-              ifailloc = hcubature(2, FFkgte_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+              ifailloc = hcubature(2, FFkgte_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
               IF (ifailloc /= 0) THEN
                  IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL FFkgte integration at p=',p,' nu=',nu
               ENDIF             
 
            ELSE ! Collisionless simulation, revert to faster single integral
               ifailloc=1
-              ifailloc = hcubature(2, FFkgte_nocoll_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+              ifailloc = hcubature(2, FFkgte_nocoll_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
               
               IF (ifailloc /= 0) THEN
                  IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL FFkgte_nocoll integration at p=',p,' nu=',nu
@@ -1132,7 +1133,7 @@ CONTAINS
         IF (el_type == 1) THEN 
            IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral
               minpts=0; ifailloc=1
-              ifailloc = hcubature(2, FFkgne_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+              ifailloc = hcubature(2, FFkgne_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
               
               IF (ifailloc /= 0) THEN
                  IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL FFkgne integration at p=',p,' nu=',nu
@@ -1140,7 +1141,7 @@ CONTAINS
               
            ELSE ! Collisionless simulation, revert to faster single integral
               ifailloc=1
-              ifailloc = hcubature(2, FFkgne_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+              ifailloc = hcubature(2, FFkgne_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
               IF (ifailloc /= 0) THEN
                  IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL FFkgne_nocoll integration at p=',p,' nu=',nu
               ENDIF
@@ -1159,7 +1160,7 @@ CONTAINS
         IF (el_type == 1) THEN
            IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral 
               minpts=0; ifailloc=1
-              ifailloc = hcubature(2, FFkce_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+              ifailloc = hcubature(2, FFkce_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
               
               IF (ifailloc /= 0) THEN
                  IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL FFkce integration at p=',p,' nu=',nu
@@ -1167,7 +1168,7 @@ CONTAINS
               
            ELSE ! Collisionless simulation, revert to faster single integral
               ifailloc=1
-              ifailloc = hcubature(2, FFkce_nocoll_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+              ifailloc = hcubature(2, FFkce_nocoll_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
               
               IF (ifailloc /= 0) THEN
                  IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL FFkce_nocoll integration at p=',p,' nu=',nu
@@ -1188,7 +1189,7 @@ CONTAINS
            IF (el_type == 1) THEN 
               IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral
                  minpts=0; ifailloc=1
-                 ifailloc = hcubature(2, FFekgte_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+                 ifailloc = hcubature(2, FFekgte_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
                  
                  IF (ifailloc /= 0) THEN
                     IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL FFekgte integration at p=',p,' nu=',nu
@@ -1198,7 +1199,7 @@ CONTAINS
 
               ELSE ! Collisionless simulation, revert to faster single integral
                  ifailloc=1
-                 ifailloc = hcubature(2, FFekgte_nocoll_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+                 ifailloc = hcubature(2, FFekgte_nocoll_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
                  
                  IF (ifailloc /= 0) THEN
                     IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL FFekgte_nocoll integration at p=',p,' nu=',nu
@@ -1218,7 +1219,7 @@ CONTAINS
            IF (el_type == 1) THEN 
               IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral
                  minpts=0; ifailloc=1
-                 ifailloc = hcubature(2, FFekgne_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+                 ifailloc = hcubature(2, FFekgne_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
                  
                  IF (ifailloc /= 0) THEN
                     IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL FFekgne integration at p=',p,' nu=',nu
@@ -1226,7 +1227,7 @@ CONTAINS
                  
               ELSE ! Collisionless simulation, revert to faster single integral
                  ifailloc=1
-                 ifailloc = hcubature(2, FFekgne_nocoll_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+                 ifailloc = hcubature(2, FFekgne_nocoll_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
                  
                  IF (ifailloc /= 0) THEN
                     IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL FFekgne_nocoll integration at p=',p,' nu=',nu
@@ -1246,7 +1247,7 @@ CONTAINS
            IF (el_type == 1) THEN
               IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral 
                  minpts=0; ifailloc=1
-                 ifailloc = hcubature(2, FFekce_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+                 ifailloc = hcubature(2, FFekce_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
                  
                  IF (ifailloc /= 0) THEN
                     IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL FFekce integration at p=',p,' nu=',nu
@@ -1254,7 +1255,7 @@ CONTAINS
                  
               ELSE ! Collisionless simulation, revert to faster single integral
                  ifailloc=1
-                 ifailloc = hcubature(2, FFekce_nocoll_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+                 ifailloc = hcubature(2, FFekce_nocoll_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
                  
                  IF (ifailloc /= 0) THEN
                     IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL FFekce_nocoll integration at p=',p,' nu=',nu
@@ -1299,7 +1300,7 @@ CONTAINS
      IF (el_type == 1) THEN 
         IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral
            minpts=0; ifailloc=1
-           ifailloc = hcubature(2, FFeke_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+           ifailloc = hcubature(2, FFeke_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
            
            IF (ifailloc /= 0) THEN
               IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL FFeke integration at p=',p,' nu=',nu
@@ -1308,7 +1309,7 @@ CONTAINS
 
         ELSE ! Collisionless simulation, revert to faster single integral
            ifailloc=1
-           ifailloc = hcubature(2, FFeke_nocoll_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+           ifailloc = hcubature(2, FFeke_nocoll_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
            
            IF (ifailloc /= 0) THEN
               IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL FFeke_nocoll integration at p=',p,' nu=',nu
@@ -1322,14 +1323,12 @@ CONTAINS
      rfonctepe = intout(1)
      ifonctepe = intout(2)
     
- 
-
     ELSE IF(QL_method.EQ.2) THEN
       DO ion=1,nions
 
         
         ifailloc=1     
-        ifailloc = pcubature(1, iFFki_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+        ifailloc = pcubature(1, iFFki_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
         ifonctpi(ion) = intout_cub(1)
         IF (ifailloc /= 0) THEN
            IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFki integration at p=',p,', nu=',nu,', ion=',ion
@@ -1340,7 +1339,7 @@ CONTAINS
         IF (phys_meth .NE. 0.0) THEN
 
            ifailloc=1
-           ifailloc = pcubature(1, iFFkgti_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+           ifailloc = pcubature(1, iFFkgti_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
            ifonctpgti(ion) = intout_cub(1)
            IF (ifailloc /= 0) THEN
               IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFkgti integration at p=',p,', nu=',nu,', ion=',ion
@@ -1349,7 +1348,7 @@ CONTAINS
 
 
            ifailloc=1
-           ifailloc = pcubature(1, iFFkgni_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+           ifailloc = pcubature(1, iFFkgni_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
            ifonctpgni(ion) = intout_cub(1)
            IF (ifailloc /= 0) THEN
               IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFkgni integration at p=',p,', nu=',nu,', ion=',ion
@@ -1358,7 +1357,7 @@ CONTAINS
 
 
            ifailloc=1
-           ifailloc = pcubature(1, iFFkci_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+           ifailloc = pcubature(1, iFFkci_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
            ifonctpci(ion) = intout_cub(1)
            IF (ifailloc /= 0) THEN
               IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFkci integration at p=',p,', nu=',nu,', ion=',ion
@@ -1369,7 +1368,7 @@ CONTAINS
 
               ifailloc=1
               IF (ninorm(p,ion) > min_ninorm) THEN
-                 ifailloc = pcubature(1, iFFekgti_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+                 ifailloc = pcubature(1, iFFekgti_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
                  ifonctepgti(ion) = intout_cub(1)
                  IF (ifailloc /= 0) THEN
                     IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFekgti integration at p=',p,', nu=',nu,', ion=',ion
@@ -1382,7 +1381,7 @@ CONTAINS
 
               ifailloc=1
               IF (ninorm(p,ion) > min_ninorm) THEN
-                 ifailloc = pcubature(1, iFFekgni_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+                 ifailloc = pcubature(1, iFFekgni_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
                  ifonctepgni(ion) = intout_cub(1)
                  IF (ifailloc /= 0) THEN
                     IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFekgni integration at p=',p,', nu=',nu,', ion=',ion
@@ -1395,7 +1394,7 @@ CONTAINS
 
               ifailloc=1
               IF (ninorm(p,ion) > min_ninorm) THEN
-                 ifailloc = pcubature(1, iFFekci_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+                 ifailloc = pcubature(1, iFFekci_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
                  ifonctepci(ion) = intout_cub(1)
                  IF (ifailloc /= 0) THEN
                     IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFekci integration at p=',p,', nu=',nu,', ion=',ion
@@ -1433,7 +1432,7 @@ CONTAINS
 
         ifailloc=1
         IF (ninorm(p,ion) > min_ninorm) THEN
-           ifailloc = pcubature(1, iFFeki_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+           ifailloc = pcubature(1, iFFeki_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
            ifonctepi(ion) = intout_cub(1)
            IF (ifailloc /= 0) THEN
               IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFeki integration at p=',p,', nu=',nu,', ion=',ion
@@ -1453,13 +1452,13 @@ CONTAINS
 
         IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral
            minpts=0; ifailloc=1
-           ifailloc = pcubature(2, FFke_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+           ifailloc = pcubature(2, FFke_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
            IF (ifailloc /= 0) THEN
               IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL FFke integration at p=',p,' nu=',nu
            ENDIF
 
         ELSE ! Collisionless simulation, revert to faster single integral
-           ifailloc = pcubature(2, FFke_nocoll_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+           ifailloc = pcubature(2, FFke_nocoll_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
            IF (ifailloc /= 0) THEN
               IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL FFke_nocoll integration at p=',p,' nu=',nu
            ENDIF
@@ -1481,14 +1480,14 @@ CONTAINS
         IF (el_type == 1) THEN 
            IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral
               minpts=0; ifailloc=1
-              ifailloc = pcubature(2, FFkgte_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+              ifailloc = pcubature(2, FFkgte_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
               IF (ifailloc /= 0) THEN
                  IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL FFkgte integration at p=',p,' nu=',nu
               ENDIF             
 
            ELSE ! Collisionless simulation, revert to faster single integral
               ifailloc=1
-              ifailloc = pcubature(2, FFkgte_nocoll_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+              ifailloc = pcubature(2, FFkgte_nocoll_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
               
               IF (ifailloc /= 0) THEN
                  IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL FFkgte_nocoll integration at p=',p,' nu=',nu
@@ -1508,7 +1507,7 @@ CONTAINS
         IF (el_type == 1) THEN 
            IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral
               minpts=0; ifailloc=1
-              ifailloc = pcubature(2, FFkgne_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+              ifailloc = pcubature(2, FFkgne_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
               
               IF (ifailloc /= 0) THEN
                  IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL FFkgne integration at p=',p,' nu=',nu
@@ -1516,7 +1515,7 @@ CONTAINS
               
            ELSE ! Collisionless simulation, revert to faster single integral
               ifailloc=1
-              ifailloc = pcubature(2, FFkgne_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+              ifailloc = pcubature(2, FFkgne_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
               IF (ifailloc /= 0) THEN
                  IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL FFkgne_nocoll integration at p=',p,' nu=',nu
               ENDIF
@@ -1535,7 +1534,7 @@ CONTAINS
         IF (el_type == 1) THEN
            IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral 
               minpts=0; ifailloc=1
-              ifailloc = pcubature(2, FFkce_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+              ifailloc = pcubature(2, FFkce_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
               
               IF (ifailloc /= 0) THEN
                  IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL FFkce integration at p=',p,' nu=',nu
@@ -1543,7 +1542,7 @@ CONTAINS
               
            ELSE ! Collisionless simulation, revert to faster single integral
               ifailloc=1
-              ifailloc = pcubature(2, FFkce_nocoll_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+              ifailloc = pcubature(2, FFkce_nocoll_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
               
               IF (ifailloc /= 0) THEN
                  IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL FFkce_nocoll integration at p=',p,' nu=',nu
@@ -1564,7 +1563,7 @@ CONTAINS
            IF (el_type == 1) THEN 
               IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral
                  minpts=0; ifailloc=1
-                 ifailloc = pcubature(2, FFekgte_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+                 ifailloc = pcubature(2, FFekgte_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
                  
                  IF (ifailloc /= 0) THEN
                     IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL FFekgte integration at p=',p,' nu=',nu
@@ -1574,7 +1573,7 @@ CONTAINS
 
               ELSE ! Collisionless simulation, revert to faster single integral
                  ifailloc=1
-                 ifailloc = pcubature(2, FFekgte_nocoll_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+                 ifailloc = pcubature(2, FFekgte_nocoll_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
                  
                  IF (ifailloc /= 0) THEN
                     IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL FFekgte_nocoll integration at p=',p,' nu=',nu
@@ -1594,7 +1593,7 @@ CONTAINS
            IF (el_type == 1) THEN 
               IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral
                  minpts=0; ifailloc=1
-                 ifailloc = pcubature(2, FFekgne_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+                 ifailloc = pcubature(2, FFekgne_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
                  
                  IF (ifailloc /= 0) THEN
                     IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL FFekgne integration at p=',p,' nu=',nu
@@ -1602,7 +1601,7 @@ CONTAINS
                  
               ELSE ! Collisionless simulation, revert to faster single integral
                  ifailloc=1
-                 ifailloc = pcubature(2, FFekgne_nocoll_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+                 ifailloc = pcubature(2, FFekgne_nocoll_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
                  
                  IF (ifailloc /= 0) THEN
                     IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL FFekgne_nocoll integration at p=',p,' nu=',nu
@@ -1622,7 +1621,7 @@ CONTAINS
            IF (el_type == 1) THEN
               IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral 
                  minpts=0; ifailloc=1
-                 ifailloc = pcubature(2, FFekce_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+                 ifailloc = pcubature(2, FFekce_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
                  
                  IF (ifailloc /= 0) THEN
                     IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL FFekce integration at p=',p,' nu=',nu
@@ -1630,7 +1629,7 @@ CONTAINS
                  
               ELSE ! Collisionless simulation, revert to faster single integral
                  ifailloc=1
-                 ifailloc = pcubature(2, FFekce_nocoll_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+                 ifailloc = pcubature(2, FFekce_nocoll_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
                  
                  IF (ifailloc /= 0) THEN
                     IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL FFekce_nocoll integration at p=',p,' nu=',nu
@@ -1675,7 +1674,7 @@ CONTAINS
      IF (el_type == 1) THEN 
         IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral
            minpts=0; ifailloc=1
-           ifailloc = pcubature(2, FFeke_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+           ifailloc = pcubature(2, FFeke_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
            
            IF (ifailloc /= 0) THEN
               IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL FFeke integration at p=',p,' nu=',nu
@@ -1684,7 +1683,7 @@ CONTAINS
 
         ELSE ! Collisionless simulation, revert to faster single integral
            ifailloc=1
-           ifailloc = pcubature(2, FFeke_nocoll_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+           ifailloc = pcubature(2, FFeke_nocoll_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
            
            IF (ifailloc /= 0) THEN
               IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL FFeke_nocoll integration at p=',p,' nu=',nu
@@ -2788,6 +2787,7 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
 
     ENDIF
 
+  
   ELSE IF(QL_method.EQ.1) THEN
   
     DO ion=1,nions
@@ -2799,7 +2799,7 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
         !   IF (verbose .EQV. .TRUE.) WRITE(stderr,*) 'Abnormal termination of rFFkirot integration at p= ',p,', ion=',ion
         !ENDIF
         ifailloc=1   
-        ifailloc = hcubature(1, iFFkirot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+        ifailloc = hcubature(1, iFFkirot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
         ifonctpi(ion) = intout_cub(1)
         IF (ifailloc /= 0) THEN
            IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFkirot integration at p=',p,', nu=',nu,', ion=',ion
@@ -2816,7 +2816,7 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
            !ENDIF
 
            ifailloc=1
-           ifailloc = hcubature(1, iFFkgtirot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+           ifailloc = hcubature(1, iFFkgtirot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
            ifonctpgti(ion) = intout_cub(1)
            IF (ifailloc /= 0) THEN
               IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFkgtirot integration at p=',p,', nu=',nu,', ion=',ion
@@ -2830,7 +2830,7 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
            !ENDIF
 
            ifailloc=1
-           ifailloc = hcubature(1, iFFkgnirot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+           ifailloc = hcubature(1, iFFkgnirot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
            ifonctpgni(ion) = intout_cub(1)
            IF (ifailloc /= 0) THEN
               IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFkgnirot integration at p=',p,', nu=',nu,', ion=',ion
@@ -2844,7 +2844,7 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
            !ENDIF
 
            ifailloc=1
-           ifailloc = hcubature(1, iFFkguirot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+           ifailloc = hcubature(1, iFFkguirot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
            ifonctpgui(ion) = intout_cub(1)
            IF (ifailloc /= 0) THEN
               IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFkguirot integration at p=',p,', nu=',nu,', ion=',ion
@@ -2858,7 +2858,7 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
            !ENDIF
 
            ifailloc=1
-           ifailloc = hcubature(1, iFFkcirot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+           ifailloc = hcubature(1, iFFkcirot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
            ifonctpci(ion) = intout_cub(1)
            IF (ifailloc /= 0) THEN
               IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFkcirot integration at p=',p,', nu=',nu,', ion=',ion
@@ -2874,7 +2874,7 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
 
               ifailloc=1
               IF (ninorm(p,ion) > min_ninorm) THEN
-                 ifailloc = hcubature(1, iFFekgtirot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+                 ifailloc = hcubature(1, iFFekgtirot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
                  ifonctepgti(ion) = intout_cub(1)
                  IF (ifailloc /= 0) THEN
                     IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFekgtirot integration at p=',p,', nu=',nu,', ion=',ion
@@ -2892,7 +2892,7 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
 
               ifailloc=1
               IF (ninorm(p,ion) > min_ninorm) THEN
-                 ifailloc = hcubature(1, iFFekgnirot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+                 ifailloc = hcubature(1, iFFekgnirot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
                  ifonctepgni(ion) = intout_cub(1)
                  IF (ifailloc /= 0) THEN
                     IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFekgnirot integration at p=',p,', nu=',nu,', ion=',ion
@@ -2910,7 +2910,7 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
 
               ifailloc=1
               IF (ninorm(p,ion) > min_ninorm) THEN
-                 ifailloc = hcubature(1, iFFekguirot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+                 ifailloc = hcubature(1, iFFekguirot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
                  ifonctepgui(ion) = intout_cub(1)
                  IF (ifailloc /= 0) THEN
                     IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFekguirot integration at p=',p,', nu=',nu,', ion=',ion
@@ -2928,7 +2928,7 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
 
               ifailloc=1
               IF (ninorm(p,ion) > min_ninorm) THEN
-                 ifailloc = hcubature(1, iFFekcirot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+                 ifailloc = hcubature(1, iFFekcirot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
                  ifonctepci(ion) = intout_cub(1)
                  IF (ifailloc /= 0) THEN
                     IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFekcirot integration at p=',p,', nu=',nu,', ion=',ion
@@ -2976,7 +2976,7 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
 
         ifailloc=1
         IF (ninorm(p,ion) > min_ninorm) THEN
-           ifailloc = hcubature(1, iFFekirot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+           ifailloc = hcubature(1, iFFekirot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
            ifonctepi(ion) = intout_cub(1)
            IF (ifailloc /= 0) THEN
               IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFekirot integration at p=',p,', nu=',nu,', ion=',ion
@@ -2996,7 +2996,7 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
 
         ifailloc=1
         IF (ninorm(p,ion) > min_ninorm) THEN
-           ifailloc = hcubature(1, iFFvkirot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+           ifailloc = hcubature(1, iFFvkirot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
            ifonctvpi(ion) = intout_cub(1)
            IF (ifailloc /= 0) THEN
               IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFvkirot integration at p=',p,', nu=',nu,', ion=',ion
@@ -3017,14 +3017,14 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
 
         IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral
            minpts=0; ifailloc=1
-           ifailloc = hcubature(2, FFkerot_cubature, 2, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+           ifailloc = hcubature(2, FFkerot_cubature, 2, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
            
            IF (ifailloc /= 0) THEN
               IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFFkerot integration at p=',p,' nu=',nu
            ENDIF
         ELSE ! Collisionless simulation, revert to faster single integral
            ifailloc=1
-           ifailloc = hcubature(2, FFke_nocollrot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+           ifailloc = hcubature(2, FFke_nocollrot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
            
            IF (ifailloc /= 0) THEN
               IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFke_nocollrot integration at p=',p,' nu=',nu
@@ -3046,14 +3046,14 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
         IF (el_type == 1) THEN 
            IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral
               minpts=0; ifailloc=1
-              ifailloc = hcubature(2, FFkgterot_cubature, 2, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+              ifailloc = hcubature(2, FFkgterot_cubature, 2, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
               
               IF (ifailloc /= 0) THEN
                  IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFFkgterot integration at p=',p,' nu=',nu
               ENDIF
            ELSE ! Collisionless simulation, revert to faster single integral
               ifailloc=1
-              ifailloc = hcubature(2, FFkgte_nocollrot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+              ifailloc = hcubature(2, FFkgte_nocollrot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
               
               IF (ifailloc /= 0) THEN
                  IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFkgte_nocollrot integration at p=',p,' nu=',nu
@@ -3073,14 +3073,14 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
         IF (el_type == 1) THEN 
            IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral
               minpts=0; ifailloc=1
-              ifailloc = hcubature(2, FFkgnerot_cubature, 2, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+              ifailloc = hcubature(2, FFkgnerot_cubature, 2, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
               
               IF (ifailloc /= 0) THEN
                  IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFFkgnerot integration at p=',p,' nu=',nu
               ENDIF
            ELSE ! Collisionless simulation, revert to faster single integral
               ifailloc=1
-              ifailloc = hcubature(2, FFkgne_nocollrot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+              ifailloc = hcubature(2, FFkgne_nocollrot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
               
               IF (ifailloc /= 0) THEN
                  IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFkgne_nocollrot integration at p=',p,' nu=',nu
@@ -3098,14 +3098,14 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
         IF (el_type == 1) THEN
            IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral 
               minpts=0; ifailloc=1
-              ifailloc = hcubature(2, FFkcerot_cubature, 2, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+              ifailloc = hcubature(2, FFkcerot_cubature, 2, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
               
               IF (ifailloc /= 0) THEN
                  IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFFkcerot integration at p=',p,' nu=',nu
               ENDIF
            ELSE ! Collisionless simulation, revert to faster single integral
               ifailloc=1
-              ifailloc = hcubature(2, FFkce_nocollrot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+              ifailloc = hcubature(2, FFkce_nocollrot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
               
               IF (ifailloc /= 0) THEN
                  IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFkce_nocollrot integration at p=',p,' nu=',nu
@@ -3125,7 +3125,7 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
            IF (el_type == 1) THEN 
               IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral
                  minpts=0; ifailloc=1
-                 ifailloc = hcubature(2, FFekgterot_cubature, 2, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+                 ifailloc = hcubature(2, FFekgterot_cubature, 2, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
                  
                  
                  IF (ifailloc /= 0) THEN
@@ -3133,7 +3133,7 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
                  ENDIF
               ELSE ! Collisionless simulation, revert to faster single integral
                  ifailloc=1
-                 ifailloc = hcubature(2, FFekgte_nocollrot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+                 ifailloc = hcubature(2, FFekgte_nocollrot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
                  
                  IF (ifailloc /= 0) THEN
                     IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFekgte_nocollrot integration at p=',p,' nu=',nu
@@ -3153,14 +3153,14 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
            IF (el_type == 1) THEN 
               IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral
                  minpts=0; ifailloc=1
-                 ifailloc = hcubature(2, FFekgnerot_cubature, 2, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+                 ifailloc = hcubature(2, FFekgnerot_cubature, 2, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
                  
                  IF (ifailloc /= 0) THEN
                     IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFFekgnerot integration at p=',p,' nu=',nu
                  ENDIF
               ELSE ! Collisionless simulation, revert to faster single integral
                  ifailloc=1
-                 ifailloc = hcubature(2, FFekgne_nocollrot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+                 ifailloc = hcubature(2, FFekgne_nocollrot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
                  
                  IF (ifailloc /= 0) THEN
                     IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFekgne_nocollrot integration at p=',p,' nu=',nu
@@ -3178,14 +3178,14 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
            IF (el_type == 1) THEN
               IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral 
                  minpts=0; ifailloc=1
-                 ifailloc = hcubature(2, FFekcerot_cubature, 2, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+                 ifailloc = hcubature(2, FFekcerot_cubature, 2, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
                  
                  IF (ifailloc /= 0) THEN
                     IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFFekcerot integration at p=',p,' nu=',nu
                  ENDIF
               ELSE ! Collisionless simulation, revert to faster single integral
                  ifailloc=1
-                 ifailloc = hcubature(2, FFekce_nocollrot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+                 ifailloc = hcubature(2, FFekce_nocollrot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
                  
                  IF (ifailloc /= 0) THEN
                     IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFekce_nocollrot integration at p=',p,' nu=',nu
@@ -3229,14 +3229,14 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
      IF (el_type == 1) THEN 
         IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral
            minpts=0; ifailloc=1
-           ifailloc = hcubature(2, FFekerot_cubature, 2, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+           ifailloc = hcubature(2, FFekerot_cubature, 2, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
            
            IF (ifailloc /= 0) THEN
               IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFFekerot integration at p=',p,' nu=',nu
            ENDIF
         ELSE ! Collisionless simulation, revert to faster single integral
            ifailloc=1
-           ifailloc = hcubature(2, FFeke_nocollrot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+           ifailloc = hcubature(2, FFeke_nocollrot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
            
            IF (ifailloc /= 0) THEN
               IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFeke_nocollrot integration at p=',p,' nu=',nu
@@ -3249,8 +3249,7 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
      ENDIF
      rfonctepe = intout(1)
      ifonctepe = intout(2)
-
-    
+  
   ELSE IF(QL_method.EQ.2) THEN
   
     DO ion=1,nions
@@ -3262,7 +3261,7 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
         !   IF (verbose .EQV. .TRUE.) WRITE(stderr,*) 'Abnormal termination of rFFkirot integration at p= ',p,', ion=',ion
         !ENDIF
         ifailloc=1   
-        ifailloc = pcubature(1, iFFkirot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+        ifailloc = pcubature(1, iFFkirot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
         ifonctpi(ion) = intout_cub(1)
         IF (ifailloc /= 0) THEN
            IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFkirot integration at p=',p,', nu=',nu,', ion=',ion
@@ -3279,7 +3278,7 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
            !ENDIF
 
            ifailloc=1
-           ifailloc = pcubature(1, iFFkgtirot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+           ifailloc = pcubature(1, iFFkgtirot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
            ifonctpgti(ion) = intout_cub(1)
            IF (ifailloc /= 0) THEN
               IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFkgtirot integration at p=',p,', nu=',nu,', ion=',ion
@@ -3293,7 +3292,7 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
            !ENDIF
 
            ifailloc=1
-           ifailloc = pcubature(1, iFFkgnirot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+           ifailloc = pcubature(1, iFFkgnirot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
            ifonctpgni(ion) = intout_cub(1)
            IF (ifailloc /= 0) THEN
               IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFkgnirot integration at p=',p,', nu=',nu,', ion=',ion
@@ -3307,7 +3306,7 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
            !ENDIF
 
            ifailloc=1
-           ifailloc = pcubature(1, iFFkguirot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+           ifailloc = pcubature(1, iFFkguirot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
            ifonctpgui(ion) = intout_cub(1)
            IF (ifailloc /= 0) THEN
               IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFkguirot integration at p=',p,', nu=',nu,', ion=',ion
@@ -3321,7 +3320,7 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
            !ENDIF
 
            ifailloc=1
-           ifailloc = pcubature(1, iFFkcirot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+           ifailloc = pcubature(1, iFFkcirot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
            ifonctpci(ion) = intout_cub(1)
            IF (ifailloc /= 0) THEN
               IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFkcirot integration at p=',p,', nu=',nu,', ion=',ion
@@ -3337,7 +3336,7 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
 
               ifailloc=1
               IF (ninorm(p,ion) > min_ninorm) THEN
-                 ifailloc = pcubature(1, iFFekgtirot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+                 ifailloc = pcubature(1, iFFekgtirot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
                  ifonctepgti(ion) = intout_cub(1)
                  IF (ifailloc /= 0) THEN
                     IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFekgtirot integration at p=',p,', nu=',nu,', ion=',ion
@@ -3355,7 +3354,7 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
 
               ifailloc=1
               IF (ninorm(p,ion) > min_ninorm) THEN
-                 ifailloc = pcubature(1, iFFekgnirot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+                 ifailloc = pcubature(1, iFFekgnirot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
                  ifonctepgni(ion) = intout_cub(1)
                  IF (ifailloc /= 0) THEN
                     IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFekgnirot integration at p=',p,', nu=',nu,', ion=',ion
@@ -3373,7 +3372,7 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
 
               ifailloc=1
               IF (ninorm(p,ion) > min_ninorm) THEN
-                 ifailloc = pcubature(1, iFFekguirot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+                 ifailloc = pcubature(1, iFFekguirot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
                  ifonctepgui(ion) = intout_cub(1)
                  IF (ifailloc /= 0) THEN
                     IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFekguirot integration at p=',p,', nu=',nu,', ion=',ion
@@ -3391,7 +3390,7 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
 
               ifailloc=1
               IF (ninorm(p,ion) > min_ninorm) THEN
-                 ifailloc = pcubature(1, iFFekcirot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+                 ifailloc = pcubature(1, iFFekcirot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
                  ifonctepci(ion) = intout_cub(1)
                  IF (ifailloc /= 0) THEN
                     IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFekcirot integration at p=',p,', nu=',nu,', ion=',ion
@@ -3439,7 +3438,7 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
 
         ifailloc=1
         IF (ninorm(p,ion) > min_ninorm) THEN
-           ifailloc = pcubature(1, iFFekirot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+           ifailloc = pcubature(1, iFFekirot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
            ifonctepi(ion) = intout_cub(1)
            IF (ifailloc /= 0) THEN
               IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFekirot integration at p=',p,', nu=',nu,', ion=',ion
@@ -3459,7 +3458,7 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
 
         ifailloc=1
         IF (ninorm(p,ion) > min_ninorm) THEN
-           ifailloc = pcubature(1, iFFvkirot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+           ifailloc = pcubature(1, iFFvkirot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
            ifonctvpi(ion) = intout_cub(1)
            IF (ifailloc /= 0) THEN
               IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFvkirot integration at p=',p,', nu=',nu,', ion=',ion
@@ -3480,14 +3479,14 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
 
         IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral
            minpts=0; ifailloc=1
-           ifailloc = pcubature(2, FFkerot_cubature, 2, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+           ifailloc = pcubature(2, FFkerot_cubature, 2, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
            
            IF (ifailloc /= 0) THEN
               IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFFkerot integration at p=',p,' nu=',nu
            ENDIF
         ELSE ! Collisionless simulation, revert to faster single integral
            ifailloc=1
-           ifailloc = pcubature(2, FFke_nocollrot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+           ifailloc = pcubature(2, FFke_nocollrot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
            
            IF (ifailloc /= 0) THEN
               IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFke_nocollrot integration at p=',p,' nu=',nu
@@ -3509,14 +3508,14 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
         IF (el_type == 1) THEN 
            IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral
               minpts=0; ifailloc=1
-              ifailloc = pcubature(2, FFkgterot_cubature, 2, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+              ifailloc = pcubature(2, FFkgterot_cubature, 2, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
               
               IF (ifailloc /= 0) THEN
                  IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFFkgterot integration at p=',p,' nu=',nu
               ENDIF
            ELSE ! Collisionless simulation, revert to faster single integral
               ifailloc=1
-              ifailloc = pcubature(2, FFkgte_nocollrot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+              ifailloc = pcubature(2, FFkgte_nocollrot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
               
               IF (ifailloc /= 0) THEN
                  IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFkgte_nocollrot integration at p=',p,' nu=',nu
@@ -3536,14 +3535,14 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
         IF (el_type == 1) THEN 
            IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral
               minpts=0; ifailloc=1
-              ifailloc = pcubature(2, FFkgnerot_cubature, 2, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+              ifailloc = pcubature(2, FFkgnerot_cubature, 2, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
               
               IF (ifailloc /= 0) THEN
                  IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFFkgnerot integration at p=',p,' nu=',nu
               ENDIF
            ELSE ! Collisionless simulation, revert to faster single integral
               ifailloc=1
-              ifailloc = pcubature(2, FFkgne_nocollrot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+              ifailloc = pcubature(2, FFkgne_nocollrot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
               
               IF (ifailloc /= 0) THEN
                  IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFkgne_nocollrot integration at p=',p,' nu=',nu
@@ -3561,14 +3560,14 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
         IF (el_type == 1) THEN
            IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral 
               minpts=0; ifailloc=1
-              ifailloc = pcubature(2, FFkcerot_cubature, 2, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+              ifailloc = pcubature(2, FFkcerot_cubature, 2, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
               
               IF (ifailloc /= 0) THEN
                  IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFFkcerot integration at p=',p,' nu=',nu
               ENDIF
            ELSE ! Collisionless simulation, revert to faster single integral
               ifailloc=1
-              ifailloc = pcubature(2, FFkce_nocollrot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+              ifailloc = pcubature(2, FFkce_nocollrot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
               
               IF (ifailloc /= 0) THEN
                  IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFkce_nocollrot integration at p=',p,' nu=',nu
@@ -3588,7 +3587,7 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
            IF (el_type == 1) THEN 
               IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral
                  minpts=0; ifailloc=1
-                 ifailloc = pcubature(2, FFekgterot_cubature, 2, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+                 ifailloc = pcubature(2, FFekgterot_cubature, 2, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
                  
                  
                  IF (ifailloc /= 0) THEN
@@ -3596,7 +3595,7 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
                  ENDIF
               ELSE ! Collisionless simulation, revert to faster single integral
                  ifailloc=1
-                 ifailloc = pcubature(2, FFekgte_nocollrot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+                 ifailloc = pcubature(2, FFekgte_nocollrot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
                  
                  IF (ifailloc /= 0) THEN
                     IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFekgte_nocollrot integration at p=',p,' nu=',nu
@@ -3616,14 +3615,14 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
            IF (el_type == 1) THEN 
               IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral
                  minpts=0; ifailloc=1
-                 ifailloc = pcubature(2, FFekgnerot_cubature, 2, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+                 ifailloc = pcubature(2, FFekgnerot_cubature, 2, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
                  
                  IF (ifailloc /= 0) THEN
                     IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFFekgnerot integration at p=',p,' nu=',nu
                  ENDIF
               ELSE ! Collisionless simulation, revert to faster single integral
                  ifailloc=1
-                 ifailloc = pcubature(2, FFekgne_nocollrot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+                 ifailloc = pcubature(2, FFekgne_nocollrot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
                  
                  IF (ifailloc /= 0) THEN
                     IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFekgne_nocollrot integration at p=',p,' nu=',nu
@@ -3641,14 +3640,14 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
            IF (el_type == 1) THEN
               IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral 
                  minpts=0; ifailloc=1
-                 ifailloc = pcubature(2, FFekcerot_cubature, 2, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+                 ifailloc = pcubature(2, FFekcerot_cubature, 2, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
                  
                  IF (ifailloc /= 0) THEN
                     IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFFekcerot integration at p=',p,' nu=',nu
                  ENDIF
               ELSE ! Collisionless simulation, revert to faster single integral
                  ifailloc=1
-                 ifailloc = pcubature(2, FFekce_nocollrot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+                 ifailloc = pcubature(2, FFekce_nocollrot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
                  
                  IF (ifailloc /= 0) THEN
                     IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFekce_nocollrot integration at p=',p,' nu=',nu
@@ -3692,14 +3691,14 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
      IF (el_type == 1) THEN 
         IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral
            minpts=0; ifailloc=1
-           ifailloc = pcubature(2, FFekerot_cubature, 2, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+           ifailloc = pcubature(2, FFekerot_cubature, 2, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
            
            IF (ifailloc /= 0) THEN
               IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFFekerot integration at p=',p,' nu=',nu
            ENDIF
         ELSE ! Collisionless simulation, revert to faster single integral
            ifailloc=1
-           ifailloc = pcubature(2, FFeke_nocollrot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
+           ifailloc = pcubature(2, FFeke_nocollrot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, norm, intout, acc_cub)
            
            IF (ifailloc /= 0) THEN
               IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFeke_nocollrot integration at p=',p,' nu=',nu
@@ -3713,7 +3712,14 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
      rfonctepe = intout(1)
      ifonctepe = intout(2)
 
+  
+  
+  
+  
+  
   END IF
+    
+    
     DEALLOCATE(alist)
     DEALLOCATE(blist)
     DEALLOCATE(rlist)
@@ -3793,7 +3799,7 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
 
     !! Integration bounds
     !! a,b are for the 1D ions. Vertices 1 is for the 2D electrons
-    a(1) = 0.0d0 + barelyavoid
+    a(1) = 0.0d0
     b(1) = 1.0d0 - barelyavoid
     a(2) = 0.0d0
     b(2) = vuplim
@@ -3861,6 +3867,7 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
          ENDDO
       ENDIF
 
+    
     ELSE IF(QL_method.EQ.1) THEN
       DO ion=1,nions
 
@@ -3874,7 +3881,7 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
 
             ifailloc=1
             IF (ninorm(p,ion) > min_ninorm) THEN
-               ifailloc = hcubature(1, iFFvkirot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+               ifailloc = hcubature(1, iFFvkirot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
                ifonctvpi(ion) = intout_cub(1)
                IF (ifailloc /= 0) THEN
                   IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFvkirot integration at p=',p,', nu=',nu,', ion=',ion
@@ -3899,7 +3906,7 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
 
             ifailloc=1
             IF (ninorm(p,ion) > min_ninorm) THEN
-               ifailloc = pcubature(1, iFFvkirot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+               ifailloc = pcubature(1, iFFvkirot_cubature, 1, cc_cub, dd_cub, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
                ifonctvpi(ion) = intout_cub(1)
                IF (ifailloc /= 0) THEN
                   IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of 1DNAG QL iFFvkirot integration at p=',p,', nu=',nu,', ion=',ion
@@ -3910,7 +3917,10 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
             rfonctvpi(ion)=0.
 
      ENDDO
-
+    
+    
+    
+    
     END IF
     DEALLOCATE(alist)
     DEALLOCATE(blist)
