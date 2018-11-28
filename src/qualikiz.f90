@@ -15,7 +15,7 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
      & Machtorin, Autorin, Machparin, Auparin, gammaEin, & !rotation input
      & maxrunsin, maxptsin, relacc1in, relacc2in, timeoutin, ETGmultin, collmultin, & !code specific input
      & epf_SIout,eef_SIout,ipf_SIout,ief_SIout,ivf_SIout, & ! Non optional outputs
-     & int_methodin, newt_methodin, newt_convin, int_splitin, normin, reqrelaccin, reqabsaccin, reqrelacc_newtin, reqabsacc_newtin, & !integration inputs
+     & int_methodin, newt_methodin, QL_methodin, fluid_methodin, newt_convin, int_splitin, normin, reqrelaccin, reqabsaccin, reqrelacc_newtin, reqabsacc_newtin, reqrelacc_QLin, reqabsacc_QLin, & !integration inputs
      & solflu_SIout, solflu_GBout, gam_SIout,gam_GBout,ome_SIout,ome_GBout, & !growth rate and frequency output
      & epf_GBout,eef_GBout, dfe_SIout,vte_SIout,vce_SIout,epf_cmout,eef_cmout,ckeout, & !electron flux outputs
      & ipf_GBout,ief_GBout, ivf_GBout, dfi_SIout,vti_SIout,vri_SIout,vci_SIout,ipf_cmout,ief_cmout,ivf_cmout,ckiout, & !ion flux outputs
@@ -98,8 +98,8 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
   REAL(kind=DBL), OPTIONAL, INTENT(IN) :: rhominin,rhomaxin
   
   !integration parameters
-  INTEGER, INTENT(IN) :: int_methodin, newt_methodin, newt_convin, int_splitin, normin
-  REAL(KIND=DBL), INTENT(IN) :: reqrelaccin, reqabsaccin, reqrelacc_newtin, reqabsacc_newtin
+  INTEGER, INTENT(IN) :: int_methodin, newt_methodin, QL_methodin, fluid_methodin, newt_convin, int_splitin, normin
+  REAL(KIND=DBL), INTENT(IN) :: reqrelaccin, reqabsaccin, reqrelacc_newtin, reqabsacc_newtin, reqrelacc_QLin, reqabsacc_QLin
   
   INTEGER :: int_methodtmp, newt_methodtmp, newt_convtmp, int_splittmp, normintmp
   REAL(KIND=DBL) :: reqrelacctmp, reqabsacctmp, reqrelacc_newttmp, reqabsacc_newttmp
@@ -245,7 +245,7 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
        & ion_typein, Aiin, Ziin, Tixin, ninormin, Atiin, Aniin, anisin, danisdrin, & 
        & Machtorin, Autorin, Machparin, Auparin, gammaEin, &
        & maxrunsin, maxptsin, relacc1in, relacc2in, timeoutin,ETGmultin,collmultin, &
-       & int_methodin, newt_methodin, newt_convin, int_splitin, normin, reqrelaccin, reqabsaccin, reqrelacc_newtin, reqabsacc_newtin)  !code specific inputs
+       & int_methodin, newt_methodin, QL_methodin, fluid_methodin, newt_convin, int_splitin, normin, reqrelaccin, reqabsaccin, reqrelacc_newtin, reqabsacc_newtin, reqrelacc_QL, reqabsacc_QL)  !code specific inputs
 
   ! set optional input
   IF (PRESENT(oldsolin)) THEN

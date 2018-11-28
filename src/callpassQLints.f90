@@ -9,8 +9,6 @@ MODULE callpassQLints
   USE PCUB
 
   IMPLICIT NONE
-  
-  INTEGER, PARAMETER :: temp_flag = 1
 
 CONTAINS
 
@@ -90,7 +88,7 @@ CONTAINS
     !ELECTRON PARTICLE FLUX INTEGRALS
     
     
-    IF (temp_flag.EQ.0) THEN
+    IF (QL_method.EQ.0) THEN
       IF (inttype == 1) THEN
 
          minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
@@ -663,13 +661,13 @@ CONTAINS
 
          ENDDO
       ENDIF
-    ELSE
+    ELSE IF(QL_method.EQ.1) THEN
       minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
        IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
           intout(1)=0
 
           minpts=0; ifailloc=1
-          ifailloc = hcubature(1, iFkstarrstare_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
+          ifailloc = hcubature(1, iFkstarrstare_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
           intout(2) = intout_cub(1)
           IF (ifailloc /= 0) THEN
              IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFkstarrstare integration at p=',p,' nu=',nu
@@ -689,7 +687,7 @@ CONTAINS
 
              intout(1)=0
              minpts=0; ifailloc=1
-             ifailloc = hcubature(1, iFkstarrstargte_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
+             ifailloc = hcubature(1, iFkstarrstargte_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
              intout(2) = intout_cub(1)
              IF (ifailloc /= 0) THEN
                 IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFkstarrstargte integration at p=',p,' nu=',nu
@@ -705,7 +703,7 @@ CONTAINS
           
              intout(1)=0
              minpts=0; ifailloc=1
-             ifailloc = hcubature(1, iFkstarrstargne_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
+             ifailloc = hcubature(1, iFkstarrstargne_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
              intout(2) = intout_cub(1)
              IF (ifailloc /= 0) THEN
                 IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFkstarrstargne integration at p=',p,' nu=',nu
@@ -722,7 +720,7 @@ CONTAINS
           
              intout(1)=0
              minpts=0; ifailloc=1
-             ifailloc = hcubature(1, iFkstarrstarce_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
+             ifailloc = hcubature(1, iFkstarrstarce_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
              intout(2) = intout_cub(1)
              IF (ifailloc /= 0) THEN
                 IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFkstarrstarce integration at p=',p,' nu=',nu
@@ -739,7 +737,7 @@ CONTAINS
 
                 intout(1)=0
                 minpts=0; ifailloc=1
-                ifailloc = hcubature(1, iFekstarrstargte_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
+                ifailloc = hcubature(1, iFekstarrstargte_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
                 intout(2) = intout_cub(1)
                 IF (ifailloc /= 0) THEN
                    IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFekstarrstargte integration at p=',p,' nu=',nu
@@ -755,7 +753,7 @@ CONTAINS
 
                 intout(1)=0
                 minpts=0; ifailloc=1
-                ifailloc = hcubature(1, iFekstarrstargne_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
+                ifailloc = hcubature(1, iFekstarrstargne_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
                 intout(2) = intout_cub(1)
                 IF (ifailloc /= 0) THEN
                    IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFekstarrstargne integration at p=',p,' nu=',nu
@@ -772,7 +770,7 @@ CONTAINS
 
                 intout(1)=0
                 minpts=0; ifailloc=1
-                ifailloc = hcubature(1, iFekstarrstarce_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
+                ifailloc = hcubature(1, iFekstarrstarce_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
                 intout(2) = intout_cub(1)
                 IF (ifailloc /= 0) THEN
                    IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFekstarrstarce integration at p=',p,' nu=',nu
@@ -812,7 +810,7 @@ CONTAINS
 
           intout(1)=0
           minpts=0; ifailloc=1
-          ifailloc = hcubature(1, iFekstarrstare_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
+          ifailloc = hcubature(1, iFekstarrstare_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
           intout(2) = intout_cub(1)
           IF (ifailloc /= 0) THEN
              IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFekstarrstare integration at p=',p,' nu=',nu
@@ -830,7 +828,7 @@ CONTAINS
 
           intout(1)=0
           minpts=0; ifailloc=1
-          ifailloc = hcubature(1, iFkstarrstari_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
+          ifailloc = hcubature(1, iFkstarrstari_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
           intout(2) = intout_cub(1)
           IF (ifailloc /= 0) THEN
              IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFkstarrstari integration at p=',p,' nu=',nu,' ion=',ion
@@ -844,7 +842,7 @@ CONTAINS
 
              intout(1)=0
              minpts=0; ifailloc=1
-             ifailloc = hcubature(1, iFkstarrstargti_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
+             ifailloc = hcubature(1, iFkstarrstargti_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
              intout(2) = intout_cub(1)
              IF (ifailloc /= 0) THEN
                 IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFkstarrstargti integration at p=',p,' nu=',nu,' ion=',ion
@@ -855,7 +853,7 @@ CONTAINS
 
              intout(1)=0
              minpts=0; ifailloc=1
-             ifailloc = hcubature(1, iFkstarrstargni_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
+             ifailloc = hcubature(1, iFkstarrstargni_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
              intout(2) = intout_cub(1)
              IF (ifailloc /= 0) THEN
                 IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFkstarrstargni integration at p=',p,' nu=',nu,' ion=',ion
@@ -866,7 +864,7 @@ CONTAINS
 
              intout(1)=0
              minpts=0; ifailloc=1
-             ifailloc = hcubature(1, iFkstarrstarci_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
+             ifailloc = hcubature(1, iFkstarrstarci_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
              intout(2) = intout_cub(1)
              IF (ifailloc /= 0) THEN
                 IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFkstarrstarci integration at p=',p,' nu=',nu,' ion=',ion
@@ -879,7 +877,7 @@ CONTAINS
                 intout(:)=0
                 minpts=0; ifailloc=1
                 IF (ninorm(p,ion) > min_ninorm) THEN
-                   ifailloc = hcubature(1, iFekstarrstargti_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
+                   ifailloc = hcubature(1, iFekstarrstargti_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
                    intout(2) = intout_cub(1)
                    IF (ifailloc /= 0) THEN
                       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFekstarrstargti integration at p=',p,' nu=',nu,' ion=',ion
@@ -892,7 +890,7 @@ CONTAINS
                 intout(:)=0
                 minpts=0; ifailloc=1
                 IF (ninorm(p,ion) > min_ninorm) THEN
-                   ifailloc = hcubature(1, iFekstarrstargni_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
+                   ifailloc = hcubature(1, iFekstarrstargni_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
                    intout(2) = intout_cub(1)
                    IF (ifailloc /= 0) THEN
                       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFekstarrstargni integration at p=',p,' nu=',nu,' ion=',ion
@@ -904,7 +902,7 @@ CONTAINS
                 intout(:)=0
                 minpts=0; ifailloc=1
                 IF (ninorm(p,ion) > min_ninorm) THEN
-                   ifailloc = hcubature(1, iFekstarrstarci_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
+                   ifailloc = hcubature(1, iFekstarrstarci_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
                    intout(2) = intout_cub(1)
                    IF (ifailloc /= 0) THEN
                       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFekstarrstarci integration at p=',p,' nu=',nu,' ion=',ion
@@ -941,7 +939,295 @@ CONTAINS
           intout(:)=0
           minpts=0; ifailloc=1
           IF (ninorm(p,ion) > min_ninorm) THEN
-             ifailloc = hcubature(1, iFekstarrstari_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
+             ifailloc = hcubature(1, iFekstarrstari_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+             intout(2) = intout_cub(1)
+             IF (ifailloc /= 0) THEN
+                IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFekstarrstari integration at p=',p,' nu=',nu,' ion=',ion
+             ENDIF
+          ENDIF
+          rfoncteci(ion) = intmult*intout(1); ifoncteci(ion)=intmult*intout(2)
+
+       ENDDO
+
+    ELSE IF(QL_method.EQ.2) THEN
+      minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+       IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
+          intout(1)=0
+
+          minpts=0; ifailloc=1
+          ifailloc = pcubature(1, iFkstarrstare_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+          intout(2) = intout_cub(1)
+          IF (ifailloc /= 0) THEN
+             IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFkstarrstare integration at p=',p,' nu=',nu
+          ENDIF
+
+       ELSE
+          intout(1)=0
+          intout(2)=0
+       ENDIF
+       rfonctce = intmult*intout(1); ifonctce=intmult*intout(2)
+
+       !ADDITIONAL ELECTRON PARTICLE FLUX INTEGRALS
+       IF (phys_meth .NE. 0.0) THEN
+
+          minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+          IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
+
+             intout(1)=0
+             minpts=0; ifailloc=1
+             ifailloc = pcubature(1, iFkstarrstargte_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+             intout(2) = intout_cub(1)
+             IF (ifailloc /= 0) THEN
+                IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFkstarrstargte integration at p=',p,' nu=',nu
+             ENDIF
+          ELSE
+             intout(1)=0
+             intout(2)=0
+          ENDIF
+          rfonctcgte = intmult*intout(1); ifonctcgte=intmult*intout(2)
+
+          minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+          IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
+          
+             intout(1)=0
+             minpts=0; ifailloc=1
+             ifailloc = pcubature(1, iFkstarrstargne_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+             intout(2) = intout_cub(1)
+             IF (ifailloc /= 0) THEN
+                IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFkstarrstargne integration at p=',p,' nu=',nu
+             ENDIF
+
+          ELSE
+             intout(1)=0
+             intout(2)=0
+          ENDIF
+          rfonctcgne = intmult*intout(1); ifonctcgne=intmult*intout(2)
+
+          minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+          IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
+          
+             intout(1)=0
+             minpts=0; ifailloc=1
+             ifailloc = pcubature(1, iFkstarrstarce_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+             intout(2) = intout_cub(1)
+             IF (ifailloc /= 0) THEN
+                IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFkstarrstarce integration at p=',p,' nu=',nu
+             ENDIF
+          ELSE
+             intout(1)=0
+             intout(2)=0
+          ENDIF
+          rfonctcce = intmult*intout(1); ifonctcce=intmult*intout(2)
+!!!
+          IF (phys_meth == 2) THEN
+             minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+             IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
+
+                intout(1)=0
+                minpts=0; ifailloc=1
+                ifailloc = pcubature(1, iFekstarrstargte_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+                intout(2) = intout_cub(1)
+                IF (ifailloc /= 0) THEN
+                   IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFekstarrstargte integration at p=',p,' nu=',nu
+                ENDIF
+             ELSE
+                intout(1)=0
+                intout(2)=0
+             ENDIF
+             rfonctecgte = intmult*intout(1); ifonctecgte=intmult*intout(2)
+
+             minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+             IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
+
+                intout(1)=0
+                minpts=0; ifailloc=1
+                ifailloc = pcubature(1, iFekstarrstargne_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+                intout(2) = intout_cub(1)
+                IF (ifailloc /= 0) THEN
+                   IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFekstarrstargne integration at p=',p,' nu=',nu
+                ENDIF
+
+             ELSE
+                intout(1)=0
+                intout(2)=0
+             ENDIF
+             rfonctecgne = intmult*intout(1); ifonctecgne=intmult*intout(2)
+
+             minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+             IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
+
+                intout(1)=0
+                minpts=0; ifailloc=1
+                ifailloc = pcubature(1, iFekstarrstarce_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+                intout(2) = intout_cub(1)
+                IF (ifailloc /= 0) THEN
+                   IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFekstarrstarce integration at p=',p,' nu=',nu
+                ENDIF
+             ELSE
+                intout(1)=0
+                intout(2)=0
+             ENDIF
+             rfonctecce = intmult*intout(1); ifonctecce=intmult*intout(2)
+          ELSE
+             rfonctecgte = 0.0
+             ifonctecgte = 0.0
+             rfonctecgne = 0.0
+             ifonctecgne = 0.0
+             rfonctecce = 0.0
+             ifonctecce = 0.0
+          ENDIF
+       ELSE
+          rfonctecgte = 0.0
+          ifonctecgte = 0.0
+          rfonctecgne = 0.0
+          ifonctecgne = 0.0
+          rfonctecce = 0.0
+          ifonctecce = 0.0
+
+          rfonctcgte = 0.0
+          ifonctcgte = 0.0
+          rfonctcgne = 0.0
+          ifonctcgne = 0.0
+          rfonctcce = 0.0
+          ifonctcce = 0.0
+       ENDIF
+
+       !ELECTRON ENERGY INTEGRALS
+       minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+       IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
+
+          intout(1)=0
+          minpts=0; ifailloc=1
+          ifailloc = pcubature(1, iFekstarrstare_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+          intout(2) = intout_cub(1)
+          IF (ifailloc /= 0) THEN
+             IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFekstarrstare integration at p=',p,' nu=',nu
+          ENDIF
+       ELSE
+          intout(1)=0
+          intout(2)=0
+       ENDIF
+       rfonctece = intmult*intout(1); ifonctece=intmult*intout(2)
+
+       DO ion=1,nions
+
+          !ION PARTICLE FLUX INTEGRALS
+          minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+
+          intout(1)=0
+          minpts=0; ifailloc=1
+          ifailloc = pcubature(1, iFkstarrstari_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+          intout(2) = intout_cub(1)
+          IF (ifailloc /= 0) THEN
+             IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFkstarrstari integration at p=',p,' nu=',nu,' ion=',ion
+          ENDIF
+
+          rfonctci(ion) = intmult*intout(1); ifonctci(ion)=intmult*intout(2)
+
+          !ADDITIONAL ION PARTICLE FLUX INTEGRALS
+          IF (phys_meth .NE. 0.0) THEN
+             minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+
+             intout(1)=0
+             minpts=0; ifailloc=1
+             ifailloc = pcubature(1, iFkstarrstargti_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+             intout(2) = intout_cub(1)
+             IF (ifailloc /= 0) THEN
+                IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFkstarrstargti integration at p=',p,' nu=',nu,' ion=',ion
+             ENDIF
+             rfonctcgti(ion) = intmult*intout(1); ifonctcgti(ion)=intmult*intout(2)
+
+             minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+
+             intout(1)=0
+             minpts=0; ifailloc=1
+             ifailloc = pcubature(1, iFkstarrstargni_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+             intout(2) = intout_cub(1)
+             IF (ifailloc /= 0) THEN
+                IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFkstarrstargni integration at p=',p,' nu=',nu,' ion=',ion
+             ENDIF
+             rfonctcgni(ion) = intmult*intout(1); ifonctcgni(ion)=intmult*intout(2)
+
+             minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+
+             intout(1)=0
+             minpts=0; ifailloc=1
+             ifailloc = pcubature(1, iFkstarrstarci_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+             intout(2) = intout_cub(1)
+             IF (ifailloc /= 0) THEN
+                IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFkstarrstarci integration at p=',p,' nu=',nu,' ion=',ion
+             ENDIF
+             rfonctcci(ion) = intmult*intout(1); ifonctcci(ion)=intmult*intout(2)
+!!!
+             IF (phys_meth == 2) THEN
+                minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+
+                intout(:)=0
+                minpts=0; ifailloc=1
+                IF (ninorm(p,ion) > min_ninorm) THEN
+                   ifailloc = pcubature(1, iFekstarrstargti_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+                   intout(2) = intout_cub(1)
+                   IF (ifailloc /= 0) THEN
+                      IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFekstarrstargti integration at p=',p,' nu=',nu,' ion=',ion
+                   ENDIF
+                ENDIF
+                rfonctecgti(ion) = intmult*intout(1); ifonctecgti(ion)=intmult*intout(2)
+
+                minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+
+                intout(:)=0
+                minpts=0; ifailloc=1
+                IF (ninorm(p,ion) > min_ninorm) THEN
+                   ifailloc = pcubature(1, iFekstarrstargni_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+                   intout(2) = intout_cub(1)
+                   IF (ifailloc /= 0) THEN
+                      IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFekstarrstargni integration at p=',p,' nu=',nu,' ion=',ion
+                   ENDIF
+                ENDIF
+                rfonctecgni(ion) = intmult*intout(1); ifonctecgni(ion)=intmult*intout(2)
+                minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+
+                intout(:)=0
+                minpts=0; ifailloc=1
+                IF (ninorm(p,ion) > min_ninorm) THEN
+                   ifailloc = pcubature(1, iFekstarrstarci_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+                   intout(2) = intout_cub(1)
+                   IF (ifailloc /= 0) THEN
+                      IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFekstarrstarci integration at p=',p,' nu=',nu,' ion=',ion
+                   ENDIF
+                ENDIF
+                rfonctecci(ion) = intmult*intout(1); ifonctecci(ion)=intmult*intout(2)
+             ELSE
+                rfonctecgti(ion) = 0.
+                ifonctecgti(ion) = 0.
+                rfonctecgni(ion) = 0.
+                ifonctecgni(ion) = 0.
+                rfonctecci(ion) = 0.
+                ifonctecci(ion) = 0.
+             ENDIF
+          ELSE
+             rfonctecgti(ion) = 0.
+             ifonctecgti(ion) = 0.
+             rfonctecgni(ion) = 0.
+             ifonctecgni(ion) = 0.
+             rfonctecci(ion) = 0.
+             ifonctecci(ion) = 0.
+
+             rfonctcgti(ion) = 0.
+             ifonctcgti(ion) = 0.
+             rfonctcgni(ion) = 0.
+             ifonctcgni(ion) = 0.
+             rfonctcci(ion) = 0.
+             ifonctcci(ion) = 0.
+          ENDIF
+
+          !ION ENERGY INTEGRALS
+          minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+
+          intout(:)=0
+          minpts=0; ifailloc=1
+          IF (ninorm(p,ion) > min_ninorm) THEN
+             ifailloc = pcubature(1, iFekstarrstari_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
              intout(2) = intout_cub(1)
              IF (ifailloc /= 0) THEN
                 IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFekstarrstari integration at p=',p,' nu=',nu,' ion=',ion
@@ -951,7 +1237,7 @@ CONTAINS
 
        ENDDO
     END IF
-
+    
     !The complex forms are reconstructed
     fonctce = rfonctce + ci * ifonctce
     fonctcgte = rfonctcgte + ci * ifonctcgte
@@ -1054,7 +1340,7 @@ CONTAINS
     !ELECTRON PARTICLE FLUX INTEGRALS
 
     
-    IF(temp_flag.EQ.0) THEN
+    IF(QL_method.EQ.0) THEN
       
       IF (inttype == 1) THEN
 
@@ -1720,7 +2006,7 @@ CONTAINS
         
       ENDIF
 
-    ELSE
+    ELSE IF(QL_method.EQ.1) THEN
 
      minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
      IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
@@ -1731,7 +2017,7 @@ CONTAINS
 !!$          ENDIF
         intout(1)=0
         minpts=0; ifailloc=1
-        ifailloc = hcubature(1, iFkstarrstarerot_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
+        ifailloc = hcubature(1, iFkstarrstarerot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
         intout(2) = intout_cub(1)
         IF (ifailloc /= 0) THEN
            IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFkstarrstarerot integration at p=',p,' nu=',nu
@@ -1755,7 +2041,7 @@ CONTAINS
 !!$             ENDIF
            intout(1)=0
            minpts=0; ifailloc=1
-           ifailloc = hcubature(1, iFkstarrstargterot_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
+           ifailloc = hcubature(1, iFkstarrstargterot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
         intout(2) = intout_cub(1)
            IF (ifailloc /= 0) THEN
               IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFkstarrstargterot integration at p=',p,' nu=',nu
@@ -1775,7 +2061,7 @@ CONTAINS
 !!$             ENDIF
            intout(1)=0
            minpts=0; ifailloc=1
-           ifailloc = hcubature(1, iFkstarrstargnerot_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
+           ifailloc = hcubature(1, iFkstarrstargnerot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
            intout(2) = intout_cub(1)
            IF (ifailloc /= 0) THEN
               IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFkstarrstargnerot integration at p=',p,' nu=',nu
@@ -1796,7 +2082,7 @@ CONTAINS
 !!$             ENDIF
            intout(1)=0
            minpts=0; ifailloc=1
-           ifailloc = hcubature(1, iFkstarrstarcerot_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
+           ifailloc = hcubature(1, iFkstarrstarcerot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
            intout(2) = intout_cub(1)
            IF (ifailloc /= 0) THEN
               IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFkstarrstarcerot integration at p=',p,' nu=',nu
@@ -1817,7 +2103,7 @@ CONTAINS
 !!$                ENDIF
               intout(1)=0
               minpts=0; ifailloc=1
-              ifailloc = hcubature(1, iFekstarrstargterot_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
+              ifailloc = hcubature(1, iFekstarrstargterot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
               intout(2) = intout_cub(1)
               CALL d01fcf(ndim,a,b,minpts,maxpts,iFekstarrstargterot,relaccQL2,acc,lenwrk,wrkstr,intout(2),ifailloc)
               IF (ifailloc /= 0) THEN
@@ -1838,7 +2124,7 @@ CONTAINS
 !!$                ENDIF
               intout(1)=0
               minpts=0; ifailloc=1
-              ifailloc = hcubature(1, iFekstarrstargnerot_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
+              ifailloc = hcubature(1, iFekstarrstargnerot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
               intout(2) = intout_cub(1)
               IF (ifailloc /= 0) THEN
                  IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFekstarrstargnerot integration at p=',p,' nu=',nu
@@ -1859,7 +2145,7 @@ CONTAINS
 !!$                ENDIF
               intout(1)=0
               minpts=0; ifailloc=1
-              ifailloc = hcubature(1, iFekstarrstarcerot_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
+              ifailloc = hcubature(1, iFekstarrstarcerot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
               intout(2) = intout_cub(1)
               IF (ifailloc /= 0) THEN
                  IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFekstarrstarcerot integration at p=',p,' nu=',nu
@@ -1902,7 +2188,7 @@ CONTAINS
 !!$          ENDIF
         intout(1)=0
         minpts=0; ifailloc=1
-        ifailloc = hcubature(1, iFekstarrstarerot_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
+        ifailloc = hcubature(1, iFekstarrstarerot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
         intout(2) = intout_cub(1)
         IF (ifailloc /= 0) THEN
            IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFekstarrstarerot integration at p=',p,' nu=',nu
@@ -1924,7 +2210,7 @@ CONTAINS
 !!$          ENDIF
         intout(1)=0
         minpts=0; ifailloc=1
-        ifailloc = hcubature(1, iFkstarrstarirot_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
+        ifailloc = hcubature(1, iFkstarrstarirot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
         intout(2) = intout_cub(1)
         
         IF (ifailloc /= 0) THEN
@@ -1943,7 +2229,7 @@ CONTAINS
 !!$             ENDIF
            intout(1)=0
            minpts=0; ifailloc=1
-           ifailloc = hcubature(1, iFkstarrstargtirot_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
+           ifailloc = hcubature(1, iFkstarrstargtirot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
            intout(2) = intout_cub(1)
            IF (ifailloc /= 0) THEN
               IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFkstarrstargtirot integration at p=',p,' nu=',nu,' ion=',ion
@@ -1958,7 +2244,7 @@ CONTAINS
 !!$             ENDIF
            intout(1)=0
            minpts=0; ifailloc=1
-           ifailloc = hcubature(1, iFkstarrstargnirot_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
+           ifailloc = hcubature(1, iFkstarrstargnirot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
            intout(2) = intout_cub(1)
            IF (ifailloc /= 0) THEN
               IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFkstarrstargnirot integration at p=',p,' nu=',nu,' ion=',ion
@@ -1976,7 +2262,7 @@ CONTAINS
               intout(2) = 0
            ELSE
               minpts=0; ifailloc=1
-              ifailloc = hcubature(1, iFkstarrstarguirot_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
+              ifailloc = hcubature(1, iFkstarrstarguirot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
               intout(2) = intout_cub(1)
               IF (ifailloc /= 0) THEN
                  IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFkstarrstarguirot integration at p=',p,' nu=',nu,' ion=',ion
@@ -1992,7 +2278,7 @@ CONTAINS
 !!$             ENDIF
            intout(1)=0
            minpts=0; ifailloc=1
-           ifailloc = hcubature(1, iFkstarrstarcirot_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
+           ifailloc = hcubature(1, iFkstarrstarcirot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
            intout(2) = intout_cub(1)
            IF (ifailloc /= 0) THEN
               IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFkstarrstarcirot integration at p=',p,' nu=',nu,' ion=',ion
@@ -2009,7 +2295,7 @@ CONTAINS
               intout(:)=0
               minpts=0; ifailloc=1
               IF (ninorm(p,ion) > min_ninorm) THEN
-                 ifailloc = hcubature(1, iFekstarrstargtirot_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
+                 ifailloc = hcubature(1, iFekstarrstargtirot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
                  intout(2) = intout_cub(1)
                  IF (ifailloc /= 0) THEN
                     IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFekstarrstargtirot integration at p=',p,' nu=',nu,' ion=',ion
@@ -2026,7 +2312,7 @@ CONTAINS
               intout(:)=0
               minpts=0; ifailloc=1
               IF (ninorm(p,ion) > min_ninorm) THEN
-                 ifailloc = hcubature(1, iFekstarrstargnirot_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
+                 ifailloc = hcubature(1, iFekstarrstargnirot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
                  intout(2) = intout_cub(1)
                  IF (ifailloc /= 0) THEN
                     IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFekstarrstargnirot integration at p=',p,' nu=',nu,' ion=',ion
@@ -2045,7 +2331,7 @@ CONTAINS
                  intout(2) = 0
               ELSE
                  minpts=0; ifailloc=1
-                 ifailloc = hcubature(1, iFekstarrstarguirot_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
+                 ifailloc = hcubature(1, iFekstarrstarguirot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
                  intout(2) = intout_cub(1)
                  IF (ifailloc /= 0) THEN
                     IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFekstarrstarguirot integration at p=',p,' nu=',nu,' ion=',ion
@@ -2062,7 +2348,7 @@ CONTAINS
               intout(:)=0
               minpts=0; ifailloc=1
               IF (ninorm(p,ion) > min_ninorm) THEN
-                 ifailloc = hcubature(1, iFekstarrstarcirot_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
+                 ifailloc = hcubature(1, iFekstarrstarcirot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
                  intout(2) = intout_cub(1)
                  IF (ifailloc /= 0) THEN
                     IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFekstarrstarcirot integration at p=',p,' nu=',nu,' ion=',ion
@@ -2109,7 +2395,7 @@ CONTAINS
         intout(:)=0
         minpts=0; ifailloc=1
         IF (ninorm(p,ion) > min_ninorm) THEN
-           ifailloc = hcubature(1, iFekstarrstarirot_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
+           ifailloc = hcubature(1, iFekstarrstarirot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
            intout(2) = intout_cub(1)
            IF (ifailloc /= 0) THEN
               IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFekstarrstarirot integration at p=',p,' nu=',nu, ' ion =',ion
@@ -2130,7 +2416,426 @@ CONTAINS
            intout(2) = 0        
         ELSE
            minpts=0; ifailloc=1 
-           ifailloc = hcubature(1, iFvkstarrstarirot_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
+           ifailloc = hcubature(1, iFvkstarrstarirot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+           intout(2) = intout_cub(1)
+           IF (ifailloc /= 0) THEN
+              IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFvkstarrstarirot integration at p=',p,' nu=',nu,' ion=',ion
+           ENDIF
+        ENDIF
+        rfonctvci(ion) = intmult*intout(1); ifonctvci(ion)=intmult*intout(2)
+     ENDDO
+      
+    ELSE IF(QL_method.EQ.2) THEN
+
+     minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+     IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
+!!$          ifailloc=1
+!!$          CALL d01fcf(ndim,a,b,minpts,maxpts,rFkstarrstarerot,relaccQL2,acc,lenwrk,wrkstr,intout(1),ifailloc)
+!!$          IF (ifailloc /= 0) THEN
+!!$             IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL rFkstarrstarerot integration at p=',p,' nu=',nu
+!!$          ENDIF
+        intout(1)=0
+        minpts=0; ifailloc=1
+        ifailloc = pcubature(1, iFkstarrstarerot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+        intout(2) = intout_cub(1)
+        IF (ifailloc /= 0) THEN
+           IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFkstarrstarerot integration at p=',p,' nu=',nu
+        ENDIF
+
+     ELSE
+        intout(1)=0
+        intout(2)=0
+     ENDIF
+     rfonctce = intmult*intout(1); ifonctce=intmult*intout(2)
+
+     !ADDITIONAL ELECTRON PARTICLE FLUX INTEGRALS
+     IF (phys_meth .NE. 0.0) THEN
+
+        minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+        IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
+!!$             ifailloc=1
+!!$             CALL d01fcf(ndim,a,b,minpts,maxpts,rFkstarrstargterot,relaccQL2,acc,lenwrk,wrkstr,intout(1),ifailloc)
+!!$             IF (ifailloc /= 0) THEN
+!!$                IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL rFkstarrstargterot integration at p=',p,' nu=',nu
+!!$             ENDIF
+           intout(1)=0
+           minpts=0; ifailloc=1
+           ifailloc = pcubature(1, iFkstarrstargterot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+        intout(2) = intout_cub(1)
+           IF (ifailloc /= 0) THEN
+              IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFkstarrstargterot integration at p=',p,' nu=',nu
+           ENDIF
+        ELSE
+           intout(1)=0
+           intout(2)=0
+        ENDIF
+        rfonctcgte = intmult*intout(1); ifonctcgte=intmult*intout(2)
+
+        minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+        IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
+!!$             ifailloc=1
+!!$             CALL d01fcf(ndim,a,b,minpts,maxpts,rFkstarrstargnerot,relaccQL2,acc,lenwrk,wrkstr,intout(1),ifailloc)
+!!$             IF (ifailloc /= 0) THEN
+!!$                IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL rFkstarrstargnerot integration at p=',p,' nu=',nu
+!!$             ENDIF
+           intout(1)=0
+           minpts=0; ifailloc=1
+           ifailloc = pcubature(1, iFkstarrstargnerot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+           intout(2) = intout_cub(1)
+           IF (ifailloc /= 0) THEN
+              IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFkstarrstargnerot integration at p=',p,' nu=',nu
+           ENDIF
+
+        ELSE
+           intout(1)=0
+           intout(2)=0
+        ENDIF
+        rfonctcgne = intmult*intout(1); ifonctcgne=intmult*intout(2)
+
+        minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+        IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
+!!$             ifailloc=1
+!!$             CALL d01fcf(ndim,a,b,minpts,maxpts,rFkstarrstarcerot,relaccQL2,acc,lenwrk,wrkstr,intout(1),ifailloc)
+!!$             IF (ifailloc /= 0) THEN
+!!$                IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL rFkstarrstarcerot integration at p=',p,' nu=',nu
+!!$             ENDIF
+           intout(1)=0
+           minpts=0; ifailloc=1
+           ifailloc = pcubature(1, iFkstarrstarcerot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+           intout(2) = intout_cub(1)
+           IF (ifailloc /= 0) THEN
+              IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFkstarrstarcerot integration at p=',p,' nu=',nu
+           ENDIF
+        ELSE
+           intout(1)=0
+           intout(2)=0
+        ENDIF
+        rfonctcce = intmult*intout(1); ifonctcce=intmult*intout(2)
+!!!
+        IF (phys_meth == 2) THEN
+           minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+           IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
+!!$                ifailloc=1
+!!$                CALL d01fcf(ndim,a,b,minpts,maxpts,rFekstarrstargterot,relaccQL2,acc,lenwrk,wrkstr,intout(1),ifailloc)
+!!$                IF (ifailloc /= 0) THEN
+!!$                   IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL rFekstarrstargterot integration at p=',p,' nu=',nu
+!!$                ENDIF
+              intout(1)=0
+              minpts=0; ifailloc=1
+              ifailloc = pcubature(1, iFekstarrstargterot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+              intout(2) = intout_cub(1)
+              CALL d01fcf(ndim,a,b,minpts,maxpts,iFekstarrstargterot,relaccQL2,acc,lenwrk,wrkstr,intout(2),ifailloc)
+              IF (ifailloc /= 0) THEN
+                 IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFekstarrstargterot integration at p=',p,' nu=',nu
+              ENDIF
+           ELSE
+              intout(1)=0
+              intout(2)=0
+           ENDIF
+           rfonctecgte = intmult*intout(1); ifonctecgte=intmult*intout(2)
+
+           minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+           IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
+!!$                ifailloc=1
+!!$                CALL d01fcf(ndim,a,b,minpts,maxpts,rFekstarrstargnerot,relaccQL2,acc,lenwrk,wrkstr,intout(1),ifailloc)
+!!$                IF (ifailloc /= 0) THEN
+!!$                   IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL rFekstarrstargnerot integration at p=',p,' nu=',nu
+!!$                ENDIF
+              intout(1)=0
+              minpts=0; ifailloc=1
+              ifailloc = pcubature(1, iFekstarrstargnerot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+              intout(2) = intout_cub(1)
+              IF (ifailloc /= 0) THEN
+                 IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFekstarrstargnerot integration at p=',p,' nu=',nu
+              ENDIF
+
+           ELSE
+              intout(1)=0
+              intout(2)=0
+           ENDIF
+           rfonctecgne = intmult*intout(1); ifonctecgne=intmult*intout(2)
+
+           minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+           IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
+!!$                ifailloc=1
+!!$                CALL d01fcf(ndim,a,b,minpts,maxpts,rFekstarrstarcerot,relaccQL2,acc,lenwrk,wrkstr,intout(1),ifailloc)
+!!$                IF (ifailloc /= 0) THEN
+!!$                   IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL rFekstarrstarcerot integration at p=',p,' nu=',nu
+!!$                ENDIF
+              intout(1)=0
+              minpts=0; ifailloc=1
+              ifailloc = pcubature(1, iFekstarrstarcerot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+              intout(2) = intout_cub(1)
+              IF (ifailloc /= 0) THEN
+                 IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFekstarrstarcerot integration at p=',p,' nu=',nu
+              ENDIF
+           ELSE
+              intout(1)=0
+              intout(2)=0
+           ENDIF
+           rfonctecce = intmult*intout(1); ifonctecce=intmult*intout(2)
+        ELSE 
+           rfonctecgte = 0.0
+           ifonctecgte = 0.0
+           rfonctecgne = 0.0
+           ifonctecgne = 0.0
+           rfonctecce = 0.0
+           ifonctecce = 0.0
+        ENDIF
+     ELSE
+        rfonctcgte = 0.0
+        ifonctcgte = 0.0
+        rfonctcgne = 0.0
+        ifonctcgne = 0.0
+        rfonctcce = 0.0
+        ifonctcce = 0.0
+        rfonctecgte = 0.0
+        ifonctecgte = 0.0
+        rfonctecgne = 0.0
+        ifonctecgne = 0.0
+        rfonctecce = 0.0
+        ifonctecce = 0.0
+     ENDIF
+
+     !ELECTRON ENERGY INTEGRALS
+     minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+     IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
+!!$          ifailloc=1
+!!$          CALL d01fcf(ndim,a,b,minpts,maxpts,rFekstarrstarerot,relaccQL2,acc,lenwrk,wrkstr,intout(1),ifailloc)
+!!$          IF (ifailloc /= 0) THEN
+!!$             IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL rFekstarrstarerot integration at p=',p,' nu=',nu
+!!$          ENDIF
+        intout(1)=0
+        minpts=0; ifailloc=1
+        ifailloc = pcubature(1, iFekstarrstarerot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+        intout(2) = intout_cub(1)
+        IF (ifailloc /= 0) THEN
+           IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFekstarrstarerot integration at p=',p,' nu=',nu
+        ENDIF
+     ELSE
+        intout(1)=0
+        intout(2)=0
+     ENDIF
+     rfonctece = intmult*intout(1); ifonctece=intmult*intout(2)
+
+     DO ion=1,nions
+
+        !ION PARTICLE FLUX INTEGRALS
+        minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+!!$          ifailloc=1
+!!$          CALL d01fcf(ndim,a,b,minpts,maxpts,rFkstarrstarirot,relaccQL2,acc,lenwrk,wrkstr,intout(1),ifailloc)
+!!$          IF (ifailloc /= 0) THEN
+!!$             IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL rFkstarrstarirot integration at p=',p,' nu=',nu
+!!$          ENDIF
+        intout(1)=0
+        minpts=0; ifailloc=1
+        ifailloc = pcubature(1, iFkstarrstarirot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+        intout(2) = intout_cub(1)
+        
+        IF (ifailloc /= 0) THEN
+           IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFkstarrstarirot integration at p=',p,' nu=',nu,' ion=',ion
+        ENDIF
+
+        rfonctci(ion) = intmult*intout(1); ifonctci(ion)=intmult*intout(2)
+
+        !ADDITIONAL ION PARTICLE FLUX INTEGRALS
+        IF (phys_meth .NE. 0.0) THEN
+           minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+!!$             ifailloc=1
+!!$             CALL d01fcf(ndim,a,b,minpts,maxpts,rFkstarrstargtirot,relaccQL2,acc,lenwrk,wrkstr,intout(1),ifailloc)
+!!$             IF (ifailloc /= 0) THEN
+!!$                IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL rFkstarrstargtirot integration at p=',p,' nu=',nu
+!!$             ENDIF
+           intout(1)=0
+           minpts=0; ifailloc=1
+           ifailloc = pcubature(1, iFkstarrstargtirot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+           intout(2) = intout_cub(1)
+           IF (ifailloc /= 0) THEN
+              IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFkstarrstargtirot integration at p=',p,' nu=',nu,' ion=',ion
+           ENDIF
+           rfonctcgti(ion) = intmult*intout(1); ifonctcgti(ion)=intmult*intout(2)
+
+           minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+!!$             ifailloc=1
+!!$             CALL d01fcf(ndim,a,b,minpts,maxpts,rFkstarrstargnirot,relaccQL2,acc,lenwrk,wrkstr,intout(1),ifailloc)
+!!$             IF (ifailloc /= 0) THEN
+!!$                IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL rFkstarrstargnirot integration at p=',p,' nu=',nu
+!!$             ENDIF
+           intout(1)=0
+           minpts=0; ifailloc=1
+           ifailloc = pcubature(1, iFkstarrstargnirot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+           intout(2) = intout_cub(1)
+           IF (ifailloc /= 0) THEN
+              IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFkstarrstargnirot integration at p=',p,' nu=',nu,' ion=',ion
+           ENDIF
+           rfonctcgni(ion) = intmult*intout(1); ifonctcgni(ion)=intmult*intout(2)
+
+           minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+!!$             ifailloc=1
+!!$             CALL d01fcf(ndim,a,b,minpts,maxpts,rFkstarrstarguirot,relaccQL2,acc,lenwrk,wrkstr,intout(1),ifailloc)
+!!$             IF (ifailloc /= 0) THEN
+!!$                IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL rFkstarrstarguirot integration at p=',p,' nu=',nu
+!!$             ENDIF
+           intout(1)=0
+           IF ( (ABS(Machpar(p)) < epsS) .AND. (ABS(Aupar(p)) < epsS) .AND. (ABS(gammaE(p)) < epsS) ) THEN
+              intout(2) = 0
+           ELSE
+              minpts=0; ifailloc=1
+              ifailloc = pcubature(1, iFkstarrstarguirot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+              intout(2) = intout_cub(1)
+              IF (ifailloc /= 0) THEN
+                 IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFkstarrstarguirot integration at p=',p,' nu=',nu,' ion=',ion
+              ENDIF
+           ENDIF
+           rfonctcgui(ion) = intmult*intout(1); ifonctcgui(ion)=intmult*intout(2)
+
+           minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+!!$             ifailloc=1
+!!$             CALL d01fcf(ndim,a,b,minpts,maxpts,rFkstarrstarcirot,relaccQL2,acc,lenwrk,wrkstr,intout(1),ifailloc)
+!!$             IF (ifailloc /= 0) THEN
+!!$                IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL rFkstarrstarcirot integration at p=',p,' nu=',nu
+!!$             ENDIF
+           intout(1)=0
+           minpts=0; ifailloc=1
+           ifailloc = pcubature(1, iFkstarrstarcirot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+           intout(2) = intout_cub(1)
+           IF (ifailloc /= 0) THEN
+              IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFkstarrstarcirot integration at p=',p,' nu=',nu,' ion=',ion
+           ENDIF
+           rfonctcci(ion) = intmult*intout(1); ifonctcci(ion)=intmult*intout(2)
+!!!
+           IF (phys_meth == 2) THEN
+              minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+!!$                ifailloc=1
+!!$                CALL d01fcf(ndim,a,b,minpts,maxpts,rFekstarrstargtirot,relaccQL2,acc,lenwrk,wrkstr,intout(1),ifailloc)
+!!$                IF (ifailloc /= 0) THEN
+!!$                   IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL rFekstarrstargtirot integration at p=',p,' nu=',nu
+!!$                ENDIF
+              intout(:)=0
+              minpts=0; ifailloc=1
+              IF (ninorm(p,ion) > min_ninorm) THEN
+                 ifailloc = pcubature(1, iFekstarrstargtirot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+                 intout(2) = intout_cub(1)
+                 IF (ifailloc /= 0) THEN
+                    IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFekstarrstargtirot integration at p=',p,' nu=',nu,' ion=',ion
+                 ENDIF
+              ENDIF
+              rfonctecgti(ion) = intmult*intout(1); ifonctecgti(ion)=intmult*intout(2)
+
+              minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+!!$                ifailloc=1
+!!$                CALL d01fcf(ndim,a,b,minpts,maxpts,rFekstarrstargnirot,relaccQL2,acc,lenwrk,wrkstr,intout(1),ifailloc)
+!!$                IF (ifailloc /= 0) THEN
+!!$                   IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL rFekstarrstargnirot integration at p=',p,' nu=',nu
+!!$                ENDIF
+              intout(:)=0
+              minpts=0; ifailloc=1
+              IF (ninorm(p,ion) > min_ninorm) THEN
+                 ifailloc = pcubature(1, iFekstarrstargnirot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+                 intout(2) = intout_cub(1)
+                 IF (ifailloc /= 0) THEN
+                    IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFekstarrstargnirot integration at p=',p,' nu=',nu,' ion=',ion
+                 ENDIF
+              ENDIF
+              rfonctecgni(ion) = intmult*intout(1); ifonctecgni(ion)=intmult*intout(2)
+
+              minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+!!$                ifailloc=1
+!!$                CALL d01fcf(ndim,a,b,minpts,maxpts,rFekstarrstarguirot,relaccQL2,acc,lenwrk,wrkstr,intout(1),ifailloc)
+!!$                IF (ifailloc /= 0) THEN
+!!$                   IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL rFekstarrstarguirot integration at p=',p,' nu=',nu
+!!$                ENDIF
+              intout(1)=0
+              IF ( ((ABS(Machpar(p)) < epsS) .AND. (ABS(Aupar(p)) < epsS) .AND. (ABS(gammaE(p)) < epsS)) .OR. (ninorm(p,ion) < min_ninorm)) THEN
+                 intout(2) = 0
+              ELSE
+                 minpts=0; ifailloc=1
+                 ifailloc = pcubature(1, iFekstarrstarguirot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+                 intout(2) = intout_cub(1)
+                 IF (ifailloc /= 0) THEN
+                    IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFekstarrstarguirot integration at p=',p,' nu=',nu,' ion=',ion
+                 ENDIF
+              ENDIF
+              rfonctecgui(ion) = intmult*intout(1); ifonctecgui(ion)=intmult*intout(2)
+
+              minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+!!$                ifailloc=1
+!!$                CALL d01fcf(ndim,a,b,minpts,maxpts,rFekstarrstarcirot,relaccQL2,acc,lenwrk,wrkstr,intout(1),ifailloc)
+!!$                IF (ifailloc /= 0) THEN
+!!$                   IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL rFekstarrstarcirot integration at p=',p,' nu=',nu
+!!$                ENDIF
+              intout(:)=0
+              minpts=0; ifailloc=1
+              IF (ninorm(p,ion) > min_ninorm) THEN
+                 ifailloc = pcubature(1, iFekstarrstarcirot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+                 intout(2) = intout_cub(1)
+                 IF (ifailloc /= 0) THEN
+                    IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFekstarrstarcirot integration at p=',p,' nu=',nu,' ion=',ion
+                 ENDIF
+              ENDIF
+              rfonctecci(ion) = intmult*intout(1); ifonctecci(ion)=intmult*intout(2)
+           ELSE
+              rfonctecgti(ion) = 0.
+              ifonctecgti(ion) = 0.
+              rfonctecgni(ion) = 0.
+              ifonctecgni(ion) = 0.
+              rfonctecgui(ion) = 0.
+              ifonctecgui(ion) = 0.
+              rfonctecci(ion) = 0.
+              ifonctecci(ion) = 0.
+           ENDIF
+        ELSE
+           rfonctcgti(ion) = 0.
+           ifonctcgti(ion) = 0.
+           rfonctcgni(ion) = 0.
+           ifonctcgni(ion) = 0.
+           rfonctcgui(ion) = 0.
+           ifonctcgui(ion) = 0.
+           rfonctcci(ion) = 0.
+           ifonctcci(ion) = 0.
+
+           rfonctecgti(ion) = 0.
+           ifonctecgti(ion) = 0.
+           rfonctecgni(ion) = 0.
+           ifonctecgni(ion) = 0.
+           rfonctecgui(ion) = 0.
+           ifonctecgui(ion) = 0.
+           rfonctecci(ion) = 0.
+           ifonctecci(ion) = 0.
+        ENDIF
+
+        !ION ENERGY INTEGRALS
+        minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+!!$          ifailloc=1
+!!$          CALL d01fcf(ndim,a,b,minpts,maxpts,rFekstarrstarirot,relaccQL2,acc,lenwrk,wrkstr,intout(1),ifailloc)
+!!$          IF (ifailloc /= 0) THEN
+!!$             IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL rFekstarrstarirot integration at p=',p,' nu=',nu
+!!$          ENDIF
+        intout(:)=0
+        minpts=0; ifailloc=1
+        IF (ninorm(p,ion) > min_ninorm) THEN
+           ifailloc = pcubature(1, iFekstarrstarirot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+           intout(2) = intout_cub(1)
+           IF (ifailloc /= 0) THEN
+              IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFekstarrstarirot integration at p=',p,' nu=',nu, ' ion =',ion
+           ENDIF
+        ENDIF
+        rfoncteci(ion) = intmult*intout(1); ifoncteci(ion)=intmult*intout(2)
+
+        !ION ang mom INTEGRALS
+        minpts = 0; ifailloc=1 ; reerrarr(:)=1.d-1; rgtype(:)=2
+!!$          ifailloc=1
+!!$          CALL d01fcf(ndim,a,b,minpts,maxpts,rFvkstarrstarirot,relaccQL2,acc,lenwrk,wrkstr,intout(1),ifailloc)
+!!$          IF (ifailloc /= 0) THEN
+!!$             IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL rFekstarrstarirot integration at p=',p,' nu=',nu
+!!$          ENDIF
+        intout(1)=0
+
+        IF ( ((ABS(Machpar(p)) < epsS) .AND. (ABS(Aupar(p)) < epsS) .AND. (ABS(gammaE(p)) < epsS)) .OR. (ninorm(p,ion)<min_ninorm) ) THEN
+           intout(2) = 0        
+        ELSE
+           minpts=0; ifailloc=1 
+           ifailloc = pcubature(1, iFvkstarrstarirot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
            intout(2) = intout_cub(1)
            IF (ifailloc /= 0) THEN
               IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFvkstarrstarirot integration at p=',p,' nu=',nu,' ion=',ion
@@ -2236,7 +2941,7 @@ CONTAINS
 
     !ELECTRON PARTICLE FLUX INTEGRALS
     
-    IF(temp_flag.EQ.0) THEN
+    IF(QL_method.EQ.0) THEN
 
       IF (inttype == 1) THEN
 
@@ -2278,7 +2983,7 @@ CONTAINS
             rfonctvci(ion) = intmult*intout(1); ifonctvci(ion)=intmult*intout(2)
          ENDDO
       ENDIF
-    ELSE
+    ELSE IF(QL_method.EQ.1) THEN
       DO ion=1,nions
 
         !ION ang mom INTEGRALS
@@ -2294,7 +2999,31 @@ CONTAINS
            intout(2) = 0        
         ELSE
            minpts=0; ifailloc=1  
-           ifailloc = hcubature(1, iFvkstarrstarirot_cubature, ndim, a, b, maxpts, reqabsacc_newt, reqrelacc_newt, 1, intout_cub, acc_cub)
+           ifailloc = hcubature(1, iFvkstarrstarirot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
+           intout(2) = intout_cub(1)
+           IF (ifailloc /= 0) THEN
+              IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFvkstarrstarirot integration at p=',p,' nu=',nu,' ion=',ion
+           ENDIF
+        ENDIF
+        rfonctvci(ion) = intmult*intout(1); ifonctvci(ion)=intmult*intout(2)
+     ENDDO
+     ELSE IF(QL_method.EQ.2) THEN
+      DO ion=1,nions
+
+        !ION ang mom INTEGRALS
+        minpts = 0; ifailloc=1 ; reerrarr(:)=1.d-1; rgtype(:)=2
+  !!$          ifailloc=1
+  !!$          CALL d01fcf(ndim,a,b,minpts,maxpts,rFvkstarrstarirot,relaccQL2,acc,lenwrk,wrkstr,intout(1),ifailloc)
+  !!$          IF (ifailloc /= 0) THEN
+  !!$             IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL rFekstarrstarirot integration at p=',p,' nu=',nu
+  !!$          ENDIF
+        intout(1)=0
+
+        IF ( ((ABS(Machpar(p)) < epsS) .AND. (ABS(Aupar(p)) < epsS) .AND. (ABS(gammaE(p)) < epsS)) .OR. (ninorm(p,ion)<min_ninorm) ) THEN
+           intout(2) = 0        
+        ELSE
+           minpts=0; ifailloc=1  
+           ifailloc = pcubature(1, iFvkstarrstarirot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
            intout(2) = intout_cub(1)
            IF (ifailloc /= 0) THEN
               IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I0,A,I0)") 'ifailloc = ',ifailloc,'. Abnormal termination of 2DNAG QL iFvkstarrstarirot integration at p=',p,' nu=',nu,' ion=',ion
@@ -2303,6 +3032,8 @@ CONTAINS
         rfonctvci(ion) = intmult*intout(1); ifonctvci(ion)=intmult*intout(2)
      ENDDO
     END IF
+
+
 
     !The complex forms are reconstructed
     fonctvci = rfonctvci + ci * ifonctvci
