@@ -100,9 +100,6 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
   !integration parameters
   INTEGER, INTENT(IN) :: int_methodin, newt_methodin, QL_methodin, fluid_methodin, newt_convin, int_splitin, normin
   REAL(KIND=DBL), INTENT(IN) :: reqrelaccin, reqabsaccin, reqrelacc_newtin, reqabsacc_newtin, reqrelacc_QLin, reqabsacc_QLin
-  
-  INTEGER :: int_methodtmp, newt_methodtmp, newt_convtmp, int_splittmp, normintmp
-  REAL(KIND=DBL) :: reqrelacctmp, reqabsacctmp, reqrelacc_newttmp, reqabsacc_newttmp
 
   ! List of output variables: 
 
@@ -182,60 +179,7 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
   CALL mpi_comm_rank(mpi_comm_world,myrank,ierror)
 
   CALL SYSTEM_CLOCK(time1)
-  
-  ! IF(PRESENT(int_methodin)) THEN
-    ! int_methodtmp = int_methodin
-  ! ELSE
-    ! int_methodtmp = 0
-  ! END IF
-  
-  ! IF(PRESENT(newt_methodin)) THEN
-    ! newt_methodtmp = newt_methodin
-  ! ELSE
-    ! newt_methodtmp = 0
-  ! END IF
-  
-  ! IF(PRESENT(newt_convin)) THEN
-    ! newt_convtmp = newt_convin
-  ! ELSE
-    ! newt_convtmp = 0
-  ! END IF
-  
-  ! IF(PRESENT(int_splitin)) THEN
-    ! int_splittmp = int_splitin
-  ! ELSE
-    ! int_splittmp = 0
-  ! END IF
-  
-  ! IF(PRESENT(normin)) THEN
-    ! normintmp = normin
-  ! ELSE
-    ! normintmp = 2
-  ! END IF
-  
-  ! IF(PRESENT(reqrelaccin)) THEN
-    ! reqrelacctmp = reqrelaccin
-  ! ELSE
-    ! reqrelacctmp = 0.08_DBL
-  ! END IF
-  
-  ! IF(PRESENT(reqabsaccin)) THEN
-    ! reqabsacctmp = reqabsaccin
-  ! ELSE
-    ! reqabsacctmp = 0.02_DBL
-  ! END IF
-  
-  ! IF(PRESENT(reqrelacc_newtin)) THEN
-    ! reqrelacc_newttmp = reqrelacc_newtin
-  ! ELSE
-    ! reqrelacc_newttmp = 0.01_DBL
-  ! END IF
-  
-  ! IF(PRESENT(reqabsacc_newtin)) THEN
-    ! reqabsacc_newttmp = reqabsacc_newtin
-  ! ELSE
-    ! reqabsacc_newttmp = 0._DBL
-  ! END IF
+ 
   
 
   ! Make the input (including derived quantities)
@@ -245,7 +189,7 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
        & ion_typein, Aiin, Ziin, Tixin, ninormin, Atiin, Aniin, anisin, danisdrin, & 
        & Machtorin, Autorin, Machparin, Auparin, gammaEin, &
        & maxrunsin, maxptsin, relacc1in, relacc2in, timeoutin,ETGmultin,collmultin, &
-       & int_methodin, newt_methodin, QL_methodin, fluid_methodin, newt_convin, int_splitin, normin, reqrelaccin, reqabsaccin, reqrelacc_newtin, reqabsacc_newtin, reqrelacc_QL, reqabsacc_QL)  !code specific inputs
+       & int_methodin, newt_methodin, QL_methodin, fluid_methodin, newt_convin, int_splitin, normin, reqrelaccin, reqabsaccin, reqrelacc_newtin, reqabsacc_newtin, reqrelacc_QLin, reqabsacc_QLin)  !code specific inputs
 
   ! set optional input
   IF (PRESENT(oldsolin)) THEN
