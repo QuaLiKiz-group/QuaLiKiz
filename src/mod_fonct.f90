@@ -3251,13 +3251,13 @@ CONTAINS
              ENDIF
           ELSEIF (inttype == 2) THEN
              minpts=0; ifailloc = 1
-             CALL d01fcf(ndim,a,b,minpts,maxpts,rFFke,relacc2,acc,lenwrk,wrkstr,intout(1),ifailloc)
+             !CALL d01fcf(ndim,a,b,minpts,maxpts,rFFke,relacc2,acc,lenwrk,wrkstr,intout(1),ifailloc)
              IF (ifailloc /= 0) THEN
                 IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
                      &'. Abnormal termination of 2DNAG rFFke integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
              ENDIF
              minpts=0; ifailloc = 1
-             CALL d01fcf(ndim,a,b,minpts,maxpts,iFFke,relacc2,acc,lenwrk,wrkstr,intout(2),ifailloc)
+             !CALL d01fcf(ndim,a,b,minpts,maxpts,iFFke,relacc2,acc,lenwrk,wrkstr,intout(2),ifailloc)
              IF (ifailloc /= 0) THEN
                 IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
                      &'. Abnormal termination of 2DNAG iFFke integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
@@ -3367,7 +3367,7 @@ CONTAINS
        ENDIF
     ELSEIF (inttype == 2) THEN
        minpts=0; ifailloc = 1
-       CALL d01fcf(ndim,a,b,minpts,maxpts,rFkstarrstar,relacc2,acc,lenwrk,wrkstr,intout(1),ifailloc)
+       !CALL d01fcf(ndim,a,b,minpts,maxpts,rFkstarrstar,relacc2,acc,lenwrk,wrkstr,intout(1),ifailloc)
        IF (ifailloc /= 0) THEN
           IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
                &'. Abnormal termination of 2DNAG rFkstarrstar integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
@@ -3378,7 +3378,7 @@ CONTAINS
        ENDIF
 
        minpts=0; ifailloc = 1
-       CALL d01fcf(ndim,a,b,minpts,maxpts,iFkstarrstar,relacc2,acc,lenwrk,wrkstr,intout(2),ifailloc)
+       !CALL d01fcf(ndim,a,b,minpts,maxpts,iFkstarrstar,relacc2,acc,lenwrk,wrkstr,intout(2),ifailloc)
        IF (ifailloc /= 0) THEN
           IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
                &'. Abnormal termination of 2DNAG iFkstarrstar integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
@@ -3459,13 +3459,13 @@ CONTAINS
              ENDIF
           ELSEIF (inttype == 2) THEN
              minpts=0; ifailloc = 1
-             CALL d01fcf(ndim,a,b,minpts,maxpts,rFFkerot,relacc2,acc,lenwrk,wrkstr,intout(1),ifailloc)
+             !CALL d01fcf(ndim,a,b,minpts,maxpts,rFFkerot,relacc2,acc,lenwrk,wrkstr,intout(1),ifailloc)
              IF (ifailloc /= 0) THEN
                 IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
                      &'. Abnormal termination of 2DNAG rFFkerot integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
              ENDIF
              minpts=0; ifailloc = 1
-             CALL d01fcf(ndim,a,b,minpts,maxpts,iFFkerot,relacc2,acc,lenwrk,wrkstr,intout(2),ifailloc)
+             !CALL d01fcf(ndim,a,b,minpts,maxpts,iFFkerot,relacc2,acc,lenwrk,wrkstr,intout(2),ifailloc)
              IF (ifailloc /= 0) THEN
                 IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
                      &'. Abnormal termination of 2DNAG iFFkerot integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
@@ -3579,7 +3579,7 @@ CONTAINS
     ELSEIF (inttype == 2) THEN
 
        minpts=0; ifailloc = 1
-       CALL d01fcf(ndim,a,b,minpts,maxpts,rFkstarrstarrot,relacc2,acc,lenwrk,wrkstr,intout(1),ifailloc)
+       !CALL d01fcf(ndim,a,b,minpts,maxpts,rFkstarrstarrot,relacc2,acc,lenwrk,wrkstr,intout(1),ifailloc)
        IF (ifailloc /= 0) THEN
           IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
                &'. Abnormal termination of 2DNAG rFkstarrstarrot integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'
@@ -3590,7 +3590,7 @@ CONTAINS
        ENDIF
 
        minpts=0; ifailloc = 1  
-       CALL d01fcf(ndim,a,b,minpts,maxpts,iFkstarrstarrot,relacc2,acc,lenwrk,wrkstr,intout(2),ifailloc)
+       !CALL d01fcf(ndim,a,b,minpts,maxpts,iFkstarrstarrot,relacc2,acc,lenwrk,wrkstr,intout(2),ifailloc)
        IF (ifailloc /= 0) THEN
           IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I7,A,I3,A,G10.3,A,G10.3,A)") 'ifailloc = ',ifailloc,&
                &'. Abnormal termination of 2DNAG iFkstarrstarrot integration in mod_fonct at p=',p,', nu=',nu,' omega=(',REAL(omega),',',AIMAG(omega),')'

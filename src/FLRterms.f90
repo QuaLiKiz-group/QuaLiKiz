@@ -2,6 +2,8 @@ MODULE FLRterms
   USE kind
   USE datmat
   USE datcal
+  USE HCUB
+  USE PCUB
 
   IMPLICIT NONE
 
@@ -12,6 +14,7 @@ CONTAINS
     !! Aribitrary normalisation factor (normkr) introduced to optimize kr integration
     INTEGER, INTENT(IN) :: p, nu
     REAL(kind=DBL) :: minFLR, maxFLR, relerr
+    REAL(KIND=DBL), DIMENSION(1) :: minFLR_cubature, maxFLR_cubature, intout_cub, acc_cub
     INTEGER :: npts !output of number of integral evaluations
     INTEGER :: ifailloc
 
@@ -37,21 +40,27 @@ CONTAINS
 !!$         alist, blist, rlist, elist, iord, last)
 
     ifailloc = 1
-    Joe2p = d01ahf(minFLR,maxFLR,epsFLR,npts,relerr,nFLRep,lw,ifailloc)
+    !Joe2p = d01ahf(minFLR,maxFLR,epsFLR,npts,relerr,nFLRep,lw,ifailloc)
+    ifailloc = hcubature(1, nFLRep_cubature, 1, minFLR_cubature, maxFLR_cubature, npts, 0._DBL, epsFLR, 1, intout_cub, acc_cub)
+    Joe2p = intout_cub(1)
     IF (ifailloc /= 0) THEN
        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0,A,I0)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of J0e2p FLR integration at p=',p,', nu=',nu
     ENDIF
 
     ifailloc = 1
-    J1e2p = d01ahf(minFLR,maxFLR,epsFLR,npts,relerr,nFLRep1,lw,ifailloc)
+    !J1e2p = d01ahf(minFLR,maxFLR,epsFLR,npts,relerr,nFLRep1,lw,ifailloc)
+    ifailloc = hcubature(1, nFLRep1_cubature, 1, minFLR_cubature, maxFLR_cubature, npts, 0._DBL, epsFLR, 1, intout_cub, acc_cub)
+    J1e2p = intout_cub(1)
     IF (ifailloc /= 0) THEN
        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0,A,I0)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of J1e2p FLR integration at p=',p,', nu=',nu
     ENDIF
 
     ifailloc = 1
-    Joe2c = d01ahf(minFLR,maxFLR,epsFLR,npts,relerr,nFLRec,lw,ifailloc)
+    !Joe2c = d01ahf(minFLR,maxFLR,epsFLR,npts,relerr,nFLRec,lw,ifailloc)
+    ifailloc = hcubature(1, nFLRec_cubature, 1, minFLR_cubature, maxFLR_cubature, npts, 0._DBL, epsFLR, 1, intout_cub, acc_cub)
+    Joe2c = intout_cub(1)
     IF (ifailloc /= 0) THEN
        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0,A,I0)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of J0e2c FLR integration at p=',p,', nu=',nu
@@ -63,14 +72,18 @@ CONTAINS
        !           alist, blist, rlist, elist, iord, last)
 
        ifailloc = 1
-       Joi2p(ion) = d01ahf(minFLR,maxFLR,epsFLR,npts,relerr,nFLRip,lw,ifailloc)
+       !Joi2p(ion) = d01ahf(minFLR,maxFLR,epsFLR,npts,relerr,nFLRip,lw,ifailloc)
+       ifailloc = hcubature(1, nFLRip_cubature, 1, minFLR_cubature, maxFLR_cubature, npts, 0._DBL, epsFLR, 1, intout_cub, acc_cub)
+       Joi2p(ion) = intout_cub(1)
        IF (ifailloc /= 0) THEN
           IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0,A,I0)") 'ifailloc = ',ifailloc,&
                &'. Abnormal termination of J0i2p FLR integration at p=',p,', nu=',nu
        ENDIF
 
        ifailloc = 1
-       J1i2p(ion) = d01ahf(minFLR,maxFLR,epsFLR,npts,relerr,nFLRip1,lw,ifailloc)
+       !J1i2p(ion) = d01ahf(minFLR,maxFLR,epsFLR,npts,relerr,nFLRip1,lw,ifailloc)
+       ifailloc = hcubature(1, nFLRip1_cubature, 1, minFLR_cubature, maxFLR_cubature, npts, 0._DBL, epsFLR, 1, intout_cub, acc_cub)
+       J1i2p(ion) = intout_cub(1)
        IF (ifailloc /= 0) THEN
           IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0,A,I0)") 'ifailloc = ',ifailloc,&
                &'. Abnormal termination of J1i2p FLR integration at p=',p,', nu=',nu
@@ -84,7 +97,9 @@ CONTAINS
        !     alist, blist, rlist, elist, iord, last)
 
        ifailloc = 1
-       Joi2c(ion) = d01ahf(minFLR,maxFLR,epsFLR,npts,relerr,nFLRic,lw,ifailloc)
+       !Joi2c(ion) = d01ahf(minFLR,maxFLR,epsFLR,npts,relerr,nFLRic,lw,ifailloc)
+       ifailloc = hcubature(1, nFLRic_cubature, 1, minFLR_cubature, maxFLR_cubature, npts, 0._DBL, epsFLR, 1, intout_cub, acc_cub)
+       Joi2c(ion) = intout_cub(1)
        IF (ifailloc /= 0) THEN
           IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0,A,I0)") 'ifailloc = ',ifailloc,&
                &'. Abnormal termination of J0i2c FLR integration at p=',p,', nu=',nu
@@ -107,11 +122,14 @@ CONTAINS
     !! Aribitrary normalisation factor (normkr) introduced to optimize kr integration
     INTEGER, INTENT(IN) :: p, nu
     REAL(kind=DBL) :: minFLR, maxFLR, relerr
+    REAL(KIND=DBL), DIMENSION(1) :: minFLR_cubature, maxFLR_cubature, intout_cub, acc_cub
     INTEGER :: npts !output of number of integral evaluations
     INTEGER :: ifailloc
 
     maxFLR =   ABS(2*pi/(widthhat*normkr))
     minFLR = - maxFLR
+    minFLR_cubature(1) = minFLR
+    maxFLR_cubature(1) = maxFLR
 
     !Allocate work arrays for integration routine
     ALLOCATE(alist(limit))
@@ -127,13 +145,17 @@ CONTAINS
 !!$    CALL DQAGSE_QLK(nFLRep1rot,minFLR,maxFLR,epsFLR,epsFLR,limit,J1e2p,relerr,npts,ifailloc,&
 !!$         alist, blist, rlist, elist, iord, last)
     ifailloc = 1
-    Joe2p = d01ahf(minFLR,maxFLR,epsFLR,npts,relerr,nFLReprot,lw,ifailloc)
+    !Joe2p = d01ahf(minFLR,maxFLR,epsFLR,npts,relerr,nFLReprot,lw,ifailloc)
+    ifailloc = hcubature(1, nFLReprot_cubature, 1, minFLR_cubature, maxFLR_cubature, npts, 0._DBL, epsFLR, 1, intout_cub, acc_cub)
+    Joe2p = intout_cub(1)
     IF (ifailloc /= 0) THEN
        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0,A,I0)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of J0e2p FLR integration at p=',p,', nu=',nu
     ENDIF
     ifailloc = 1
-    J1e2p = d01ahf(minFLR,maxFLR,epsFLR,npts,relerr,nFLRep1rot,lw,ifailloc)
+    !J1e2p = d01ahf(minFLR,maxFLR,epsFLR,npts,relerr,nFLRep1rot,lw,ifailloc)
+    ifailloc = hcubature(1, nFLRep1rot_cubature, 1, minFLR_cubature, maxFLR_cubature, npts, 0._DBL, epsFLR, 1, intout_cub, acc_cub)
+    J1e2p = intout_cub(1)
     IF (ifailloc /= 0) THEN
        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0,A,I0)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of J0e2p FLR integration at p=',p,', nu=',nu
@@ -158,14 +180,18 @@ CONTAINS
 !!$       CALL DQAGSE_QLK(nFLRip1rot,minFLR,maxFLR,epsFLR,epsFLR,limit,J1i2p(ion),relerr,npts,ifailloc,&
 !!$            alist, blist, rlist, elist, iord, last)
        ifailloc = 1
-       Joi2p(ion) = d01ahf(minFLR,maxFLR,epsFLR,npts,relerr,nFLRiprot,lw,ifailloc)
+       !Joi2p(ion) = d01ahf(minFLR,maxFLR,epsFLR,npts,relerr,nFLRiprot,lw,ifailloc)
+       ifailloc = hcubature(1, nFLRiprot_cubature, 1, minFLR_cubature, maxFLR_cubature, npts, 0._DBL, epsFLR, 1, intout_cub, acc_cub)
+       Joi2p(ion) = intout_cub(1)
        IF (ifailloc /= 0) THEN
           IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0,A,I0)") 'ifailloc = ',ifailloc,&
                &'. Abnormal termination of J0i2p FLR integration at p=',p,', nu=',nu
        ENDIF
 
        ifailloc = 1                                
-       J1i2p(ion) = d01ahf(minFLR,maxFLR,epsFLR,npts,relerr,nFLRip1rot,lw,ifailloc)
+       !J1i2p(ion) = d01ahf(minFLR,maxFLR,epsFLR,npts,relerr,nFLRip1rot,lw,ifailloc)
+       ifailloc = hcubature(1, nFLRip1rot_cubature, 1, minFLR_cubature, maxFLR_cubature, npts, 0._DBL, epsFLR, 1, intout_cub, acc_cub)
+       J1i2p(ion) = intout_cub(1)
        IF (ifailloc /= 0) THEN
           IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0,A,I0)") 'ifailloc = ',ifailloc,&
                &'. Abnormal termination of J1i2p FLR integration at p=',p,', nu=',nu
@@ -220,6 +246,26 @@ CONTAINS
 
   END FUNCTION nFLRec
 
+  INTEGER FUNCTION nFLRec_cubature(ndim, x, fdata, fdim, fval) RESULT(output)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: xx
+    
+    IF((ndim.NE.1).OR.(fdim.NE.1)) THEN
+      output = 1
+      RETURN
+    END IF
+    
+    xx = x(1) 
+    
+    fval(1) = nFLRec(xx)
+    output = 0
+  END FUNCTION nFLRec_cubature
+  
   REAL(KIND=DBL) FUNCTION nFLRep(krr)
 !!! Routine for improved FLR, trapped electrons
 !!! FLR of trapped particles are calculated from an integration over kr of
@@ -247,6 +293,26 @@ CONTAINS
 
   END FUNCTION nFLRep
 
+  INTEGER FUNCTION nFLRep_cubature(ndim, x, fdata, fdim, fval) RESULT(output)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: xx
+    
+    IF((ndim.NE.1).OR.(fdim.NE.1)) THEN
+      output = 1
+      RETURN
+    END IF
+    
+    xx = x(1) 
+    
+    fval(1) = nFLRep(xx)
+    output = 0
+  END FUNCTION nFLRep_cubature
+  
   REAL(KIND=DBL) FUNCTION nFLRep1(krr)
 !!! Routine for improved  trapped electrons response evaluation
 !!! Pierre 22/2/11
@@ -275,6 +341,26 @@ CONTAINS
 
   END FUNCTION nFLRep1
 
+  INTEGER FUNCTION nFLRep1_cubature(ndim, x, fdata, fdim, fval) RESULT(output)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: xx
+    
+    IF((ndim.NE.1).OR.(fdim.NE.1)) THEN
+      output = 1
+      RETURN
+    END IF
+    
+    xx = x(1) 
+    
+    fval(1) = nFLRep1(xx)
+    output = 0
+  END FUNCTION nFLRep1_cubature
+  
   REAL(KIND=DBL) FUNCTION nFLRic(krr)
 !!! Routine for improved FLR, passing ions
 !!! FLR of passing particles are calculated from an integration over kr of
@@ -300,6 +386,26 @@ CONTAINS
 
   END FUNCTION nFLRic
 
+  INTEGER FUNCTION nFLRic_cubature(ndim, x, fdata, fdim, fval) RESULT(output)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: xx
+    
+    IF((ndim.NE.1).OR.(fdim.NE.1)) THEN
+      output = 1
+      RETURN
+    END IF
+    
+    xx = x(1) 
+    
+    fval(1) = nFLRic(xx)
+    output = 0
+  END FUNCTION nFLRic_cubature
+  
   REAL(KIND=DBL) FUNCTION nFLRip(krr)
 !!! Routine for improved FLR, trapped ions
 !!! FLR of trapped particles are calculated from an integration over kr of
@@ -327,6 +433,26 @@ CONTAINS
 
   END FUNCTION nFLRip
 
+  INTEGER FUNCTION nFLRip_cubature(ndim, x, fdata, fdim, fval) RESULT(output)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: xx
+    
+    IF((ndim.NE.1).OR.(fdim.NE.1)) THEN
+      output = 1
+      RETURN
+    END IF
+    
+    xx = x(1) 
+    
+    fval(1) = nFLRip(xx)
+    output = 0
+  END FUNCTION nFLRip_cubature
+  
   REAL(KIND=DBL) FUNCTION nFLRip1(krr)
 !!! Routine for improved trapped ion response evaluation
 !!! Pierre 22/2/11
@@ -352,6 +478,26 @@ CONTAINS
 
   END FUNCTION nFLRip1
 
+  INTEGER FUNCTION nFLRip1_cubature(ndim, x, fdata, fdim, fval) RESULT(output)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: xx
+    
+    IF((ndim.NE.1).OR.(fdim.NE.1)) THEN
+      output = 1
+      RETURN
+    END IF
+    
+    xx = x(1) 
+    
+    fval(1) = nFLRip1(xx)
+    output = 0
+  END FUNCTION nFLRip1_cubature
+  
   REAL(KIND=DBL) FUNCTION nFLRecrot(krr)
 !!! Routine for improved FLR, passing electrons
 !!! FLR of passing particles are calculated from an integration over kr of
@@ -382,6 +528,26 @@ CONTAINS
 
   END FUNCTION nFLRecrot
 
+  INTEGER FUNCTION nFLRecrot_cubature(ndim, x, fdata, fdim, fval) RESULT(output)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: xx
+    
+    IF((ndim.NE.1).OR.(fdim.NE.1)) THEN
+      output = 1
+      RETURN
+    END IF
+    
+    xx = x(1) 
+    
+    fval(1) = nFLRecrot(xx)
+    output = 0
+  END FUNCTION nFLRecrot_cubature
+  
   REAL(KIND=DBL) FUNCTION nFLReprot(krr)
 !!! Routine for improved FLR, trapped electrons
 !!! FLR of trapped particles are calculated from an integration over kr of
@@ -412,6 +578,26 @@ CONTAINS
 
   END FUNCTION nFLReprot
 
+  INTEGER FUNCTION nFLReprot_cubature(ndim, x, fdata, fdim, fval) RESULT(output)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: xx
+    
+    IF((ndim.NE.1).OR.(fdim.NE.1)) THEN
+      output = 1
+      RETURN
+    END IF
+    
+    xx = x(1) 
+    
+    fval(1) = nFLReprot(xx)
+    output = 0
+  END FUNCTION nFLReprot_cubature
+  
   REAL(KIND=DBL) FUNCTION nFLRep1rot(krr)
 !!! Routine for improved  trapped electrons response evaluation
 !!! Pierre 22/2/11
@@ -439,6 +625,26 @@ CONTAINS
 
   END FUNCTION nFLRep1rot
 
+  INTEGER FUNCTION nFLRep1rot_cubature(ndim, x, fdata, fdim, fval) RESULT(output)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: xx
+    
+    IF((ndim.NE.1).OR.(fdim.NE.1)) THEN
+      output = 1
+      RETURN
+    END IF
+    
+    xx = x(1) 
+    
+    fval(1) = nFLRep1rot(xx)
+    output = 0
+  END FUNCTION nFLRep1rot_cubature
+  
   REAL(KIND=DBL) FUNCTION nFLRicrot(krr)
 !!! Routine for improved FLR, passing ions
 !!! FLR of passing particles are calculated from an integration over kr of
@@ -464,6 +670,26 @@ CONTAINS
 
   END FUNCTION nFLRicrot
 
+  INTEGER FUNCTION nFLRicrot_cubature(ndim, x, fdata, fdim, fval) RESULT(output)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: xx
+    
+    IF((ndim.NE.1).OR.(fdim.NE.1)) THEN
+      output = 1
+      RETURN
+    END IF
+    
+    xx = x(1) 
+    
+    fval(1) = nFLRicrot(xx)
+    output = 0
+  END FUNCTION nFLRicrot_cubature
+  
   REAL(KIND=DBL) FUNCTION nFLRiprot(krr)
 !!! Routine for improved FLR, trapped ions
 !!! FLR of trapped particles are calculated from an integration over kr of
@@ -491,6 +717,26 @@ CONTAINS
 
   END FUNCTION nFLRiprot
 
+  INTEGER FUNCTION nFLRiprot_cubature(ndim, x, fdata, fdim, fval) RESULT(output)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: xx
+    
+    IF((ndim.NE.1).OR.(fdim.NE.1)) THEN
+      output = 1
+      RETURN
+    END IF
+    
+    xx = x(1) 
+    
+    fval(1) = nFLRiprot(xx)
+    output = 0
+  END FUNCTION nFLRiprot_cubature
+  
   REAL(KIND=DBL) FUNCTION nFLRip1rot(krr)
 !!! Routine for improved trapped ion response evaluation
 !!! Pierre 22/2/11
@@ -517,4 +763,24 @@ CONTAINS
 
   END FUNCTION nFLRip1rot
 
+  INTEGER FUNCTION nFLRip1rot_cubature(ndim, x, fdata, fdim, fval) RESULT(output)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: xx
+    
+    IF((ndim.NE.1).OR.(fdim.NE.1)) THEN
+      output = 1
+      RETURN
+    END IF
+    
+    xx = x(1) 
+    
+    fval(1) = nFLRip1rot(xx)
+    output = 0
+  END FUNCTION nFLRip1rot_cubature
+  
 END MODULE FLRterms

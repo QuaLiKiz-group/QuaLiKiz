@@ -148,8 +148,8 @@ MODULE datmat
   EXTERNAL BESEI0, BESEI1
 
   !NAG proxies
-  REAL(KIND=DBL) :: d01ahf
-  EXTERNAL d01ahf, d01fcf
+  !REAL(KIND=DBL) :: d01ahf
+  !EXTERNAL d01ahf, d01fcf
 
   !Used for DFZERO
   !  EXTERNAL phieq

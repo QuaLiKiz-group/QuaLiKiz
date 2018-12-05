@@ -35,6 +35,7 @@ CONTAINS
     LOGICAL :: issol
     REAL(kind=DBL) :: kteta,maxdia
     REAL(KIND=DBL) :: maxklam,minklam,relerr
+    REAL(KIND=DBL), DIMENSION(1) :: xmin, xmax, intout_cub, acc_cub
 
     CHARACTER(len=20) :: fmtn
     INTEGER :: myunit=700
@@ -197,6 +198,9 @@ CONTAINS
     nulam = nu
     maxklam =   ABS(pi/(distan(p,nu)*normkr)) 
     minklam = - maxklam
+    
+    xmin(1) = 0._DBL
+    xmax(1) = 1._DBL - 2.*epsilon(p)
 
     !Calculate sin^2(theta/2) weighted against the eigenfunction. At the moment not used
 !!$    sin2th = d01ahf(minklam,maxklam,relacc1,npts,relerr,sin2thint,lw,ifailloc)
@@ -213,7 +217,9 @@ CONTAINS
 
     alamnorm = fc(p) !to be consistent with passing particle fraction
 
-    alam1=d01ahf(0.,1.-2.*epsilon(p),relacc1,npts,relerr,alam1int,lw,ifailloc)/alamnorm !pitch angle average of sqrt(1-lambda*b)
+    !alam1=d01ahf(0.,1.-2.*epsilon(p),relacc1,npts,relerr,alam1int,lw,ifailloc)/alamnorm !pitch angle average of sqrt(1-lambda*b)
+    ifailloc = hcubature(1, alam1int_cubature, 1, xmin, xmax, npts, 0._DBL, relacc1, 1, intout_cub, acc_cub)
+    alam1 = intout_cub(1) / alamnorm
     IF (ifailloc /= 0) THEN
        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I7,A,I3)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of alam1 integration at p=',p,', nu=',nu
@@ -222,25 +228,33 @@ CONTAINS
 !!$    WRITE(*,*) 'alam1,alam1*alamnorm/fc(p),1/SQRT(3)',alam1,alam1*alamnorm/fc(p),1./SQRT(3.)
 
     !pitch angle average of (1-lambda*b)
-    alam2=d01ahf(0.,1.-2.*epsilon(p),relacc1,npts,relerr,alam2int,lw,ifailloc)/alamnorm !pitch angle average of (1-lambda*b)
+    !alam2=d01ahf(0.,1.-2.*epsilon(p),relacc1,npts,relerr,alam2int,lw,ifailloc)/alamnorm !pitch angle average of (1-lambda*b)
+    ifailloc = hcubature(1, alam2int_cubature, 1, xmin, xmax, npts, 0._DBL, relacc1, 1, intout_cub, acc_cub)
+    alam2 = intout_cub(1) / alamnorm
     IF (ifailloc /= 0) THEN
        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I7,A,I3)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of alam2 integration at p=',p,', nu=',nu
     ENDIF
 
-    alam3=d01ahf(0.,1.-2.*epsilon(p),relacc1,npts,relerr,alam3int,lw,ifailloc)/alamnorm !pitch angle average of (1-lambda*b)^3/2
+    !alam3=d01ahf(0.,1.-2.*epsilon(p),relacc1,npts,relerr,alam3int,lw,ifailloc)/alamnorm !pitch angle average of (1-lambda*b)^3/2
+    ifailloc = hcubature(1, alam3int_cubature, 1, xmin, xmax, npts, 0._DBL, relacc1, 1, intout_cub, acc_cub)
+    alam3 = intout_cub(1) / alamnorm
     IF (ifailloc /= 0) THEN
        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I7,A,I3)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of alam3 integration at p=',p,', nu=',nu
     ENDIF
 
-    alam4=d01ahf(0.,1.-2.*epsilon(p),relacc1,npts,relerr,alam4int,lw,ifailloc)/alamnorm !pitch angle average of (1-lambda*b)^2
+    !alam4=d01ahf(0.,1.-2.*epsilon(p),relacc1,npts,relerr,alam4int,lw,ifailloc)/alamnorm !pitch angle average of (1-lambda*b)^2
+    ifailloc = hcubature(1, alam4int_cubature, 1, xmin, xmax, npts, 0._DBL, relacc1, 1, intout_cub, acc_cub)
+    alam4 = intout_cub(1) / alamnorm
     IF (ifailloc /= 0) THEN
        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I7,A,I3)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of alam4 integration at p=',p,', nu=',nu
     ENDIF
 
-    alam5=d01ahf(0.,1.-2.*epsilon(p),relacc1,npts,relerr,alam5int,lw,ifailloc)/alamnorm !pitch angle average of (1-lambda*b)^5/2
+    !alam5=d01ahf(0.,1.-2.*epsilon(p),relacc1,npts,relerr,alam5int,lw,ifailloc)/alamnorm !pitch angle average of (1-lambda*b)^5/2
+    ifailloc = hcubature(1, alam5int_cubature, 1, xmin, xmax, npts, 0._DBL, relacc1, 1, intout_cub, acc_cub)
+    alam5 = intout_cub(1) / alamnorm
     IF (ifailloc /= 0) THEN
        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I7,A,I3)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of alam5 integration at p=',p,', nu=',nu
@@ -1544,6 +1558,26 @@ CONTAINS
     alam1int = Rlam2/Rlam1*1./(4.*pi)*Tlam
 
   END FUNCTION alam1int
+  
+  INTEGER FUNCTION alam1int_cubature(ndim, x, fdata, fdim, fval) RESULT(output)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: xx
+    
+    IF((ndim.NE.1).OR.(fdim.NE.1)) THEN
+      output = 1
+      RETURN
+    END IF
+    
+    xx = x(1) 
+    
+    fval(1) = alam1int(xx)
+    output = 0
+  END FUNCTION alam1int_cubature
 
   REAL(KIND=DBL) FUNCTION alam2int(lamin)
     !integrand for pinch angle iaverage of Vpar^2 for passing particles
@@ -1579,6 +1613,26 @@ CONTAINS
     alam2int = Rlam2/Rlam1*1./(4.*pi)*Tlam
 
   END FUNCTION alam2int
+  
+  INTEGER FUNCTION alam2int_cubature(ndim, x, fdata, fdim, fval) RESULT(output)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: xx
+    
+    IF((ndim.NE.1).OR.(fdim.NE.1)) THEN
+      output = 1
+      RETURN
+    END IF
+    
+    xx = x(1) 
+    
+    fval(1) = alam2int(xx)
+    output = 0
+  END FUNCTION alam2int_cubature
 
   REAL(KIND=DBL) FUNCTION alam3int(lamin)
     !integrand for pinch angle iaverage of Vpar^3 for passing particles
@@ -1614,6 +1668,26 @@ CONTAINS
     alam3int = Rlam2/Rlam1*1./(4.*pi)*Tlam
 
   END FUNCTION alam3int
+  
+  INTEGER FUNCTION alam3int_cubature(ndim, x, fdata, fdim, fval) RESULT(output)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: xx
+    
+    IF((ndim.NE.1).OR.(fdim.NE.1)) THEN
+      output = 1
+      RETURN
+    END IF
+    
+    xx = x(1) 
+    
+    fval(1) = alam3int(xx)
+    output = 0
+  END FUNCTION alam3int_cubature
 
   REAL(KIND=DBL) FUNCTION alam4int(lamin)
     !integrand for pinch angle iaverage of Vpar^4 for passing particles
@@ -1649,6 +1723,26 @@ CONTAINS
     alam4int = Rlam2/Rlam1*1./(4.*pi)*Tlam
 
   END FUNCTION alam4int
+  
+  INTEGER FUNCTION alam4int_cubature(ndim, x, fdata, fdim, fval) RESULT(output)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: xx
+    
+    IF((ndim.NE.1).OR.(fdim.NE.1)) THEN
+      output = 1
+      RETURN
+    END IF
+    
+    xx = x(1) 
+    
+    fval(1) = alam4int(xx)
+    output = 0
+  END FUNCTION alam4int_cubature
 
   REAL(KIND=DBL) FUNCTION alam5int(lamin)
     !integrand for pinch angle iaverage of Vpar^5 for passing particles
@@ -1684,6 +1778,26 @@ CONTAINS
     alam5int = Rlam2/Rlam1*1./(4.*pi)*Tlam
 
   END FUNCTION alam5int
+  
+  INTEGER FUNCTION alam5int_cubature(ndim, x, fdata, fdim, fval) RESULT(output)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: xx
+    
+    IF((ndim.NE.1).OR.(fdim.NE.1)) THEN
+      output = 1
+      RETURN
+    END IF
+    
+    xx = x(1) 
+    
+    fval(1) = alam5int(xx)
+    output = 0
+  END FUNCTION alam5int_cubature
 
 
   REAL(KIND=DBL) FUNCTION sin2thint(krr)
@@ -1699,6 +1813,25 @@ CONTAINS
 
   END FUNCTION sin2thint
 
+  INTEGER FUNCTION sin2thint_cubature(ndim, x, fdata, fdim, fval) RESULT(output)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: xx
+    
+    IF((ndim.NE.1).OR.(fdim.NE.1)) THEN
+      output = 1
+      RETURN
+    END IF
+    
+    xx = x(1) 
+    
+    fval(1) = sin2thint(xx)
+    output = 0
+  END FUNCTION sin2thint_cubature
 
 
 

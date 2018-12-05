@@ -2,6 +2,8 @@ MODULE asymmetry
   USE kind
   USE datmat
   USE datcal
+  USE HCUB
+  USE PCUB
   IMPLICIT NONE
 
   !Module for calculating density poloidal asymmetries based on centrifugal force and temperature anisotropies (i.e. from heating)
@@ -240,6 +242,7 @@ CONTAINS
     !transport coefficients and gradients. Done for each species. Also calcuates the poloidal profile of R/Ln for each species
     REAL(KIND=DBL), DIMENSION(ntheta) :: Aneprof, Rth,Ee,Ei,dtpernormedr,dtpernormidr
     REAL(KIND=DBL) :: Rlfs,theta1,relerr,thmin,thmax
+    REAL(KIND=DBL), DIMENSION(1) :: thmin_cubature, thmax_cubature, intout_cub, acc_cub
     INTEGER :: ith,ifailloc
     INTEGER :: npts !output of number of integral evaluations
 
@@ -253,6 +256,8 @@ CONTAINS
     !limits for integration
     thmin=0._DBL
     thmax=pi
+    thmin_cubature(1) = thmin
+    thmax_cubature(1) = thmax
 
     DO irad=1,dimx !loop over radial locations
 
@@ -285,14 +290,18 @@ CONTAINS
 !!$               alist, blist, rlist, elist, iord, last)
 
           ifailloc = 1
-          ecoefs(irad,ion,1) = d01ahf(thmin,thmax,epsFLR,npts,relerr,e01,lw2,ifailloc)
+          !ecoefs(irad,ion,1) = d01ahf(thmin,thmax,epsFLR,npts,relerr,e01,lw2,ifailloc)
+          ifailloc = hcubature(1, e01_cubature, 1, thmin_cubature, thmax_cubature, npts, 0._DBL, relacc1, 1, intout_cub, acc_cub)
+          ecoefs(irad,ion,1) = intout_cub(1)
           IF (ifailloc .NE. 0) THEN
              IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef failed for coef 1 in list. ifailloc=',ifailloc,'. irad=,',irad,'. ion=',ion
           ENDIF
           !Calculate the flux surface averaged e1 coefficient. 
 
           ifailloc = 1
-          ecoefs(irad,ion,2) = d01ahf(thmin,thmax,epsFLR,npts,relerr,e11,lw2,ifailloc)
+          !ecoefs(irad,ion,2) = d01ahf(thmin,thmax,epsFLR,npts,relerr,e11,lw2,ifailloc)
+          ifailloc = hcubature(1, e11_cubature, 1, thmin_cubature, thmax_cubature, npts, 0._DBL, relacc1, 1, intout_cub, acc_cub)
+          ecoefs(irad,ion,2) = intout_cub(1)
 !!$          CALL DQAGSE_QLK(e11,thmin,thmax,0.,epsFLR,limit,ecoefs(irad,ion,2),relerr,npts,ifailloc,&
 !!$               alist, blist, rlist, elist, iord, last)
           IF (ifailloc .NE. 0) THEN
@@ -301,7 +310,9 @@ CONTAINS
           !Calculate the flux surface averaged e2 coefficient. 
 
           ifailloc = 1
-          ecoefs(irad,ion,3) = d01ahf(thmin,thmax,epsFLR,npts,relerr,e21,lw2,ifailloc)
+          !ecoefs(irad,ion,3) = d01ahf(thmin,thmax,epsFLR,npts,relerr,e21,lw2,ifailloc)
+          ifailloc = hcubature(1, e21_cubature, 1, thmin_cubature, thmax_cubature, npts, 0._DBL, relacc1, 1, intout_cub, acc_cub)
+          ecoefs(irad,ion,3) = intout_cub(1)
 !!$          CALL DQAGSE_QLK(e21,thmin,thmax,0.,epsFLR,limit,ecoefs(irad,ion,3),relerr,npts,ifailloc,&
 !!$               alist, blist, rlist, elist, iord, last)
           IF (ifailloc .NE. 0) THEN
@@ -310,7 +321,9 @@ CONTAINS
           !Calculate the flux surface averaged e3 coefficient. PROBLEM HERE
 
           ifailloc = 1
-          ecoefs(irad,ion,4) = d01ahf(thmin,thmax,epsFLR,npts,relerr,e31,lw2,ifailloc)
+          !ecoefs(irad,ion,4) = d01ahf(thmin,thmax,epsFLR,npts,relerr,e31,lw2,ifailloc)
+          ifailloc = hcubature(1, e31_cubature, 1, thmin_cubature, thmax_cubature, npts, 0._DBL, relacc1, 1, intout_cub, acc_cub)
+          ecoefs(irad,ion,4) = intout_cub(1)
 !!$          CALL DQAGSE_QLK(e31,thmin,thmax,0.,epsFLR,limit,ecoefs(irad,ion,4),relerr,npts,ifailloc,&
 !!$               alist, blist, rlist, elist, iord, last)
           IF (ifailloc .NE. 0) THEN
@@ -319,7 +332,9 @@ CONTAINS
           !Calculate the flux surface averaged e4 coefficient. 
 
           ifailloc = 1
-          ecoefs(irad,ion,5) = d01ahf(thmin,thmax,epsFLR,npts,relerr,e41,lw2,ifailloc)
+          !ecoefs(irad,ion,5) = d01ahf(thmin,thmax,epsFLR,npts,relerr,e41,lw2,ifailloc)
+          ifailloc = hcubature(1, e41_cubature, 1, thmin_cubature, thmax_cubature, npts, 0._DBL, relacc1, 1, intout_cub, acc_cub)
+          ecoefs(irad,ion,5) = intout_cub(1)
 !!$          CALL DQAGSE_QLK(e41,thmin,thmax,0.,epsFLR,limit,ecoefs(irad,ion,5),relerr,npts,ifailloc,&
 !!$               alist, blist, rlist, elist, iord, last)
           IF (ifailloc .NE. 0) THEN
@@ -330,7 +345,9 @@ CONTAINS
 
           !Calculate the flux surface averaged e6 coefficient (new coefficient not defined in GKW Manual) 
           ifailloc = 1
-          ecoefs(irad,ion,7) = d01ahf(thmin,thmax,epsFLR,npts,relerr,e61,lw2,ifailloc)
+          !ecoefs(irad,ion,7) = d01ahf(thmin,thmax,epsFLR,npts,relerr,e61,lw2,ifailloc)
+          ifailloc = hcubature(1, e61_cubature, 1, thmin_cubature, thmax_cubature, npts, 0._DBL, relacc1, 1, intout_cub, acc_cub)
+          ecoefs(irad,ion,7) = intout_cub(1)
 !!$          CALL DQAGSE_QLK(e61,thmin,thmax,0.,epsFLR,limit,ecoefs(irad,ion,7),relerr,npts,ifailloc,&
 !!$               alist, blist, rlist, elist, iord, last)
           IF (ifailloc .NE. 0) THEN
@@ -339,7 +356,9 @@ CONTAINS
 
           !e0-6, then <R/Ln>, <n>, and (nmax-nmin)/<n>
           ifailloc = 1
-          ecoefs(irad,ion,8) = d01ahf(thmin,thmax,epsFLR,npts,relerr,e71,lw2,ifailloc)
+          !ecoefs(irad,ion,8) = d01ahf(thmin,thmax,epsFLR,npts,relerr,e71,lw2,ifailloc)
+          ifailloc = hcubature(1, e71_cubature, 1, thmin_cubature, thmax_cubature, npts, 0._DBL, relacc1, 1, intout_cub, acc_cub)
+          ecoefs(irad,ion,8) = intout_cub(1)
 !!$          CALL DQAGSE_QLK(e71,thmin,thmax,0.,epsFLR,limit,ecoefs(irad,ion,8),relerr,npts,ifailloc,&
 !!$               alist, blist, rlist, elist, iord, last)
           IF (ifailloc .NE. 0) THEN
@@ -347,7 +366,9 @@ CONTAINS
           ENDIF
 
           ifailloc = 1
-          ecoefs(irad,ion,9) = d01ahf(thmin,thmax,epsFLR,npts,relerr,e81,lw2,ifailloc)
+          !ecoefs(irad,ion,9) = d01ahf(thmin,thmax,epsFLR,npts,relerr,e81,lw2,ifailloc)
+          ifailloc = hcubature(1, e81_cubature, 1, thmin_cubature, thmax_cubature, npts, 0._DBL, relacc1, 1, intout_cub, acc_cub)
+          ecoefs(irad,ion,9) = intout_cub(1)
 !!$          CALL DQAGSE_QLK(e81,thmin,thmax,0.,epsFLR,limit,ecoefs(irad,ion,9),relerr,npts,ifailloc,&
 !!$               alist, blist, rlist, elist, iord, last)
           IF (ifailloc .NE. 0) THEN
@@ -355,7 +376,9 @@ CONTAINS
           ENDIF
 
           ifailloc = 1
-          ecoefs(irad,ion,10) = d01ahf(thmin,thmax,epsFLR,npts,relerr,e91,lw2,ifailloc)
+          !ecoefs(irad,ion,10) = d01ahf(thmin,thmax,epsFLR,npts,relerr,e91,lw2,ifailloc)
+          ifailloc = hcubature(1, e91_cubature, 1, thmin_cubature, thmax_cubature, npts, 0._DBL, relacc1, 1, intout_cub, acc_cub)
+          ecoefs(irad,ion,10) = intout_cub(1)
 !!$          CALL DQAGSE_QLK(e91,thmin,thmax,0.,epsFLR,limit,ecoefs(irad,ion,10),relerr,npts,ifailloc,&
 !!$               alist, blist, rlist, elist, iord, last)
           IF (ifailloc .NE. 0) THEN
@@ -417,6 +440,26 @@ CONTAINS
        e01 = tpernormi(irad,ix,ion)*EXP(-Ei/(Tix(irad,ion)*qe*1d3))/pi!*(1+epsilon(irad)*COS(x))
     ENDIF
   END FUNCTION e01
+  
+  INTEGER FUNCTION e01_cubature(ndim, x, fdata, fdim, fval) RESULT(output)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: xx
+    
+    IF((ndim.NE.1).OR.(fdim.NE.1)) THEN
+      output = 1
+      RETURN
+    END IF
+    
+    xx = x(1) 
+    
+    fval(1) = e01(xx)
+    output = 0
+  END FUNCTION e01_cubature
 
   REAL(KIND=DBL) FUNCTION  e11(x)
     !calculate the e1 coefficient at each poloidal position. Includes metric in integrand for flux surface average
@@ -436,6 +479,26 @@ CONTAINS
        e11 = tpernormi(irad,ix,ion)*EXP(-Ei/(Tix(irad,ion)*qe*1d3))*Zi(irad,ion)*qe/(Tix(irad,ion)*qe*1d3)*phi(irad,ix)/pi!*(1+epsilon(irad)*COS(x))
     ENDIF
   END FUNCTION e11
+  
+  INTEGER FUNCTION e11_cubature(ndim, x, fdata, fdim, fval) RESULT(output)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: xx
+    
+    IF((ndim.NE.1).OR.(fdim.NE.1)) THEN
+      output = 1
+      RETURN
+    END IF
+    
+    xx = x(1) 
+    
+    fval(1) = e11(xx)
+    output = 0
+  END FUNCTION e11_cubature
 
   REAL(KIND=DBL) FUNCTION e21(x)
     !calculate the e2 coefficient at each poloidal position. Includes metric in integrand for flux surface average
@@ -455,6 +518,26 @@ CONTAINS
        e21 = Ro(irad)*tpernormi(irad,ix,ion)*EXP(-Ei/(Tix(irad,ion)*qe*1d3))*Zi(irad,ion)*qe/(Tix(irad,ion)*qe*1d3)*dphidr(irad,ix)/pi!*(1+epsilon(irad)*COS(x))
     ENDIF
   END FUNCTION e21
+  
+  INTEGER FUNCTION e21_cubature(ndim, x, fdata, fdim, fval) RESULT(output)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: xx
+    
+    IF((ndim.NE.1).OR.(fdim.NE.1)) THEN
+      output = 1
+      RETURN
+    END IF
+    
+    xx = x(1) 
+    
+    fval(1) = e21(xx)
+    output = 0
+  END FUNCTION e21_cubature
 
   REAL(KIND=DBL) FUNCTION e31(x)
     !calculate the e3 coefficient at each poloidal position. Includes metric in integrand for flux surface average
@@ -474,6 +557,26 @@ CONTAINS
        e31 = 1/(Ro(irad)**2)*tpernormi(irad,ix,ion)*EXP(-Ei/(Tix(irad,ion)*qe*1d3))*(Rth**2-Rlfs**2)/pi!*(1+epsilon(irad)*COS(x))
     ENDIF
   END FUNCTION e31
+  
+  INTEGER FUNCTION e31_cubature(ndim, x, fdata, fdim, fval) RESULT(output)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: xx
+    
+    IF((ndim.NE.1).OR.(fdim.NE.1)) THEN
+      output = 1
+      RETURN
+    END IF
+    
+    xx = x(1) 
+    
+    fval(1) = e31(xx)
+    output = 0
+  END FUNCTION e31_cubature
 
   REAL(KIND=DBL) FUNCTION e41(x)
     !calculate the e4 coefficient at each poloidal position. Includes metric in integrand for flux surface average
@@ -496,6 +599,26 @@ CONTAINS
        e41 = 2/Ro(irad)*tpernormi(irad,ix,ion)*EXP(-Ei/(Tix(irad,ion)*qe*1d3))*(Rth*dRthdr-Rlfs*dRlfsdr)/pi!*(1+epsilon(irad)*COS(x))
     ENDIF
   END FUNCTION e41
+  
+  INTEGER FUNCTION e41_cubature(ndim, x, fdata, fdim, fval) RESULT(output)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: xx
+    
+    IF((ndim.NE.1).OR.(fdim.NE.1)) THEN
+      output = 1
+      RETURN
+    END IF
+    
+    xx = x(1) 
+    
+    fval(1) = e41(xx)
+    output = 0
+  END FUNCTION e41_cubature
 
   REAL(KIND=DBL) FUNCTION e61(x)
     !calculate the e6 coefficient at each poloidal position. Includes metric in integrand for flux surface average
@@ -520,6 +643,26 @@ CONTAINS
        e61 = Ro(irad)*dtpernormidr*EXP(-Ei/(Tix(irad,ion)*qe*1d3))/pi!*(1+epsilon(irad)*COS(x))
     ENDIF
   END FUNCTION e61
+  
+  INTEGER FUNCTION e61_cubature(ndim, x, fdata, fdim, fval) RESULT(output)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: xx
+    
+    IF((ndim.NE.1).OR.(fdim.NE.1)) THEN
+      output = 1
+      RETURN
+    END IF
+    
+    xx = x(1) 
+    
+    fval(1) = e61(xx)
+    output = 0
+  END FUNCTION e61_cubature
 
   REAL(KIND=DBL) FUNCTION e71(x)
     !calculate the e7 (new definition= Z*qe/T * s/eps*th*dphidth)  coefficient at each poloidal position used in the effective R/Ln in the QL flux integral. 
@@ -539,6 +682,26 @@ CONTAINS
        e71 = tpernormi(irad,ix,ion)*EXP(-Ei/(Tix(irad,ion)*qe*1d3))*Zi(irad,ion)*qe/(Tix(irad,ion)*qe*1d3)*smag(irad)/epsilon(irad)*x*dphidth(irad,ix)/pi!*(1+epsilon(irad)*COS(x))
     ENDIF
   END FUNCTION e71
+  
+  INTEGER FUNCTION e71_cubature(ndim, x, fdata, fdim, fval) RESULT(output)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: xx
+    
+    IF((ndim.NE.1).OR.(fdim.NE.1)) THEN
+      output = 1
+      RETURN
+    END IF
+    
+    xx = x(1) 
+    
+    fval(1) = e71(xx)
+    output = 0
+  END FUNCTION e71_cubature
 
   REAL(KIND=DBL) FUNCTION e81(x)
     !calculate the e8 (new definition= (1+eps*cos(th))(cos(th)+s*th*sin(th))) coefficient at each poloidal position. 
@@ -558,6 +721,26 @@ CONTAINS
        e81 = tpernormi(irad,ix,ion)*EXP(-Ei/(Tix(irad,ion)*qe*1d3))*(1+epsilon(irad)*COS(x))*(COS(x)+smag(irad)*x*SIN(x))/pi!*(1+epsilon(irad)*COS(x))
     ENDIF
   END FUNCTION e81
+  
+  INTEGER FUNCTION e81_cubature(ndim, x, fdata, fdim, fval) RESULT(output)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: xx
+    
+    IF((ndim.NE.1).OR.(fdim.NE.1)) THEN
+      output = 1
+      RETURN
+    END IF
+    
+    xx = x(1) 
+    
+    fval(1) = e81(xx)
+    output = 0
+  END FUNCTION e81_cubature
 
   REAL(KIND=DBL) FUNCTION e91(x)
     !calculate the e9 coefficient (like e4 but without Rth) at each poloidal position. Includes metric in integrand for flux surface average
@@ -579,6 +762,26 @@ CONTAINS
        e91 = 2/Ro(irad)*tpernormi(irad,ix,ion)*EXP(-Ei/(Tix(irad,ion)*qe*1d3))*(-Rlfs*dRlfsdr)/pi!*(1+epsilon(irad)*COS(x))
     ENDIF
   END FUNCTION e91
+  
+  INTEGER FUNCTION e91_cubature(ndim, x, fdata, fdim, fval) RESULT(output)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: xx
+    
+    IF((ndim.NE.1).OR.(fdim.NE.1)) THEN
+      output = 1
+      RETURN
+    END IF
+    
+    xx = x(1) 
+    
+    fval(1) = e91(xx)
+    output = 0
+  END FUNCTION e91_cubature
 
   REAL(KIND=DBL) FUNCTION e01d(x)
     !calculate the e0 coefficient at each poloidal position. Includes metric in integrand for flux surface average
@@ -602,6 +805,26 @@ CONTAINS
     ENDIF
 
   END FUNCTION e01d
+  
+  INTEGER FUNCTION e01d_cubature(ndim, x, fdata, fdim, fval) RESULT(output)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: xx
+    
+    IF((ndim.NE.1).OR.(fdim.NE.1)) THEN
+      output = 1
+      RETURN
+    END IF
+    
+    xx = x(1) 
+    
+    fval(1) = e01d(xx)
+    output = 0
+  END FUNCTION e01d_cubature
 
   REAL(KIND=DBL) FUNCTION  e11d(x)
     !calculate the e1 coefficient at each poloidal position. Includes metric in integrand for flux surface average
@@ -625,6 +848,26 @@ CONTAINS
     ENDIF
 
   END FUNCTION e11d
+  
+  INTEGER FUNCTION e11d_cubature(ndim, x, fdata, fdim, fval) RESULT(output)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: xx
+    
+    IF((ndim.NE.1).OR.(fdim.NE.1)) THEN
+      output = 1
+      RETURN
+    END IF
+    
+    xx = x(1) 
+    
+    fval(1) = e11d(xx)
+    output = 0
+  END FUNCTION e11d_cubature
 
   REAL(KIND=DBL) FUNCTION e21d(x)
     !calculate the e2 coefficient at each poloidal position. Includes metric in integrand for flux surface average
@@ -647,6 +890,26 @@ CONTAINS
     ENDIF
 
   END FUNCTION e21d
+  
+  INTEGER FUNCTION e21d_cubature(ndim, x, fdata, fdim, fval) RESULT(output)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: xx
+    
+    IF((ndim.NE.1).OR.(fdim.NE.1)) THEN
+      output = 1
+      RETURN
+    END IF
+    
+    xx = x(1) 
+    
+    fval(1) = e21d(xx)
+    output = 0
+  END FUNCTION e21d_cubature
 
   REAL(KIND=DBL) FUNCTION e31d(x)
     !calculate the e3 coefficient at each poloidal position. Includes metric in integrand for flux surface average
@@ -669,6 +932,26 @@ CONTAINS
     ENDIF
 
   END FUNCTION e31d
+  
+  INTEGER FUNCTION e31d_cubature(ndim, x, fdata, fdim, fval) RESULT(output)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: xx
+    
+    IF((ndim.NE.1).OR.(fdim.NE.1)) THEN
+      output = 1
+      RETURN
+    END IF
+    
+    xx = x(1) 
+    
+    fval(1) = e31d(xx)
+    output = 0
+  END FUNCTION e31d_cubature
 
   REAL(KIND=DBL) FUNCTION e41d(x)
     !calculate the e4 coefficient at each poloidal position. Includes metric in integrand for flux surface average
@@ -694,6 +977,26 @@ CONTAINS
     ENDIF
 
   END FUNCTION e41d
+  
+  INTEGER FUNCTION e41d_cubature(ndim, x, fdata, fdim, fval) RESULT(output)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: xx
+    
+    IF((ndim.NE.1).OR.(fdim.NE.1)) THEN
+      output = 1
+      RETURN
+    END IF
+    
+    xx = x(1) 
+    
+    fval(1) = e41d(xx)
+    output = 0
+  END FUNCTION e41d_cubature
 
   REAL(KIND=DBL) FUNCTION e61d(x)
     !calculate the e6 coefficient at each poloidal position. Includes metric in integrand for flux surface average
@@ -721,6 +1024,26 @@ CONTAINS
     ENDIF
 
   END FUNCTION e61d
+  
+  INTEGER FUNCTION e61d_cubature(ndim, x, fdata, fdim, fval) RESULT(output)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: xx
+    
+    IF((ndim.NE.1).OR.(fdim.NE.1)) THEN
+      output = 1
+      RETURN
+    END IF
+    
+    xx = x(1) 
+    
+    fval(1) = e61d(xx)
+    output = 0
+  END FUNCTION e61d_cubature
 
   REAL(KIND=DBL) FUNCTION e71d(x)
     !calculate the e7 (new definition= Z*qe/T * s/eps*th*dphidth)  coefficient at each poloidal position used in the effective R/Ln in the QL flux integral. 
@@ -744,6 +1067,26 @@ CONTAINS
     ENDIF
 
   END FUNCTION e71d
+  
+  INTEGER FUNCTION e71d_cubature(ndim, x, fdata, fdim, fval) RESULT(output)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: xx
+    
+    IF((ndim.NE.1).OR.(fdim.NE.1)) THEN
+      output = 1
+      RETURN
+    END IF
+    
+    xx = x(1) 
+    
+    fval(1) = e71d(xx)
+    output = 0
+  END FUNCTION e71d_cubature
 
   REAL(KIND=DBL) FUNCTION e81d(x)
     !calculate the e8 (new definition= (1+eps*cos(th))(cos(th)+s*th*sin(th))) coefficient at each poloidal position. 
@@ -767,6 +1110,26 @@ CONTAINS
     ENDIF
 
   END FUNCTION e81d
+  
+  INTEGER FUNCTION e81d_cubature(ndim, x, fdata, fdim, fval) RESULT(output)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: xx
+    
+    IF((ndim.NE.1).OR.(fdim.NE.1)) THEN
+      output = 1
+      RETURN
+    END IF
+    
+    xx = x(1) 
+    
+    fval(1) = e81d(xx)
+    output = 0
+  END FUNCTION e81d_cubature
 
   REAL(KIND=DBL) FUNCTION e91d(x)
     !calculate the e9 coefficient (like e4 but without Rth) at each poloidal position. Includes metric in integrand for flux surface average
@@ -792,6 +1155,26 @@ CONTAINS
     ENDIF
 
   END FUNCTION e91d
+  
+  INTEGER FUNCTION e91d_cubature(ndim, x, fdata, fdim, fval) RESULT(output)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: xx
+    
+    IF((ndim.NE.1).OR.(fdim.NE.1)) THEN
+      output = 1
+      RETURN
+    END IF
+    
+    xx = x(1) 
+    
+    fval(1) = e91d(xx)
+    output = 0
+  END FUNCTION e91d_cubature
 
 REAL(KIND=DBL) FUNCTION FSAnorm(x)
   !Calculates the normalization coefficient for the wavefunction weighted FSA used in makeecoefsgau
@@ -807,22 +1190,48 @@ REAL(KIND=DBL) FUNCTION FSAnorm(x)
 
 END FUNCTION FSAnorm
 
+INTEGER FUNCTION FSAnorm_cubature(ndim, x, fdata, fdim, fval) RESULT(output)
+    USE KIND
+    INTEGER, INTENT(IN) :: ndim, fdim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(IN) :: x !ndim
+    REAL(KIND=DBL), DIMENSION(:), INTENT(INOUT) :: fdata
+    REAL(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fval  !fdim
+    
+    REAL(KIND=DBL) :: xx
+    
+    IF((ndim.NE.1).OR.(fdim.NE.1)) THEN
+      output = 1
+      RETURN
+    END IF
+    
+    xx = x(1) 
+    
+    fval(1) = FSAnorm(xx)
+    output = 0
+  END FUNCTION FSAnorm_cubature
+
 SUBROUTINE makeecoefsgau(p,nu)
   INTEGER, INTENT(IN) :: p, nu
   REAL(KIND=DBL) :: relerr,thmin,thmax, intnorm
   INTEGER :: ifailloc
   INTEGER :: npts !output of number of integral evaluations
+  REAL(KIND=DBL), DIMENSION(1) :: thmin_cubature, thmax_cubature, intout_cub, acc_cub
 
   !limits for integration
   thmin=0._DBL
   thmax=pi
+  
+  thmin_cubature(1) = thmin
+  thmax_cubature(1) = thmax
 
   irad= p 
   inu = nu
 
   !Calculate integration norm
   ifailloc = 1
-  intnorm = d01ahf(thmin,thmax,relacc1,npts,relerr,FSAnorm,lw2,ifailloc)
+  !intnorm = d01ahf(thmin,thmax,relacc1,npts,relerr,FSAnorm,lw2,ifailloc)
+  ifailloc = hcubature(1, FSAnorm_cubature, 1, thmin_cubature, thmax_cubature, npts, 0._DBL, relacc1, 1, intout_cub, acc_cub)
+  intnorm = intout_cub(1)
   IF (ifailloc .NE. 0) THEN
      IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef gau normalization failed with ifailloc=',ifailloc,'. irad=,',irad,'. ion=',ion
   ENDIF
@@ -833,31 +1242,41 @@ SUBROUTINE makeecoefsgau(p,nu)
 
      !Calculate the flux surface averaged e0 coefficient. 
      ifailloc = 1
-     ecoefsgau(irad,inu,ion,0) = d01ahf(thmin,thmax,relacc1,npts,relerr,e01d,lw2,ifailloc)
+     !ecoefsgau(irad,inu,ion,0) = d01ahf(thmin,thmax,relacc1,npts,relerr,e01d,lw2,ifailloc)
+     ifailloc = hcubature(1, e01d_cubature, 1, thmin_cubature, thmax_cubature, npts, 0._DBL, relacc1, 1, intout_cub, acc_cub)
+     ecoefsgau(irad,inu,ion,0) = intout_cub(1)
      IF (ifailloc .NE. 0) THEN
         IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef gau failed for coef 0 in list. ifailloc=',ifailloc,'. irad=,',irad,'. ion=',ion
      ENDIF
      !Calculate the flux surface averaged e1 coefficient. 
      ifailloc = 1
-     ecoefsgau(irad,inu,ion,1) = d01ahf(thmin,thmax,relacc1,npts,relerr,e11d,lw2,ifailloc)
+     !ecoefsgau(irad,inu,ion,1) = d01ahf(thmin,thmax,relacc1,npts,relerr,e11d,lw2,ifailloc)
+     ifailloc = hcubature(1, e11d_cubature, 1, thmin_cubature, thmax_cubature, npts, 0._DBL, relacc1, 1, intout_cub, acc_cub)
+     ecoefsgau(irad,inu,ion,1) = intout_cub(1)
      IF (ifailloc .NE. 0) THEN
         IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef gau failed for coef 1 in list. ifailloc=',ifailloc,'. irad=,',irad,'. ion=',ion
      ENDIF
      !Calculate the flux surface averaged e2 coefficient. 
      ifailloc = 1
-     ecoefsgau(irad,inu,ion,2) = d01ahf(thmin,thmax,relacc1,npts,relerr,e21d,lw2,ifailloc)
+     !ecoefsgau(irad,inu,ion,2) = d01ahf(thmin,thmax,relacc1,npts,relerr,e21d,lw2,ifailloc)
+     ifailloc = hcubature(1, e21d_cubature, 1, thmin_cubature, thmax_cubature, npts, 0._DBL, relacc1, 1, intout_cub, acc_cub)
+     ecoefsgau(irad,inu,ion,2) = intout_cub(1)
      IF (ifailloc .NE. 0) THEN
         IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef gau failed for coef 2 in list. ifailloc=',ifailloc,'. irad=,',irad,'. ion=',ion
      ENDIF
      !Calculate the flux surface averaged e3 coefficient. 
      ifailloc = 1 
-     ecoefsgau(irad,inu,ion,3) = d01ahf(thmin,thmax,relacc1,npts,relerr,e31d,lw2,ifailloc)
+     !ecoefsgau(irad,inu,ion,3) = d01ahf(thmin,thmax,relacc1,npts,relerr,e31d,lw2,ifailloc)
+     ifailloc = hcubature(1, e31d_cubature, 1, thmin_cubature, thmax_cubature, npts, 0._DBL, relacc1, 1, intout_cub, acc_cub)
+     ecoefsgau(irad,inu,ion,3) = intout_cub(1)
      IF (ifailloc .NE. 0) THEN
         IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef gau failed for coef 3 in list. ifailloc=',ifailloc,'. irad=,',irad,'. ion=',ion
      ENDIF
      !Calculate the flux surface averaged e4 coefficient. 
      ifailloc = 1 
-     ecoefsgau(irad,inu,ion,4) = d01ahf(thmin,thmax,relacc1,npts,relerr,e41d,lw2,ifailloc)
+     !ecoefsgau(irad,inu,ion,4) = d01ahf(thmin,thmax,relacc1,npts,relerr,e41d,lw2,ifailloc)
+     ifailloc = hcubature(1, e41d_cubature, 1, thmin_cubature, thmax_cubature, npts, 0._DBL, relacc1, 1, intout_cub, acc_cub)
+     ecoefsgau(irad,inu,ion,4) = intout_cub(1)
      IF (ifailloc .NE. 0) THEN
         IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef gau failed for coef 4 in list. ifailloc=',ifailloc,'. irad=,',irad,'. ion=',ion
      ENDIF
@@ -865,23 +1284,31 @@ SUBROUTINE makeecoefsgau(p,nu)
 
      !Calculate the flux surface averaged e6 coefficient (new coefficient not defined in GKW Manual) 
      ifailloc = 1 
-     ecoefsgau(irad,inu,ion,6) = d01ahf(thmin,thmax,relacc1,npts,relerr,e61d,lw2,ifailloc)
+     !ecoefsgau(irad,inu,ion,6) = d01ahf(thmin,thmax,relacc1,npts,relerr,e61d,lw2,ifailloc)
+     ifailloc = hcubature(1, e61d_cubature, 1, thmin_cubature, thmax_cubature, npts, 0._DBL, relacc1, 1, intout_cub, acc_cub)
+     ecoefsgau(irad,inu,ion,6) = intout_cub(1)
      IF (ifailloc .NE. 0) THEN
         IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef gau failed for coef 6 in list. ifailloc=',ifailloc,'. irad=,',irad,'. ion=',ion
      ENDIF
      !e0-6, then <R/Ln>, <n>, and (nmax-nmin)/<n>
      ifailloc = 1 
-     ecoefsgau(irad,inu,ion,7) = d01ahf(thmin,thmax,relacc1,npts,relerr,e71d,lw2,ifailloc)
+     !ecoefsgau(irad,inu,ion,7) = d01ahf(thmin,thmax,relacc1,npts,relerr,e71d,lw2,ifailloc)
+     ifailloc = hcubature(1, e71d_cubature, 1, thmin_cubature, thmax_cubature, npts, 0._DBL, relacc1, 1, intout_cub, acc_cub)
+     ecoefsgau(irad,inu,ion,7) = intout_cub(1)
      IF (ifailloc .NE. 0) THEN
         IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef gau failed for coef 7 in list. ifailloc=',ifailloc,'. irad=,',irad,'. ion=',ion
      ENDIF
      ifailloc = 1 
-     ecoefsgau(irad,inu,ion,8) = d01ahf(thmin,thmax,relacc1,npts,relerr,e81d,lw2,ifailloc)
+     !ecoefsgau(irad,inu,ion,8) = d01ahf(thmin,thmax,relacc1,npts,relerr,e81d,lw2,ifailloc)
+     ifailloc = hcubature(1, e81d_cubature, 1, thmin_cubature, thmax_cubature, npts, 0._DBL, relacc1, 1, intout_cub, acc_cub)
+     ecoefsgau(irad,inu,ion,8) = intout_cub(1)
      IF (ifailloc .NE. 0) THEN
         IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef gau failed for coef 8 in list. ifailloc=',ifailloc,'. irad=,',irad,'. ion=',ion
      ENDIF
      ifailloc = 1 
-     ecoefsgau(irad,inu,ion,9) = d01ahf(thmin,thmax,relacc1,npts,relerr,e91d,lw2,ifailloc)
+     !ecoefsgau(irad,inu,ion,9) = d01ahf(thmin,thmax,relacc1,npts,relerr,e91d,lw2,ifailloc)
+     ifailloc = hcubature(1, e91d_cubature, 1, thmin_cubature, thmax_cubature, npts, 0._DBL, relacc1, 1, intout_cub, acc_cub)
+     ecoefsgau(irad,inu,ion,9) = intout_cub(1)
      IF (ifailloc .NE. 0) THEN
         IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef gau failed for coef 9 in list. ifailloc=',ifailloc,'. irad=,',irad,'. ion=',ion
      ENDIF

@@ -64,7 +64,8 @@ CONTAINS
     INTEGER, INTENT(OUT)            :: npts, ifailloc
 
     ifailloc = 1
-    res = d01ahf(cc, dd, relacc, npts, relerr, integrand, lw, ifailloc)
+    res = 0
+    !res = d01ahf(cc, dd, relacc, npts, relerr, integrand, lw, ifailloc)
 
     !Netlib trial
     !CALL QUAD(cc, dd, K, integrate_1d_nag, relacc1, npts, ifailloc, integrand)
@@ -149,7 +150,8 @@ CONTAINS
     INTEGER, INTENT(OUT)            :: ifailloc
 
     ifailloc = 1
-    res = d01fcf(ndim, a, b, minpts, maxpts, integrand, relacc, acc, lenwrk, wrkstr, res, ifailloc)
+    res = 0 
+    !res = d01fcf(ndim, a, b, minpts, maxpts, integrand, relacc, acc, lenwrk, wrkstr, res, ifailloc)
 
   END SUBROUTINE
 
