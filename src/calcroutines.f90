@@ -321,7 +321,8 @@ CONTAINS
 
              IF ( ( rho(p) >= rhomin ) .AND. ( rho(p) <= rhomax) ) THEN !check if rho is within the defined range, otherwise return zero
                 CALL calcfonct(p, nu, oldsol(p,nu,j), fonout) !Get new distance from solution from old solution and new input parameters
-                CALL newton(p, nu, oldsol(p,nu,j), fonout, newsol, newfdsol) !Now refine the solution to the new solution
+                !CALL newton(p, nu, oldsol(p,nu,j), fonout, newsol, newfdsol) !Now refine the solution to the new solution
+                CALL broyden(p, nu, oldsol(p,nu,j), fonout, newsol, newfdsol) !Now refine the solution to the new solution
              ELSE
                 newsol = 0.
                 newfdsol = 0.
@@ -941,7 +942,8 @@ CONTAINS
              !WRITE(stdout,*) 'BEFORE NEWTON', solli
              !WRITE(stdout,*) 'NUMBER OF CONTOUR SEGMENTS', M
 !!!!!
-             CALL newton(p, nu, solli, fdsolli, nsolli, nfdsolli)
+             !CALL newton(p, nu, solli, fdsolli, nsolli, nfdsolli)
+             CALL broyden(p, nu, solli, fdsolli, nsolli, nfdsolli)
 
              !WRITE(stdout,*) 'AFTER NEWTON', nsolli
 
@@ -1501,6 +1503,133 @@ CONTAINS
 
   END SUBROUTINE newton
 
+  SUBROUTINE broyden( p, nu, sol, fsol, newsol, fnewsol)
+    !Broyden method for refining the solutions found from the contour integrals
+    !Basic 2D Broydan method. Demands that both u(z) and v(z) go to zero, where F(z)=u(z)+i*v(z)
+    !Function derivative defined with ndif parmameter
+    INTEGER, INTENT(IN) :: p, nu
+    COMPLEX(KIND=DBL), INTENT(IN) :: sol, fsol
+
+    COMPLEX(KIND=DBL), INTENT(OUT) :: newsol, fnewsol
+
+    INTEGER :: niter, i
+    REAL(KIND=DBL) :: err, detMa, maxnerrint
+    REAL(KIND=DBL), DIMENSION(2,2) :: Ma, invMa, I0
+    REAL(KIND=DBL), DIMENSION(2,1) :: uo, deltau, deltaf
+    REAL(KIND=DBL), DIMENSION(1,1) :: denom
+    COMPLEX(KIND=DBL) :: fzo, fz_old, fzpd, fzmd, fzpid, fzmid
+    COMPLEX(KIND=DBL) :: dfsurdx, dfsurdy
+    COMPLEX(KIND=DBL) :: zo, zpd, zmd, zpid, zmid, delom, delomi 
+
+    delom  = (ndif,0.)
+    delomi = (0.,ndif)
+    niter  = 0
+    zo     = sol
+    fzo    = fsol
+    
+    !Idenitty matrix
+    I0(:,:) = 0.
+    forall(i=1:2) I0(i,i) = 1.
+    
+    IF(phys_meth.EQ.0) THEN
+      err    = ABS(fzo)
+    ELSE 
+      err = 1._DBL
+    END IF
+
+    IF (runcounter /= 0) THEN
+      maxnerrint = maxnerr
+    ELSE
+      maxnerrint = maxnerr2
+    ENDIF
+
+    DO
+    IF ( (err < maxnerrint) .OR. (niter > maxiter) ) EXIT
+      uo(1,1) = -REAL(fzo)
+      uo(2,1) = -AIMAG(fzo)
+      deltaf(1,1) = REAL(fzo) - REAL(fz_old)
+      deltaf(2,1) = AIMAG(fzo) - AIMAG(fz_old)
+      
+      IF(niter.EQ.0) THEN
+        ! Only calculate the Jacobian once
+        ! Afterwards, we approximately update it
+        zpd = zo+delom
+        zmd = zo-delom
+
+        CALL calcfonct_newt (p, nu, zpd, fzpd)
+        CALL calcfonct_newt (p, nu, zmd, fzmd)
+
+        dfsurdx = (fzpd-fzmd)/(2.*delom)
+
+        zpid=zo+delomi
+        zmid=zo-delomi
+
+        CALL calcfonct_newt (p, nu, zpid, fzpid)
+        CALL calcfonct_newt (p, nu, zmid, fzmid)
+
+        dfsurdy = (fzpid-fzmid)/(2.*delom)
+
+        Ma(1,1) = REAL(dfsurdx)
+        Ma(1,2) = REAL(dfsurdy)
+        Ma(2,1) = AIMAG(dfsurdx)
+        Ma(2,2) = AIMAG(dfsurdy)
+        detMa = Ma(1,1)*Ma(2,2)-Ma(1,2)*Ma(2,1)
+        !FOR DEBUGGING UNCOMMENT BELOW
+        !WRITE(stderr,*) detMa, niter, err
+        IF (ABS(detMa)<epsD) EXIT
+        invMa(1,1) =  Ma(2,2)/detMa
+        invMa(1,2) = -Ma(1,2)/detMa
+        invMa(2,1) = -Ma(2,1)/detMa
+        invMa(2,2) =  Ma(1,1)/detMa
+      ELSE
+        !Update invMa
+        !This minimizes the Frobenius norm of Ma_new - Ma_old, i.e. the "good" update
+        denom = MATMUL(TRANSPOSE(deltau), MATMUL(invMa, deltaf))
+        IF(ABS(denom(1,1))<epsD) EXIT
+        invMa = MATMUL(I0 + 1./denom(1,1) * MATMUL(deltau - MATMUL(invMa, deltaf), TRANSPOSE(deltau)), invMa)
+      END IF
+      
+
+      deltau = MATMUL(invMa,uo)
+
+      zo = zo+CMPLX(deltau(1,1),deltau(2,1))
+
+      IF ( (gkw_is_nan(AIMAG(zo))) .OR. (gkw_is_nan(REAL(zo)))) THEN
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,'(A,I7,A,I2,A)') 'Newton: solution had a NaN! Skipping solution. (p,nu)=(',p,',',nu,')'
+        zo   = (0.,0.)
+        fzo  = (0.,0.)
+        EXIT
+      ENDIF
+
+      IF ( (AIMAG(zo) < 0. ) .OR. (ABS(AIMAG(zo)) > ABS(AIMAG(ommax(p,nu)))) .OR. (ABS(REAL(zo)) > ABS(REAL(ommax(p,nu))))  ) THEN 
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,'(A,I7,A,I2,A)') 'Newton: solution outside of allowed contour range! Skipping solution. (p,nu)=(',p,',',nu,')'
+        zo   = (0.,0.)
+        fzo  = (0.,0.)
+        EXIT
+      ENDIF
+
+      fz_old = fzo
+      CALL calcfonct_newt (p, nu, zo, fzo)
+
+      !Change Newton convergence test
+      IF(newt_conv.EQ.0) THEN
+        err = ABS(fzo)
+      ELSE IF(newt_conv.EQ.1) THEN
+        err = ABS(CMPLX(deltau(1,1), deltau(2,1)))
+      ELSE IF(newt_conv.EQ.2) THEN
+        err = ABS(CMPLX(deltau(1,1), deltau(2,1))/zo)
+      END IF
+
+      niter = niter+1
+    END DO
+    !FOR DEBUGGING*************
+    !WRITE(stdout,*) 'Number of iterations in Newton solver = ', niter
+    !**************************
+    newsol  = zo
+    fnewsol = fzo   
+
+  END SUBROUTINE
+  
   REAL(KIND=DBL) FUNCTION alamnormint(lamin)
     !integrand for pinch angle iaverage of Vpar for passing particles
     REAL(KIND=DBL), INTENT(IN) :: lamin
