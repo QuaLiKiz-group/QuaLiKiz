@@ -218,7 +218,7 @@ CONTAINS
     alamnorm = fc(p) !to be consistent with passing particle fraction
 
     !alam1=d01ahf(0.,1.-2.*epsilon(p),relacc1,npts,relerr,alam1int,lw,ifailloc)/alamnorm !pitch angle average of sqrt(1-lambda*b)
-    ifailloc = hcubature(1, alam1int_cubature, 1, xmin, xmax, npts, 0._DBL, relacc1, 1, intout_cub, acc_cub)
+    ifailloc = pcubature(1, alam1int_cubature, 1, xmin, xmax, npts, 0._DBL, relacc1, 1, intout_cub, acc_cub)
     alam1 = intout_cub(1) / alamnorm
     IF (ifailloc /= 0) THEN
        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I7,A,I3)") 'ifailloc = ',ifailloc,&
@@ -229,7 +229,7 @@ CONTAINS
 
     !pitch angle average of (1-lambda*b)
     !alam2=d01ahf(0.,1.-2.*epsilon(p),relacc1,npts,relerr,alam2int,lw,ifailloc)/alamnorm !pitch angle average of (1-lambda*b)
-    ifailloc = hcubature(1, alam2int_cubature, 1, xmin, xmax, npts, 0._DBL, relacc1, 1, intout_cub, acc_cub)
+    ifailloc = pcubature(1, alam2int_cubature, 1, xmin, xmax, npts, 0._DBL, relacc1, 1, intout_cub, acc_cub)
     alam2 = intout_cub(1) / alamnorm
     IF (ifailloc /= 0) THEN
        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I7,A,I3)") 'ifailloc = ',ifailloc,&
@@ -237,7 +237,7 @@ CONTAINS
     ENDIF
 
     !alam3=d01ahf(0.,1.-2.*epsilon(p),relacc1,npts,relerr,alam3int,lw,ifailloc)/alamnorm !pitch angle average of (1-lambda*b)^3/2
-    ifailloc = hcubature(1, alam3int_cubature, 1, xmin, xmax, npts, 0._DBL, relacc1, 1, intout_cub, acc_cub)
+    ifailloc = pcubature(1, alam3int_cubature, 1, xmin, xmax, npts, 0._DBL, relacc1, 1, intout_cub, acc_cub)
     alam3 = intout_cub(1) / alamnorm
     IF (ifailloc /= 0) THEN
        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I7,A,I3)") 'ifailloc = ',ifailloc,&
@@ -245,7 +245,7 @@ CONTAINS
     ENDIF
 
     !alam4=d01ahf(0.,1.-2.*epsilon(p),relacc1,npts,relerr,alam4int,lw,ifailloc)/alamnorm !pitch angle average of (1-lambda*b)^2
-    ifailloc = hcubature(1, alam4int_cubature, 1, xmin, xmax, npts, 0._DBL, relacc1, 1, intout_cub, acc_cub)
+    ifailloc = pcubature(1, alam4int_cubature, 1, xmin, xmax, npts, 0._DBL, relacc1, 1, intout_cub, acc_cub)
     alam4 = intout_cub(1) / alamnorm
     IF (ifailloc /= 0) THEN
        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I7,A,I3)") 'ifailloc = ',ifailloc,&
@@ -253,7 +253,7 @@ CONTAINS
     ENDIF
 
     !alam5=d01ahf(0.,1.-2.*epsilon(p),relacc1,npts,relerr,alam5int,lw,ifailloc)/alamnorm !pitch angle average of (1-lambda*b)^5/2
-    ifailloc = hcubature(1, alam5int_cubature, 1, xmin, xmax, npts, 0._DBL, relacc1, 1, intout_cub, acc_cub)
+    ifailloc = pcubature(1, alam5int_cubature, 1, xmin, xmax, npts, 0._DBL, relacc1, 1, intout_cub, acc_cub)
     alam5 = intout_cub(1) / alamnorm
     IF (ifailloc /= 0) THEN
        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I7,A,I3)") 'ifailloc = ',ifailloc,&
