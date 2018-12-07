@@ -300,7 +300,8 @@ CONTAINS
 
           ifailloc = 1
           !ecoefs(irad,ion,2) = d01ahf(thmin,thmax,epsFLR,npts,relerr,e11,lw2,ifailloc)
-          ifailloc = pcubature(1, e11_cubature, 1, thmin_cubature, thmax_cubature, npts, 0._DBL, relacc1, 1, intout_cub, acc_cub)
+          !Do hcubature, pcubature fails
+          ifailloc = hcubature(1, e11_cubature, 1, thmin_cubature, thmax_cubature, npts, 0._DBL, relacc1, 1, intout_cub, acc_cub)
           ecoefs(irad,ion,2) = intout_cub(1)
 !!$          CALL DQAGSE_QLK(e11,thmin,thmax,0.,epsFLR,limit,ecoefs(irad,ion,2),relerr,npts,ifailloc,&
 !!$               alist, blist, rlist, elist, iord, last)
@@ -1259,7 +1260,8 @@ SUBROUTINE makeecoefsgau(p,nu)
      !Calculate the flux surface averaged e2 coefficient. 
      ifailloc = 1
      !ecoefsgau(irad,inu,ion,2) = d01ahf(thmin,thmax,relacc1,npts,relerr,e21d,lw2,ifailloc)
-     ifailloc = pcubature(1, e21d_cubature, 1, thmin_cubature, thmax_cubature, npts, 0._DBL, relacc1, 1, intout_cub, acc_cub)
+     !Do hcubature, pcubature fails
+     ifailloc = hcubature(1, e21d_cubature, 1, thmin_cubature, thmax_cubature, npts, 0._DBL, relacc1, 1, intout_cub, acc_cub)
      ecoefsgau(irad,inu,ion,2) = intout_cub(1)
      IF (ifailloc .NE. 0) THEN
         IF (verbose .EQV. .TRUE.) WRITE(stdout,*) 'e-coef gau failed for coef 2 in list. ifailloc=',ifailloc,'. irad=,',irad,'. ion=',ion

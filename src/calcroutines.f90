@@ -1498,6 +1498,7 @@ CONTAINS
     !FOR DEBUGGING*************
     !WRITE(stdout,*) 'Number of iterations in Newton solver = ', niter
     !**************************
+    !WRITE(stderr, *) "In Newton for p = ", p, " and nu = ", nu, ", niter = ", niter
     newsol  = zo
     fnewsol = fzo   
 
@@ -1505,7 +1506,7 @@ CONTAINS
 
   SUBROUTINE broyden( p, nu, sol, fsol, newsol, fnewsol)
     !Broyden method for refining the solutions found from the contour integrals
-    !Basic 2D Broydan method. Demands that both u(z) and v(z) go to zero, where F(z)=u(z)+i*v(z)
+    !Basic 2D Broyden method. Demands that both u(z) and v(z) go to zero, where F(z)=u(z)+i*v(z)
     !Function derivative defined with ndif parmameter
     INTEGER, INTENT(IN) :: p, nu
     COMPLEX(KIND=DBL), INTENT(IN) :: sol, fsol
@@ -1595,14 +1596,14 @@ CONTAINS
       zo = zo+CMPLX(deltau(1,1),deltau(2,1))
 
       IF ( (gkw_is_nan(AIMAG(zo))) .OR. (gkw_is_nan(REAL(zo)))) THEN
-        IF (verbose .EQV. .TRUE.) WRITE(stderr,'(A,I7,A,I2,A)') 'Newton: solution had a NaN! Skipping solution. (p,nu)=(',p,',',nu,')'
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,'(A,I7,A,I2,A)') 'Broyden: solution had a NaN! Skipping solution. (p,nu)=(',p,',',nu,')'
         zo   = (0.,0.)
         fzo  = (0.,0.)
         EXIT
       ENDIF
 
       IF ( (AIMAG(zo) < 0. ) .OR. (ABS(AIMAG(zo)) > ABS(AIMAG(ommax(p,nu)))) .OR. (ABS(REAL(zo)) > ABS(REAL(ommax(p,nu))))  ) THEN 
-        IF (verbose .EQV. .TRUE.) WRITE(stderr,'(A,I7,A,I2,A)') 'Newton: solution outside of allowed contour range! Skipping solution. (p,nu)=(',p,',',nu,')'
+        IF (verbose .EQV. .TRUE.) WRITE(stderr,'(A,I7,A,I2,A)') 'Broyden: solution outside of allowed contour range! Skipping solution. (p,nu)=(',p,',',nu,')'
         zo   = (0.,0.)
         fzo  = (0.,0.)
         EXIT
@@ -1611,7 +1612,7 @@ CONTAINS
       fz_old = fzo
       CALL calcfonct_newt (p, nu, zo, fzo)
 
-      !Change Newton convergence test
+      !Change Broyden convergence test
       IF(newt_conv.EQ.0) THEN
         err = ABS(fzo)
       ELSE IF(newt_conv.EQ.1) THEN
@@ -1623,8 +1624,9 @@ CONTAINS
       niter = niter+1
     END DO
     !FOR DEBUGGING*************
-    !WRITE(stdout,*) 'Number of iterations in Newton solver = ', niter
+    !WRITE(stdout,*) 'Number of iterations in Broyden solver = ', niter
     !**************************
+    !WRITE(stderr, *) "In Broyden for p = ", p, " and nu = ", nu, ", niter = ", niter
     newsol  = zo
     fnewsol = fzo   
 
