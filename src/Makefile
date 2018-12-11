@@ -19,7 +19,7 @@ SLATEC?=-L$(SLATEC_DIR) -lslatec
 SPECFUN?=-L$(SPECFUN_DIR) -lspecfun
 FUKUSHIMA?=-L$(FUKUSHIMA_DIR) -lfukushima
 
-QUALIKIZ_LIBS=$(CUBPACK) $(GENZ) $(NAG) $(SLATEC) $(SPECFUN) $(FUKUSHIMA) $(CUBA)
+QUALIKIZ_LIBS=$(CUBPACK) $(GENZ) $(SLATEC) $(SPECFUN) $(FUKUSHIMA) $(CUBA)
 # Parallel or serial compilation
 ifneq ($(MPI_FLAGS),-DMPI)
       OBJS_QUALIKIZ += mpivoid.o
@@ -76,7 +76,7 @@ FLRterms.o: kind.mod datcal.mod datmat.mod
 mod_fluidsol.o: kind.mod datcal.mod datmat.mod hcub.mod pcub.mod
 mod_contour.o: kind.mod datcal.mod
 # Makeflux objects
-asymmetry.o: kind.mod datmat.mod datcal.mod
+asymmetry.o: kind.mod datmat.mod datcal.mod hcub.mod pcub.mod
 datcal.o: kind.mod
 datmat.o: kind.mod
 mod_make_io.o: kind.mod datmat.mod datcal.mod

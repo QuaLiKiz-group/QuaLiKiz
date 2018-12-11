@@ -117,6 +117,15 @@ MODULE datcal
   !Used in mod_fluidsol
   INTEGER, PARAMETER :: ndegpoly = 3
   INTEGER, PARAMETER :: ndegx0 = 2
+  
+  !Integration parameters
+  INTEGER, PARAMETER :: int_method = 2 !Uses pcubature in contour integral
+  INTEGER, PARAMETER :: newt_method = 2 !Uses pcubature in root finding
+  INTEGER, PARAMETER :: QL_method = 2 !Uses pcubature in flux calculation
+  INTEGER, PARAMETER :: fluid_method = 1 !Uses hcubature in fluid solver
+  INTEGER, PARAMETER :: newt_conv = 2 !Determines convergence criterion for root finding
+  INTEGER, PARAMETER :: int_split = 1 !Determines how the integrals are split in the contour integral and root finder
+  INTEGER, PARAMETER :: norm = 2 !Determines norm used in cubature routines
 
 CONTAINS  
   SUBROUTINE init_asym()

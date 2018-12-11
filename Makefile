@@ -17,7 +17,7 @@ SLATEC_LIB?=$(SLATEC_DIR)/libslatec.a
 SPECFUN_LIB?=$(SPECFUN_DIR)/libspecfun.a
 FUKUSHIMA_LIB?=$(FUKUSHIMA_DIR)/libfukushima.a
 
-QUALIKIZ_LIBS?=$(CUBPACK_LIB) $(GENZ_LIB) $(NAG_LIB) $(SLATEC_LIB) $(SPECFUN_LIB) $(FUKUSHIMA_LIB)
+QUALIKIZ_LIBS?=$(CUBPACK_LIB) $(GENZ_LIB) $(SLATEC_LIB) $(SPECFUN_LIB) $(FUKUSHIMA_LIB)
 QUALIKIZ_LIBS_CLEAN?=$(QUALIKIZ_LIBS:%=%.clean)
 
 ##############################################################################
