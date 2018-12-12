@@ -26,9 +26,12 @@ QualiKiz: $(QUALIKIZ_LIBS)
 	cp -f $(QUALIKIZ_SRC)/QuaLiKiz .
 
 
-$(LIBNAME): $(QUALIKIZ_LIBS)
+$(LIBNAME): $(QUALIKIZ_LIBS) $(QUALIKIZ_SRC)/Makefile.inc
 	make -C $(QUALIKIZ_SRC) qlk_tci_module.mod
 	ar vr $(LIBNAME) $?
+
+$(QUALIKIZ_SRC)/Makefile.inc:
+	cp $(QUALIKIZ_SRC)/make.inc/Makefile.jetto $(QUALIKIZ_SRC)/Makefile.inc
 
 
 libs: $(QUALIKIZ_LIBS)

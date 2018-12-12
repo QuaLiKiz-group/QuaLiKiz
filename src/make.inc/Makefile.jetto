@@ -1,0 +1,12 @@
+include $(QLKDIR)/../../include.mk
+
+## Set the local environment
+## ------------------------------------
+# Overwrite JETTO pattern rules. Keep the tab after the rule!
+%.mod %.o: %.f90
+	
+include $(QLKDIR)/../include.mk
+
+FC_WRAPPER?=$(FC)
+FFLAGS?=$(F90FLAGS)
+NAG_LIB=
