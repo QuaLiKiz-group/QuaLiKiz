@@ -99,6 +99,7 @@ MODULE datcal
   REAL(KIND=DBL), PARAMETER :: AE= 1d-6 !Absolute error of root solver
   INTEGER, PARAMETER :: ntheta = 64 !resolution of field line coordinate
   INTEGER, PARAMETER :: numecoefs = 13 !number of coefficients in coef (e0-9, <R/Ln>, <n>, in-out asym)
+  INTEGER, PARAMETER :: numicoefs = 7 !number of coefficients in coef
   REAL(KIND=DBL), PARAMETER :: epsasym = 1.0d-8 !Relative and absolute accuracy for e# integrations
   REAL(KIND=DBL), PARAMETER :: dtheta = 1.0d-5  !dtheta for numerical differentiation
 

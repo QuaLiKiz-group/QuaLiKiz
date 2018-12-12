@@ -17,8 +17,8 @@ CONTAINS
     INTEGER, INTENT(IN)  :: p, nu
     COMPLEX, INTENT(IN)  :: omega
 
-    COMPLEX(KIND=DBL) :: fonctce, fonctcgte, fonctcgne, fonctcgue, fonctcce, fonctece, fonctvce, fonctecgte, fonctecgne, fonctecgue, fonctecce
-    COMPLEX(KIND=DBL) :: fonctpe, fonctpgte, fonctpgne, fonctpgue, fonctpce, fonctepe, fonctvpe, fonctepgte, fonctepgne, fonctepgue, fonctepce
+    COMPLEX(KIND=DBL) :: fonctce, fonctcgte, fonctcgne, fonctcce, fonctece, fonctecgte, fonctecgne, fonctecce
+    COMPLEX(KIND=DBL) :: fonctpe, fonctpgte, fonctpgne, fonctpce, fonctepe, fonctepgte, fonctepgne, fonctepce
     COMPLEX(KIND=DBL), DIMENSION(nions) :: fonctci, fonctcgti, fonctcgni, fonctcgui, fonctcci, foncteci, fonctvci, fonctecgti, fonctecgni, fonctecgui, fonctecci
     COMPLEX(KIND=DBL), DIMENSION(nions) :: fonctpi, fonctpgti, fonctpgni, fonctpgui, fonctpci, fonctepi, fonctvpi, fonctepgti, fonctepgni, fonctepgui, fonctepci
 
@@ -29,7 +29,6 @@ CONTAINS
        fonctcgti(:) = 0.
        fonctcgne = 0.
        fonctcgni(:) = 0.
-       fonctcgue = 0.
        fonctcgui(:) = 0.
        fonctcce = 0.
        fonctcci(:) = 0.
@@ -37,14 +36,12 @@ CONTAINS
        fonctece = 0.
        foncteci(:) = 0.
 
-       fonctvce = 0.
        fonctvci(:) = 0.
 
        fonctecgte = 0.
        fonctecgti(:) = 0.
        fonctecgne = 0.
        fonctecgni(:) = 0.
-       fonctecgue = 0.
        fonctecgui(:) = 0.
        fonctecce = 0.
        fonctecci(:) = 0.
@@ -52,16 +49,13 @@ CONTAINS
     ELSE
 
        IF ( (rotflagarray(p) == 1) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) THEN
-          CALL passQLintsrot( p, nu, omega, fonctce, fonctci, fonctcgte, fonctcgti, fonctcgne, fonctcgni, fonctcgue, fonctcgui, &
-               & fonctcce, fonctcci, fonctece, foncteci, fonctecgte, fonctecgti, fonctecgne, fonctecgni, fonctecgue, fonctecgui, fonctecce, fonctecci, fonctvce, fonctvci)        
+          CALL passQLintsrot( p, nu, omega, fonctce, fonctci, fonctcgte, fonctcgti, fonctcgne, fonctcgni, fonctcgui, &
+               & fonctcce, fonctcci, fonctece, foncteci, fonctecgte, fonctecgti, fonctecgne, fonctecgni, fonctecgui, fonctecce, fonctecci, fonctvci)        
        ELSE
           CALL passQLints( p, nu, omega, fonctce, fonctci, fonctcgte, fonctcgti, fonctcgne, fonctcgni, &
                & fonctcce, fonctcci, fonctece, foncteci, fonctecgte, fonctecgti, fonctecgne, fonctecgni, fonctecce, fonctecci) 
-          fonctcgue = 0.
           fonctcgui(:) = 0.
-          fonctvce = 0.
           fonctvci(:) = 0.
-          fonctecgue = 0.
           fonctecgui(:) = 0.
        END IF
 
@@ -74,7 +68,6 @@ CONTAINS
        fonctpgti(:) = 0. 
        fonctpgne = 0.
        fonctpgni(:) = 0. 
-       fonctpgue = 0.
        fonctpgui(:) = 0.
        fonctpce = 0.
        fonctpci(:) = 0. 
@@ -82,14 +75,12 @@ CONTAINS
        fonctepe = 0.
        fonctepi(:) = 0. 
 
-       fonctvpe = 0.
        fonctvpi(:) = 0.
 
        fonctepgte = 0.
        fonctepgti(:) = 0. 
        fonctepgne = 0.
        fonctepgni(:) = 0. 
-       fonctepgue = 0.
        fonctepgui(:) = 0. 
        fonctepce = 0.
        fonctepci(:) = 0. 
@@ -97,16 +88,13 @@ CONTAINS
     ELSE      
 
        IF ( (rotflagarray(p) == 1) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) THEN
-          CALL trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, fonctpgne, fonctpgni, fonctpgue, fonctpgui, &
-               & fonctpce, fonctpci, fonctepe, fonctepi, fonctepgte, fonctepgti, fonctepgne, fonctepgni, fonctepgue, fonctepgui, fonctepce, fonctepci, fonctvpe, fonctvpi)
+          CALL trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, fonctpgne, fonctpgni, fonctpgui, &
+               & fonctpce, fonctpci, fonctepe, fonctepi, fonctepgte, fonctepgti, fonctepgne, fonctepgni, fonctepgui, fonctepce, fonctepci, fonctvpi)
        ELSE
           CALL trapQLints( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, fonctpgne, fonctpgni, &
                & fonctpce, fonctpci, fonctepe, fonctepi, fonctepgte, fonctepgti, fonctepgne, fonctepgni,fonctepce, fonctepci)
-          fonctpgue = 0.
           fonctpgui(:) = 0.
-          fonctvpe = 0.
           fonctvpi(:) = 0.
-          fonctepgue = 0.
           fonctepgui(:) = 0.
        END IF
     END IF
@@ -134,57 +122,51 @@ CONTAINS
 
     fonxcirce = fonctce
     fonxpiege = fonctpe
-    fonxcirci(:) = fonctci(:)
-    fonxpiegi(:) = fonctpi(:)
+    fonxcirci(:) = fonctci(:)*ninorm(p,:) !renormalise coefi
+    fonxpiegi(:) = fonctpi(:)*ninorm(p,:) !renormalise coefi
 
     !To save memory space, this condition is in place
     IF (phys_meth .NE. 0.0) THEN
        fonxcircgte = fonctcgte
        fonxpieggte = fonctpgte
-       fonxcircgti(:) = fonctcgti(:)
-       fonxpieggti(:) = fonctpgti(:)
+       fonxcircgti(:) = fonctcgti(:)*ninorm(p,:) !renormalise coefi
+       fonxpieggti(:) = fonctpgti(:)*ninorm(p,:) !renormalise coefi
        fonxcircgne = fonctcgne
        fonxpieggne = fonctpgne
-       fonxcircgni(:) = fonctcgni(:)
-       fonxpieggni(:) = fonctpgni(:)
-       fonxcircgue = fonctcgue
-       fonxpieggue = fonctpgue
-       fonxcircgui(:) = fonctcgui(:)
-       fonxpieggui(:) = fonctpgui(:)
+       fonxcircgni(:) = fonctcgni(:)*ninorm(p,:) !renormalise coefi
+       fonxpieggni(:) = fonctpgni(:)*ninorm(p,:) !renormalise coefi
+       fonxcircgui(:) = fonctcgui(:)*ninorm(p,:) !renormalise coefi
+       fonxpieggui(:) = fonctpgui(:)*ninorm(p,:) !renormalise coefi
        fonxcircce = fonctcce
        fonxpiegce = fonctpce
-       fonxcircci(:) = fonctcci(:)
-       fonxpiegci(:) = fonctpci(:)
+       fonxcircci(:) = fonctcci(:)*ninorm(p,:) !renormalise coefi
+       fonxpiegci(:) = fonctpci(:)*ninorm(p,:) !renormalise coefi
        !!
        IF (phys_meth == 2) THEN
           fonxecircgte = fonctecgte
           fonxepieggte = fonctepgte
-          fonxecircgti(:) = fonctecgti(:)
-          fonxepieggti(:) = fonctepgti(:)
+          fonxecircgti(:) = fonctecgti(:)*ninorm(p,:) !renormalise coefi
+          fonxepieggti(:) = fonctepgti(:)*ninorm(p,:) !renormalise coefi
           fonxecircgne = fonctecgne
           fonxepieggne = fonctepgne
-          fonxecircgni(:) = fonctecgni(:)
-          fonxepieggni(:) = fonctepgni(:)
-          fonxecircgue = fonctecgue
-          fonxepieggue = fonctepgue
-          fonxecircgui(:) = fonctecgui(:)
-          fonxepieggui(:) = fonctepgui(:)
+          fonxecircgni(:) = fonctecgni(:)*ninorm(p,:) !renormalise coefi
+          fonxepieggni(:) = fonctepgni(:)*ninorm(p,:) !renormalise coefi
+          fonxecircgui(:) = fonctecgui(:)*ninorm(p,:) !renormalise coefi
+          fonxepieggui(:) = fonctepgui(:)*ninorm(p,:) !renormalise coefi
           fonxecircce = fonctecce
           fonxepiegce = fonctepce
-          fonxecircci(:) = fonctecci(:)
-          fonxepiegci(:) = fonctepci(:)
+          fonxecircci(:) = fonctecci(:)*ninorm(p,:) !renormalise coefi
+          fonxepiegci(:) = fonctepci(:)*ninorm(p,:) !renormalise coefi
        ENDIF
     ENDIF
 
     fonxecirce = fonctece
     fonxepiege = fonctepe
-    fonxecirci(:) = foncteci(:)
-    fonxepiegi(:) = fonctepi(:)     
+    fonxecirci(:) = foncteci(:)*ninorm(p,:) !renormalise coefi
+    fonxepiegi(:) = fonctepi(:)*ninorm(p,:) !renormalise coefi
 
-    fonxvcirce = fonctvce
-    fonxvpiege = fonctvpe
-    fonxvcirci(:) = fonctvci(:)
-    fonxvpiegi(:) = fonctvpi(:)     
+    fonxvcirci(:) = fonctvci(:)*ninorm(p,:) !renormalise coefi
+    fonxvpiegi(:) = fonctvpi(:)*ninorm(p,:) !renormalise coefi
 
   END SUBROUTINE make_QLflux
 

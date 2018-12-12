@@ -10,6 +10,8 @@ MODULE datmat
   REAL(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: Tex, Nex, Ate, Ane, anise, danisedr, filterprof
   REAL(KIND=DBL), SAVE, DIMENSION(:,:), ALLOCATABLE :: Tix, Ati, Ani, ninorm, anis, danisdr, Ai, Zi
   REAL(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: Machtor, Autor, Machpar, Aupar, gammaE
+  LOGICAL, SAVE :: verbose,separateflux   !Boolean input parameters
+
   REAL(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: Machparmod, Auparmod, gammaEmod !backup arrays used in rotationless dispersion relation solver with rot_flag=2
   REAL(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: Machparorig, Auparorig, gammaEorig !backup arrays used in rotationless dispersion relation solver with rot_flag=2
 
@@ -28,7 +30,7 @@ MODULE datmat
   ! List of derived 'radial' variables (see mod_make_input.f90 for details)
   REAL(KIND=DBL), SAVE :: widthtuneITG, widthtuneETG
   REAL(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: csou, cref,cthe, de, epsilon, qprim, ft, fc
-  REAL(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: Ac, Rhoe, Anue, Zeffx, omegator, domegatordr
+  REAL(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: Ac, Rhoe, Anue, Zeffx, omegator, domegatordr, Nustar
   REAL(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: wg, rhostar, Rhoeff, ktetasn, Mache, Aue, krmmuITG,krmmuETG
   REAL(KIND=DBL), SAVE, DIMENSION(:,:), ALLOCATABLE :: coefi, Machi, Machitemp, Aui, Nix, Rhoi, di, cthi, tau, mi, Auiorig, Auimod, Machiorig, Machimod
 
@@ -38,19 +40,23 @@ MODULE datmat
   COMPLEX(KIND=DBL), SAVE, DIMENSION(:,:), ALLOCATABLE :: modewidth, modeshift, modeshift2
   COMPLEX(KIND=DBL), SAVE, DIMENSION(:,:), ALLOCATABLE :: ommax, solflu
   COMPLEX(KIND=DBL), SAVE, DIMENSION(:,:,:), ALLOCATABLE :: sol, fdsol, oldsol, oldfdsol
-  COMPLEX(KIND=DBL), SAVE, DIMENSION(:,:,:), ALLOCATABLE :: Lcirce, Lpiege, Lecirce, Lepiege, Lvcirce, Lvpiege, Lcircgte, Lpieggte,  Lcircgne, Lpieggne,  Lcircgue, Lpieggue, Lcircce, Lpiegce
-  COMPLEX(KIND=DBL), SAVE, DIMENSION(:,:,:,:), ALLOCATABLE :: Lcirci, Lpiegi, Lecirci, Lepiegi, Lvcirci, Lvpiegi, Lcircgti, Lpieggti, Lcircgni, Lpieggni, Lcircgui, Lpieggui, Lcircci, Lpiegci
-  COMPLEX(KIND=DBL), SAVE, DIMENSION(:,:,:), ALLOCATABLE :: Lecircgte, Lepieggte,  Lecircgne, Lepieggne,  Lecircgue, Lepieggue, Lecircce, Lepiegce
-  COMPLEX(KIND=DBL), SAVE, DIMENSION(:,:,:,:), ALLOCATABLE :: Lecircgti, Lepieggti, Lecircgni, Lepieggni, Lecircgui, Lepieggui, Lecircci, Lepiegci
+  REAL(KIND=DBL), SAVE, DIMENSION(:,:,:), ALLOCATABLE :: Lcirce, Lpiege, Lecirce, Lepiege, Lcircgte, Lpieggte,  Lcircgne, Lpieggne, Lcircce, Lpiegce
+  REAL(KIND=DBL), SAVE, DIMENSION(:,:,:,:), ALLOCATABLE :: Lcirci, Lpiegi, Lecirci, Lepiegi, Lvcirci, Lvpiegi, Lcircgti, Lpieggti, Lcircgni, Lpieggni, Lcircgui, Lpieggui, Lcircci, Lpiegci
+  REAL(KIND=DBL), SAVE, DIMENSION(:,:,:), ALLOCATABLE :: Lecircgte, Lepieggte,  Lecircgne, Lepieggne, Lecircce, Lepiegce
+  REAL(KIND=DBL), SAVE, DIMENSION(:,:,:,:), ALLOCATABLE :: Lecircgti, Lepieggti, Lecircgni, Lepieggni, Lecircgui, Lepieggui, Lecircci, Lepiegci
 
   ! Final output arrays following saturation rule. These can be printed as ASCII output
   COMPLEX(KIND=DBL), SAVE, DIMENSION(:,:), ALLOCATABLE :: solflu_SI, solflu_GB
   REAL(KIND=DBL), SAVE, DIMENSION(:,:,:), ALLOCATABLE :: gam_SI,gam_GB,ome_SI,ome_GB
-  REAL(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: epf_SI,epfETG_SI,epf_GB,eef_SI,eefETG_SI,eef_GB,evf_SI,evf_GB, dfe_SI,vte_SI,vce_SI,vre_SI,cke,modeflag
-  REAL(KIND=DBL), SAVE, DIMENSION(:,:), ALLOCATABLE :: ipf_SI,ipf_GB,ief_SI,ief_GB,ivf_SI,ivf_GB, dfi_SI,vti_SI,vci_SI,vri_SI,cki,eef_cm,epf_cm,evf_cm
+  REAL(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: epf_SI,epf_GB,eef_SI,eef_GB,eefETG_SI,eefETG_GB
+  REAL(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: dfe_SI,vte_SI,vce_SI,cke,modeflag
+  REAL(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: dfe_GB,vte_GB,vce_GB
+  REAL(KIND=DBL), SAVE, DIMENSION(:,:), ALLOCATABLE :: ipf_SI,ipf_GB,ief_SI,ief_GB,ivf_SI,ivf_GB, dfi_SI,vti_SI,vci_SI,vri_SI,cki,eef_cm,epf_cm
+  REAL(KIND=DBL), SAVE, DIMENSION(:,:), ALLOCATABLE :: dfi_GB,vti_GB,vci_GB,vri_GB
 
-  REAL(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: vene_SI,chiee_SI,vece_SI,vere_SI,ceke
-  REAL(KIND=DBL), SAVE, DIMENSION(:,:), ALLOCATABLE :: veni_SI,chiei_SI,veci_SI,veri_SI,ceki
+  REAL(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: vene_SI,chiee_SI,vece_SI,vene_GB,chiee_GB,vece_GB,ceke
+  REAL(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: veneETG_SI,chieeETG_SI,veceETG_SI,veneETG_GB,chieeETG_GB,veceETG_GB
+  REAL(KIND=DBL), SAVE, DIMENSION(:,:), ALLOCATABLE :: veni_SI,chiei_SI,veci_SI,veri_SI,veni_GB,chiei_GB,veci_GB,veri_GB,ceki
 
   REAL(KIND=DBL), SAVE, DIMENSION(:,:,:), ALLOCATABLE :: ipf_cm,ief_cm,ivf_cm
 
@@ -83,9 +89,9 @@ MODULE datmat
   COMPLEX(KIND=DBL), SAVE :: mwidth, mshift, mshift2, omeflu ! the width and the shift of eigenfunctions can be complex. omeflu is the solution used for the contour limit from Pierre solution
   COMPLEX(KIND=DBL), SAVE :: mwidth_rot, mshift_rot ! width and the shift of eigenfunctions for momentum transport cases
   REAL(KIND=DBL), SAVE :: widthhat ! the width corresponding to |phi(x)| . Used instead of mwidth when phi(x) is complex
-  COMPLEX(KIND=DBL), SAVE :: fonxcirce, fonxpiege, fonxcircgte, fonxpieggte, fonxcircgne, fonxcircgue
-  COMPLEX(KIND=DBL), SAVE :: fonxpieggne, fonxpieggue, fonxcircce, fonxpiegce, fonxecirce, fonxepiege, fonxvcirce, fonxvpiege 
-  COMPLEX(KIND=DBL), SAVE :: fonxecircgte, fonxepieggte, fonxecircgne, fonxecircgue, fonxepieggne, fonxepieggue, fonxecircce, fonxepiegce
+  COMPLEX(KIND=DBL), SAVE :: fonxcirce, fonxpiege, fonxcircgte, fonxpieggte, fonxcircgne
+  COMPLEX(KIND=DBL), SAVE :: fonxpieggne, fonxcircce, fonxpiegce, fonxecirce, fonxepiege 
+  COMPLEX(KIND=DBL), SAVE :: fonxecircgte, fonxepieggte, fonxecircgne, fonxepieggne, fonxecircce, fonxepiegce
 
   COMPLEX(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: fonxcirci, fonxpiegi, fonxcircgti, fonxpieggti, fonxcircgni, fonxcircgui
   COMPLEX(KIND=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: fonxpieggni, fonxpieggui, fonxcircci, fonxpiegci, fonxecirci, fonxepiegi, fonxvcirci, fonxvpiegi
@@ -124,9 +130,6 @@ MODULE datmat
   REAL(KIND=DBL), SAVE :: calltimeinit,timeout
   LOGICAL, SAVE :: timeoutflag
 
-  !Verbose variable
-  LOGICAL, SAVE :: verbose
-
   !min and max radius for calculation
   REAL(KIND=DBL), SAVE :: rhomin,rhomax
 
@@ -134,7 +137,7 @@ MODULE datmat
 
   !Elliptic integrals (from SLATEC)
   REAL(KIND=DBL) :: ceik, ceie, DGAMMA2
-  EXTERNAL  ceik, ceie, DGAMMA2
+  EXTERNAL ceik, ceie, DGAMMA2
 
   !Scaled modified Bessel functions routines (from SPECFUN)
   REAL(KIND=DBL) :: BESEI0, BESEI1

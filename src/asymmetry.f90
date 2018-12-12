@@ -40,7 +40,7 @@ CONTAINS
              CALL DFZERO(phieq,Btmp,Ctmp,guess,RE,AE,iflag)
              phi(irad,itheta)=Btmp
              IF (iflag > 2) THEN
-                IF (verbose .EQV. .TRUE.) WRITE(stdout,"(A,I2,A,I2,A,I0)") 'Abnormal termination of DFZERO at p = ',irad,'. itheta = ',itheta, '. iflag = ',iflag
+                IF (verbose .EQV. .TRUE.) WRITE(stdout,"(A,I7,A,I2,A,I0)") 'Abnormal termination of DFZERO at p = ',irad,'. itheta = ',itheta, '. iflag = ',iflag
              ENDIF
           ELSE
              phi(irad,itheta)=0._DBL

@@ -1,0 +1,28 @@
+#!/bin/make -f
+QUALIKIZ+
+# Underlying compiler
+FC=ifort
+# Wrapper/command used to compile with Open MPI
+FC_WRAPPER=mpiifort
+# String of text that will be put in from of the $(FC) compile option
+FC_PREAMBLE=
+DEBUG=
+FFLAGS_GFORTRAN=$(DEBUG) -O3 -fdefault-double-8 -fdefault-real-8 -ffree-line-length-none
+FFLAGS_IFORT=$(DEBUG) -O2 -real-size 64
+FFLAGS=$(FFLAGS_IFORT)
+OPENMP_FLAGS=-openmp
+MPI_FLAGS=-DMPI
+
+ifneq ($(NAG_LEGACY), TRUE)
+    # Check if NAG module is loaded
+    ifeq ($(NAG_LIB),)
+        $(error Please load the NAG library with 'module load nag')
+    endif
+    NAG_DIR=$(shell echo $$NAG_LIB)
+    NAG=-L$(shell echo $$NAG_LIB) -lnag_mkl
+endif
+# Check if right compiler is loaded
+#ifneq ($(CRAY_PRGENVINTEL), loaded)
+#    $(error Please load the right compiler with 'module load PrgEnv-intel')
+#endif
+

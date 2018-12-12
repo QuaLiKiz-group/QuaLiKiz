@@ -1,0 +1,8 @@
+[submodule "QuaLiKiz-pythontools"]
+	path = QuaLiKiz-pythontools
+	url = https://github.com/QuaLiKiz-group/QuaLiKiz-pythontools.git
+	branch = master
+[submodule "QuaLiKiz-matlabtools"]
+	path = QuaLiKiz-matlabtools
+	url = https://github.com/QuaLiKiz-group/QuaLiKiz-matlabtools.git
+	branch = master

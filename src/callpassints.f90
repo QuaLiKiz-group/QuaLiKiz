@@ -54,7 +54,7 @@ CONTAINS
 
     DO i = 1,nions
        IF ( (ion_type(pFkr,i) == 1) .AND. (ETG_flag(nuFkr) .EQV. .FALSE.) ) THEN !only include active ions
-          intsum = intsum + 4.*REAL ( Fkstarrstari(ndim,xy,1,i) )
+          intsum = intsum + 4.*REAL ( Fkstarrstari(ndim,xy,1,i) )*ninorm(pFkr,i) !unnormalise coefi here
        ENDIF
     ENDDO
     rFkstarrstar = intsum
@@ -80,7 +80,7 @@ CONTAINS
 
     DO i = 1,nions
        IF ( (ion_type(pFkr,i) == 1) .AND. (ETG_flag(nuFkr) .EQV. .FALSE.) ) THEN !only include active ions
-          intsum = intsum + 4.*AIMAG ( Fkstarrstari(ndim,xy,1,i) )
+          intsum = intsum + 4.*AIMAG ( Fkstarrstari(ndim,xy,1,i) )*ninorm(pFkr,i) !unnormalise coefi here
        ENDIF
     ENDDO
     iFkstarrstar = intsum
@@ -637,7 +637,7 @@ CONTAINS
 
     DO i = 1,nions
        IF ( (ion_type(pFkr,i) == 1) .AND. (ETG_flag(nuFkr) .EQV. .FALSE.) ) THEN !only include active ions
-          intsum = intsum + 1.*REAL ( Fkstarrstarirot(ndim,xy,1,i) )  
+          intsum = intsum + 1.*REAL ( Fkstarrstarirot(ndim,xy,1,i) )*ninorm(pFkr,i) !unnormalise coefi here  
        ENDIF
     ENDDO
     rFkstarrstarrot = intsum
@@ -663,7 +663,7 @@ CONTAINS
 
     DO i = 1,nions
        IF ( (ion_type(pFkr,i) == 1) .AND. (ETG_flag(nuFkr) .EQV. .FALSE.) ) THEN !only include active ions
-          intsum = intsum + 1.*AIMAG ( Fkstarrstarirot(ndim,xy,1,i) )
+          intsum = intsum + 1.*AIMAG ( Fkstarrstarirot(ndim,xy,1,i) )*ninorm(pFkr,i) !unnormalise coefi here
        ENDIF
     ENDDO
     iFkstarrstarrot = intsum
@@ -917,100 +917,6 @@ CONTAINS
     REAL(KIND=DBL) :: iFekstarrstarcerot
     iFekstarrstarcerot = AIMAG (  Fkstarrstarerot(ndim,xy,8) )
   END FUNCTION iFekstarrstarcerot
-
-
-  FUNCTION Fkstarrstarguerot_cub(nf, xy)
-    !---------------------------------------------------------------------
-    ! Returns the elecron passing particle integrand (Aue term)
-    !---------------------------------------------------------------------  
-    INTEGER, INTENT(IN) :: nf
-    REAL(KIND=DBL), DIMENSION(nf), INTENT(IN) :: xy
-    REAL(KIND=DBL), DIMENSION(nf) :: Fkstarrstarguerot_cub
-    Fkstarrstarguerot_cub(1) = REAL  ( Fkstarrstarerot(ndim,xy,9) )
-    Fkstarrstarguerot_cub(2) = AIMAG (  Fkstarrstarerot(ndim,xy,9) )
-  END FUNCTION Fkstarrstarguerot_cub
-
-  FUNCTION rFkstarrstarguerot(nf, xy)
-    !---------------------------------------------------------------------
-    ! Returns the electron passing particle integrand (Aue term)
-    !---------------------------------------------------------------------  
-    INTEGER, INTENT(IN) :: nf
-    REAL(KIND=DBL), DIMENSION(nf), INTENT(IN) :: xy
-    REAL(KIND=DBL) :: rFkstarrstarguerot
-    rFkstarrstarguerot = REAL  ( Fkstarrstarerot(ndim,xy,9) )
-  END FUNCTION rFkstarrstarguerot
-
-  FUNCTION iFkstarrstarguerot(nf, xy)
-    !---------------------------------------------------------------------
-    ! Returns the electron passing particle integrand (Aue term)
-    !---------------------------------------------------------------------  
-    INTEGER, INTENT(IN) :: nf
-    REAL(KIND=DBL), DIMENSION(nf), INTENT(IN) :: xy
-    REAL(KIND=DBL) :: iFkstarrstarguerot
-    iFkstarrstarguerot = AIMAG (  Fkstarrstarerot(ndim,xy,9) )
-  END FUNCTION iFkstarrstarguerot
-
-  FUNCTION Fekstarrstarguerot_cub(nf, xy)
-    !---------------------------------------------------------------------
-    ! Returns the electron passing particle integrand (Aue term) energy
-    !---------------------------------------------------------------------  
-    INTEGER, INTENT(IN) :: nf
-    REAL(KIND=DBL), DIMENSION(nf), INTENT(IN) :: xy
-    REAL(KIND=DBL), DIMENSION(nf) :: Fekstarrstarguerot_cub
-    Fekstarrstarguerot_cub(1) = REAL  ( Fkstarrstarerot(ndim,xy,10) )
-    Fekstarrstarguerot_cub(2) = AIMAG (  Fkstarrstarerot(ndim,xy,10) )
-  END FUNCTION Fekstarrstarguerot_cub
-
-  FUNCTION rFekstarrstarguerot(nf, xy)
-    !---------------------------------------------------------------------
-    ! Returns the electron passing particle integrand (Aue term) energy
-    !---------------------------------------------------------------------  
-    INTEGER, INTENT(IN) :: nf
-    REAL(KIND=DBL), DIMENSION(nf), INTENT(IN) :: xy
-    REAL(KIND=DBL) :: rFekstarrstarguerot
-    rFekstarrstarguerot = REAL  ( Fkstarrstarerot(ndim,xy,10) )
-  END FUNCTION rFekstarrstarguerot
-
-  FUNCTION iFekstarrstarguerot(nf, xy)
-    !---------------------------------------------------------------------
-    ! Returns the electron passing particle integrand (Aue term) energy
-    !---------------------------------------------------------------------  
-    INTEGER, INTENT(IN) :: nf
-    REAL(KIND=DBL), DIMENSION(nf), INTENT(IN) :: xy
-    REAL(KIND=DBL) :: iFekstarrstarguerot
-    iFekstarrstarguerot = AIMAG (  Fkstarrstarerot(ndim,xy,10) )
-  END FUNCTION iFekstarrstarguerot
-
-  FUNCTION Fvkstarrstarerot_cub(nf, xy)
-    !---------------------------------------------------------------------
-    ! Returns the electron  passing particle integrand ang momentum
-    !---------------------------------------------------------------------  
-    INTEGER, INTENT(IN) :: nf
-    REAL(KIND=DBL), DIMENSION(nf), INTENT(IN) :: xy
-    REAL(KIND=DBL), DIMENSION(nf) :: Fvkstarrstarerot_cub
-    Fvkstarrstarerot_cub(1) = REAL  ( Fkstarrstarerot(ndim,xy,11) )
-    Fvkstarrstarerot_cub(2) = AIMAG (  Fkstarrstarerot(ndim,xy,11) )
-  END FUNCTION Fvkstarrstarerot_cub
-
-  FUNCTION rFvkstarrstarerot(nf, xy)
-    !---------------------------------------------------------------------
-    ! Returns the electron passing particle integrand ang momentum
-    !---------------------------------------------------------------------  
-    INTEGER, INTENT(IN) :: nf
-    REAL(KIND=DBL), DIMENSION(nf), INTENT(IN) :: xy
-    REAL(KIND=DBL) :: rFvkstarrstarerot
-    rFvkstarrstarerot = REAL  ( Fkstarrstarerot(ndim,xy,11) )
-  END FUNCTION rFvkstarrstarerot
-
-  FUNCTION iFvkstarrstarerot(nf, xy)
-    !---------------------------------------------------------------------
-    ! Returns the electron passing particle integrand ang momentum
-    !---------------------------------------------------------------------  
-    INTEGER, INTENT(IN) :: nf
-    REAL(KIND=DBL), DIMENSION(nf), INTENT(IN) :: xy
-    REAL(KIND=DBL) :: iFvkstarrstarerot
-    iFvkstarrstarerot = AIMAG (  Fkstarrstarerot(ndim,xy,11) )
-  END FUNCTION iFvkstarrstarerot
 
   FUNCTION Fkstarrstarirot_cub(nf, xy)
     !---------------------------------------------------------------------
