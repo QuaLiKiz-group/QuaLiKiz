@@ -1,5 +1,5 @@
 #!/bin/make -f
-QUALIKIZ+
+QLKDIR+
 # Underlying compiler
 FC=ifort
 # Wrapper/command used to compile with Open MPI

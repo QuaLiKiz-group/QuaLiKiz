@@ -1,6 +1,6 @@
 #!/bin/make -f
-QUALIKIZ?=../../..
-QUALIKIZ_SRC?=$(QUALIKIZ)/src
+QLKDIR?=../../..
+QUALIKIZ_SRC?=$(QLKDIR)/src
 include $(QUALIKIZ_SRC)/Makefile.inc
 
 # Fortran routine files

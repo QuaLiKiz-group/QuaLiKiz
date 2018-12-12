@@ -1,9 +1,9 @@
 #!/bin/make -f
-QUALIKIZ?=..
-QUALIKIZ_SRC?=$(QUALIKIZ)/src
+QLKDIR?=$(abspath ..)
+QUALIKIZ_SRC?=$(QLKDIR)/src
 include $(QUALIKIZ_SRC)/Makefile.inc
 # Directory for math routines
-QUALIKIZ_LIBSRC?=$(QUALIKIZ)/lib/src
+QUALIKIZ_LIBSRC?=$(QLKDIR)/lib/src
 CUBPACK_DIR?=$(QUALIKIZ_LIBSRC)/cubpack
 GENZ_DIR?=$(QUALIKIZ_LIBSRC)/genz
 NAG_DIR?=$(QUALIKIZ_LIBSRC)/nag
@@ -33,7 +33,7 @@ endif
 
 #qlk_makeflux.exe: qlk_makeflux.f90 $(OBJS_MAKEFLUX) $(ROUT)/librout.a
 #	$(FC_PREAMBLE) $(FC_WRAPPER) -o qlk_makeflux.exe qlk_makeflux.f90 $(OBJS_QUALIKIZ) ${QFLAGS} ${OPENMP} $(MPI) -L$(ROUT) -lrout -L$(CUB) -lcubpack 
-SRCS_QUALIKIZ=calcroutines.f90 callpassQLints.f90 calltrapQLints.f90 mod_fonct.f90 QLflux.f90 qualikiz.f90 diskio.f90
+SRCS_QUALIKIZ=calcroutines.f90 callpassQLints.f90 calltrapQLints.f90 mod_fonct.f90 QLflux.f90 qualikiz.f90 diskio.f90 qlk_tci_module.f90
 OBJS_QUALIKIZ=$(SRCS_QUALIKIZ:%f90=%o)
 MODS_QUALIKIZ=$(SRCS_QUALIKIZ:%f90=%mod)
 
@@ -55,6 +55,7 @@ QLflux.o: kind.mod datmat.mod datcal.mod callpassqlints.mod calltrapqlints.mod
 qlk_standalone.o: kind.mod
 calcroutines.o: mod_fonct.mod qlflux.mod flrterms.mod mod_fluidsol.mod mod_contour.mod mod_make_io.mod asymmetry.mod nanfilter.mod
 mod_fonct.o: callpassints.mod $(CUBPACK_DIR)/cui.mod calltrapints.mod
+qlk_tci_module.o: qualikiz.mod
 # Core objects
 flrterms.mod: FLRterms.mod
 callpassints.o: passints.mod 
@@ -90,7 +91,7 @@ clean:
 	rm -f *.o *.mod *__genmod.f90
 
 
-distclean: clean
+distclean realclean: clean
 	rm -f QuaLiKiz
 
 
@@ -101,7 +102,7 @@ dump_variables:
 	@echo MPI_FLAGS=$(MPI_FLAGS)
 	@echo OPENMP_FLAGS=$(OPENMP_FLAGS)
 	@echo
-	@echo QUALIKIZ=$(QUALIKIZ)
+	@echo QLKDIR=$(QLKDIR)
 	@echo QUALIKIZ_LIBS=$(QUALIKIZ_LIBS)
 	@echo
 	@echo QUALIKIZ_MODS_CORE=$(QUALIKIZ_MODS_CORE)

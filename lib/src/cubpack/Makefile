@@ -1,6 +1,6 @@
 #!/bin/make -f
-QUALIKIZ?=../../..
-QUALIKIZ_SRC?=$(QUALIKIZ)/src
+QLKDIR=../../..
+QUALIKIZ_SRC?=$(QLKDIR)/src
 include $(QUALIKIZ_SRC)/Makefile.inc
 
 SRCS_CUBPACK=buckley.f90 check.f90 cui.f90 divide.f90 ds_routines.f90 \

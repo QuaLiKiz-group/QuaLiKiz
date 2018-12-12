@@ -1,8 +1,8 @@
-#!/bin/make -f
-QUALIKIZ_SRC?=src
+QLKDIR?=$(abspath .)
+QUALIKIZ_SRC?=$(QLKDIR)/src
 include $(QUALIKIZ_SRC)/Makefile.inc
-QUALIKIZ_SRC?=$(QUALIKIZ)/src
-QUALIKIZ_LIBSRC?=$(QUALIKIZ)/lib/src
+QUALIKIZ_SRC?=$(QLKDIR)/src
+QUALIKIZ_LIBSRC?=$(QLKDIR)/lib/src
 CUBPACK_DIR?=$(QUALIKIZ_LIBSRC)/cubpack
 GENZ_DIR?=$(QUALIKIZ_LIBSRC)/genz
 NAG_DIR?=$(QUALIKIZ_LIBSRC)/nag
@@ -26,6 +26,11 @@ QualiKiz: $(QUALIKIZ_LIBS)
 	cp -f $(QUALIKIZ_SRC)/QuaLiKiz .
 
 
+$(LIBNAME): $(QUALIKIZ_LIBS)
+	make -C $(QUALIKIZ_SRC) qlk_tci_module.mod
+	ar vr $(LIBNAME) $?
+
+
 libs: $(QUALIKIZ_LIBS)
 
 
@@ -42,7 +47,7 @@ clean: $(QUALIKIZ_LIBS_CLEAN)
 	make -C $(QUALIKIZ_SRC) distclean
 
 
-distclean: clean
+distclean realclean: clean
 	rm -f QuaLiKiz
 
 
@@ -50,4 +55,4 @@ dump_variables:
 	@echo QUALIKIZ_SRC=$(QUALIKIZ_SRC)
 	@echo QUALIKIZ_LIBS=$(QUALIKIZ_LIBS)
 	@echo QUALIKIZ_LIBS_CLEAN=$(QUALIKIZ_LIBS_CLEAN)
-	@echo QUALIKIZ=$(QUALIKIZ)
+	@echo QLKDIR=$(QLKDIR)
