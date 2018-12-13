@@ -28,7 +28,7 @@ QualiKiz: $(QUALIKIZ_LIBS)
 
 $(LIBNAME): $(QUALIKIZ_LIBS) $(QUALIKIZ_SRC)/Makefile.inc
 	make -C $(QUALIKIZ_SRC) qlk_tci_module.mod
-	ar vr $(LIBNAME) $?
+	ar vr $(LIBNAME) $? qlk_tci_module.o nanfilter.o
 
 $(QUALIKIZ_SRC)/Makefile.inc:
 	cp $(QUALIKIZ_SRC)/make.inc/Makefile.jetto $(QUALIKIZ_SRC)/Makefile.inc
