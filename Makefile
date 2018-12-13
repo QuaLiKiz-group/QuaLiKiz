@@ -1,7 +1,6 @@
 QLKDIR?=$(abspath .)
 QUALIKIZ_SRC?=$(QLKDIR)/src
 include $(QUALIKIZ_SRC)/Makefile.inc
-QUALIKIZ_SRC?=$(QLKDIR)/src
 QUALIKIZ_LIBSRC?=$(QLKDIR)/lib/src
 CUBPACK_DIR?=$(QUALIKIZ_LIBSRC)/cubpack
 GENZ_DIR?=$(QUALIKIZ_LIBSRC)/genz
@@ -26,9 +25,18 @@ QualiKiz: $(QUALIKIZ_LIBS)
 	cp -f $(QUALIKIZ_SRC)/QuaLiKiz .
 
 
-$(LIBNAME): $(QUALIKIZ_LIBS) $(QUALIKIZ_SRC)/Makefile.inc
+$(LIBNAME): $(QUALIKIZ_LIBS) $(QUALIKIZ_SRC)/qlk_tci_module.mod $(QUALIKIZ_SRC)/Makefile.inc
+	ar vr $(LIBNAME) $(wildcard $(CUBPACK_DIR)/*.o)
+	ar vr $(LIBNAME) $(wildcard $(GENZ_DIR)/*.o)
+	ar vr $(LIBNAME) $(wildcard $(NAG_DIR)/*.o)
+	ar vr $(LIBNAME) $(wildcard $(SLATEC_DIR)/*.o)
+	ar vr $(LIBNAME) $(wildcard $(SPECFUN_DIR)/*.o)
+	ar vr $(LIBNAME) $(wildcard $(FUKUSHIMA_DIR)/*.o)
+	ar vr $(LIBNAME) $(wildcard $(QUALIKIZ_SRC)/*.o)
+
+$(QUALIKIZ_SRC)/qlk_tci_module.mod:
 	make -C $(QUALIKIZ_SRC) qlk_tci_module.mod
-	ar vr $(LIBNAME) $? qlk_tci_module.o nanfilter.o
+
 
 $(QUALIKIZ_SRC)/Makefile.inc:
 	cp $(QUALIKIZ_SRC)/make.inc/Makefile.jetto $(QUALIKIZ_SRC)/Makefile.inc
