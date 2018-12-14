@@ -28,17 +28,10 @@ CONTAINS
 
     REAL(KIND=DBL), DIMENSION(ndim)    :: a, b, c
     REAL(KIND=DBL)    :: acc
-    INTEGER           :: minpts, neval
+    INTEGER           :: neval
     REAL(KIND=DBL), DIMENSION(lenwrk) :: wrkstr
 
     REAL(KIND=DBL), DIMENSION(nf) :: intout
-    !INTEGER, PARAMETER :: numrgn = 4 !number of triangles in CUBATR
-    INTEGER, PARAMETER :: numrgn = 1 !number of triangles in CUBATR
-    REAL(KIND=DBL), DIMENSION(ndim,0:ndim,1) :: vertices1 !for CUBATR 2D integration
-    REAL, DIMENSION(ndim,0:ndim,4) :: vertices4 !for CUBATR 2D integration
-    REAL(kind=DBL) , DIMENSION(nf) :: reerrarr !NOT USED. Estimated absolute error after CUBATR restart
-    INTEGER, DIMENSION(numrgn) :: rgtype
-
     REAL(KIND=DBL)    :: rfonctce, rfonctcgte, rfonctcgne, rfonctcce, rfonctece  
     REAL(KIND=DBL)    :: rfonctecgte, rfonctecgne, rfonctecce 
     REAL(KIND=DBL)    :: ifonctce, ifonctcgte, ifonctcgne, ifonctcce, ifonctece
@@ -58,40 +51,18 @@ CONTAINS
     omFkr = omega
     pFkr = p
 
-    !    a(:) = -rkuplim
-
+    !Integration boundaries
     a(:) = 0
     b(:) =  rkuplim
-
-    !Integration boundaries
-    vertices4(1:ndim,0,1) = (/0. , 0. /)
-    vertices4(1:ndim,1,1) = (/rkuplim , rkuplim /)
-    vertices4(1:ndim,2,1) = (/rkuplim , -rkuplim /)
-
-    vertices4(1:ndim,0,2) = (/0. , 0. /)
-    vertices4(1:ndim,1,2) = (/rkuplim , rkuplim /)
-    vertices4(1:ndim,2,2) = (/-rkuplim , rkuplim /)
-
-    vertices4(1:ndim,0,3) = (/0. , 0. /)
-    vertices4(1:ndim,1,3) = (/-rkuplim , rkuplim /)
-    vertices4(1:ndim,2,3) = (/-rkuplim , -rkuplim /)
-
-    vertices4(1:ndim,0,4) = (/0. , 0. /)
-    vertices4(1:ndim,1,4) = (/-rkuplim , -rkuplim /)
-    vertices4(1:ndim,2,4) = (/rkuplim , -rkuplim /)
-
-    vertices1(1:ndim,0,1) = (/0. , 0. /)
-    vertices1(1:ndim,1,1) = (/0. , rkuplim /)
-    vertices1(1:ndim,2,1) = (/rkuplim , 0. /)
 
     !ELECTRON PARTICLE FLUX INTEGRALS
       
     IF(QL_method.EQ.1) THEN
-      minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+      ifailloc=1;
        IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
           intout(1)=0
 
-          minpts=0; ifailloc=1
+          ifailloc=1
           ifailloc = hcubature(1, iFkstarrstare_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
           intout(2) = intout_cub(1)
           IF (ifailloc /= 0) THEN
@@ -107,11 +78,11 @@ CONTAINS
        !ADDITIONAL ELECTRON PARTICLE FLUX INTEGRALS
        IF (phys_meth .NE. 0.0) THEN
 
-          minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+          ifailloc=1;
           IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
 
              intout(1)=0
-             minpts=0; ifailloc=1
+             ifailloc=1
              ifailloc = hcubature(1, iFkstarrstargte_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
              intout(2) = intout_cub(1)
              IF (ifailloc /= 0) THEN
@@ -123,11 +94,11 @@ CONTAINS
           ENDIF
           rfonctcgte = intmult*intout(1); ifonctcgte=intmult*intout(2)
 
-          minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+          ifailloc=1;
           IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
           
              intout(1)=0
-             minpts=0; ifailloc=1
+             ifailloc=1
              ifailloc = hcubature(1, iFkstarrstargne_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
              intout(2) = intout_cub(1)
              IF (ifailloc /= 0) THEN
@@ -140,11 +111,11 @@ CONTAINS
           ENDIF
           rfonctcgne = intmult*intout(1); ifonctcgne=intmult*intout(2)
 
-          minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+          ifailloc=1;
           IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
           
              intout(1)=0
-             minpts=0; ifailloc=1
+             ifailloc=1
              ifailloc = hcubature(1, iFkstarrstarce_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
              intout(2) = intout_cub(1)
              IF (ifailloc /= 0) THEN
@@ -157,11 +128,11 @@ CONTAINS
           rfonctcce = intmult*intout(1); ifonctcce=intmult*intout(2)
 !!!
           IF (phys_meth == 2) THEN
-             minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+             ifailloc=1;
              IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
 
                 intout(1)=0
-                minpts=0; ifailloc=1
+                ifailloc=1
                 ifailloc = hcubature(1, iFekstarrstargte_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
                 intout(2) = intout_cub(1)
                 IF (ifailloc /= 0) THEN
@@ -173,11 +144,11 @@ CONTAINS
              ENDIF
              rfonctecgte = intmult*intout(1); ifonctecgte=intmult*intout(2)
 
-             minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+             ifailloc=1;
              IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
 
                 intout(1)=0
-                minpts=0; ifailloc=1
+                ifailloc=1
                 ifailloc = hcubature(1, iFekstarrstargne_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
                 intout(2) = intout_cub(1)
                 IF (ifailloc /= 0) THEN
@@ -190,11 +161,11 @@ CONTAINS
              ENDIF
              rfonctecgne = intmult*intout(1); ifonctecgne=intmult*intout(2)
 
-             minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+             ifailloc=1;
              IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
 
                 intout(1)=0
-                minpts=0; ifailloc=1
+                ifailloc=1
                 ifailloc = hcubature(1, iFekstarrstarce_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
                 intout(2) = intout_cub(1)
                 IF (ifailloc /= 0) THEN
@@ -230,11 +201,11 @@ CONTAINS
        ENDIF
 
        !ELECTRON ENERGY INTEGRALS
-       minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+       ifailloc=1;
        IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
 
           intout(1)=0
-          minpts=0; ifailloc=1
+          ifailloc=1
           ifailloc = hcubature(1, iFekstarrstare_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
           intout(2) = intout_cub(1)
           IF (ifailloc /= 0) THEN
@@ -249,10 +220,10 @@ CONTAINS
        DO ion=1,nions
 
           !ION PARTICLE FLUX INTEGRALS
-          minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+          ifailloc=1;
 
           intout(1)=0
-          minpts=0; ifailloc=1
+          ifailloc=1
           ifailloc = hcubature(1, iFkstarrstari_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
           intout(2) = intout_cub(1)
           IF (ifailloc /= 0) THEN
@@ -263,10 +234,10 @@ CONTAINS
 
           !ADDITIONAL ION PARTICLE FLUX INTEGRALS
           IF (phys_meth .NE. 0.0) THEN
-             minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+             ifailloc=1;
 
              intout(1)=0
-             minpts=0; ifailloc=1
+             ifailloc=1
              ifailloc = hcubature(1, iFkstarrstargti_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
              intout(2) = intout_cub(1)
              IF (ifailloc /= 0) THEN
@@ -274,10 +245,10 @@ CONTAINS
              ENDIF
              rfonctcgti(ion) = intmult*intout(1); ifonctcgti(ion)=intmult*intout(2)
 
-             minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+             ifailloc=1;
 
              intout(1)=0
-             minpts=0; ifailloc=1
+             ifailloc=1
              ifailloc = hcubature(1, iFkstarrstargni_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
              intout(2) = intout_cub(1)
              IF (ifailloc /= 0) THEN
@@ -285,10 +256,10 @@ CONTAINS
              ENDIF
              rfonctcgni(ion) = intmult*intout(1); ifonctcgni(ion)=intmult*intout(2)
 
-             minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+             ifailloc=1;
 
              intout(1)=0
-             minpts=0; ifailloc=1
+             ifailloc=1
              ifailloc = hcubature(1, iFkstarrstarci_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
              intout(2) = intout_cub(1)
              IF (ifailloc /= 0) THEN
@@ -297,10 +268,10 @@ CONTAINS
              rfonctcci(ion) = intmult*intout(1); ifonctcci(ion)=intmult*intout(2)
 !!!
              IF (phys_meth == 2) THEN
-                minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+                ifailloc=1;
 
                 intout(:)=0
-                minpts=0; ifailloc=1
+                ifailloc=1
                 IF (ninorm(p,ion) > min_ninorm) THEN
                    ifailloc = hcubature(1, iFekstarrstargti_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
                    intout(2) = intout_cub(1)
@@ -310,10 +281,10 @@ CONTAINS
                 ENDIF
                 rfonctecgti(ion) = intmult*intout(1); ifonctecgti(ion)=intmult*intout(2)
 
-                minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+                ifailloc=1;
 
                 intout(:)=0
-                minpts=0; ifailloc=1
+                ifailloc=1
                 IF (ninorm(p,ion) > min_ninorm) THEN
                    ifailloc = hcubature(1, iFekstarrstargni_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
                    intout(2) = intout_cub(1)
@@ -322,10 +293,10 @@ CONTAINS
                    ENDIF
                 ENDIF
                 rfonctecgni(ion) = intmult*intout(1); ifonctecgni(ion)=intmult*intout(2)
-                minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+                ifailloc=1;
 
                 intout(:)=0
-                minpts=0; ifailloc=1
+                ifailloc=1
                 IF (ninorm(p,ion) > min_ninorm) THEN
                    ifailloc = hcubature(1, iFekstarrstarci_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
                    intout(2) = intout_cub(1)
@@ -359,10 +330,10 @@ CONTAINS
           ENDIF
 
           !ION ENERGY INTEGRALS
-          minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+          ifailloc=1;
 
           intout(:)=0
-          minpts=0; ifailloc=1
+          ifailloc=1
           IF (ninorm(p,ion) > min_ninorm) THEN
              ifailloc = hcubature(1, iFekstarrstari_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
              intout(2) = intout_cub(1)
@@ -375,11 +346,11 @@ CONTAINS
        ENDDO
 
     ELSE IF(QL_method.EQ.2) THEN
-      minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+      ifailloc=1;
        IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
           intout(1)=0
 
-          minpts=0; ifailloc=1
+          ifailloc=1
           ifailloc = pcubature(1, iFkstarrstare_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
           intout(2) = intout_cub(1)
           IF (ifailloc /= 0) THEN
@@ -395,11 +366,11 @@ CONTAINS
        !ADDITIONAL ELECTRON PARTICLE FLUX INTEGRALS
        IF (phys_meth .NE. 0.0) THEN
 
-          minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+          ifailloc=1;
           IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
 
              intout(1)=0
-             minpts=0; ifailloc=1
+             ifailloc=1
              ifailloc = pcubature(1, iFkstarrstargte_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
              intout(2) = intout_cub(1)
              IF (ifailloc /= 0) THEN
@@ -411,11 +382,11 @@ CONTAINS
           ENDIF
           rfonctcgte = intmult*intout(1); ifonctcgte=intmult*intout(2)
 
-          minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+          ifailloc=1;
           IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
           
              intout(1)=0
-             minpts=0; ifailloc=1
+             ifailloc=1
              ifailloc = pcubature(1, iFkstarrstargne_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
              intout(2) = intout_cub(1)
              IF (ifailloc /= 0) THEN
@@ -428,11 +399,11 @@ CONTAINS
           ENDIF
           rfonctcgne = intmult*intout(1); ifonctcgne=intmult*intout(2)
 
-          minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+          ifailloc=1;
           IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
           
              intout(1)=0
-             minpts=0; ifailloc=1
+             ifailloc=1
              ifailloc = pcubature(1, iFkstarrstarce_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
              intout(2) = intout_cub(1)
              IF (ifailloc /= 0) THEN
@@ -445,11 +416,11 @@ CONTAINS
           rfonctcce = intmult*intout(1); ifonctcce=intmult*intout(2)
 !!!
           IF (phys_meth == 2) THEN
-             minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+             ifailloc=1;
              IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
 
                 intout(1)=0
-                minpts=0; ifailloc=1
+                ifailloc=1
                 ifailloc = pcubature(1, iFekstarrstargte_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
                 intout(2) = intout_cub(1)
                 IF (ifailloc /= 0) THEN
@@ -461,11 +432,11 @@ CONTAINS
              ENDIF
              rfonctecgte = intmult*intout(1); ifonctecgte=intmult*intout(2)
 
-             minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+             ifailloc=1;
              IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
 
                 intout(1)=0
-                minpts=0; ifailloc=1
+                ifailloc=1
                 ifailloc = pcubature(1, iFekstarrstargne_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
                 intout(2) = intout_cub(1)
                 IF (ifailloc /= 0) THEN
@@ -478,11 +449,11 @@ CONTAINS
              ENDIF
              rfonctecgne = intmult*intout(1); ifonctecgne=intmult*intout(2)
 
-             minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+             ifailloc=1;
              IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
 
                 intout(1)=0
-                minpts=0; ifailloc=1
+                ifailloc=1
                 ifailloc = pcubature(1, iFekstarrstarce_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
                 intout(2) = intout_cub(1)
                 IF (ifailloc /= 0) THEN
@@ -518,11 +489,11 @@ CONTAINS
        ENDIF
 
        !ELECTRON ENERGY INTEGRALS
-       minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+       ifailloc=1;
        IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
 
           intout(1)=0
-          minpts=0; ifailloc=1
+          ifailloc=1
           ifailloc = pcubature(1, iFekstarrstare_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
           intout(2) = intout_cub(1)
           IF (ifailloc /= 0) THEN
@@ -537,10 +508,10 @@ CONTAINS
        DO ion=1,nions
 
           !ION PARTICLE FLUX INTEGRALS
-          minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+          ifailloc=1;
 
           intout(1)=0
-          minpts=0; ifailloc=1
+          ifailloc=1
           ifailloc = pcubature(1, iFkstarrstari_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
           intout(2) = intout_cub(1)
           IF (ifailloc /= 0) THEN
@@ -551,10 +522,10 @@ CONTAINS
 
           !ADDITIONAL ION PARTICLE FLUX INTEGRALS
           IF (phys_meth .NE. 0.0) THEN
-             minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+             ifailloc=1;
 
              intout(1)=0
-             minpts=0; ifailloc=1
+             ifailloc=1
              ifailloc = pcubature(1, iFkstarrstargti_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
              intout(2) = intout_cub(1)
              IF (ifailloc /= 0) THEN
@@ -562,10 +533,10 @@ CONTAINS
              ENDIF
              rfonctcgti(ion) = intmult*intout(1); ifonctcgti(ion)=intmult*intout(2)
 
-             minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+             ifailloc=1;
 
              intout(1)=0
-             minpts=0; ifailloc=1
+             ifailloc=1
              ifailloc = pcubature(1, iFkstarrstargni_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
              intout(2) = intout_cub(1)
              IF (ifailloc /= 0) THEN
@@ -573,10 +544,10 @@ CONTAINS
              ENDIF
              rfonctcgni(ion) = intmult*intout(1); ifonctcgni(ion)=intmult*intout(2)
 
-             minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+             ifailloc=1;
 
              intout(1)=0
-             minpts=0; ifailloc=1
+             ifailloc=1
              ifailloc = pcubature(1, iFkstarrstarci_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
              intout(2) = intout_cub(1)
              IF (ifailloc /= 0) THEN
@@ -585,10 +556,10 @@ CONTAINS
              rfonctcci(ion) = intmult*intout(1); ifonctcci(ion)=intmult*intout(2)
 !!!
              IF (phys_meth == 2) THEN
-                minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+                ifailloc=1;
 
                 intout(:)=0
-                minpts=0; ifailloc=1
+                ifailloc=1
                 IF (ninorm(p,ion) > min_ninorm) THEN
                    ifailloc = pcubature(1, iFekstarrstargti_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
                    intout(2) = intout_cub(1)
@@ -598,10 +569,10 @@ CONTAINS
                 ENDIF
                 rfonctecgti(ion) = intmult*intout(1); ifonctecgti(ion)=intmult*intout(2)
 
-                minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+                ifailloc=1;
 
                 intout(:)=0
-                minpts=0; ifailloc=1
+                ifailloc=1
                 IF (ninorm(p,ion) > min_ninorm) THEN
                    ifailloc = pcubature(1, iFekstarrstargni_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
                    intout(2) = intout_cub(1)
@@ -610,10 +581,10 @@ CONTAINS
                    ENDIF
                 ENDIF
                 rfonctecgni(ion) = intmult*intout(1); ifonctecgni(ion)=intmult*intout(2)
-                minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+                ifailloc=1;
 
                 intout(:)=0
-                minpts=0; ifailloc=1
+                ifailloc=1
                 IF (ninorm(p,ion) > min_ninorm) THEN
                    ifailloc = pcubature(1, iFekstarrstarci_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
                    intout(2) = intout_cub(1)
@@ -647,10 +618,10 @@ CONTAINS
           ENDIF
 
           !ION ENERGY INTEGRALS
-          minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+          ifailloc=1;
 
           intout(:)=0
-          minpts=0; ifailloc=1
+          ifailloc=1
           IF (ninorm(p,ion) > min_ninorm) THEN
              ifailloc = pcubature(1, iFekstarrstari_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
              intout(2) = intout_cub(1)
@@ -706,16 +677,10 @@ CONTAINS
 
     REAL(KIND=DBL), DIMENSION(ndim)    :: a, b, c
     REAL(KIND=DBL)    :: acc,ctot,c1,c2,c3,c4
-    INTEGER           :: minpts, neval
+    INTEGER           :: neval
     REAL(KIND=DBL), DIMENSION(lenwrk) :: wrkstr
 
     REAL(KIND=DBL), DIMENSION(nf) :: intout,xytest
-    INTEGER, PARAMETER :: numrgn = 4 !number of triangles in CUBATR needed for -inf to +inf integration
-    !INTEGER, PARAMETER :: numrgn = 1 !number of triangles in CUBATR
-    REAL(KIND=DBL), DIMENSION(ndim,0:ndim,1) :: vertices1 !for CUBATR 2D integration
-    REAL, DIMENSION(ndim,0:ndim,4) :: vertices4 !for CUBATR 2D integration
-    REAL(kind=DBL) , DIMENSION(nf) :: reerrarr !NOT USED. Estimated absolute error after CUBATR restart
-    INTEGER, DIMENSION(numrgn) :: rgtype
 
     REAL(KIND=DBL)    :: rfonctce, rfonctcgte, rfonctcgne, rfonctcce, rfonctece 
     REAL(KIND=DBL)    :: rfonctecgte, rfonctecgne, rfonctecce 
@@ -733,40 +698,19 @@ CONTAINS
     omFkr = omega
     pFkr = p
 
+    !Integration boundaries
     a(:) = -rkuplim ! with rotation from -inf to +inf
     b(:) =  rkuplim
 
-    !Integration boundaries
-    vertices4(1:ndim,0,1) = (/0. , 0. /)
-    vertices4(1:ndim,1,1) = (/rkuplim , rkuplim /)
-    vertices4(1:ndim,2,1) = (/rkuplim , -rkuplim /)
-
-    vertices4(1:ndim,0,2) = (/0. , 0. /)
-    vertices4(1:ndim,1,2) = (/rkuplim , rkuplim /)
-    vertices4(1:ndim,2,2) = (/-rkuplim , rkuplim /)
-
-    vertices4(1:ndim,0,3) = (/0. , 0. /)
-    vertices4(1:ndim,1,3) = (/-rkuplim , rkuplim /)
-    vertices4(1:ndim,2,3) = (/-rkuplim , -rkuplim /)
-
-    vertices4(1:ndim,0,4) = (/0. , 0. /)
-    vertices4(1:ndim,1,4) = (/-rkuplim , -rkuplim /)
-    vertices4(1:ndim,2,4) = (/rkuplim , -rkuplim /)
-
-    vertices1(1:ndim,0,1) = (/0. , 0. /)
-    vertices1(1:ndim,1,1) = (/0. , rkuplim /)
-    vertices1(1:ndim,2,1) = (/rkuplim , 0. /)
-
-    ! with rotation use vertices 1 to vertices 4
 
     !ELECTRON PARTICLE FLUX INTEGRALS
   
     IF(QL_method.EQ.1) THEN
 
-     minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+     ifailloc=1;
      IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
         intout(1)=0
-        minpts=0; ifailloc=1
+        ifailloc=1
         ifailloc = hcubature(1, iFkstarrstarerot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
         intout(2) = intout_cub(1)
         IF (ifailloc /= 0) THEN
@@ -782,10 +726,10 @@ CONTAINS
      !ADDITIONAL ELECTRON PARTICLE FLUX INTEGRALS
      IF (phys_meth .NE. 0.0) THEN
 
-        minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+        ifailloc=1;
         IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
            intout(1)=0
-           minpts=0; ifailloc=1
+           ifailloc=1
            ifailloc = hcubature(1, iFkstarrstargterot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
         intout(2) = intout_cub(1)
            IF (ifailloc /= 0) THEN
@@ -797,10 +741,10 @@ CONTAINS
         ENDIF
         rfonctcgte = intmult*intout(1); ifonctcgte=intmult*intout(2)
 
-        minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+        ifailloc=1;
         IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
            intout(1)=0
-           minpts=0; ifailloc=1
+           ifailloc=1
            ifailloc = hcubature(1, iFkstarrstargnerot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
            intout(2) = intout_cub(1)
            IF (ifailloc /= 0) THEN
@@ -813,10 +757,10 @@ CONTAINS
         ENDIF
         rfonctcgne = intmult*intout(1); ifonctcgne=intmult*intout(2)
 
-        minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+        ifailloc=1;
         IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
            intout(1)=0
-           minpts=0; ifailloc=1
+           ifailloc=1
            ifailloc = hcubature(1, iFkstarrstarcerot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
            intout(2) = intout_cub(1)
            IF (ifailloc /= 0) THEN
@@ -829,10 +773,10 @@ CONTAINS
         rfonctcce = intmult*intout(1); ifonctcce=intmult*intout(2)
 !!!
         IF (phys_meth == 2) THEN
-           minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+           ifailloc=1;
            IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
               intout(1)=0
-              minpts=0; ifailloc=1
+              ifailloc=1
               ifailloc = hcubature(1, iFekstarrstargterot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
               intout(2) = intout_cub(1)
               IF (ifailloc /= 0) THEN
@@ -844,10 +788,10 @@ CONTAINS
            ENDIF
            rfonctecgte = intmult*intout(1); ifonctecgte=intmult*intout(2)
 
-           minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+           ifailloc=1;
            IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
               intout(1)=0
-              minpts=0; ifailloc=1
+              ifailloc=1
               ifailloc = hcubature(1, iFekstarrstargnerot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
               intout(2) = intout_cub(1)
               IF (ifailloc /= 0) THEN
@@ -860,10 +804,10 @@ CONTAINS
            ENDIF
            rfonctecgne = intmult*intout(1); ifonctecgne=intmult*intout(2)
 
-           minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+           ifailloc=1;
            IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
               intout(1)=0
-              minpts=0; ifailloc=1
+              ifailloc=1
               ifailloc = hcubature(1, iFekstarrstarcerot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
               intout(2) = intout_cub(1)
               IF (ifailloc /= 0) THEN
@@ -898,10 +842,10 @@ CONTAINS
      ENDIF
 
      !ELECTRON ENERGY INTEGRALS
-     minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+     ifailloc=1;
      IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
         intout(1)=0
-        minpts=0; ifailloc=1
+        ifailloc=1
         ifailloc = hcubature(1, iFekstarrstarerot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
         intout(2) = intout_cub(1)
         IF (ifailloc /= 0) THEN
@@ -916,9 +860,9 @@ CONTAINS
      DO ion=1,nions
 
         !ION PARTICLE FLUX INTEGRALS
-        minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+        ifailloc=1;
         intout(1)=0
-        minpts=0; ifailloc=1
+        ifailloc=1
         ifailloc = hcubature(1, iFkstarrstarirot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
         intout(2) = intout_cub(1)
         
@@ -930,9 +874,9 @@ CONTAINS
 
         !ADDITIONAL ION PARTICLE FLUX INTEGRALS
         IF (phys_meth .NE. 0.0) THEN
-           minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+           ifailloc=1;
            intout(1)=0
-           minpts=0; ifailloc=1
+           ifailloc=1
            ifailloc = hcubature(1, iFkstarrstargtirot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
            intout(2) = intout_cub(1)
            IF (ifailloc /= 0) THEN
@@ -940,9 +884,9 @@ CONTAINS
            ENDIF
            rfonctcgti(ion) = intmult*intout(1); ifonctcgti(ion)=intmult*intout(2)
 
-           minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+           ifailloc=1;
            intout(1)=0
-           minpts=0; ifailloc=1
+           ifailloc=1
            ifailloc = hcubature(1, iFkstarrstargnirot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
            intout(2) = intout_cub(1)
            IF (ifailloc /= 0) THEN
@@ -950,12 +894,12 @@ CONTAINS
            ENDIF
            rfonctcgni(ion) = intmult*intout(1); ifonctcgni(ion)=intmult*intout(2)
 
-           minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+           ifailloc=1;
            intout(1)=0
            IF ( (ABS(Machpar(p)) < epsS) .AND. (ABS(Aupar(p)) < epsS) .AND. (ABS(gammaE(p)) < epsS) ) THEN
               intout(2) = 0
            ELSE
-              minpts=0; ifailloc=1
+              ifailloc=1
               ifailloc = hcubature(1, iFkstarrstarguirot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
               intout(2) = intout_cub(1)
               IF (ifailloc /= 0) THEN
@@ -964,9 +908,9 @@ CONTAINS
            ENDIF
            rfonctcgui(ion) = intmult*intout(1); ifonctcgui(ion)=intmult*intout(2)
 
-           minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+           ifailloc=1;
            intout(1)=0
-           minpts=0; ifailloc=1
+           ifailloc=1
            ifailloc = hcubature(1, iFkstarrstarcirot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
            intout(2) = intout_cub(1)
            IF (ifailloc /= 0) THEN
@@ -975,9 +919,9 @@ CONTAINS
            rfonctcci(ion) = intmult*intout(1); ifonctcci(ion)=intmult*intout(2)
 
            IF (phys_meth == 2) THEN
-              minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+              ifailloc=1;
               intout(:)=0
-              minpts=0; ifailloc=1
+              ifailloc=1
               IF (ninorm(p,ion) > min_ninorm) THEN
                  ifailloc = hcubature(1, iFekstarrstargtirot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
                  intout(2) = intout_cub(1)
@@ -987,9 +931,9 @@ CONTAINS
               ENDIF
               rfonctecgti(ion) = intmult*intout(1); ifonctecgti(ion)=intmult*intout(2)
 
-              minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+              ifailloc=1;
               intout(:)=0
-              minpts=0; ifailloc=1
+              ifailloc=1
               IF (ninorm(p,ion) > min_ninorm) THEN
                  ifailloc = hcubature(1, iFekstarrstargnirot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
                  intout(2) = intout_cub(1)
@@ -999,12 +943,12 @@ CONTAINS
               ENDIF
               rfonctecgni(ion) = intmult*intout(1); ifonctecgni(ion)=intmult*intout(2)
 
-              minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+              ifailloc=1;
               intout(1)=0
               IF ( ((ABS(Machpar(p)) < epsS) .AND. (ABS(Aupar(p)) < epsS) .AND. (ABS(gammaE(p)) < epsS)) .OR. (ninorm(p,ion) < min_ninorm)) THEN
                  intout(2) = 0
               ELSE
-                 minpts=0; ifailloc=1
+                 ifailloc=1
                  ifailloc = hcubature(1, iFekstarrstarguirot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
                  intout(2) = intout_cub(1)
                  IF (ifailloc /= 0) THEN
@@ -1013,9 +957,9 @@ CONTAINS
               ENDIF
               rfonctecgui(ion) = intmult*intout(1); ifonctecgui(ion)=intmult*intout(2)
 
-              minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+              ifailloc=1;
               intout(:)=0
-              minpts=0; ifailloc=1
+              ifailloc=1
               IF (ninorm(p,ion) > min_ninorm) THEN
                  ifailloc = hcubature(1, iFekstarrstarcirot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
                  intout(2) = intout_cub(1)
@@ -1055,9 +999,9 @@ CONTAINS
         ENDIF
 
         !ION ENERGY INTEGRALS
-        minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+        ifailloc=1;
         intout(:)=0
-        minpts=0; ifailloc=1
+        ifailloc=1
         IF (ninorm(p,ion) > min_ninorm) THEN
            ifailloc = hcubature(1, iFekstarrstarirot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
            intout(2) = intout_cub(1)
@@ -1068,13 +1012,13 @@ CONTAINS
         rfoncteci(ion) = intmult*intout(1); ifoncteci(ion)=intmult*intout(2)
 
         !ION ang mom INTEGRALS
-        minpts = 0; ifailloc=1 ; reerrarr(:)=1.d-1; rgtype(:)=2
+        ifailloc=1 ;
         intout(1)=0
 
         IF ( ((ABS(Machpar(p)) < epsS) .AND. (ABS(Aupar(p)) < epsS) .AND. (ABS(gammaE(p)) < epsS)) .OR. (ninorm(p,ion)<min_ninorm) ) THEN
            intout(2) = 0        
         ELSE
-           minpts=0; ifailloc=1 
+           ifailloc=1 
            ifailloc = hcubature(1, iFvkstarrstarirot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
            intout(2) = intout_cub(1)
            IF (ifailloc /= 0) THEN
@@ -1086,10 +1030,10 @@ CONTAINS
       
     ELSE IF(QL_method.EQ.2) THEN
 
-     minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+     ifailloc=1;
      IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
         intout(1)=0
-        minpts=0; ifailloc=1
+        ifailloc=1
         ifailloc = pcubature(1, iFkstarrstarerot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
         intout(2) = intout_cub(1)
         IF (ifailloc /= 0) THEN
@@ -1105,10 +1049,10 @@ CONTAINS
      !ADDITIONAL ELECTRON PARTICLE FLUX INTEGRALS
      IF (phys_meth .NE. 0.0) THEN
 
-        minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+        ifailloc=1;
         IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
            intout(1)=0
-           minpts=0; ifailloc=1
+           ifailloc=1
            ifailloc = pcubature(1, iFkstarrstargterot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
         intout(2) = intout_cub(1)
            IF (ifailloc /= 0) THEN
@@ -1120,10 +1064,10 @@ CONTAINS
         ENDIF
         rfonctcgte = intmult*intout(1); ifonctcgte=intmult*intout(2)
 
-        minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+        ifailloc=1;
         IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
            intout(1)=0
-           minpts=0; ifailloc=1
+           ifailloc=1
            ifailloc = pcubature(1, iFkstarrstargnerot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
            intout(2) = intout_cub(1)
            IF (ifailloc /= 0) THEN
@@ -1136,10 +1080,10 @@ CONTAINS
         ENDIF
         rfonctcgne = intmult*intout(1); ifonctcgne=intmult*intout(2)
 
-        minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+        ifailloc=1;
         IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
            intout(1)=0
-           minpts=0; ifailloc=1
+           ifailloc=1
            ifailloc = pcubature(1, iFkstarrstarcerot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
            intout(2) = intout_cub(1)
            IF (ifailloc /= 0) THEN
@@ -1152,10 +1096,10 @@ CONTAINS
         rfonctcce = intmult*intout(1); ifonctcce=intmult*intout(2)
 !!!
         IF (phys_meth == 2) THEN
-           minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+           ifailloc=1;
            IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
               intout(1)=0
-              minpts=0; ifailloc=1
+              ifailloc=1
               ifailloc = pcubature(1, iFekstarrstargterot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
               intout(2) = intout_cub(1)
               IF (ifailloc /= 0) THEN
@@ -1167,10 +1111,10 @@ CONTAINS
            ENDIF
            rfonctecgte = intmult*intout(1); ifonctecgte=intmult*intout(2)
 
-           minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+           ifailloc=1;
            IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
               intout(1)=0
-              minpts=0; ifailloc=1
+              ifailloc=1
               ifailloc = pcubature(1, iFekstarrstargnerot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
               intout(2) = intout_cub(1)
               IF (ifailloc /= 0) THEN
@@ -1183,10 +1127,10 @@ CONTAINS
            ENDIF
            rfonctecgne = intmult*intout(1); ifonctecgne=intmult*intout(2)
 
-           minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+           ifailloc=1;
            IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
               intout(1)=0
-              minpts=0; ifailloc=1
+              ifailloc=1
               ifailloc = pcubature(1, iFekstarrstarcerot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
               intout(2) = intout_cub(1)
               IF (ifailloc /= 0) THEN
@@ -1221,10 +1165,10 @@ CONTAINS
      ENDIF
 
      !ELECTRON ENERGY INTEGRALS
-     minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+     ifailloc=1;
      IF ( (el_type == 1) .OR. ( (el_type == 3) .AND. (ETG_flag(nu) .EQV. .FALSE.) ) )  THEN
         intout(1)=0
-        minpts=0; ifailloc=1
+        ifailloc=1
         ifailloc = pcubature(1, iFekstarrstarerot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
         intout(2) = intout_cub(1)
         IF (ifailloc /= 0) THEN
@@ -1239,9 +1183,9 @@ CONTAINS
      DO ion=1,nions
 
         !ION PARTICLE FLUX INTEGRALS
-        minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+        ifailloc=1;
         intout(1)=0
-        minpts=0; ifailloc=1
+        ifailloc=1
         ifailloc = pcubature(1, iFkstarrstarirot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
         intout(2) = intout_cub(1)
         
@@ -1253,9 +1197,9 @@ CONTAINS
 
         !ADDITIONAL ION PARTICLE FLUX INTEGRALS
         IF (phys_meth .NE. 0.0) THEN
-           minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+           ifailloc=1;
            intout(1)=0
-           minpts=0; ifailloc=1
+           ifailloc=1
            ifailloc = pcubature(1, iFkstarrstargtirot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
            intout(2) = intout_cub(1)
            IF (ifailloc /= 0) THEN
@@ -1263,9 +1207,9 @@ CONTAINS
            ENDIF
            rfonctcgti(ion) = intmult*intout(1); ifonctcgti(ion)=intmult*intout(2)
 
-           minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+           ifailloc=1;
            intout(1)=0
-           minpts=0; ifailloc=1
+           ifailloc=1
            ifailloc = pcubature(1, iFkstarrstargnirot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
            intout(2) = intout_cub(1)
            IF (ifailloc /= 0) THEN
@@ -1273,12 +1217,12 @@ CONTAINS
            ENDIF
            rfonctcgni(ion) = intmult*intout(1); ifonctcgni(ion)=intmult*intout(2)
 
-           minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+           ifailloc=1;
            intout(1)=0
            IF ( (ABS(Machpar(p)) < epsS) .AND. (ABS(Aupar(p)) < epsS) .AND. (ABS(gammaE(p)) < epsS) ) THEN
               intout(2) = 0
            ELSE
-              minpts=0; ifailloc=1
+              ifailloc=1
               ifailloc = pcubature(1, iFkstarrstarguirot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
               intout(2) = intout_cub(1)
               IF (ifailloc /= 0) THEN
@@ -1287,9 +1231,9 @@ CONTAINS
            ENDIF
            rfonctcgui(ion) = intmult*intout(1); ifonctcgui(ion)=intmult*intout(2)
 
-           minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+           ifailloc=1;
            intout(1)=0
-           minpts=0; ifailloc=1
+           ifailloc=1
            ifailloc = pcubature(1, iFkstarrstarcirot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
            intout(2) = intout_cub(1)
            IF (ifailloc /= 0) THEN
@@ -1298,9 +1242,9 @@ CONTAINS
            rfonctcci(ion) = intmult*intout(1); ifonctcci(ion)=intmult*intout(2)
 !!!
            IF (phys_meth == 2) THEN
-              minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+              ifailloc=1;
               intout(:)=0
-              minpts=0; ifailloc=1
+              ifailloc=1
               IF (ninorm(p,ion) > min_ninorm) THEN
                  ifailloc = pcubature(1, iFekstarrstargtirot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
                  intout(2) = intout_cub(1)
@@ -1310,9 +1254,9 @@ CONTAINS
               ENDIF
               rfonctecgti(ion) = intmult*intout(1); ifonctecgti(ion)=intmult*intout(2)
 
-              minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+              ifailloc=1;
               intout(:)=0
-              minpts=0; ifailloc=1
+              ifailloc=1
               IF (ninorm(p,ion) > min_ninorm) THEN
                  ifailloc = pcubature(1, iFekstarrstargnirot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
                  intout(2) = intout_cub(1)
@@ -1322,12 +1266,12 @@ CONTAINS
               ENDIF
               rfonctecgni(ion) = intmult*intout(1); ifonctecgni(ion)=intmult*intout(2)
 
-              minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+              ifailloc=1;
               intout(1)=0
               IF ( ((ABS(Machpar(p)) < epsS) .AND. (ABS(Aupar(p)) < epsS) .AND. (ABS(gammaE(p)) < epsS)) .OR. (ninorm(p,ion) < min_ninorm)) THEN
                  intout(2) = 0
               ELSE
-                 minpts=0; ifailloc=1
+                 ifailloc=1
                  ifailloc = pcubature(1, iFekstarrstarguirot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
                  intout(2) = intout_cub(1)
                  IF (ifailloc /= 0) THEN
@@ -1336,9 +1280,9 @@ CONTAINS
               ENDIF
               rfonctecgui(ion) = intmult*intout(1); ifonctecgui(ion)=intmult*intout(2)
 
-              minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+              ifailloc=1;
               intout(:)=0
-              minpts=0; ifailloc=1
+              ifailloc=1
               IF (ninorm(p,ion) > min_ninorm) THEN
                  ifailloc = pcubature(1, iFekstarrstarcirot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
                  intout(2) = intout_cub(1)
@@ -1378,9 +1322,9 @@ CONTAINS
         ENDIF
 
         !ION ENERGY INTEGRALS
-        minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+        ifailloc=1;
         intout(:)=0
-        minpts=0; ifailloc=1
+        ifailloc=1
         IF (ninorm(p,ion) > min_ninorm) THEN
            ifailloc = pcubature(1, iFekstarrstarirot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
            intout(2) = intout_cub(1)
@@ -1391,13 +1335,13 @@ CONTAINS
         rfoncteci(ion) = intmult*intout(1); ifoncteci(ion)=intmult*intout(2)
 
         !ION ang mom INTEGRALS
-        minpts = 0; ifailloc=1 ; reerrarr(:)=1.d-1; rgtype(:)=2
+        ifailloc=1 ;
         intout(1)=0
 
         IF ( ((ABS(Machpar(p)) < epsS) .AND. (ABS(Aupar(p)) < epsS) .AND. (ABS(gammaE(p)) < epsS)) .OR. (ninorm(p,ion)<min_ninorm) ) THEN
            intout(2) = 0        
         ELSE
-           minpts=0; ifailloc=1 
+           ifailloc=1 
            ifailloc = pcubature(1, iFvkstarrstarirot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
            intout(2) = intout_cub(1)
            IF (ifailloc /= 0) THEN
@@ -1451,16 +1395,10 @@ CONTAINS
 
     REAL(KIND=DBL), DIMENSION(ndim)    :: a, b, c
     REAL(KIND=DBL)    :: acc,ctot,c1,c2,c3,c4
-    INTEGER           :: minpts, neval
+    INTEGER           :: neval
     REAL(KIND=DBL), DIMENSION(lenwrk) :: wrkstr
 
     REAL(KIND=DBL), DIMENSION(nf) :: intout,xytest
-    INTEGER, PARAMETER :: numrgn = 4 !number of triangles in CUBATR needed for -inf to +inf integration
-    !INTEGER, PARAMETER :: numrgn = 1 !number of triangles in CUBATR
-    REAL(KIND=DBL), DIMENSION(ndim,0:ndim,1) :: vertices1 !for CUBATR 2D integration
-    REAL, DIMENSION(ndim,0:ndim,4) :: vertices4 !for CUBATR 2D integration
-    REAL(kind=DBL) , DIMENSION(nf) :: reerrarr !NOT USED. Estimated absolute error after CUBATR restart
-    INTEGER, DIMENSION(numrgn) :: rgtype
 
     REAL(KIND=DBL)    :: intmult=1. ! with rotation need to integrate from -inf to +inf
     REAL(KIND=DBL), DIMENSION(nions) :: rfonctvci
@@ -1475,32 +1413,10 @@ CONTAINS
 
     omFkr = omega
     pFkr = p
-
+    
+    !Integration boundaries
     a(:) = -rkuplim ! with rotation from -inf to +inf
     b(:) =  rkuplim
-
-    !Integration boundaries
-    vertices4(1:ndim,0,1) = (/0. , 0. /)
-    vertices4(1:ndim,1,1) = (/rkuplim , rkuplim /)
-    vertices4(1:ndim,2,1) = (/rkuplim , -rkuplim /)
-
-    vertices4(1:ndim,0,2) = (/0. , 0. /)
-    vertices4(1:ndim,1,2) = (/rkuplim , rkuplim /)
-    vertices4(1:ndim,2,2) = (/-rkuplim , rkuplim /)
-
-    vertices4(1:ndim,0,3) = (/0. , 0. /)
-    vertices4(1:ndim,1,3) = (/-rkuplim , rkuplim /)
-    vertices4(1:ndim,2,3) = (/-rkuplim , -rkuplim /)
-
-    vertices4(1:ndim,0,4) = (/0. , 0. /)
-    vertices4(1:ndim,1,4) = (/-rkuplim , -rkuplim /)
-    vertices4(1:ndim,2,4) = (/rkuplim , -rkuplim /)
-
-    vertices1(1:ndim,0,1) = (/0. , 0. /)
-    vertices1(1:ndim,1,1) = (/0. , rkuplim /)
-    vertices1(1:ndim,2,1) = (/rkuplim , 0. /)
-
-    ! with rotation use vertices 1 to vertices 4
 
     !ELECTRON PARTICLE FLUX INTEGRALS
     
@@ -1508,13 +1424,13 @@ CONTAINS
       DO ion=1,nions
 
         !ION ang mom INTEGRALS
-        minpts = 0; ifailloc=1 ; reerrarr(:)=1.d-1; rgtype(:)=2
+        ifailloc=1 ;
         intout(1)=0
 
         IF ( ((ABS(Machpar(p)) < epsS) .AND. (ABS(Aupar(p)) < epsS) .AND. (ABS(gammaE(p)) < epsS)) .OR. (ninorm(p,ion)<min_ninorm) ) THEN
            intout(2) = 0        
         ELSE
-           minpts=0; ifailloc=1  
+           ifailloc=1  
            ifailloc = hcubature(1, iFvkstarrstarirot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
            intout(2) = intout_cub(1)
            IF (ifailloc /= 0) THEN
@@ -1527,13 +1443,12 @@ CONTAINS
       DO ion=1,nions
 
         !ION ang mom INTEGRALS
-        minpts = 0; ifailloc=1 ; reerrarr(:)=1.d-1; rgtype(:)=2
+        ifailloc=1; 
         intout(1)=0
-
         IF ( ((ABS(Machpar(p)) < epsS) .AND. (ABS(Aupar(p)) < epsS) .AND. (ABS(gammaE(p)) < epsS)) .OR. (ninorm(p,ion)<min_ninorm) ) THEN
            intout(2) = 0        
         ELSE
-           minpts=0; ifailloc=1  
+           ifailloc=1  
            ifailloc = pcubature(1, iFvkstarrstarirot_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, 1, intout_cub, acc_cub)
            intout(2) = intout_cub(1)
            IF (ifailloc /= 0) THEN

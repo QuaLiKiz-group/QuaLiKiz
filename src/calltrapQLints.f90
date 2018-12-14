@@ -27,7 +27,7 @@ CONTAINS
     COMPLEX(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fonctepgti, fonctepgni, fonctepci
 
     INTEGER, PARAMETER :: lwloc=50000 !default 10000
-    INTEGER :: npts, minpts, neval
+    INTEGER :: npts, neval
 
     REAL(KIND=DBL), DIMENSION(ndim) :: a,b
     REAL(KIND=DBL) :: acc, cc, dd, relerr 
@@ -45,11 +45,6 @@ CONTAINS
     REAL(KIND=DBL), DIMENSION(nions) :: ifonctepgti, ifonctepgni, ifonctepci
 
     REAL(KIND=DBL), DIMENSION(nf) :: intout
-    INTEGER, PARAMETER :: numrgn = 1 !number of triangles in CUBATR
-    REAL, DIMENSION(ndim,0:ndim,1) :: vertices1 !for CUBATR 2D integration
-
-    REAL(kind=DBL) , DIMENSION(nf) :: reerrarr !NOT USED. Estimated absolute error after CUBATR restart
-    INTEGER, DIMENSION(numrgn) :: rgtype
     INTEGER :: ifailloc
 
     REAL(KIND=DBL), DIMENSION(1) :: intout_cub
@@ -60,7 +55,7 @@ CONTAINS
     pFFk = p
 
     !! Integration bounds
-    !! a,b are for the 1D ions. Vertices 1 is for the 2D electrons
+    !! a,b are for the 1D ions.
     a(1) = 0.0d0 + barelyavoid
     b(1) = 1.0d0 - barelyavoid
     a(2) = 0.0d0
@@ -71,16 +66,6 @@ CONTAINS
 
     cc_cub(1) = cc
     dd_cub(1) = dd
-
-    vertices1(1:ndim,0,1) = (/0. , 0. /)
-    vertices1(1:ndim,1,1) = (/0. , vuplim /)
-    vertices1(1:ndim,2,1) = (/1. - barelyavoid , 0. /)
-
-    ALLOCATE(alist(limit))
-    ALLOCATE(blist(limit))
-    ALLOCATE(rlist(limit))
-    ALLOCATE(elist(limit))
-    ALLOCATE(iord(limit))
 
     IF(QL_method.EQ.1) THEN
        DO ion=1,nions
@@ -204,12 +189,12 @@ CONTAINS
 
        ! 2D INTEGRALS FOR ELECTRONS
 
-       minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+       ifailloc=1;
        !Only calculate nonadiabatic part for electrons if el_type == 1
        IF (el_type == 1) THEN 
 
           IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral
-             minpts=0; ifailloc=1
+             ifailloc=1
              ifailloc = hcubature(2, FFke_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
              IF (ifailloc /= 0) THEN
                 IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of hcubature QL FFke integration at p=',p,' nu=',nu
@@ -233,11 +218,11 @@ CONTAINS
        !   !!ADDITIONAL ELECTRON INTEGRALS TO SEPARATE TRANSPORT COMPONENTS
        IF (phys_meth .NE. 0.0) THEN
 
-          minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+          ifailloc=1;
           !Only calculate nonadiabatic part for electrons if el_type == 1
           IF (el_type == 1) THEN 
              IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral
-                minpts=0; ifailloc=1
+                ifailloc=1
                 ifailloc = hcubature(2, FFkgte_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
                 IF (ifailloc /= 0) THEN
                    IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of hcubature QL FFkgte integration at p=',p,' nu=',nu
@@ -260,11 +245,11 @@ CONTAINS
           rfonctpgte = intout(1)
           ifonctpgte = intout(2)
 
-          minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+          ifailloc=1;
           !Only calculate nonadiabatic part for electrons if el_type == 1
           IF (el_type == 1) THEN 
              IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral
-                minpts=0; ifailloc=1
+                ifailloc=1
                 ifailloc = hcubature(2, FFkgne_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
 
                 IF (ifailloc /= 0) THEN
@@ -287,11 +272,11 @@ CONTAINS
           rfonctpgne = intout(1)
           ifonctpgne = intout(2)
 
-          minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+          ifailloc=1;
           !Only calculate nonadiabatic part for electrons if el_type == 1
           IF (el_type == 1) THEN
              IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral 
-                minpts=0; ifailloc=1
+                ifailloc=1
                 ifailloc = hcubature(2, FFkce_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
 
                 IF (ifailloc /= 0) THEN
@@ -316,11 +301,11 @@ CONTAINS
           ifonctpce = intout(2)
 !!!
           IF (phys_meth == 2) THEN
-             minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+             ifailloc=1;
              !Only calculate nonadiabatic part for electrons if el_type == 1
              IF (el_type == 1) THEN 
                 IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral
-                   minpts=0; ifailloc=1
+                   ifailloc=1
                    ifailloc = hcubature(2, FFekgte_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
 
                    IF (ifailloc /= 0) THEN
@@ -346,11 +331,11 @@ CONTAINS
              rfonctepgte = intout(1)
              ifonctepgte = intout(2)
 
-             minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+             ifailloc=1;
              !Only calculate nonadiabatic part for electrons if el_type == 1
              IF (el_type == 1) THEN 
                 IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral
-                   minpts=0; ifailloc=1
+                   ifailloc=1
                    ifailloc = hcubature(2, FFekgne_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
 
                    IF (ifailloc /= 0) THEN
@@ -374,11 +359,11 @@ CONTAINS
              rfonctepgne = intout(1)
              ifonctepgne = intout(2)
 
-             minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+             ifailloc=1;
              !Only calculate nonadiabatic part for electrons if el_type == 1
              IF (el_type == 1) THEN
                 IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral 
-                   minpts=0; ifailloc=1
+                   ifailloc=1
                    ifailloc = hcubature(2, FFekce_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
 
                    IF (ifailloc /= 0) THEN
@@ -426,12 +411,12 @@ CONTAINS
 
        !ELECTRON ENERGY FLUX
 
-       rgtype(:)=2
-       minpts = 0; ifailloc=1; reerrarr(:)=1.d-1
+       
+       ifailloc=1;
        !Only calculate nonadiabatic part for electrons if el_type == 1
        IF (el_type == 1) THEN 
           IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral
-             minpts=0; ifailloc=1
+             ifailloc=1
              ifailloc = hcubature(2, FFeke_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
 
              IF (ifailloc /= 0) THEN
@@ -579,12 +564,12 @@ CONTAINS
 
        ! 2D INTEGRALS FOR ELECTRONS
 
-       minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+       ifailloc=1;
        !Only calculate nonadiabatic part for electrons if el_type == 1
        IF (el_type == 1) THEN 
 
           IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral
-             minpts=0; ifailloc=1
+             ifailloc=1
              ifailloc = pcubature(2, FFke_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
              IF (ifailloc /= 0) THEN
                 IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of pcubature QL FFke integration at p=',p,' nu=',nu
@@ -608,11 +593,11 @@ CONTAINS
        !   !!ADDITIONAL ELECTRON INTEGRALS TO SEPARATE TRANSPORT COMPONENTS
        IF (phys_meth .NE. 0.0) THEN
 
-          minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+          ifailloc=1;
           !Only calculate nonadiabatic part for electrons if el_type == 1
           IF (el_type == 1) THEN 
              IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral
-                minpts=0; ifailloc=1
+                ifailloc=1
                 ifailloc = pcubature(2, FFkgte_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
                 IF (ifailloc /= 0) THEN
                    IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I3,A,I3,A,I3)") 'ifailloc = ',ifailloc,'. Abnormal termination of pcubature QL FFkgte integration at p=',p,' nu=',nu
@@ -635,11 +620,11 @@ CONTAINS
           rfonctpgte = intout(1)
           ifonctpgte = intout(2)
 
-          minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+          ifailloc=1;
           !Only calculate nonadiabatic part for electrons if el_type == 1
           IF (el_type == 1) THEN 
              IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral
-                minpts=0; ifailloc=1
+                ifailloc=1
                 ifailloc = pcubature(2, FFkgne_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
 
                 IF (ifailloc /= 0) THEN
@@ -662,11 +647,11 @@ CONTAINS
           rfonctpgne = intout(1)
           ifonctpgne = intout(2)
 
-          minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+          ifailloc=1;
           !Only calculate nonadiabatic part for electrons if el_type == 1
           IF (el_type == 1) THEN
              IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral 
-                minpts=0; ifailloc=1
+                ifailloc=1
                 ifailloc = pcubature(2, FFkce_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
 
                 IF (ifailloc /= 0) THEN
@@ -691,11 +676,11 @@ CONTAINS
           ifonctpce = intout(2)
 !!!
           IF (phys_meth == 2) THEN
-             minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+             ifailloc=1;
              !Only calculate nonadiabatic part for electrons if el_type == 1
              IF (el_type == 1) THEN 
                 IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral
-                   minpts=0; ifailloc=1
+                   ifailloc=1
                    ifailloc = pcubature(2, FFekgte_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
 
                    IF (ifailloc /= 0) THEN
@@ -718,11 +703,11 @@ CONTAINS
              rfonctepgte = intout(1)
              ifonctepgte = intout(2)
 
-             minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+             ifailloc=1;
              !Only calculate nonadiabatic part for electrons if el_type == 1
              IF (el_type == 1) THEN 
                 IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral
-                   minpts=0; ifailloc=1
+                   ifailloc=1
                    ifailloc = pcubature(2, FFekgne_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
 
                    IF (ifailloc /= 0) THEN
@@ -746,11 +731,11 @@ CONTAINS
              rfonctepgne = intout(1)
              ifonctepgne = intout(2)
 
-             minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+             ifailloc=1;
              !Only calculate nonadiabatic part for electrons if el_type == 1
              IF (el_type == 1) THEN
                 IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral 
-                   minpts=0; ifailloc=1
+                   ifailloc=1
                    ifailloc = pcubature(2, FFekce_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
 
                    IF (ifailloc /= 0) THEN
@@ -798,12 +783,12 @@ CONTAINS
 
        !ELECTRON ENERGY FLUX
 
-       rgtype(:)=2
-       minpts = 0; ifailloc=1; reerrarr(:)=1.d-1
+       
+       ifailloc=1;
        !Only calculate nonadiabatic part for electrons if el_type == 1
        IF (el_type == 1) THEN 
           IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral
-             minpts=0; ifailloc=1
+             ifailloc=1
              ifailloc = pcubature(2, FFeke_cubature, ndim, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
 
              IF (ifailloc /= 0) THEN
@@ -827,12 +812,6 @@ CONTAINS
        ifonctepe = intout(2)
 
     END IF
-
-    DEALLOCATE(alist)
-    DEALLOCATE(blist)
-    DEALLOCATE(rlist)
-    DEALLOCATE(elist)
-    DEALLOCATE(iord)
 
     !The complex forms are reconstructed
     fonctpe = rfonctpe + ci * ifonctpe
@@ -883,7 +862,7 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
   COMPLEX(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fonctepgti, fonctepgni, fonctepgui, fonctepci
 
   INTEGER, PARAMETER :: lwloc=50000 !default 10000
-  INTEGER :: npts, minpts, neval
+  INTEGER :: npts, neval
 
   REAL(KIND=DBL), DIMENSION(ndim) :: a,b
   REAL(KIND=DBL) :: acc, cc, dd, relerr 
@@ -901,11 +880,7 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
   REAL(KIND=DBL), DIMENSION(nions) :: ifonctepgti, ifonctepgni, ifonctepgui, ifonctepci
 
   REAL(KIND=DBL), DIMENSION(nf) :: intout
-  INTEGER, PARAMETER :: numrgn = 1 !number of triangles in CUBATR
-  REAL, DIMENSION(ndim,0:ndim,1) :: vertices1 !for CUBATR 2D integration
 
-  REAL(kind=DBL) , DIMENSION(nf) :: reerrarr !NOT USED. Estimated absolute error after CUBATR restart
-  INTEGER, DIMENSION(numrgn) :: rgtype
   INTEGER :: ifailloc
   
   REAL(KIND=DBL), DIMENSION(1) :: intout_cub
@@ -916,7 +891,7 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
   pFFk = p
 
   !! Integration bounds
-  !! a,b are for the 1D ions. Vertices 1 is for the 2D electrons
+  !! a,b are for the 1D ions.
   a(1) = 0.0d0 + barelyavoid
   b(1) = 1.0d0 - barelyavoid
   a(2) = 0.0d0
@@ -928,16 +903,6 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
   cc_cub(1) = cc
   dd_cub(1) = dd
 
-  vertices1(1:ndim,0,1) = (/0. , 0. /)
-  vertices1(1:ndim,1,1) = (/0. , vuplim /)
-  vertices1(1:ndim,2,1) = (/1. - barelyavoid , 0. /)
-
-  ALLOCATE(alist(limit))
-  ALLOCATE(blist(limit))
-  ALLOCATE(rlist(limit))
-  ALLOCATE(elist(limit))
-  ALLOCATE(iord(limit))
-  
   IF(QL_method.EQ.1) THEN
   
     DO ion=1,nions
@@ -1097,12 +1062,12 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
 
      ! 2D INTEGRALS FOR ELECTRONS
 
-     minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+     ifailloc=1;
      !Only calculate nonadiabatic part for electrons if el_type == 1
      IF (el_type == 1) THEN 
 
         IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral
-           minpts=0; ifailloc=1
+           ifailloc=1
            ifailloc = hcubature(2, FFkerot_cubature, 2, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
            
            IF (ifailloc /= 0) THEN
@@ -1127,11 +1092,11 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
      !   !!ADDITIONAL ELECTRON INTEGRALS TO SEPARATE TRANSPORT COMPONENTS
      IF (phys_meth .NE. 0.0) THEN
 
-        minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+        ifailloc=1;
         !Only calculate nonadiabatic part for electrons if el_type == 1
         IF (el_type == 1) THEN 
            IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral
-              minpts=0; ifailloc=1
+              ifailloc=1
               ifailloc = hcubature(2, FFkgterot_cubature, 2, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
               
               IF (ifailloc /= 0) THEN
@@ -1154,11 +1119,11 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
         rfonctpgte = intout(1)
         ifonctpgte = intout(2)
 
-        minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+        ifailloc=1;
         !Only calculate nonadiabatic part for electrons if el_type == 1
         IF (el_type == 1) THEN 
            IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral
-              minpts=0; ifailloc=1
+              ifailloc=1
               ifailloc = hcubature(2, FFkgnerot_cubature, 2, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
               
               IF (ifailloc /= 0) THEN
@@ -1179,11 +1144,11 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
         rfonctpgne = intout(1)
         ifonctpgne = intout(2)
 
-        minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+        ifailloc=1;
         !Only calculate nonadiabatic part for electrons if el_type == 1
         IF (el_type == 1) THEN
            IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral 
-              minpts=0; ifailloc=1
+              ifailloc=1
               ifailloc = hcubature(2, FFkcerot_cubature, 2, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
               
               IF (ifailloc /= 0) THEN
@@ -1206,11 +1171,11 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
         ifonctpce = intout(2)
 !!!
         IF (phys_meth == 2) THEN
-           minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+           ifailloc=1;
            !Only calculate nonadiabatic part for electrons if el_type == 1
            IF (el_type == 1) THEN 
               IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral
-                 minpts=0; ifailloc=1
+                 ifailloc=1
                  ifailloc = hcubature(2, FFekgterot_cubature, 2, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
                  
                  
@@ -1234,11 +1199,11 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
            rfonctepgte = intout(1)
            ifonctepgte = intout(2)
 
-           minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+           ifailloc=1;
            !Only calculate nonadiabatic part for electrons if el_type == 1
            IF (el_type == 1) THEN 
               IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral
-                 minpts=0; ifailloc=1
+                 ifailloc=1
                  ifailloc = hcubature(2, FFekgnerot_cubature, 2, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
                  
                  IF (ifailloc /= 0) THEN
@@ -1259,11 +1224,11 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
            rfonctepgne = intout(1)
            ifonctepgne = intout(2)
 
-           minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+           ifailloc=1;
            !Only calculate nonadiabatic part for electrons if el_type == 1
            IF (el_type == 1) THEN
               IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral 
-                 minpts=0; ifailloc=1
+                 ifailloc=1
                  ifailloc = hcubature(2, FFekcerot_cubature, 2, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
                  
                  IF (ifailloc /= 0) THEN
@@ -1309,12 +1274,12 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
 
      !ELECTRON ENERGY FLUX
 
-     rgtype(:)=2
-     minpts = 0; ifailloc=1; reerrarr(:)=1.d-1
+     
+     ifailloc=1;   
      !Only calculate nonadiabatic part for electrons if el_type == 1
      IF (el_type == 1) THEN 
         IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral
-           minpts=0; ifailloc=1
+           ifailloc=1
            ifailloc = hcubature(2, FFekerot_cubature, 2, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
            
            IF (ifailloc /= 0) THEN
@@ -1496,12 +1461,12 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
 
      ! 2D INTEGRALS FOR ELECTRONS
 
-     minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+     ifailloc=1;
      !Only calculate nonadiabatic part for electrons if el_type == 1
      IF (el_type == 1) THEN 
 
         IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral
-           minpts=0; ifailloc=1
+           ifailloc=1
            ifailloc = pcubature(2, FFkerot_cubature, 2, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
            
            IF (ifailloc /= 0) THEN
@@ -1526,11 +1491,11 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
      !   !!ADDITIONAL ELECTRON INTEGRALS TO SEPARATE TRANSPORT COMPONENTS
      IF (phys_meth .NE. 0.0) THEN
 
-        minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+        ifailloc=1;
         !Only calculate nonadiabatic part for electrons if el_type == 1
         IF (el_type == 1) THEN 
            IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral
-              minpts=0; ifailloc=1
+              ifailloc=1
               ifailloc = pcubature(2, FFkgterot_cubature, 2, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
               
               IF (ifailloc /= 0) THEN
@@ -1553,11 +1518,11 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
         rfonctpgte = intout(1)
         ifonctpgte = intout(2)
 
-        minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+        ifailloc=1;
         !Only calculate nonadiabatic part for electrons if el_type == 1
         IF (el_type == 1) THEN 
            IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral
-              minpts=0; ifailloc=1
+              ifailloc=1
               ifailloc = pcubature(2, FFkgnerot_cubature, 2, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
               
               IF (ifailloc /= 0) THEN
@@ -1578,11 +1543,11 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
         rfonctpgne = intout(1)
         ifonctpgne = intout(2)
 
-        minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+        ifailloc=1;
         !Only calculate nonadiabatic part for electrons if el_type == 1
         IF (el_type == 1) THEN
            IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral 
-              minpts=0; ifailloc=1
+              ifailloc=1
               ifailloc = pcubature(2, FFkcerot_cubature, 2, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
               
               IF (ifailloc /= 0) THEN
@@ -1605,11 +1570,11 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
         ifonctpce = intout(2)
 !!!
         IF (phys_meth == 2) THEN
-           minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+           ifailloc=1;
            !Only calculate nonadiabatic part for electrons if el_type == 1
            IF (el_type == 1) THEN 
               IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral
-                 minpts=0; ifailloc=1
+                 ifailloc=1
                  ifailloc = pcubature(2, FFekgterot_cubature, 2, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
                  
                  
@@ -1633,11 +1598,11 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
            rfonctepgte = intout(1)
            ifonctepgte = intout(2)
 
-           minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+           ifailloc=1;
            !Only calculate nonadiabatic part for electrons if el_type == 1
            IF (el_type == 1) THEN 
               IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral
-                 minpts=0; ifailloc=1
+                 ifailloc=1
                  ifailloc = pcubature(2, FFekgnerot_cubature, 2, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
                  
                  IF (ifailloc /= 0) THEN
@@ -1658,11 +1623,11 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
            rfonctepgne = intout(1)
            ifonctepgne = intout(2)
 
-           minpts = 0; ifailloc=1; reerrarr(:)=1.d-1; rgtype(:)=2
+           ifailloc=1;
            !Only calculate nonadiabatic part for electrons if el_type == 1
            IF (el_type == 1) THEN
               IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral 
-                 minpts=0; ifailloc=1
+                 ifailloc=1
                  ifailloc = pcubature(2, FFekcerot_cubature, 2, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
                  
                  IF (ifailloc /= 0) THEN
@@ -1708,12 +1673,12 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
 
      !ELECTRON ENERGY FLUX
 
-     rgtype(:)=2
-     minpts = 0; ifailloc=1; reerrarr(:)=1.d-1
+                 
+     ifailloc=1;
      !Only calculate nonadiabatic part for electrons if el_type == 1
      IF (el_type == 1) THEN 
         IF ( ABS(coll_flag) > epsD) THEN ! Collisional simulation, do double integral
-           minpts=0; ifailloc=1
+           ifailloc=1
            ifailloc = pcubature(2, FFekerot_cubature, 2, a, b, maxpts, reqabsacc_QL, reqrelacc_QL, norm, intout, acc_cub)
            
            IF (ifailloc /= 0) THEN
@@ -1737,12 +1702,6 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
 
   END IF
         
-    DEALLOCATE(alist)
-    DEALLOCATE(blist)
-    DEALLOCATE(rlist)
-    DEALLOCATE(elist)
-    DEALLOCATE(iord)
-
     !The complex forms are reconstructed
     fonctpe = rfonctpe + ci * ifonctpe
     fonctpi(:) = rfonctpi(:) + ci * ifonctpi(:)
@@ -1789,7 +1748,7 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
     COMPLEX(KIND=DBL), DIMENSION(:), INTENT(OUT) :: fonctvpi
 
     INTEGER, PARAMETER :: lwloc=50000 !default 10000
-    INTEGER :: npts, minpts, neval
+    INTEGER :: npts, neval
 
     REAL(KIND=DBL), DIMENSION(ndim) :: a,b
     REAL(KIND=DBL) :: acc, cc, dd, relerr 
@@ -1800,11 +1759,7 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
     REAL(KIND=DBL), DIMENSION(nions) :: ifonctvpi
 
     REAL(KIND=DBL), DIMENSION(nf) :: intout
-    INTEGER, PARAMETER :: numrgn = 1 !number of triangles in CUBATR
-    REAL, DIMENSION(ndim,0:ndim,1) :: vertices1 !for CUBATR 2D integration
 
-    REAL(kind=DBL) , DIMENSION(nf) :: reerrarr !NOT USED. Estimated absolute error after CUBATR restart
-    INTEGER, DIMENSION(numrgn) :: rgtype
     INTEGER :: ifailloc
     REAL(KIND=DBL), DIMENSION(1) :: intout_cub
     REAL(KIND=DBL), DIMENSION(2) :: acc_cub
@@ -1813,7 +1768,7 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
     pFFk = p
 
     !! Integration bounds
-    !! a,b are for the 1D ions. Vertices 1 is for the 2D electrons
+    !! a,b are for the 1D ions. 
     a(1) = 0.0d0
     b(1) = 1.0d0 - barelyavoid
     a(2) = 0.0d0
@@ -1824,16 +1779,6 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
     
     cc_cub(1) = cc
     dd_cub(1) = dd
-
-    vertices1(1:ndim,0,1) = (/0. , 0. /)
-    vertices1(1:ndim,1,1) = (/0. , vuplim /)
-    vertices1(1:ndim,2,1) = (/1. - barelyavoid , 0. /)
-
-    ALLOCATE(alist(limit))
-    ALLOCATE(blist(limit))
-    ALLOCATE(rlist(limit))
-    ALLOCATE(elist(limit))
-    ALLOCATE(iord(limit))
 
     IF(QL_method.EQ.1) THEN
       DO ion=1,nions
@@ -1873,11 +1818,6 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
      ENDDO
         
     END IF
-    DEALLOCATE(alist)
-    DEALLOCATE(blist)
-    DEALLOCATE(rlist)
-    DEALLOCATE(elist)
-    DEALLOCATE(iord)
 
     !The complex forms are reconstructed
 
@@ -1885,6 +1825,5 @@ SUBROUTINE trapQLintsrot( p, nu, omega, fonctpe, fonctpi, fonctpgte, fonctpgti, 
 
 
   END SUBROUTINE momtrapQLintsrot
-
 
 END MODULE calltrapQLints
