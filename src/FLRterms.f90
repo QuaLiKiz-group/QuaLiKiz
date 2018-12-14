@@ -29,18 +29,8 @@ CONTAINS
     ALLOCATE(iord(limit))
 
     !Trapped electrons
-!!$    CALL DQAGSE_QLK(nFLRep,minFLR,maxFLR,epsFLR,epsFLR,limit,Joe2p,relerr,npts,ifailloc,&
-!!$         alist, blist, rlist, elist, iord, last)
-!!$
-!!$    CALL DQAGSE_QLK(nFLRep1,minFLR,maxFLR,epsFLR,epsFLR,limit,J1e2p,relerr,npts,ifailloc,&
-!!$         alist, blist, rlist, elist, iord, last)
-!!$
-!!$    !Passing electrons
-!!$    CALL DQAGSE_QLK(nFLRec,minFLR,maxFLR,epsFLR,epsFLR,limit,Joe2c,relerr,npts,ifailloc,&
-!!$         alist, blist, rlist, elist, iord, last)
 
     ifailloc = 1
-    !Joe2p = d01ahf(minFLR,maxFLR,epsFLR,npts,relerr,nFLRep,lw,ifailloc)
     ifailloc = hcubature(1, nFLRep_cubature, 1, minFLR_cubature, maxFLR_cubature, npts, 0._DBL, epsFLR, 1, intout_cub, acc_cub)
     Joe2p = intout_cub(1)
     IF (ifailloc /= 0) THEN
@@ -49,7 +39,6 @@ CONTAINS
     ENDIF
 
     ifailloc = 1
-    !J1e2p = d01ahf(minFLR,maxFLR,epsFLR,npts,relerr,nFLRep1,lw,ifailloc)
     ifailloc = hcubature(1, nFLRep1_cubature, 1, minFLR_cubature, maxFLR_cubature, npts, 0._DBL, epsFLR, 1, intout_cub, acc_cub)
     J1e2p = intout_cub(1)
     IF (ifailloc /= 0) THEN
@@ -58,7 +47,6 @@ CONTAINS
     ENDIF
 
     ifailloc = 1
-    !Joe2c = d01ahf(minFLR,maxFLR,epsFLR,npts,relerr,nFLRec,lw,ifailloc)
     ifailloc = hcubature(1, nFLRec_cubature, 1, minFLR_cubature, maxFLR_cubature, npts, 0._DBL, epsFLR, 1, intout_cub, acc_cub)
     Joe2c = intout_cub(1)
     IF (ifailloc /= 0) THEN
@@ -68,11 +56,7 @@ CONTAINS
 
 
     DO ion = 1,nions
-       !       CALL DQAGSE_QLK(nFLRip,minFLR,maxFLR,epsFLR,epsFLR,limit,Joi2p(ion),relerr,npts,ifailloc,&
-       !           alist, blist, rlist, elist, iord, last)
-
        ifailloc = 1
-       !Joi2p(ion) = d01ahf(minFLR,maxFLR,epsFLR,npts,relerr,nFLRip,lw,ifailloc)
        ifailloc = hcubature(1, nFLRip_cubature, 1, minFLR_cubature, maxFLR_cubature, npts, 0._DBL, epsFLR, 1, intout_cub, acc_cub)
        Joi2p(ion) = intout_cub(1)
        IF (ifailloc /= 0) THEN
@@ -81,7 +65,6 @@ CONTAINS
        ENDIF
 
        ifailloc = 1
-       !J1i2p(ion) = d01ahf(minFLR,maxFLR,epsFLR,npts,relerr,nFLRip1,lw,ifailloc)
        ifailloc = hcubature(1, nFLRip1_cubature, 1, minFLR_cubature, maxFLR_cubature, npts, 0._DBL, epsFLR, 1, intout_cub, acc_cub)
        J1i2p(ion) = intout_cub(1)
        IF (ifailloc /= 0) THEN
@@ -89,15 +72,9 @@ CONTAINS
                &'. Abnormal termination of J1i2p FLR integration at p=',p,', nu=',nu
        ENDIF
 
-       !       CALL DQAGSE_QLK(nFLRip1,minFLR,maxFLR,epsFLR,epsFLR,limit,J1i2p(ion),relerr,npts,ifailloc,&
-       !           alist, blist, rlist, elist, iord, last)
-
        !Passing ions 
-       !CALL DQAGSE_QLK(nFLRic,minFLR,maxFLR,epsFLR,epsFLR,limit,Joi2c(ion),relerr,npts,ifailloc,&
-       !     alist, blist, rlist, elist, iord, last)
 
        ifailloc = 1
-       !Joi2c(ion) = d01ahf(minFLR,maxFLR,epsFLR,npts,relerr,nFLRic,lw,ifailloc)
        ifailloc = hcubature(1, nFLRic_cubature, 1, minFLR_cubature, maxFLR_cubature, npts, 0._DBL, epsFLR, 1, intout_cub, acc_cub)
        Joi2c(ion) = intout_cub(1)
        IF (ifailloc /= 0) THEN
@@ -139,13 +116,7 @@ CONTAINS
     ALLOCATE(iord(limit))
 
     !Trapped electrons
-!!$    CALL DQAGSE_QLK(nFLReprot,minFLR,maxFLR,epsFLR,epsFLR,limit,Joe2p,relerr,npts,ifailloc,&
-!!$         alist, blist, rlist, elist, iord, last)
-!!$
-!!$    CALL DQAGSE_QLK(nFLRep1rot,minFLR,maxFLR,epsFLR,epsFLR,limit,J1e2p,relerr,npts,ifailloc,&
-!!$         alist, blist, rlist, elist, iord, last)
     ifailloc = 1
-    !Joe2p = d01ahf(minFLR,maxFLR,epsFLR,npts,relerr,nFLReprot,lw,ifailloc)
     ifailloc = hcubature(1, nFLReprot_cubature, 1, minFLR_cubature, maxFLR_cubature, npts, 0._DBL, epsFLR, 1, intout_cub, acc_cub)
     Joe2p = intout_cub(1)
     IF (ifailloc /= 0) THEN
@@ -153,7 +124,6 @@ CONTAINS
             &'. Abnormal termination of J0e2p FLR integration at p=',p,', nu=',nu
     ENDIF
     ifailloc = 1
-    !J1e2p = d01ahf(minFLR,maxFLR,epsFLR,npts,relerr,nFLRep1rot,lw,ifailloc)
     ifailloc = hcubature(1, nFLRep1rot_cubature, 1, minFLR_cubature, maxFLR_cubature, npts, 0._DBL, epsFLR, 1, intout_cub, acc_cub)
     J1e2p = intout_cub(1)
     IF (ifailloc /= 0) THEN
@@ -163,24 +133,9 @@ CONTAINS
 
 
 !!$    !Passing electrons
-!!$    ifailloc = 1
-!!$    Joe2c = d01ahf(minFLR,maxFLR,epsFLR,npts,relerr,nFLRecrot,lw,ifailloc)
-!!$    IF (ifailloc /= 0) THEN
-!!$       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0,A,I0)") 'ifailloc = ',ifailloc,&
-!!$            &'. Abnormal termination of J0e2c FLR integration at p=',p,', nu=',nu
-!!$    ENDIF
-
-!!$    CALL DQAGSE_QLK(nFLRecrot,minFLR,maxFLR,epsFLR,epsFLR,limit,Joe2c,relerr,npts,ifailloc,&
-!!$         alist, blist, rlist, elist, iord, last)
 
     DO ion = 1,nions
-!!$       CALL DQAGSE_QLK(nFLRiprot,minFLR,maxFLR,epsFLR,epsFLR,limit,Joi2p(ion),relerr,npts,ifailloc,&
-!!$            alist, blist, rlist, elist, iord, last)
-!!$
-!!$       CALL DQAGSE_QLK(nFLRip1rot,minFLR,maxFLR,epsFLR,epsFLR,limit,J1i2p(ion),relerr,npts,ifailloc,&
-!!$            alist, blist, rlist, elist, iord, last)
        ifailloc = 1
-       !Joi2p(ion) = d01ahf(minFLR,maxFLR,epsFLR,npts,relerr,nFLRiprot,lw,ifailloc)
        ifailloc = hcubature(1, nFLRiprot_cubature, 1, minFLR_cubature, maxFLR_cubature, npts, 0._DBL, epsFLR, 1, intout_cub, acc_cub)
        Joi2p(ion) = intout_cub(1)
        IF (ifailloc /= 0) THEN
@@ -189,24 +144,12 @@ CONTAINS
        ENDIF
 
        ifailloc = 1                                
-       !J1i2p(ion) = d01ahf(minFLR,maxFLR,epsFLR,npts,relerr,nFLRip1rot,lw,ifailloc)
        ifailloc = hcubature(1, nFLRip1rot_cubature, 1, minFLR_cubature, maxFLR_cubature, npts, 0._DBL, epsFLR, 1, intout_cub, acc_cub)
        J1i2p(ion) = intout_cub(1)
        IF (ifailloc /= 0) THEN
           IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0,A,I0)") 'ifailloc = ',ifailloc,&
                &'. Abnormal termination of J1i2p FLR integration at p=',p,', nu=',nu
        ENDIF
-
-!!$       ifailloc = 1
-!!$       Joi2c(ion) = d01ahf(minFLR,maxFLR,epsFLR,npts,relerr,nFLRicrot,lw,ifailloc)
-!!$       IF (ifailloc /= 0) THEN
-!!$          IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0,A,I0)") 'ifailloc = ',ifailloc,&
-!!$               &'. Abnormal termination of J0i2c FLR integration at p=',p,', nu=',nu
-!!$       ENDIF
-
-       !Passing ions 
-!!$       CALL DQAGSE_QLK(nFLRicrot,minFLR,maxFLR,epsFLR,epsFLR,limit,Joi2c(ion),relerr,npts,ifailloc,&
-!!$            alist, blist, rlist, elist, iord, last)
 
     ENDDO
 
