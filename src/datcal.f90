@@ -71,6 +71,7 @@ MODULE datcal
 
   LOGICAL, PARAMETER :: traporder1 = .FALSE.
 
+  ! TODO: Remove extra variables including inttype
   INTEGER, PARAMETER :: inttype = 2 !1 for CUBART and DQAGSE_QLK, 2 for NAG proxy, 3 for Gauss-Hermite
 
   ! For inttype = 1 (CUBATR and DQ)
@@ -84,7 +85,6 @@ MODULE datcal
   INTEGER, PARAMETER :: limit = 5000 !for DQAGE and DQAGSE_QLK routines
 
   REAL(KIND=DBL) , PARAMETER :: absacc1 = 0.0d-0 !absolute accuracy for 1D integrals
-  REAL(KIND=DBL) , PARAMETER :: abacc = 0.0d-0 !5.0d-1 / 5.0d-1 !absolute accuracy for 2D CUBATR int
   REAL(KIND=DBL) , PARAMETER :: abaccQL1 = 0.0d-0  !higher accuracies for 1D QL integrals
   REAL(KIND=DBL) , PARAMETER :: abaccQL2 = 0.0d-0  !higher accuracies for 2D QL integrals
 

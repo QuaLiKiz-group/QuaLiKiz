@@ -4,7 +4,6 @@ MODULE callpassQLints
   USE datcal
   USE datmat
   USE callpassints
-  USE CUI
   USE HCUB
   USE PCUB
 

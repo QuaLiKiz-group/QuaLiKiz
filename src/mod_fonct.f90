@@ -7,7 +7,6 @@ MODULE mod_fonct
   USE calltrapints
   USE callpassints
   USE calltotalints
-  USE CUI
   USE HCUB
   USE PCUB
   USE integration_routines

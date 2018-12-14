@@ -4,7 +4,6 @@ MODULE calltrapQLints
   USE datcal
   USE datmat
   USE calltrapints
-  USE CUI
   USE HCUB
   USE PCUB
 

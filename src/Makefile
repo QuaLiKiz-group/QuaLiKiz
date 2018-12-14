@@ -4,22 +4,19 @@ QUALIKIZ_SRC?=$(QUALIKIZ)/src
 include $(QUALIKIZ_SRC)/Makefile.inc
 # Directory for math routines
 QUALIKIZ_LIBSRC?=$(QUALIKIZ)/lib/src
-CUBPACK_DIR?=$(QUALIKIZ_LIBSRC)/cubpack
 GENZ_DIR?=$(QUALIKIZ_LIBSRC)/genz
 NAG_DIR?=$(QUALIKIZ_LIBSRC)/nag
 SLATEC_DIR?=$(QUALIKIZ_LIBSRC)/slatec
 SPECFUN_DIR?=$(QUALIKIZ_LIBSRC)/specfun
 FUKUSHIMA_DIR?=$(QUALIKIZ_LIBSRC)/fukushima
 
-CUBPACK_INC?=-I$(CUBPACK_DIR)
-CUBPACK?=$(CUBPACK_INC) -L$(CUBPACK_DIR) -lcubpack
 GENZ?=-L$(GENZ_DIR) -lgenz
 NAG?=-L$(NAG_DIR) -lnag
 SLATEC?=-L$(SLATEC_DIR) -lslatec
 SPECFUN?=-L$(SPECFUN_DIR) -lspecfun
 FUKUSHIMA?=-L$(FUKUSHIMA_DIR) -lfukushima
 
-QUALIKIZ_LIBS=$(CUBPACK) $(GENZ) $(SLATEC) $(SPECFUN) $(FUKUSHIMA) $(CUBA)
+QUALIKIZ_LIBS=$(GENZ) $(SLATEC) $(SPECFUN) $(FUKUSHIMA) $(CUBA)
 # Parallel or serial compilation
 ifneq ($(MPI_FLAGS),-DMPI)
       OBJS_QUALIKIZ += mpivoid.o
@@ -53,13 +50,13 @@ qlflux.mod: QLflux.mod
 callpassqlints.mod: callpassQLints.mod
 calltrapqlints.mod: calltrapQLints.mod
 qualikiz.o: mod_make_io.mod calcroutines.mod mod_saturation.mod
-callpassQLints.o: callpassints.mod $(CUBPACK_DIR)/cui.mod hcub.mod pcub.mod
-calltrapQLints.o: calltrapints.mod $(CUBPACK_DIR)/cui.mod hcub.mod pcub.mod
+callpassQLints.o: callpassints.mod hcub.mod pcub.mod
+calltrapQLints.o: calltrapints.mod hcub.mod pcub.mod
 QLflux.o: kind.mod datmat.mod datcal.mod callpassqlints.mod calltrapqlints.mod
 qlk_standalone.o: kind.mod
 calcroutines.o: mod_fonct.mod qlflux.mod flrterms.mod mod_fluidsol.mod mod_contour.mod mod_make_io.mod asymmetry.mod nanfilter.mod
 integration_routines.o: kind.mod callpassints.mod calltrapints.mod
-mod_fonct.o: integration_routines.mod callpassints.mod $(CUBPACK_DIR)/cui.mod calltrapints.mod calltotalints.mod hcub.mod pcub.mod
+mod_fonct.o: integration_routines.mod callpassints.mod calltrapints.mod calltotalints.mod hcub.mod pcub.mod
 # Core objects
 flrterms.mod: FLRterms.mod
 callpassints.o: passints.mod 
