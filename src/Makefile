@@ -4,19 +4,15 @@ QUALIKIZ_SRC?=$(QUALIKIZ)/src
 include $(QUALIKIZ_SRC)/Makefile.inc
 # Directory for math routines
 QUALIKIZ_LIBSRC?=$(QUALIKIZ)/lib/src
-GENZ_DIR?=$(QUALIKIZ_LIBSRC)/genz
-NAG_DIR?=$(QUALIKIZ_LIBSRC)/nag
 SLATEC_DIR?=$(QUALIKIZ_LIBSRC)/slatec
 SPECFUN_DIR?=$(QUALIKIZ_LIBSRC)/specfun
 FUKUSHIMA_DIR?=$(QUALIKIZ_LIBSRC)/fukushima
 
-GENZ?=-L$(GENZ_DIR) -lgenz
-NAG?=-L$(NAG_DIR) -lnag
 SLATEC?=-L$(SLATEC_DIR) -lslatec
 SPECFUN?=-L$(SPECFUN_DIR) -lspecfun
 FUKUSHIMA?=-L$(FUKUSHIMA_DIR) -lfukushima
 
-QUALIKIZ_LIBS=$(GENZ) $(SLATEC) $(SPECFUN) $(FUKUSHIMA) $(CUBA)
+QUALIKIZ_LIBS=$(SLATEC) $(SPECFUN) $(FUKUSHIMA) $(CUBA)
 # Parallel or serial compilation
 ifneq ($(MPI_FLAGS),-DMPI)
       OBJS_QUALIKIZ += mpivoid.o
@@ -108,7 +104,6 @@ dump_variables:
 	@echo
 	@echo QUALIKIZ=$(QUALIKIZ)
 	@echo QUALIKIZ_LIBS=$(QUALIKIZ_LIBS)
-	@echo NAG=$(NAG)
 	@echo
 	@echo QUALIKIZ_MODS_CORE=$(QUALIKIZ_MODS_CORE)
 	@echo MODS_QUALIKIZ=$(MODS_QUALIKIZ)

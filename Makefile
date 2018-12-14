@@ -3,19 +3,15 @@ QUALIKIZ_SRC?=src
 include $(QUALIKIZ_SRC)/Makefile.inc
 QUALIKIZ_SRC?=$(QUALIKIZ)/src
 QUALIKIZ_LIBSRC?=$(QUALIKIZ)/lib/src
-GENZ_DIR?=$(QUALIKIZ_LIBSRC)/genz
-NAG_DIR?=$(QUALIKIZ_LIBSRC)/nag
 SLATEC_DIR?=$(QUALIKIZ_LIBSRC)/slatec
 SPECFUN_DIR?=$(QUALIKIZ_LIBSRC)/specfun
 FUKUSHIMA_DIR?=$(QUALIKIZ_LIBSRC)/fukushima
 
-GENZ_LIB?=$(GENZ_DIR)/libgenz.a
-NAG_LIB?=$(NAG_DIR)/libnag.a
 SLATEC_LIB?=$(SLATEC_DIR)/libslatec.a
 SPECFUN_LIB?=$(SPECFUN_DIR)/libspecfun.a
 FUKUSHIMA_LIB?=$(FUKUSHIMA_DIR)/libfukushima.a
 
-QUALIKIZ_LIBS?=$(GENZ_LIB) $(SLATEC_LIB) $(SPECFUN_LIB) $(FUKUSHIMA_LIB)
+QUALIKIZ_LIBS?=$(SLATEC_LIB) $(SPECFUN_LIB) $(FUKUSHIMA_LIB)
 QUALIKIZ_LIBS_CLEAN?=$(QUALIKIZ_LIBS:%=%.clean)
 
 ##############################################################################
