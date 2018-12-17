@@ -9,7 +9,6 @@ MODULE mod_fonct
   USE calltotalints
   USE HCUB
   USE PCUB
-  USE integration_routines
 
   IMPLICIT NONE
 
