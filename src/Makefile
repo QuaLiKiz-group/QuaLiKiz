@@ -5,7 +5,6 @@ include $(QUALIKIZ_SRC)/Makefile.inc
 # Directory for math routines
 QUALIKIZ_LIBSRC?=$(QLKDIR)/lib/src
 CUBPACK_DIR?=$(QUALIKIZ_LIBSRC)/cubpack
-GENZ_DIR?=$(QUALIKIZ_LIBSRC)/genz
 NAG_DIR?=$(QUALIKIZ_LIBSRC)/nag
 SLATEC_DIR?=$(QUALIKIZ_LIBSRC)/slatec
 SPECFUN_DIR?=$(QUALIKIZ_LIBSRC)/specfun
@@ -13,13 +12,12 @@ FUKUSHIMA_DIR?=$(QUALIKIZ_LIBSRC)/fukushima
 
 CUBPACK_INC?=-I$(CUBPACK_DIR)
 CUBPACK?=$(CUBPACK_INC) -L$(CUBPACK_DIR) -lcubpack
-GENZ?=-L$(GENZ_DIR) -lgenz
 NAG?=-L$(NAG_DIR) -lnag
 SLATEC?=-L$(SLATEC_DIR) -lslatec
 SPECFUN?=-L$(SPECFUN_DIR) -lspecfun
 FUKUSHIMA?=-L$(FUKUSHIMA_DIR) -lfukushima
 
-QUALIKIZ_LIBS=$(CUBPACK) $(GENZ) $(NAG) $(SLATEC) $(SPECFUN) $(FUKUSHIMA)
+QUALIKIZ_LIBS=$(CUBPACK) $(NAG) $(SLATEC) $(SPECFUN) $(FUKUSHIMA)
 # Parallel or serial compilation
 ifneq ($(MPI_FLAGS),-DMPI)
       OBJS_QUALIKIZ += mpivoid.o

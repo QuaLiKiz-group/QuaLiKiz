@@ -3,20 +3,18 @@ QUALIKIZ_SRC?=$(QLKDIR)/src
 include $(QUALIKIZ_SRC)/Makefile.inc
 QUALIKIZ_LIBSRC?=$(QLKDIR)/lib/src
 CUBPACK_DIR?=$(QUALIKIZ_LIBSRC)/cubpack
-GENZ_DIR?=$(QUALIKIZ_LIBSRC)/genz
 NAG_DIR?=$(QUALIKIZ_LIBSRC)/nag
 SLATEC_DIR?=$(QUALIKIZ_LIBSRC)/slatec
 SPECFUN_DIR?=$(QUALIKIZ_LIBSRC)/specfun
 FUKUSHIMA_DIR?=$(QUALIKIZ_LIBSRC)/fukushima
 
 CUBPACK_LIB?=$(CUBPACK_DIR)/libcubpack.a
-GENZ_LIB?=$(GENZ_DIR)/libgenz.a
 NAG_LIB?=$(NAG_DIR)/libnag.a
 SLATEC_LIB?=$(SLATEC_DIR)/libslatec.a
 SPECFUN_LIB?=$(SPECFUN_DIR)/libspecfun.a
 FUKUSHIMA_LIB?=$(FUKUSHIMA_DIR)/libfukushima.a
 
-QUALIKIZ_LIBS?=$(CUBPACK_LIB) $(GENZ_LIB) $(NAG_LIB) $(SLATEC_LIB) $(SPECFUN_LIB) $(FUKUSHIMA_LIB)
+QUALIKIZ_LIBS?=$(CUBPACK_LIB) $(NAG_LIB) $(SLATEC_LIB) $(SPECFUN_LIB) $(FUKUSHIMA_LIB)
 QUALIKIZ_LIBS_CLEAN?=$(QUALIKIZ_LIBS:%=%.clean)
 
 ##############################################################################
@@ -27,7 +25,6 @@ QualiKiz: $(QUALIKIZ_LIBS)
 
 $(LIBNAME): $(QUALIKIZ_LIBS) $(QUALIKIZ_SRC)/qlk_tci_module.mod $(QUALIKIZ_SRC)/Makefile.inc
 	ar vr $(LIBNAME) $(wildcard $(CUBPACK_DIR)/*.o)
-	ar vr $(LIBNAME) $(wildcard $(GENZ_DIR)/*.o)
 	ar vr $(LIBNAME) $(wildcard $(NAG_DIR)/*.o)
 	ar vr $(LIBNAME) $(wildcard $(SLATEC_DIR)/*.o)
 	ar vr $(LIBNAME) $(wildcard $(SPECFUN_DIR)/*.o)
