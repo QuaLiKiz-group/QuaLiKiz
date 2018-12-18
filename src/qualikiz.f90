@@ -267,20 +267,21 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
      CALL SYSTEM_CLOCK(count_rate=freq)
      IF (nproc > 1) THEN
         timetot = REAL(time4-time3) / REAL(freq)
-        WRITE(stdout,*)
-        WRITE(stdout,"(A,F11.3,A)") 'Profiling: First MPI_AllReduce time = ',timetot,' s'  !final write
+        IF (verbose .EQV. .TRUE.) WRITE(stdout,*)
+        IF (verbose .EQV. .TRUE.) WRITE(stdout,"(A,F11.3,A)") 'Profiling: First MPI_AllReduce time = ',timetot,' s'  !final write
      ENDIF
      CALL SYSTEM_CLOCK(time2)
      CALL SYSTEM_CLOCK(count_rate=freq)
      timetot = REAL(time2-time1) / REAL(freq)
-     WRITE(stdout,*)
-     WRITE(stdout,"(A,F11.3,A)") 'Profiling: Hurrah! All eigenmodes calculated! Time = ',timetot,' s'  !final write
+     IF (verbose .EQV. .TRUE.) WRITE(stdout,*)
+     IF (verbose .EQV. .TRUE.) WRITE(stdout,"(A,F11.3,A)") 'Profiling: Hurrah! All eigenmodes calculated! Time = ',timetot,' s'  !final write
 
      IF (verbose .EQV. .TRUE.) WRITE(stdout,*)     
      IF (verbose .EQV. .TRUE.) WRITE(stdout,"(A)") '*** Calculating nonlinear saturation rule'
 
      CALL SYSTEM_CLOCK(time1)
   ENDIF
+  
   IF (separateflux .EQV. .TRUE.) THEN
      IF (myrank==0) THEN
         IF (verbose .EQV. .TRUE.) WRITE(stdout,"(A)") '*** separateflux=T ,  NL saturation rule for separate modes also calculated'
@@ -394,7 +395,7 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
      CALL SYSTEM_CLOCK(time2)
      CALL SYSTEM_CLOCK(count_rate=freq)
      timetot2 = REAL(time2-time1) / REAL(freq)
-     WRITE(stdout,"(A,F11.3,A)") 'Profiling: saturation rule calculation time = ',timetot2,' s'  
+     IF (verbose .EQV. .TRUE.) WRITE(stdout,"(A,F11.3,A)") 'Profiling: saturation rule calculation time = ',timetot2,' s'  
      WRITE(stdout,"(A,F7.3,A)") 'Hurrah! QuaLiKiz Job completed! Total time = ',timetot+timetot2,' s'  !final write
 
      OPEN(unit=900, file="lastruntime.qlk", action="write", status="replace")
@@ -833,8 +834,8 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
      CALL SYSTEM_CLOCK(time4)
      CALL SYSTEM_CLOCK(count_rate=freq)
      timetot = REAL(time4-time3) / REAL(freq)
-     WRITE(stdout,*)
-     WRITE(stdout,"(A,F11.3,A)") 'Profiling: Second MPI_AllReduce time = ',timetot,' s'
+     IF (verbose .EQV. .TRUE.) WRITE(stdout,*)
+     IF (verbose .EQV. .TRUE.) WRITE(stdout,"(A,F11.3,A)") 'Profiling: Second MPI_AllReduce time = ',timetot,' s'
 
   ENDIF
 
