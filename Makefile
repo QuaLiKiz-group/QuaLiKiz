@@ -16,6 +16,8 @@ QUALIKIZ_LIBS?=$(NAG_LIB) $(SLATEC_LIB) $(SPECFUN_LIB) $(FUKUSHIMA_LIB)
 QUALIKIZ_LIBS_CLEAN?=$(QUALIKIZ_LIBS:%=%.clean)
 
 ##############################################################################
+.PHONY: $(LIBNAME) distclean realclean dump_variables $(QUALIKIZ_LIBS_CLEAN)
+
 QualiKiz: $(QUALIKIZ_LIBS)
 	make -C $(QUALIKIZ_SRC) QuaLiKiz
 	cp -f $(QUALIKIZ_SRC)/QuaLiKiz .

@@ -69,6 +69,8 @@ mod_make_io.o: kind.mod datmat.mod datcal.mod
 mod_saturation.o: kind.mod datmat.mod datcal.mod
 
 ###############################################################################
+.PHONY: clean distclean realclean dump_variables
+
 QuaLiKiz: qlk_standalone.f90 $(QUALIKIZ_OBJS_CORE) $(OBJS_QUALIKIZ) 
 	$(FC_PREAMBLE) $(FC_WRAPPER) $(FFLAGS) $(MPI_FLAGS) $(OPENMP_FLAGS) $(QUALIKIZ_OBJS_CORE) $(OBJS_QUALIKIZ) $(QUALIKIZ_LIBS) qlk_standalone.f90 -o $@
 
