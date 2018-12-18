@@ -1,13 +1,13 @@
 #!/bin/make -f
 QLKDIR+
 # Underlying compiler
-FC=ifort
+FC=
 # Wrapper/command used to compile with Open MPI
 FC_WRAPPER=mpif90
 # String of text that will be put in from of the $(FC) compile option
 FC_PREAMBLE=
 DEBUG=
-FFLAGS= -Mdalign -r8 -Mpreprocess -m64 -mcmodel=medium -O3
+FFLAGS= -Mdalign -r8 -Mpreprocess -m64 -mcmodel=medium -tp=sandybridge -O2
 OPENMP_FLAGS=-mp=nonuma
 MPI_FLAGS=-DMPI
 
