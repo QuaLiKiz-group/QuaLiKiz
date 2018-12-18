@@ -168,8 +168,6 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
   !DEBUGGING
   CHARACTER(len=20) :: fmtn
 
-  !WRITE(stdout,'(1X,1A,I1,/)') 'Integration scheme type = ',inttype
-
   ! -- MPI Initialisation -- !
   CALL mpi_comm_size(mpi_comm_world,nproc,ierror)
   CALL mpi_comm_rank(mpi_comm_world,myrank,ierror)

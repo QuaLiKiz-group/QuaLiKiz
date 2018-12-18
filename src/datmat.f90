@@ -118,8 +118,6 @@ MODULE datmat
   INTEGER, SAVE :: weidcount !count the dispersion function calls
   INTEGER, SAVE :: ccount !count the integrand calls
   INTEGER, SAVE :: Nsolrat, last
-  REAL(kind=DBL), SAVE, DIMENSION(:), ALLOCATABLE :: alist, blist, rlist, elist
-  INTEGER, SAVE, DIMENSION(:), ALLOCATABLE :: iord
 
   !Variables used in fluid solution with rotation
   COMPLEX(KIND=DBL), SAVE, DIMENSION(:,:), ALLOCATABLE :: jon_modewidth,jon_solflu,jon_modeshift

@@ -4,33 +4,30 @@ QUALIKIZ_SRC?=$(QLKDIR)/src
 include $(QUALIKIZ_SRC)/Makefile.inc
 # Directory for math routines
 QUALIKIZ_LIBSRC?=$(QLKDIR)/lib/src
-CUBPACK_DIR?=$(QUALIKIZ_LIBSRC)/cubpack
 NAG_DIR?=$(QUALIKIZ_LIBSRC)/nag
 SLATEC_DIR?=$(QUALIKIZ_LIBSRC)/slatec
 SPECFUN_DIR?=$(QUALIKIZ_LIBSRC)/specfun
 FUKUSHIMA_DIR?=$(QUALIKIZ_LIBSRC)/fukushima
 
-CUBPACK_INC?=-I$(CUBPACK_DIR)
-CUBPACK?=$(CUBPACK_INC) -L$(CUBPACK_DIR) -lcubpack
 NAG?=-L$(NAG_DIR) -lnag
 SLATEC?=-L$(SLATEC_DIR) -lslatec
 SPECFUN?=-L$(SPECFUN_DIR) -lspecfun
 FUKUSHIMA?=-L$(FUKUSHIMA_DIR) -lfukushima
 
-QUALIKIZ_LIBS=$(CUBPACK) $(NAG) $(SLATEC) $(SPECFUN) $(FUKUSHIMA)
+QUALIKIZ_LIBS=$(NAG) $(SLATEC) $(SPECFUN) $(FUKUSHIMA)
 # Parallel or serial compilation
 ifneq ($(MPI_FLAGS),-DMPI)
       OBJS_QUALIKIZ += mpivoid.o
 endif
 
-#all: $(CUB)/libcubpack.a $(ROUT)/librout.a QuaLiKiz.exe
+#all: $(ROUT)/librout.a QuaLiKiz.exe
 # qlk_makeflux.exe qlk_redoQL.exe
 
 #qlk_redoQL.exe: qlk_redoQL.f90 $(OBJS_MAKEFLUX) $(ROUT)/librout.a
-#	$(FC_PREAMBLE) $(FC_WRAPPER) -o qlk_redoQL.exe qlk_redoQL.f90 $(OBJS_QUALIKIZ) ${QFLAGS} ${OPENMP} $(MPI) -L$(ROUT) -lrout -L$(CUB) -lcubpack 
+#	$(FC_PREAMBLE) $(FC_WRAPPER) -o qlk_redoQL.exe qlk_redoQL.f90 $(OBJS_QUALIKIZ) ${QFLAGS} ${OPENMP} $(MPI) -L$(ROUT) -lrout 
 
 #qlk_makeflux.exe: qlk_makeflux.f90 $(OBJS_MAKEFLUX) $(ROUT)/librout.a
-#	$(FC_PREAMBLE) $(FC_WRAPPER) -o qlk_makeflux.exe qlk_makeflux.f90 $(OBJS_QUALIKIZ) ${QFLAGS} ${OPENMP} $(MPI) -L$(ROUT) -lrout -L$(CUB) -lcubpack 
+#	$(FC_PREAMBLE) $(FC_WRAPPER) -o qlk_makeflux.exe qlk_makeflux.f90 $(OBJS_QUALIKIZ) ${QFLAGS} ${OPENMP} $(MPI) -L$(ROUT) -lrout 
 SRCS_QUALIKIZ=calcroutines.f90 callpassQLints.f90 calltrapQLints.f90 mod_fonct.f90 QLflux.f90 qualikiz.f90 diskio.f90 qlk_tci_module.f90
 OBJS_QUALIKIZ=$(SRCS_QUALIKIZ:%f90=%o)
 MODS_QUALIKIZ=$(SRCS_QUALIKIZ:%f90=%mod)
@@ -47,12 +44,12 @@ qlflux.mod: QLflux.mod
 callpassqlints.mod: callpassQLints.mod
 calltrapqlints.mod: calltrapQLints.mod
 qualikiz.o: mod_make_io.mod calcroutines.mod mod_saturation.mod
-callpassQLints.o: callpassints.mod $(CUBPACK_DIR)/cui.mod
-calltrapQLints.o: calltrapints.mod $(CUBPACK_DIR)/cui.mod
+callpassQLints.o: callpassints.mod
+calltrapQLints.o: calltrapints.mod
 QLflux.o: kind.mod datmat.mod datcal.mod callpassqlints.mod calltrapqlints.mod
 qlk_standalone.o: kind.mod
 calcroutines.o: mod_fonct.mod qlflux.mod flrterms.mod mod_fluidsol.mod mod_contour.mod mod_make_io.mod asymmetry.mod nanfilter.mod
-mod_fonct.o: callpassints.mod $(CUBPACK_DIR)/cui.mod calltrapints.mod
+mod_fonct.o: callpassints.mod calltrapints.mod
 qlk_tci_module.o: qualikiz.mod
 # Core objects
 flrterms.mod: FLRterms.mod
