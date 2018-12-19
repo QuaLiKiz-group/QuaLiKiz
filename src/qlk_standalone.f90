@@ -128,7 +128,7 @@ PROGRAM qlk_standalone
   CHARACTER(len=:), ALLOCATABLE :: debugdir, outputdir, primitivedir, inputdir
 
   !MPI variables:
-  INTEGER :: ierror, nproc, myrank
+  INTEGER :: ierror, nproc, myrank, provided
 
   !Input variables into qualikiz subroutine
   INTEGER :: dimx, dimn, nions, numsols, phys_meth, coll_flag, rot_flag, verbose, separateflux, el_type, write_primi
@@ -197,7 +197,7 @@ PROGRAM qlk_standalone
   CHARACTER(len=20) :: fmtx,fmtn,fmtion,fmtintion,fmtxrow,fmtecoef
   INTEGER :: i,j,k,l,stat,myunit
 
-  CALL mpi_init(ierror)
+  CALL mpi_init_thread(MPI_THREAD_FUNNELED,provided,ierror)
   CALL mpi_comm_size(mpi_comm_world,nproc,ierror)
   CALL mpi_comm_rank(mpi_comm_world,myrank,ierror)
 
