@@ -410,11 +410,6 @@ SUBROUTINE qualikiz(dimxin, rhoin, dimnin, nionsin, numsolsin, phys_methin, coll
 !!$     WRITE(900,fmtn) ((AIMAG(jon_solflu(i,j)),j=1,dimn),i=1,dimx) ; CLOSE(900)
   ENDIF
   !DEBUG
-!!$    OPEN(unit=900, file="FLRec.dat", action="write", status="replace")
-!!$    WRITE(900,'(16G15.7)') ((FLRec(i,j),j=1,dimn),i=1,dimx) ;  CLOSE(900)
-!!$
-!!$    OPEN(unit=900, file="FLRic.dat", action="write", status="replace")
-!!$    WRITE(900,'(16G15.7)') (((FLRic(i,j,k),j=1,dimn),i=1,dimx),k=1,nions) ;  CLOSE(900)
 !!$
 !!$    OPEN(unit=900, file="FLRep.dat", action="write", status="replace")
 !!$    WRITE(900,'(16G15.7)') ((FLRep(i,j),j=1,dimn),i=1,dimx) ;  CLOSE(900)

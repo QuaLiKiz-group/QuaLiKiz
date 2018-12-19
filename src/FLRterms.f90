@@ -10,6 +10,7 @@ CONTAINS
   SUBROUTINE makeFLRterms(p,nu)
     !! The scaled Bessel functions are integrated over kr separately, outside the main integrals
     !! Aribitrary normalisation factor (normkr) introduced to optimize kr integration
+    !! Note that passing species Bessel functions are included directly in integrand in passints    
     INTEGER, INTENT(IN) :: p, nu
     REAL(kind=DBL) :: minFLR, maxFLR, relerr
     INTEGER :: npts !output of number of integral evaluations
@@ -33,14 +34,6 @@ CONTAINS
             &'. Abnormal termination of J1e2p FLR integration at p=',p,', nu=',nu
     ENDIF
 
-    ifailloc = 1
-    Joe2c = d01ahf(minFLR,maxFLR,epsFLR,npts,relerr,nFLRec,lw,ifailloc)
-    IF (ifailloc /= 0) THEN
-       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0,A,I0)") 'ifailloc = ',ifailloc,&
-            &'. Abnormal termination of J0e2c FLR integration at p=',p,', nu=',nu
-    ENDIF
-
-
     DO ion = 1,nions
        ifailloc = 1
        Joi2p(ion) = d01ahf(minFLR,maxFLR,epsFLR,npts,relerr,nFLRip,lw,ifailloc)
@@ -56,13 +49,6 @@ CONTAINS
                &'. Abnormal termination of J1i2p FLR integration at p=',p,', nu=',nu
        ENDIF
 
-       ifailloc = 1
-       Joi2c(ion) = d01ahf(minFLR,maxFLR,epsFLR,npts,relerr,nFLRic,lw,ifailloc)
-       IF (ifailloc /= 0) THEN
-          IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0,A,I0)") 'ifailloc = ',ifailloc,&
-               &'. Abnormal termination of J0i2c FLR integration at p=',p,', nu=',nu
-       ENDIF
-
     ENDDO
 
   END SUBROUTINE makeFLRterms
@@ -70,6 +56,7 @@ CONTAINS
   SUBROUTINE makeFLRtermsrot(p,nu)
     !! The scaled Bessel functions are integrated over kr separately, outside the main integrals
     !! Aribitrary normalisation factor (normkr) introduced to optimize kr integration
+    !! Note that passing species Bessel functions are included directly in integrand in passints
     INTEGER, INTENT(IN) :: p, nu
     REAL(kind=DBL) :: minFLR, maxFLR, relerr
     INTEGER :: npts !output of number of integral evaluations
@@ -77,7 +64,6 @@ CONTAINS
 
     maxFLR =   ABS(2*pi/(widthhat*normkr))
     minFLR = - maxFLR
-
 
     !Trapped electrons
     ifailloc = 1
@@ -93,14 +79,6 @@ CONTAINS
             &'. Abnormal termination of J0e2p FLR integration at p=',p,', nu=',nu
     ENDIF
 
-!!$    !Passing electrons
-!!$    ifailloc = 1
-!!$    Joe2c = d01ahf(minFLR,maxFLR,epsFLR,npts,relerr,nFLRecrot,lw,ifailloc)
-!!$    IF (ifailloc /= 0) THEN
-!!$       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0,A,I0)") 'ifailloc = ',ifailloc,&
-!!$            &'. Abnormal termination of J0e2c FLR integration at p=',p,', nu=',nu
-!!$    ENDIF
-    
     !Trapped ions
     DO ion = 1,nions
        ifailloc = 1
@@ -117,44 +95,9 @@ CONTAINS
                &'. Abnormal termination of J1i2p FLR integration at p=',p,', nu=',nu
        ENDIF
 
-       !Passing ions 
-!!$       ifailloc = 1
-!!$       Joi2c(ion) = d01ahf(minFLR,maxFLR,epsFLR,npts,relerr,nFLRicrot,lw,ifailloc)
-!!$       IF (ifailloc /= 0) THEN
-!!$          IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0,A,I0)") 'ifailloc = ',ifailloc,&
-!!$               &'. Abnormal termination of J0i2c FLR integration at p=',p,', nu=',nu
-!!$       ENDIF
-      
     ENDDO
 
-
   END SUBROUTINE makeFLRtermsrot
-
-
-  REAL(KIND=DBL) FUNCTION nFLRec(krr)
-!!! Routine for improved FLR, passing electrons
-!!! FLR of passing particles are calculated from an integration over kr of
-!!! Bessel_mod(k_perp*rhoLr^2) * eigenfun^2
-!!! using k_perp^2 = k_theta^2 + kr^2 
-    REAL(KIND=DBL), INTENT(in) :: krr
-    ! Local variables
-    REAL(KIND=DBL)    :: normgs
-    REAL(KIND=DBL)    :: var2, var3
-    REAL(KIND=DBL)    :: bessm2, gau
-    INTEGER :: ifailloc
-
-    normgs = normkr * REAL(mwidth) / SQRT(pi)
-
-    ifailloc = 0
-    var2 = (normkr*krr*Rhoe(pnFLR))**2.  !!1st argument of Bessel fun
-    var3 = (ktetaRhoe)**2.          !!2nd argument of Bessel fun
-
-    bessm2 = BESEI0(var2+var3)
-    gau = EXP(-0.5_DBL*(krr*normkr*REAL(mwidth))**2._DBL)    !!definition of the eigenfun
-
-    nFLRec = normgs * gau**2. * bessm2 
-
-  END FUNCTION nFLRec
 
   REAL(KIND=DBL) FUNCTION nFLRep(krr)
 !!! Routine for improved FLR, trapped electrons
@@ -211,31 +154,6 @@ CONTAINS
 
   END FUNCTION nFLRep1
 
-  REAL(KIND=DBL) FUNCTION nFLRic(krr)
-!!! Routine for improved FLR, passing ions
-!!! FLR of passing particles are calculated from an integration over kr of
-!!! Bessel_mod(k_perp*rhoLr^2) * eigenfun^2
-!!! using k_perp^2 = k_theta^2 + kr^2 
-    REAL(KIND=DBL), INTENT(in) :: krr
-    ! Local variables
-    REAL(KIND=DBL)    :: normgs
-    REAL(KIND=DBL)    :: var2, var3
-    REAL(KIND=DBL)    :: bessm2, gau
-    INTEGER :: ifailloc
-
-    normgs = normkr * REAL(mwidth) / SQRT(pi)
-
-    ifailloc = 0
-    var2 = (normkr*krr*Rhoi(pnFLR,ion))**2.  !!1st argument of Bessel fun
-    var3 = (ktetaRhoi(ion))**2.               !!2nd argument of Bessel fun
-
-    bessm2 = BESEI0(var2+var3)
-    gau = EXP(-0.5_DBL*(krr*normkr*REAL(mwidth))**2._DBL)    !!definition of the eigenfun
-
-    nFLRic = normgs * gau**2. * bessm2 
-
-  END FUNCTION nFLRic
-
   REAL(KIND=DBL) FUNCTION nFLRip(krr)
 !!! Routine for improved FLR, trapped ions
 !!! FLR of trapped particles are calculated from an integration over kr of
@@ -287,36 +205,6 @@ CONTAINS
     nFLRip1 = normgs * gau**2. * bessm1 *bessm2
 
   END FUNCTION nFLRip1
-
-  REAL(KIND=DBL) FUNCTION nFLRecrot(krr)
-!!! Routine for improved FLR, passing electrons
-!!! FLR of passing particles are calculated from an integration over kr of
-!!! Bessel_mod(k_perp*rhoLr^2) * eigenfun^2
-!!! using k_perp^2 = k_theta^2 + kr^2 
-    REAL(KIND=DBL), INTENT(in) :: krr
-    ! Local variables
-    REAL(KIND=DBL)    :: normgs
-    REAL(KIND=DBL)    :: var2, var3
-    REAL(KIND=DBL)    :: bessm2, gau
-    INTEGER :: ifailloc
-
-    ifailloc = 0
-    var2 = (normkr*krr*Rhoe(pnFLR))**2.  !!1st argument of Bessel fun
-    var3 = (ktetaRhoe)**2.          !!2nd argument of Bessel fun
-
-    bessm2 = BESEI0(var2+var3)
-    !gau = EXP(-0.5_DBL*(krr*normkr*mwidth)**2._DBL)    !!without rotation
-    ! warning : sure that correct? do not miss 1/2 inside exp here???
-    ! warning : for passing eigenfun^2 already in functionnals, shoudl not be there twice???
-
-    !gau = EXP(-(REAL(mwidth)*krr*normkr)**2-2*krr*normkr*AIMAG(mshift2)+(REAL(mshift2)**2-AIMAG(mshift2)**2)/REAL(mwidth))    !!definition of the eigenfun
-
-    normgs = normkr * SQRT((REAL(mwidth)**2 - AIMAG(mwidth)**2)) / SQRT(pi) * EXP(-AIMAG(mshift2)**2/(REAL(mwidth)**2-AIMAG(mwidth)**2))
-    gau = EXP(-0.5_DBL*(krr*normkr*mwidth)**2._DBL - ci*krr*normkr*mshift2)   !!definition of the eigenfun in k-space
-
-    nFLRecrot = normgs * ABS(gau)**2. * bessm2 
-
-  END FUNCTION nFLRecrot
 
   REAL(KIND=DBL) FUNCTION nFLReprot(krr)
 !!! Routine for improved FLR, trapped electrons
@@ -374,31 +262,6 @@ CONTAINS
     nFLRep1rot = normgs * ABS(gau)**2. * bessm1*bessm2 
 
   END FUNCTION nFLRep1rot
-
-  REAL(KIND=DBL) FUNCTION nFLRicrot(krr)
-!!! Routine for improved FLR, passing ions
-!!! FLR of passing particles are calculated from an integration over kr of
-!!! Bessel_mod(k_perp*rhoLr^2) * eigenfun^2
-!!! using k_perp^2 = k_theta^2 + kr^2 
-    REAL(KIND=DBL), INTENT(in) :: krr
-    ! Local variables
-    REAL(KIND=DBL)    :: normgs
-    REAL(KIND=DBL)    :: var2, var3
-    REAL(KIND=DBL)    :: bessm2, gau
-    INTEGER :: ifailloc
-
-    ifailloc = 0
-    var2 = (normkr*krr*Rhoi(pnFLR,ion))**2.  !!1st argument of Bessel fun
-    var3 = (ktetaRhoi(ion))**2.               !!2nd argument of Bessel fun
-
-    bessm2 = BESEI0(var2+var3)
- 
-    normgs = normkr * SQRT((REAL(mwidth)**2 - AIMAG(mwidth)**2)) / SQRT(pi) * EXP(-AIMAG(mshift2)**2/(REAL(mwidth)**2-AIMAG(mwidth)**2))
-    gau = EXP(-0.5_DBL*(krr*normkr*mwidth)**2._DBL - ci*krr*normkr*mshift2)   !!definition of the eigenfun in k-space
-
-    nFLRicrot = normgs * ABS(gau)**2. * bessm2 
-
-  END FUNCTION nFLRicrot
 
   REAL(KIND=DBL) FUNCTION nFLRiprot(krr)
 !!! Routine for improved FLR, trapped ions

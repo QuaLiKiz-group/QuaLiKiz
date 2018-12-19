@@ -35,8 +35,8 @@ MODULE datmat
   REAL(KIND=DBL), SAVE, DIMENSION(:,:), ALLOCATABLE :: coefi, Machi, Machitemp, Aui, Nix, Rhoi, di, cthi, tau, mi, Auiorig, Auimod, Machiorig, Machimod
 
   ! Output arrays. The 3 dimensions are 'radial grid', 'kthetarhos grid', 'number of modes'
-  REAL(KIND=DBL), SAVE , DIMENSION(:,:), ALLOCATABLE :: distan,FLRec,FLRep,ntor,kperp2
-  REAL(KIND=DBL), SAVE, DIMENSION(:,:,:), ALLOCATABLE :: gamma, Ladia, FLRip, FLRic
+  REAL(KIND=DBL), SAVE , DIMENSION(:,:), ALLOCATABLE :: distan,FLRep,ntor,kperp2
+  REAL(KIND=DBL), SAVE, DIMENSION(:,:,:), ALLOCATABLE :: gamma, Ladia, FLRip
   COMPLEX(KIND=DBL), SAVE, DIMENSION(:,:), ALLOCATABLE :: modewidth, modeshift, modeshift2
   COMPLEX(KIND=DBL), SAVE, DIMENSION(:,:), ALLOCATABLE :: ommax, solflu
   COMPLEX(KIND=DBL), SAVE, DIMENSION(:,:,:), ALLOCATABLE :: sol, fdsol, oldsol, oldfdsol
@@ -78,8 +78,8 @@ MODULE datmat
   ! Varibles used by calcroutines
   INTEGER, SAVE :: ion ! current ion index used in integrals and asymmetry functions
   INTEGER, SAVE :: runcounter ! used for counting runs inside integrated modelling applications for deciding to recalculate all or just jump to newton based on old solutions
-  REAL(KIND=DBL), SAVE :: Joe2, Jobane2, Joe2p, J1e2p, Joe2c
-  REAL(KIND=DBL), DIMENSION(:), ALLOCATABLE :: Joi2, Jobani2, Joi2p, J1i2p, Joi2c
+  REAL(KIND=DBL), SAVE :: Joe2, Jobane2, Joe2p, J1e2p
+  REAL(KIND=DBL), DIMENSION(:), ALLOCATABLE :: Joi2, Jobani2, Joi2p, J1i2p
   REAL(KIND=DBL), SAVE :: ktetaRhoe
   REAL(KIND=DBL), SAVE :: d, normkr
   REAL(KIND=DBL), SAVE :: Athe

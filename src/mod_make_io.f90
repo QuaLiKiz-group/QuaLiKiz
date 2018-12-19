@@ -205,7 +205,6 @@ CONTAINS
     ALLOCATE(Jobani2(nions))
     ALLOCATE(Joi2p(nions))
     ALLOCATE(J1i2p(nions))
-    ALLOCATE(Joi2c(nions))
 
     mi(:,:) = Ai(:,:)*mp
 
@@ -368,10 +367,8 @@ CONTAINS
     ALLOCATE( modeshift (dimx, dimn) ); modeshift=0.
     ALLOCATE( modeshift2 (dimx, dimn) ); modeshift2=0.
     ALLOCATE( distan (dimx, dimn) ); distan=0.
-    ALLOCATE( FLRec (dimx, dimn) ); FLRec=0.
     ALLOCATE( FLRep (dimx, dimn) ); FLRep=0.
     !Real 3D arrays with 3rd dimension equal to number of ions
-    ALLOCATE( FLRic (dimx, dimn,nions) ); FLRic=0.
     ALLOCATE( FLRip (dimx, dimn,nions) ); FLRip=0.
     !Real 3D arrays with 3rd dimension equal to number of solutions searched for
     ALLOCATE( gamma (dimx, dimn, numsols) ); gamma=0.
@@ -552,7 +549,6 @@ CONTAINS
     DEALLOCATE(Jobani2)
     DEALLOCATE(Joi2p)
     DEALLOCATE(J1i2p)
-    DEALLOCATE(Joi2c)
     DEALLOCATE( krmmuITG)
     DEALLOCATE( krmmuETG)
     DEALLOCATE( kperp2 )
@@ -561,8 +557,6 @@ CONTAINS
     DEALLOCATE( modeshift2 )
     DEALLOCATE( distan )
     DEALLOCATE( Athi )
-    DEALLOCATE( FLRic )
-    DEALLOCATE( FLRec )
     DEALLOCATE( FLRip )
     DEALLOCATE( FLRep )
 
@@ -756,9 +750,9 @@ CONTAINS
     ! Collect all output into all cores
     INTEGER :: ierr,myrank, i, nproc
 
-    REAL(KIND=DBL), DIMENSION(dimx,dimn) :: distantmp,FLRectmp,FLReptmp
+    REAL(KIND=DBL), DIMENSION(dimx,dimn) :: distantmp,FLReptmp
     REAL(KIND=DBL), DIMENSION(dimx,dimn,numsols) :: gammatmp, Ladiatmp
-    REAL(KIND=DBL), DIMENSION(dimx,dimn,nions) :: FLRiptmp, FLRictmp
+    REAL(KIND=DBL), DIMENSION(dimx,dimn,nions) :: FLRiptmp
     REAL(KIND=DBL), DIMENSION(dimx,dimn,0:nions,0:9) :: ecoefsgautmp
     COMPLEX(KIND=DBL), DIMENSION(dimx,dimn) :: modewidthtmp, modeshifttmp,jon_modewidthtmp, jon_modeshifttmp,cot_modewidthtmp, cot_modeshifttmp,old_modewidthtmp, old_modeshifttmp
     COMPLEX(KIND=DBL), DIMENSION(dimx,dimn) :: ommaxtmp, solflutmp,jon_solflutmp,ana_solflutmp,cot_solflutmp
@@ -781,11 +775,9 @@ CONTAINS
     CALL MPI_AllReduce(old_modewidth,old_modewidthtmp,dimx*dimn,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
     CALL MPI_AllReduce(old_modeshift,old_modeshifttmp,dimx*dimn,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
 
-    CALL MPI_AllReduce(FLRec,FLRectmp,dimx*dimn,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
     CALL MPI_AllReduce(FLRep,FLReptmp,dimx*dimn,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
     CALL MPI_AllReduce(gamma,gammatmp,dimx*dimn*numsols,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
     CALL MPI_AllReduce(Ladia,Ladiatmp,dimx*dimn*numsols,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
-    CALL MPI_AllReduce(FLRic,FLRictmp,dimx*dimn*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
     CALL MPI_AllReduce(FLRip,FLRiptmp,dimx*dimn*nions,MPI_DOUBLE_PRECISION,MPI_SUM,mpi_comm_world,ierr)
     CALL MPI_AllReduce(ommax,ommaxtmp,dimx*dimn,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
     CALL MPI_AllReduce(solflu,solflutmp,dimx*dimn,MPI_DOUBLE_COMPLEX,MPI_SUM,mpi_comm_world,ierr)
@@ -854,12 +846,10 @@ CONTAINS
     old_modeshift=old_modeshifttmp
 
     distan=distantmp
-    FLRec=FLRectmp
     FLRep=FLReptmp
     gamma=gammatmp
     Ladia=Ladiatmp
     FLRip=FLRiptmp
-    FLRic=FLRictmp
     ommax=ommaxtmp
     solflu=solflutmp
     jon_solflu=jon_solflutmp

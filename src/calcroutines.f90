@@ -174,42 +174,17 @@ CONTAINS
        CALL makeFLRtermsrot(p,nu)
        FLRep(p,nu) = Joe2p !output
        FLRip(p,nu,:) = Joi2p(:)
-       FLRec(p,nu) = Joe2c 
-       FLRic(p,nu,:) = Joi2c(:) 
     ELSE
        CALL makeFLRterms(p,nu)
        FLRep(p,nu) = Joe2p !output
        FLRip(p,nu,:) = Joi2p(:)
-       FLRec(p,nu) = Joe2c 
-       FLRic(p,nu,:) = Joi2c(:) 
     ENDIF
-
-    !DEBUGGING
-!!$    WRITE(*,*) 'Joe2p',Joe2p
-!!$    WRITE(*,*) 'Joe2c',Joe2c
-!!$    WRITE(*,*) 'Joi2p',Joi2p
-!!$    WRITE(*,*) 'Joi2c',Joi2c
-    !STOP
-    !*************************
 
     !used to pass variables in <Vpar^n> calculations below
     plam = p
     nulam = nu
     maxklam =   ABS(pi/(distan(p,nu)*normkr)) 
     minklam = - maxklam
-
-    !Calculate sin^2(theta/2) weighted against the eigenfunction. At the moment not used
-!!$    sin2th = d01ahf(minklam,maxklam,relacc1,npts,relerr,sin2thint,lw,ifailloc)
-!!$    IF (ifailloc /= 0) THEN
-!!$       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I0,A,I0)") 'ifailloc = ',ifailloc,&
-!!$            &'. Abnormal termination of sin2th integration at p=',p,', nu=',nu
-!!$    ENDIF
-
-!!$    alamnorm=d01ahf(0.,1.-2.*epsilon(p),relacc1,npts,relerr,alamnormint,lw,ifailloc) !Normalization for pitch angle integrations
-!!$    IF (ifailloc /= 0) THEN
-!!$       IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I7,A,I3)") 'ifailloc = ',ifailloc,&
-!!$            &'. Abnormal termination of alamnorm integration at p=',p,', nu=',nu
-!!$    ENDIF
 
     alamnorm = fc(p) !to be consistent with passing particle fraction
 
@@ -218,8 +193,6 @@ CONTAINS
        IF (verbose .EQV. .TRUE.) WRITE(stderr,"(A,I0,A,I7,A,I3)") 'ifailloc = ',ifailloc,&
             &'. Abnormal termination of alam1 integration at p=',p,', nu=',nu
     ENDIF
-!!$    WRITE(*,*) 'alamnorm,fc(p)',p,nu,alamnorm,fc(p)
-!!$    WRITE(*,*) 'alam1,alam1*alamnorm/fc(p),1/SQRT(3)',alam1,alam1*alamnorm/fc(p),1./SQRT(3.)
 
     !pitch angle average of (1-lambda*b)
     alam2=d01ahf(0.,1.-2.*epsilon(p),relacc1,npts,relerr,alam2int,lw,ifailloc)/alamnorm !pitch angle average of (1-lambda*b)
@@ -246,12 +219,6 @@ CONTAINS
             &'. Abnormal termination of alam5 integration at p=',p,', nu=',nu
     ENDIF
 
-!!$    alam1=1. !pitch angle average of (1-lambda*b)^1/2
-!!$    alam2=1. !pitch angle average of (1-lambda*b)
-!!$    alam3=1. !pitch angle average of (1-lambda*b)^3/2
-!!$    alam4=1. !pitch angle average of (1-lambda*b)^2
-!!$    alam5=1. !pitch angle average of (1-lambda*b)^5/2
-
     !Set the transit frequency
     !    qRd = qx(p)*Ro(p)*d*SQRT(3._DBL)
     qRd = qx(p)*Ro(p)*d*1./alam1
@@ -269,14 +236,6 @@ CONTAINS
 
     !Set maximum bound of contour locations based on diamagnetic frequency
     ommax(p,nu) = om0 + REAL(solflu(p,nu))/2. !divisor sets max omega ratio to diamagnetic frequency
-
-    !Set maximum bound of contour locations based on heritage assumptions (not clear to me (JC))
-
-    !    IF (ETG_flag(nu) .EQV. .FALSE.) THEN
-    !       ommax(p,nu) = om0+MAX(2.*ABS(Tex(p)),2.*ABS(Tix(p,1)/Zi(p,1)),2.*ABS(Athi(1)/(nwg)))
-    !    ELSE
-    !       ommax(p,nu) = om0+MIN(MAX(2.*ABS(Tex(p)),1.5*ABS(Athe/(nwg))),12.)
-    !    ENDIF
 
     omegmax=ommax(p,nu) ! used in calculsol for maximum boundary of allowed solution
 
