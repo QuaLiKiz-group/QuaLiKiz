@@ -733,13 +733,25 @@ CONTAINS
 !!$    WRITE(stdout,*) 'Nenv =', Nenv
     !******************************
 
-    !If, despite refining the segments, the angle jumps are too high, then
+    !If, despite refining the segments, the angle jumps are too high,
     !and also the phase is not close to an integer, then the contour was problematic
     !and the exact solution is not sought out
     IF ( (maxgradanglespi > maxangle) .AND. ( ABS(Nenv-NN) > 0.01 ) )  THEN 
        Nsolrat = Nsolrat+NN; NN = 0
     END IF
 
+    !If there is more than one solution but the phase is not close to an integer, drop the last solution
+    IF ( (NN > 1) .AND. (ABS(Nenv-NN)>0.1) ) THEN
+       NN=FLOOR(Nenv)
+       WRITE(stderr,'(A,I7,A,I2,A)') 'Main contour phase: solutions > 1 and partial integer found in single contour! Flooring solution down to lower integer. (p,nu)=(',p,',',nu,')'
+    ENDIF
+
+    !If somehow NN>numsols, floor NN to numsols
+    IF ( (NN > numsols) ) THEN
+       NN=numsols
+       WRITE(stderr,'(A,I7,A,I2,A)') 'Main contour phase: solutions > numsols in single contour! Flooring solutions down to numsols. (p,nu)=(',p,',',nu,')'       
+    ENDIF
+    
     IF (NN == 0) THEN
        ! No solutions sought for!
     ELSE
@@ -912,6 +924,23 @@ CONTAINS
           END IF
        END DO
        NN=NNbck
+
+       !Solution cleanup: all solutions within soldel*100 percent. soldel found in datcal
+       !of a previously found solution (from same contour) is set to zero             
+       IF (NN > 0) THEN
+          DO j = 1,numsols-1
+             DO k = j+1,numsols
+             IF (ABS(soll(j)) > epsD) THEN !only compare to non-zero solutions in soll
+                IF (ABS(soll(k)-soll(j))/ABS(soll(j)) < soldel) THEN
+                   soll(k) = (0.,0.)
+                   fdsoll(k) = (0.,0.)
+                   WRITE(stderr,'(A,I7,A,I3,A)') 'For p=',p,' nu=,',nu,'. Warning: multiple identical eigenfrequencies found in same contour (and only one kept)'
+                ENDIF
+             ENDIF
+             ENDDO
+          ENDDO
+       ENDIF
+
 
        DEALLOCATE ( csolint )
        DEALLOCATE ( solint )
