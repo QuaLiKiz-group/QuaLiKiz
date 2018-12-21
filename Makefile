@@ -19,7 +19,7 @@ QUALIKIZ_LIBS_CLEAN?=$(QUALIKIZ_LIBS:%=%.clean)
 .PHONY: $(LIBNAME) distclean realclean dump_variables $(QUALIKIZ_LIBS_CLEAN)
 
 QualiKiz: $(QUALIKIZ_LIBS)
-	make -C $(QUALIKIZ_SRC) QuaLiKiz
+	$(MAKE) -C $(QUALIKIZ_SRC) QuaLiKiz
 	cp -f $(QUALIKIZ_SRC)/QuaLiKiz .
 
 
@@ -31,7 +31,7 @@ $(LIBNAME): $(QUALIKIZ_LIBS) $(QUALIKIZ_SRC)/qlk_tci_module.mod $(QUALIKIZ_SRC)/
 	ar vr $(LIBNAME) $(wildcard $(QUALIKIZ_SRC)/*.o)
 
 $(QUALIKIZ_SRC)/qlk_tci_module.mod:
-	make -C $(QUALIKIZ_SRC) qlk_tci_module.mod
+	$(MAKE) -C $(QUALIKIZ_SRC) qlk_tci_module.mod
 
 
 $(QUALIKIZ_SRC)/Makefile.inc:
@@ -42,16 +42,16 @@ libs: $(QUALIKIZ_LIBS)
 
 
 $(QUALIKIZ_LIBS):
-	make -C $(@D) $(@F)
+	$(MAKE) -C $(@D) $(@F)
 
 
 $(QUALIKIZ_LIBS_CLEAN):
 	@echo cleaning $(@D)
-	-make -C $(@D) distclean
+	-$(MAKE) -C $(@D) distclean
 
 
 clean: $(QUALIKIZ_LIBS_CLEAN)
-	make -C $(QUALIKIZ_SRC) distclean
+	$(MAKE) -C $(QUALIKIZ_SRC) distclean
 
 
 distclean realclean: clean
