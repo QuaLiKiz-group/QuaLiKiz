@@ -218,6 +218,25 @@ CONTAINS
     !Define auxilliary variables
     gamGB(:)=csou(:)/Rmin(:) !gyrobohm 1/s unit
 
+    !Initialising of auxilliary varibles
+    DO ir=1,dimx
+       DO j = 1,dimn
+          smagn(ir,j)=smag(ir) !2D versions of smag and qx useful for calculations
+          qxn(ir,j)=qx(ir)
+          kteta(ir,j)  = ntor(ir,j)*qx(ir)/(Rmin(ir)*x(ir))  
+          kthr(ir,j)   = ntor(ir,j)*qx(ir)*rhostar(ir)/x(ir)
+          nwgmat(ir,j) = ntor(ir,j)*wg(ir)
+          solflu_SI(ir,j) = solflu(ir,j)*nwgmat(ir,j)
+          solflu_GB(ir,j) = solflu_SI(ir,j)/gamGB(ir)
+          DO k=1,numsols
+             gam_SI(ir,j,k)=AIMAG(sol(ir,j,k))*nwgmat(ir,j)
+             gam_GB(ir,j,k)=AIMAG(sol(ir,j,k))*nwgmat(ir,j)/gamGB(ir)
+             ome_SI(ir,j,k)=REAL(sol(ir,j,k))*nwgmat(ir,j)
+             ome_GB(ir,j,k)=REAL(sol(ir,j,k))*nwgmat(ir,j)/gamGB(ir)
+          ENDDO
+       ENDDO
+    ENDDO
+
     !Find index of first ETG-scale mode (if it exists)
     ETGind=0
     DO j=1,dimn
@@ -294,24 +313,6 @@ CONTAINS
              IF (doit==nproc) doit=0 
              CYCLE
           ENDIF
-
-          DO j = 1,dimn
-             smagn(ir,j)=smag(ir) !2D versions of smag and qx useful for calculations
-             qxn(ir,j)=qx(ir)
-             kteta(ir,j)  = ntor(ir,j)*qx(ir)/(Rmin(ir)*x(ir))  
-             kthr(ir,j)   = ntor(ir,j)*qx(ir)*rhostar(ir)/x(ir)
-             nwgmat(ir,j) = ntor(ir,j)*wg(ir)
-             solflu_SI(ir,j) = solflu(ir,j)*nwgmat(ir,j)
-             solflu_GB(ir,j) = solflu_SI(ir,j)/gamGB(ir)
-
-             DO k=1,numsols
-                gam_SI(ir,j,k)=AIMAG(sol(ir,j,k))*nwgmat(ir,j)
-                gam_GB(ir,j,k)=AIMAG(sol(ir,j,k))*nwgmat(ir,j)/gamGB(ir)
-                ome_SI(ir,j,k)=REAL(sol(ir,j,k))*nwgmat(ir,j)
-                ome_GB(ir,j,k)=REAL(sol(ir,j,k))*nwgmat(ir,j)/gamGB(ir)
-             END DO
-
-          END DO
 
           !CALCULATE NEW NON-LINEAR CONTRIBUTION TO Kx (JC 12.2011)
           rhos=SQRT(Tex(ir)*1d3*qe*mi(ir,1))/(qe*Bo(ir)) !Larmor radius with respect to sound speed (no sqrt(2))
