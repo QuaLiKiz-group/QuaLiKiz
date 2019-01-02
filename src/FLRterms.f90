@@ -20,6 +20,8 @@ CONTAINS
 
     maxFLR =   ABS(2*pi/(REAL(mwidth)*normkr))
     minFLR = - maxFLR
+    minFLR_cubature(1) = minFLR
+    maxFLR_cubature(1) = maxFLR
 
     !Allocate work arrays for integration routine
     ALLOCATE(alist(limit))
