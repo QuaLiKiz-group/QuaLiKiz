@@ -1,3 +1,5 @@
+QuaLiKiz has moved to gitlab: https://gitlab.com/qualikiz-group/QuaLiKiz
+
 # QuaLiKiz
 QuaLiKiz is a quasilinear gyrokinetic code rapid enough to ease systematic interface with experiments. The quasilinear approximation is justified over a wide range of tokamak core parameters where nonlinear and quasilinear turbulent fluxes have been shown to agree. QuaLiKiz computes quasilinear gyrokinetic turbulent heat, particle and angular momentum fluxes. It is coupled in integrated modelling platforms such as CRONOS and JETTO. QuaLiKiz is available to all users. It allows for extensive stand-alone interpretative analysis and for first principle based integrated predictive modelling.
 
